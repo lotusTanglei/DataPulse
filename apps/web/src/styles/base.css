@@ -1,0 +1,107 @@
+:root {
+  color: #eef6ff;
+  background: #08111f;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 48px 24px;
+  background:
+    radial-gradient(circle at 15% 20%, rgb(32 114 255 / 18%), transparent 35%),
+    radial-gradient(circle at 85% 75%, rgb(16 222 189 / 12%), transparent 38%),
+    #08111f;
+}
+
+.hero {
+  width: min(720px, 100%);
+  padding: 56px;
+  border: 1px solid rgb(148 188 255 / 18%);
+  border-radius: 28px;
+  background: rgb(11 26 47 / 76%);
+  box-shadow: 0 30px 90px rgb(0 0 0 / 28%);
+  backdrop-filter: blur(16px);
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: #62e4c7;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(3rem, 10vw, 6.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
+}
+
+.vision {
+  max-width: 34rem;
+  margin: 28px 0 36px;
+  color: #aebfd5;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.7;
+}
+
+.server-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  margin: 0;
+  padding: 7px 13px;
+  border: 1px solid rgb(148 188 255 / 20%);
+  border-radius: 999px;
+  color: #9fb0c4;
+  background: rgb(255 255 255 / 4%);
+  font: 600 0.8rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.server-status::before {
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #e6ad55;
+  content: "";
+}
+
+.server-status[data-state="available"]::before {
+  background: #62e4c7;
+}
+
+.server-status[data-state="unavailable"]::before {
+  background: #ff7189;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 36px 28px;
+  }
+}

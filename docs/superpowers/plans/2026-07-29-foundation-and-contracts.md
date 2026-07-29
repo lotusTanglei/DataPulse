@@ -305,7 +305,7 @@ Create the root `package.json`:
 {
   "name": "datapulse",
   "private": true,
-  "packageManager": "pnpm@10",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev:web": "pnpm --filter @datapulse/web dev",
     "test:web": "pnpm --filter @datapulse/web test",
