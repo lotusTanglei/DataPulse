@@ -1,0 +1,25 @@
+[project]
+name = "datapulse-server"
+version = "0.1.0"
+description = "DataPulse API server"
+requires-python = ">=3.13,<3.15"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "pydantic-settings>=2.7,<3",
+    "uvicorn[standard]>=0.34,<1",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.9.1",
+    "pytest>=8.3,<9",
+    "pytest-cov>=6,<8",
+    "ruff>=0.9,<1",
+]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datapulse"]

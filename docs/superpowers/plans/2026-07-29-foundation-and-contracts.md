@@ -44,6 +44,7 @@ This is the first independently testable subsystem plan. Later plans, created on
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── pyproject.toml
+├── .python-version
 ├── apps
 │   ├── server
 │   │   ├── pyproject.toml
@@ -106,6 +107,7 @@ The root owns workspace commands. `apps/server` owns runtime Python code. `apps/
 - Create: `.editorconfig`
 - Create: `.gitignore`
 - Create: `LICENSE`
+- Create: `.python-version`
 - Create: `pyproject.toml`
 - Create: `apps/server/pyproject.toml`
 - Create: `apps/server/src/datapulse/__init__.py`
@@ -158,7 +160,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "httpx>=0.28,<1",
+  "httpx2>=2.9,<3",
   "pytest>=8.3,<9",
   "pytest-cov>=6,<8",
   "ruff>=0.9,<1",
@@ -172,7 +174,9 @@ build-backend = "hatchling.build"
 packages = ["src/datapulse"]
 ```
 
-Run `uv sync --all-packages --group dev` to create `.venv` and `uv.lock`. Do not request or accept prerelease packages.
+Run `uv python install 3.13`, `uv python pin 3.13`, and
+`uv sync --all-packages --group dev --python 3.13` to create `.python-version`, `.venv`,
+and `uv.lock`. Do not request or accept prerelease packages.
 
 - [ ] **Step 3: Write the failing health endpoint test**
 
@@ -258,7 +262,7 @@ Expected: one test passes; Ruff reports no errors or formatting changes.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add .editorconfig .gitignore LICENSE pyproject.toml uv.lock apps/server
+git add .editorconfig .gitignore .python-version LICENSE pyproject.toml uv.lock apps/server
 git commit -m "chore: bootstrap DataPulse backend"
 ```
 
