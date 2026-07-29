@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  foundation:
+    name: Foundation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --all-packages --group dev --frozen
+
+      - name: Install JavaScript dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify contracts, backend, and Web
+        run: pnpm verify
+
+      - name: Check Python style
+        run: |
+          uv run --package datapulse-server ruff check apps/server tools
+          uv run --package datapulse-server ruff format --check apps/server tools
+
+      - name: Build container
+        run: docker build -t datapulse:test .
+
+  python-314:
+    name: Python 3.14 compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --all-packages --group dev --frozen
+
+      - name: Test backend and contract export
+        run: |
+          uv run --package datapulse-server pytest apps/server/tests
+          uv run --package datapulse-server python tools/export_schemas.py
+          git diff --exit-code -- packages/schema/schemas

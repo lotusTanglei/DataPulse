@@ -8,7 +8,11 @@
     "typecheck:web": "pnpm --filter @datapulse/web typecheck",
     "build:web": "pnpm --filter @datapulse/web build",
     "generate:contracts": "uv run --package datapulse-server python tools/export_schemas.py && node tools/generate_types.mjs",
-    "check:contracts": "uv run --package datapulse-server python tools/check_generated.py"
+    "check:contracts": "uv run --package datapulse-server python tools/check_generated.py",
+    "test": "pnpm test:web && uv run --package datapulse-server pytest",
+    "typecheck": "pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json",
+    "build": "pnpm build:web",
+    "verify": "pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build"
   },
   "devDependencies": {
     "json-schema-to-typescript": "^15.0.0"
