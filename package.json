@@ -6,6 +6,11 @@
     "dev:web": "pnpm --filter @datapulse/web dev",
     "test:web": "pnpm --filter @datapulse/web test",
     "typecheck:web": "pnpm --filter @datapulse/web typecheck",
-    "build:web": "pnpm --filter @datapulse/web build"
+    "build:web": "pnpm --filter @datapulse/web build",
+    "generate:contracts": "uv run --package datapulse-server python tools/export_schemas.py && node tools/generate_types.mjs",
+    "check:contracts": "uv run --package datapulse-server python tools/check_generated.py"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^15.0.0"
   }
 }

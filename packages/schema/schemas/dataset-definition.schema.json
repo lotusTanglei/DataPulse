@@ -1,0 +1,356 @@
+{
+  "$defs": {
+    "CachePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "disabled",
+          "enum": [
+            "disabled",
+            "ttl",
+            "scheduled"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "ttl_seconds": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ttl Seconds"
+        }
+      },
+      "title": "CachePolicy",
+      "type": "object"
+    },
+    "DataType": {
+      "enum": [
+        "boolean",
+        "date",
+        "datetime",
+        "integer",
+        "number",
+        "string"
+      ],
+      "title": "DataType",
+      "type": "string"
+    },
+    "DatasetField": {
+      "additionalProperties": false,
+      "properties": {
+        "data_type": {
+          "$ref": "#/$defs/DataType"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "data_type"
+      ],
+      "title": "DatasetField",
+      "type": "object"
+    },
+    "DatasetParameter": {
+      "additionalProperties": false,
+      "properties": {
+        "data_type": {
+          "$ref": "#/$defs/DataType"
+        },
+        "default": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "data_type"
+      ],
+      "title": "DatasetParameter",
+      "type": "object"
+    },
+    "FileFormat": {
+      "enum": [
+        "csv",
+        "excel",
+        "json",
+        "parquet"
+      ],
+      "title": "FileFormat",
+      "type": "string"
+    },
+    "FileQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "minLength": 1,
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "format": {
+          "$ref": "#/$defs/FileFormat"
+        },
+        "kind": {
+          "const": "file",
+          "default": "file",
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id",
+        "format"
+      ],
+      "title": "FileQuery",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "RefreshPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "cron": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cron"
+        },
+        "interval_seconds": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Seconds"
+        },
+        "mode": {
+          "default": "manual",
+          "enum": [
+            "manual",
+            "interval",
+            "cron"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "title": "RefreshPolicy",
+      "type": "object"
+    },
+    "RestQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "rest",
+          "default": "rest",
+          "title": "Kind",
+          "type": "string"
+        },
+        "method": {
+          "default": "GET",
+          "enum": [
+            "GET",
+            "POST"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "RestQuery",
+      "type": "object"
+    },
+    "SqlQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "sql",
+          "default": "sql",
+          "title": "Kind",
+          "type": "string"
+        },
+        "sql": {
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sql"
+      ],
+      "title": "SqlQuery",
+      "type": "object"
+    },
+    "TableQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "table",
+          "default": "table",
+          "title": "Kind",
+          "type": "string"
+        },
+        "schema_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Name"
+        },
+        "table": {
+          "minLength": 1,
+          "title": "Table",
+          "type": "string"
+        }
+      },
+      "required": [
+        "table"
+      ],
+      "title": "TableQuery",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/dataset-definition.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "cache": {
+      "$ref": "#/$defs/CachePolicy"
+    },
+    "data_source_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Data Source Id"
+    },
+    "fields": {
+      "items": {
+        "$ref": "#/$defs/DatasetField"
+      },
+      "title": "Fields",
+      "type": "array"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "max_rows": {
+      "default": 5000,
+      "maximum": 5000,
+      "minimum": 1,
+      "title": "Max Rows",
+      "type": "integer"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/DatasetParameter"
+      },
+      "title": "Parameters",
+      "type": "array"
+    },
+    "query": {
+      "discriminator": {
+        "mapping": {
+          "file": "#/$defs/FileQuery",
+          "rest": "#/$defs/RestQuery",
+          "sql": "#/$defs/SqlQuery",
+          "table": "#/$defs/TableQuery"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/TableQuery"
+        },
+        {
+          "$ref": "#/$defs/SqlQuery"
+        },
+        {
+          "$ref": "#/$defs/FileQuery"
+        },
+        {
+          "$ref": "#/$defs/RestQuery"
+        }
+      ],
+      "title": "Query"
+    },
+    "refresh": {
+      "$ref": "#/$defs/RefreshPolicy"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "timeout_seconds": {
+      "default": 30,
+      "maximum": 300,
+      "minimum": 1,
+      "title": "Timeout Seconds",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "query"
+  ],
+  "title": "DatasetDefinition",
+  "type": "object"
+}

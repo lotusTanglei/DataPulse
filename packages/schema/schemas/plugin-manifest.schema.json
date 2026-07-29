@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "JsonValue": {},
+    "PluginComponent": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "data_schema": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Data Schema",
+          "type": "object"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "property_schema": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Property Schema",
+          "type": "object"
+        },
+        "type": {
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "category",
+        "property_schema",
+        "data_schema"
+      ],
+      "title": "PluginComponent",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/plugin-manifest.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "compatible_api": {
+      "minLength": 1,
+      "title": "Compatible Api",
+      "type": "string"
+    },
+    "components": {
+      "items": {
+        "$ref": "#/$defs/PluginComponent"
+      },
+      "minItems": 1,
+      "title": "Components",
+      "type": "array"
+    },
+    "entry": {
+      "minLength": 1,
+      "title": "Entry",
+      "type": "string"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "version": {
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "compatible_api",
+    "name",
+    "entry",
+    "components"
+  ],
+  "title": "PluginManifest",
+  "type": "object"
+}

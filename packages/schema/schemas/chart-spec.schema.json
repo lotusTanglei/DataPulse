@@ -1,0 +1,199 @@
+{
+  "$defs": {
+    "Aggregation": {
+      "enum": [
+        "none",
+        "sum",
+        "average",
+        "minimum",
+        "maximum",
+        "count",
+        "count_distinct"
+      ],
+      "title": "Aggregation",
+      "type": "string"
+    },
+    "ChartType": {
+      "enum": [
+        "area",
+        "bar",
+        "funnel",
+        "gauge",
+        "line",
+        "map",
+        "pie",
+        "radar",
+        "scatter",
+        "table"
+      ],
+      "title": "ChartType",
+      "type": "string"
+    },
+    "Filter": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/FilterOperator"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        }
+      },
+      "required": [
+        "field",
+        "operator"
+      ],
+      "title": "Filter",
+      "type": "object"
+    },
+    "FilterOperator": {
+      "enum": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "greater_than_or_equal",
+        "less_than",
+        "less_than_or_equal",
+        "in",
+        "not_in",
+        "contains",
+        "between",
+        "is_null",
+        "is_not_null"
+      ],
+      "title": "FilterOperator",
+      "type": "string"
+    },
+    "JsonValue": {},
+    "Measure": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation": {
+          "$ref": "#/$defs/Aggregation",
+          "default": "none"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "Measure",
+      "type": "object"
+    },
+    "Sort": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "$ref": "#/$defs/SortDirection",
+          "default": "asc"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "Sort",
+      "type": "object"
+    },
+    "SortDirection": {
+      "enum": [
+        "asc",
+        "desc"
+      ],
+      "title": "SortDirection",
+      "type": "string"
+    },
+    "VisualSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/ChartType"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "VisualSpec",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/chart-spec.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "dataset_id": {
+      "minLength": 1,
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "dimensions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Dimensions",
+      "type": "array"
+    },
+    "filters": {
+      "items": {
+        "$ref": "#/$defs/Filter"
+      },
+      "title": "Filters",
+      "type": "array"
+    },
+    "limit": {
+      "default": 1000,
+      "maximum": 5000,
+      "minimum": 1,
+      "title": "Limit",
+      "type": "integer"
+    },
+    "measures": {
+      "items": {
+        "$ref": "#/$defs/Measure"
+      },
+      "title": "Measures",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "sort": {
+      "items": {
+        "$ref": "#/$defs/Sort"
+      },
+      "title": "Sort",
+      "type": "array"
+    },
+    "visual": {
+      "$ref": "#/$defs/VisualSpec"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "visual"
+  ],
+  "title": "ChartSpec",
+  "type": "object"
+}

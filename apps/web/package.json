@@ -9,6 +9,7 @@
     "build": "vue-tsc --noEmit && vite build"
   },
   "dependencies": {
+    "@datapulse/schema": "workspace:*",
     "pinia": "^3.0.0",
     "vue": "^3.5.0"
   },

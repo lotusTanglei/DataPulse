@@ -1,0 +1,248 @@
+{
+  "$defs": {
+    "AiQuestionMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "question": {
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "aiQuestion",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "request_id",
+        "question"
+      ],
+      "title": "AiQuestionMessage",
+      "type": "object"
+    },
+    "ErrorMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "type": {
+          "const": "error",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "code",
+        "message"
+      ],
+      "title": "ErrorMessage",
+      "type": "object"
+    },
+    "ExportImageMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "png",
+          "enum": [
+            "png",
+            "jpeg"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "exportImage",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "request_id"
+      ],
+      "title": "ExportImageMessage",
+      "type": "object"
+    },
+    "FullscreenMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "fullscreen",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "request_id",
+        "enabled"
+      ],
+      "title": "FullscreenMessage",
+      "type": "object"
+    },
+    "GetParametersMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "getParameters",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "request_id"
+      ],
+      "title": "GetParametersMessage",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "ReadyMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "ready",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "ReadyMessage",
+      "type": "object"
+    },
+    "RefreshMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "refresh",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "RefreshMessage",
+      "type": "object"
+    },
+    "SetParametersMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "parameters": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "setParameters",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "request_id",
+        "parameters"
+      ],
+      "title": "SetParametersMessage",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/embed-message.schema.json",
+  "discriminator": {
+    "mapping": {
+      "aiQuestion": "#/$defs/AiQuestionMessage",
+      "error": "#/$defs/ErrorMessage",
+      "exportImage": "#/$defs/ExportImageMessage",
+      "fullscreen": "#/$defs/FullscreenMessage",
+      "getParameters": "#/$defs/GetParametersMessage",
+      "ready": "#/$defs/ReadyMessage",
+      "refresh": "#/$defs/RefreshMessage",
+      "setParameters": "#/$defs/SetParametersMessage"
+    },
+    "propertyName": "type"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ReadyMessage"
+    },
+    {
+      "$ref": "#/$defs/RefreshMessage"
+    },
+    {
+      "$ref": "#/$defs/SetParametersMessage"
+    },
+    {
+      "$ref": "#/$defs/GetParametersMessage"
+    },
+    {
+      "$ref": "#/$defs/FullscreenMessage"
+    },
+    {
+      "$ref": "#/$defs/ExportImageMessage"
+    },
+    {
+      "$ref": "#/$defs/ErrorMessage"
+    },
+    {
+      "$ref": "#/$defs/AiQuestionMessage"
+    }
+  ],
+  "title": "EmbedMessageEnvelope"
+}

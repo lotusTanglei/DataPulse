@@ -1,0 +1,9 @@
+{
+  "name": "@datapulse/schema",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}
