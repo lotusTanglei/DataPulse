@@ -114,7 +114,21 @@ function setParameter(
   value: JsonValue,
   source: ParameterMutationSource = "runtime",
 ): void {
-  parameterState.set(name, value, source);
+  setParameters({ [name]: value }, source);
+}
+
+function setParameters(
+  values: RuntimeParameters,
+  source: ParameterMutationSource = "runtime",
+): void {
+  const nextState = createParameterState(
+    props.document.parameters ?? [],
+    parameterState.values(),
+  );
+  for (const [name, value] of Object.entries(values)) {
+    nextState.set(name, value, source);
+  }
+  parameterState = nextState;
   parameterVersion.value += 1;
   const parameters = parameterState.values();
   emit("parametersChange", parameters);
@@ -198,6 +212,7 @@ defineExpose({
   getParameters: () => parameterState.values(),
   refresh,
   setParameter,
+  setParameters,
 });
 </script>
 

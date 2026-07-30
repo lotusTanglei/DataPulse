@@ -69,6 +69,58 @@ test("validates defaults, initial values, allowed values, and host mutability", 
   );
 });
 
+test("applies host parameter batches atomically", () => {
+  const document: DashboardDocument = {
+    schema_version: 1,
+    canvas: { width: 1920, height: 1080 },
+    parameters: [
+      {
+        id: "region",
+        name: "region",
+        data_type: "string",
+        default: "east",
+        mutable: true,
+        allowed_values: ["east", "west"],
+      },
+      {
+        id: "year",
+        name: "year",
+        data_type: "integer",
+        default: 2026,
+        mutable: false,
+      },
+    ],
+    components: [],
+  };
+  const wrapper = mount(ScreenRuntime, {
+    props: {
+      document,
+      loadAsset: vi.fn(),
+      mode: "embed",
+      queryComponent: vi.fn(),
+    },
+  });
+  const runtime = wrapper.vm as unknown as {
+    getParameters(): Record<string, unknown>;
+    setParameters(
+      values: Record<string, string | number>,
+      source: "host",
+    ): void;
+  };
+
+  expect(() =>
+    runtime.setParameters({ region: "west", year: 2027 }, "host"),
+  ).toThrow("cannot be changed by the host");
+  expect(runtime.getParameters()).toEqual({ region: "east", year: 2026 });
+
+  runtime.setParameters({ region: "west" }, "host");
+  expect(runtime.getParameters()).toEqual({ region: "west", year: 2026 });
+  expect(wrapper.emitted("parametersChange")).toEqual([
+    [{ region: "west", year: 2026 }],
+  ]);
+  wrapper.unmount();
+});
+
 test("maps primitive theme tokens to scoped CSS custom properties", () => {
   expect(
     resolveTheme({

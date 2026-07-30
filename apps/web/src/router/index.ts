@@ -59,6 +59,16 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
         meta: { publicPlayer: true, title: "大屏播放" },
       },
       {
+        path: "/embed/:screenId",
+        name: "screen-embed",
+        component: PlayerView,
+        props: (route) => ({
+          mode: "embed",
+          screenId: String(route.params.screenId),
+        }),
+        meta: { publicPlayer: true, title: "嵌入大屏" },
+      },
+      {
         path: "/studio",
         component: StudioShell,
         children: [
