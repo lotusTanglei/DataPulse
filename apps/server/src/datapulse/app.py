@@ -7,6 +7,7 @@ from datapulse.errors import install_error_handlers, request_id_middleware
 from datapulse.lifespan import create_lifespan
 from datapulse.screen.api import router as screen_router
 from datapulse.screen.asset_api import router as screen_asset_router
+from datapulse.screen.runtime_api import router as screen_runtime_router
 from datapulse.settings import Settings
 from datapulse.static import create_spa_router
 
@@ -30,6 +31,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(dataset_router)
     app.include_router(screen_router)
     app.include_router(screen_asset_router)
+    app.include_router(screen_runtime_router)
 
     if resolved.static_dir is not None:
         app.include_router(create_spa_router(resolved.static_dir))

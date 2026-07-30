@@ -30,6 +30,7 @@ from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
 from datapulse.screen.assets import AssetService, ScreenAssetRepository
 from datapulse.screen.repository import ScreenRepository
+from datapulse.screen.runtime import ScreenRuntimeService
 from datapulse.screen.service import ScreenService
 from datapulse.settings import Settings
 
@@ -113,17 +114,24 @@ def create_lifespan(
                 engine_manager=datasource_engine_manager,
                 query_executor=query_executor,
             )
+            dataset_repository = DatasetRepository(session_factory)
             app.state.dataset_service = DatasetService(
-                repository=DatasetRepository(session_factory),
+                repository=dataset_repository,
                 datasource_service=app.state.datasource_service,
                 registry=connector_registry,
             )
+            screen_repository = ScreenRepository(session_factory)
             app.state.screen_service = ScreenService(
-                repository=ScreenRepository(session_factory),
+                repository=screen_repository,
             )
             app.state.asset_service = AssetService(
                 repository=ScreenAssetRepository(session_factory),
                 assets_dir=settings.resolved_assets_dir(),
+            )
+            app.state.screen_runtime_service = ScreenRuntimeService(
+                screen_repository=screen_repository,
+                dataset_repository=dataset_repository,
+                datasource_service=app.state.datasource_service,
             )
 
             if not await repository.has_admin():
