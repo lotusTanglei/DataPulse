@@ -12,6 +12,7 @@ dependencies = [
     "pwdlib[argon2]>=0.2,<1",
     "pydantic-settings>=2.7,<3",
     "sqlalchemy[asyncio]>=2,<3",
+    "sqlglot>=25,<40",
     "uvicorn[standard]>=0.34,<1",
 ]
 
