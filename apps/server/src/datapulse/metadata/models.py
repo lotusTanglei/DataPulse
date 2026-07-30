@@ -117,6 +117,23 @@ class DatasetRecord(Base):
     )
 
 
+class ScreenRecord(Base):
+    __tablename__ = "screen"
+    __table_args__ = (UniqueConstraint("name", name="uq_screen_name"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    draft_document: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    draft_revision: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    published_document: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    published_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        UTCDateTime(), default=utc_now, onupdate=utc_now, nullable=False
+    )
+
+
 class QueryRunRecord(Base):
     __tablename__ = "query_run"
 

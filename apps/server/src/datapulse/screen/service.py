@@ -1,0 +1,95 @@
+from collections.abc import Callable
+from uuid import uuid4
+
+from datapulse.contracts.dashboard import DashboardDocument
+from datapulse.screen.models import (
+    ScreenCreate,
+    ScreenDraftUpdate,
+    ScreenResponse,
+    ScreenSummary,
+)
+from datapulse.screen.repository import ScreenRepository
+
+
+def _empty_document() -> DashboardDocument:
+    return DashboardDocument(canvas={"width": 1920, "height": 1080})
+
+
+class ScreenService:
+    def __init__(
+        self,
+        *,
+        repository: ScreenRepository,
+        id_factory: Callable[[], str] | None = None,
+    ) -> None:
+        self._repository = repository
+        self._id_factory = id_factory or (lambda: str(uuid4()))
+
+    async def create(self, data: ScreenCreate) -> ScreenResponse:
+        return await self._repository.create(
+            data.name,
+            _empty_document(),
+            description=data.description,
+            screen_id=self._id_factory(),
+        )
+
+    async def list(self) -> tuple[ScreenSummary, ...]:
+        screens = await self._repository.list()
+        return tuple(
+            ScreenSummary.model_validate(
+                screen.model_dump(exclude={"draft_document", "published_document"})
+            )
+            for screen in screens
+        )
+
+    async def get(self, screen_id: str) -> ScreenResponse:
+        return await self._repository.get(screen_id)
+
+    async def save_draft(
+        self,
+        screen_id: str,
+        data: ScreenDraftUpdate,
+    ) -> ScreenResponse:
+        if data.draft_document is not None:
+            if data.expected_revision is None:
+                raise ValueError("expected_revision is required when saving a draft.")
+            return await self._repository.save_draft(
+                screen_id,
+                document=data.draft_document,
+                expected_revision=data.expected_revision,
+                name=data.name,
+                description=data.description,
+            )
+        return await self._repository.update_metadata(
+            screen_id,
+            name=data.name,
+            description=data.description,
+        )
+
+    async def copy(self, screen_id: str) -> ScreenResponse:
+        source = await self._repository.get(screen_id)
+        copied_screen_id = self._id_factory()
+        existing_names = {screen.name for screen in await self._repository.list()}
+        base_name = f"{source.name} 副本"
+        copy_name = base_name
+        suffix = 2
+        while copy_name in existing_names:
+            copy_name = f"{base_name} {suffix}"
+            suffix += 1
+        components = tuple(
+            component.model_copy(update={"id": self._id_factory()}, deep=True)
+            for component in source.draft_document.components
+        )
+        document = source.draft_document.model_copy(
+            update={"components": components},
+            deep=True,
+        )
+        return await self._repository.create(
+            copy_name,
+            document,
+            description=source.description,
+            screen_id=copied_screen_id,
+        )
+
+    async def delete(self, screen_id: str) -> None:
+        await self._repository.delete(screen_id)

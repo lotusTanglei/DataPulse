@@ -1,0 +1,126 @@
+from collections.abc import Iterator
+from pathlib import Path
+
+import pytest
+
+from tests.support.app import AppClient, build_test_app
+
+
+@pytest.fixture
+def screen_app(tmp_path: Path) -> Iterator[AppClient]:
+    with build_test_app(tmp_path) as app_client:
+        yield app_client
+
+
+def setup_admin(app_client: AppClient) -> None:
+    response = app_client.client.post(
+        "/api/auth/setup",
+        json={
+            "code": app_client.setup_code,
+            "username": "admin",
+            "password": "long-enough-password",
+        },
+        headers={"Origin": app_client.origin},
+    )
+    assert response.status_code == 201
+
+
+def mutation_headers(app_client: AppClient) -> dict[str, str]:
+    return {
+        "Origin": app_client.origin,
+        "X-CSRF-Token": app_client.client.cookies["datapulse_csrf"],
+    }
+
+
+def test_screen_crud_requires_admin_and_csrf(screen_app: AppClient) -> None:
+    assert screen_app.client.get("/api/admin/screens").status_code == 401
+    setup_admin(screen_app)
+
+    no_csrf = screen_app.client.post(
+        "/api/admin/screens",
+        json={"name": "Operations"},
+        headers={"Origin": screen_app.origin},
+    )
+    assert no_csrf.status_code == 403
+
+    created_response = screen_app.client.post(
+        "/api/admin/screens",
+        json={"name": "Operations", "description": "Live operations"},
+        headers=mutation_headers(screen_app),
+    )
+    assert created_response.status_code == 201
+    created = created_response.json()
+    screen_id = created["id"]
+    assert created["draft_revision"] == 0
+    assert created["draft_document"]["canvas"] == {
+        "width": 1920,
+        "height": 1080,
+        "background": {},
+    }
+    assert created["published_document"] is None
+    assert screen_app.client.get("/api/admin/screens").json()[0]["id"] == screen_id
+    assert screen_app.client.get(f"/api/admin/screens/{screen_id}").json() == created
+
+    duplicate = screen_app.client.post(
+        "/api/admin/screens",
+        json={"name": "Operations"},
+        headers=mutation_headers(screen_app),
+    )
+    assert duplicate.status_code == 409
+    assert duplicate.json()["error"]["code"] == "SCREEN_NAME_CONFLICT"
+
+    renamed = screen_app.client.patch(
+        f"/api/admin/screens/{screen_id}",
+        json={"name": "Operations center"},
+        headers=mutation_headers(screen_app),
+    )
+    assert renamed.status_code == 200
+    assert renamed.json()["name"] == "Operations center"
+
+    copied = screen_app.client.post(
+        f"/api/admin/screens/{screen_id}/copy",
+        headers=mutation_headers(screen_app),
+    )
+    assert copied.status_code == 201
+    assert copied.json()["name"] == "Operations center 副本"
+
+    deleted = screen_app.client.delete(
+        f"/api/admin/screens/{screen_id}",
+        headers=mutation_headers(screen_app),
+    )
+    assert deleted.status_code == 204
+    missing = screen_app.client.get(f"/api/admin/screens/{screen_id}")
+    assert missing.status_code == 404
+    assert missing.json()["error"]["code"] == "SCREEN_NOT_FOUND"
+
+
+def test_screen_draft_save_rejects_stale_revision(screen_app: AppClient) -> None:
+    setup_admin(screen_app)
+    created = screen_app.client.post(
+        "/api/admin/screens",
+        json={"name": "Operations"},
+        headers=mutation_headers(screen_app),
+    ).json()
+    payload = {
+        "expected_revision": 0,
+        "draft_document": {
+            "canvas": {"width": 1920, "height": 1080},
+            "components": [],
+        },
+    }
+
+    saved = screen_app.client.patch(
+        f"/api/admin/screens/{created['id']}",
+        json=payload,
+        headers=mutation_headers(screen_app),
+    )
+    assert saved.status_code == 200
+    assert saved.json()["draft_revision"] == 1
+
+    stale = screen_app.client.patch(
+        f"/api/admin/screens/{created['id']}",
+        json=payload,
+        headers=mutation_headers(screen_app),
+    )
+    assert stale.status_code == 409
+    assert stale.json()["error"]["code"] == "SCREEN_REVISION_CONFLICT"

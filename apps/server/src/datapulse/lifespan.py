@@ -28,6 +28,8 @@ from datapulse.datasource.sqlite import SQLiteConnector
 from datapulse.metadata import create_metadata_engine, create_session_factory
 from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
+from datapulse.screen.repository import ScreenRepository
+from datapulse.screen.service import ScreenService
 from datapulse.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -113,6 +115,9 @@ def create_lifespan(
                 repository=DatasetRepository(session_factory),
                 datasource_service=app.state.datasource_service,
                 registry=connector_registry,
+            )
+            app.state.screen_service = ScreenService(
+                repository=ScreenRepository(session_factory),
             )
 
             if not await repository.has_admin():

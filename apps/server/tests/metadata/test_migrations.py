@@ -19,6 +19,22 @@ def inspect_sqlite_tables(database_path: Path) -> set[str]:
     return {row[0] for row in rows}
 
 
+def inspect_sqlite_columns(database_path: Path, table: str) -> dict[str, tuple[str, bool]]:
+    with sqlite3.connect(database_path) as connection:
+        rows = connection.execute(f"PRAGMA table_info({table})").fetchall()
+    return {row[1]: (row[2], not bool(row[3])) for row in rows}
+
+
+def inspect_sqlite_unique_indexes(database_path: Path, table: str) -> set[tuple[str, ...]]:
+    with sqlite3.connect(database_path) as connection:
+        indexes = connection.execute(f"PRAGMA index_list({table})").fetchall()
+        return {
+            tuple(row[2] for row in connection.execute(f"PRAGMA index_info({index[1]})").fetchall())
+            for index in indexes
+            if index[2]
+        }
+
+
 def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
     database_path = tmp_path / "migration.db"
 
@@ -31,8 +47,16 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
         "data_source",
         "dataset",
         "query_run",
+        "screen",
         "alembic_version",
     } <= inspect_sqlite_tables(database_path)
+    columns = inspect_sqlite_columns(database_path, "screen")
+    assert columns["draft_document"] == ("JSON", False)
+    assert columns["published_document"] == ("JSON", True)
+    assert columns["draft_revision"] == ("INTEGER", False)
+    assert columns["created_at"] == ("DATETIME", False)
+    assert columns["updated_at"] == ("DATETIME", False)
+    assert ("name",) in inspect_sqlite_unique_indexes(database_path, "screen")
 
 
 def test_upgrade_head_uses_configured_data_dir(
