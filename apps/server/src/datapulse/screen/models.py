@@ -29,6 +29,10 @@ class ScreenDraftUpdate(ContractModel):
         return self
 
 
+class ScreenPublish(ContractModel):
+    expected_revision: int = Field(ge=0)
+
+
 class ScreenSummary(ContractModel):
     id: str
     name: NonBlankStr

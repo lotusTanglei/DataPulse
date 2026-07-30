@@ -49,6 +49,19 @@ export function copyScreen(screenId: string): Promise<Screen> {
   );
 }
 
+export function publishScreen(
+  screenId: string,
+  expectedRevision: number,
+): Promise<Screen> {
+  return apiRequest<Screen>(
+    `${SCREENS_PATH}/${encodeURIComponent(screenId)}/publish`,
+    {
+      method: "POST",
+      json: { expected_revision: expectedRevision },
+    },
+  );
+}
+
 export function deleteScreen(screenId: string): Promise<void> {
   return apiRequest<void>(
     `${SCREENS_PATH}/${encodeURIComponent(screenId)}`,

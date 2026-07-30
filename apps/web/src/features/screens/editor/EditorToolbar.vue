@@ -3,8 +3,10 @@ import {
   AlignCenter,
   AlignLeft,
   ArrowLeft,
+  Eye,
   Redo2,
   Save,
+  Send,
   Undo2,
   ZoomIn,
   ZoomOut,
@@ -13,9 +15,13 @@ import { RouterLink } from "vue-router";
 
 import { useScreenEditorStore } from "./store";
 
-defineProps<{ saveLabel: string; zoom: number }>();
+withDefaults(
+  defineProps<{ publishing?: boolean; saveLabel: string; zoom: number }>(),
+  { publishing: false },
+);
 const emit = defineEmits<{
   align: [alignment: "left" | "center"];
+  publish: [];
   zoom: [value: number];
 }>();
 const store = useScreenEditorStore();
@@ -50,9 +56,28 @@ const store = useScreenEditorStore();
     <button class="editor-icon-button" type="button" aria-label="重做" :disabled="!store.canRedo" @click="store.redo">
       <Redo2 :size="16" />
     </button>
+    <RouterLink
+      class="secondary-button editor-save-button"
+      data-action="preview-screen"
+      :to="{ name: 'screen-preview', params: { id: store.screen?.id } }"
+      target="_blank"
+    >
+      <Eye :size="14" />
+      预览
+    </RouterLink>
     <button class="secondary-button editor-save-button" type="button" :disabled="store.saveState === 'saving'" @click="store.saveNow">
       <Save :size="14" />
       保存
+    </button>
+    <button
+      class="primary-button editor-save-button"
+      data-action="publish-screen"
+      type="button"
+      :disabled="publishing || store.saveState === 'saving' || store.saveState === 'conflict'"
+      @click="emit('publish')"
+    >
+      <Send :size="14" />
+      {{ publishing ? "发布中…" : "发布" }}
     </button>
   </header>
 </template>

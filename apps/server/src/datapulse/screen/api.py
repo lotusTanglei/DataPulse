@@ -7,9 +7,11 @@ from datapulse.errors import DataPulseError
 from datapulse.screen.models import (
     ScreenCreate,
     ScreenDraftUpdate,
+    ScreenPublish,
     ScreenResponse,
     ScreenSummary,
 )
+from datapulse.screen.publishing import PublishValidationError
 from datapulse.screen.repository import (
     ScreenDocumentInvalid,
     ScreenNameConflict,
@@ -47,6 +49,12 @@ def _raise_screen_error(error: Exception) -> NoReturn:
         translated = DataPulseError(
             code=error.code,
             message="The screen document is invalid.",
+            status_code=422,
+        )
+    elif isinstance(error, PublishValidationError):
+        translated = DataPulseError(
+            code=error.code,
+            message="The screen cannot be published until its references are valid.",
             status_code=422,
         )
     else:
@@ -104,6 +112,26 @@ async def copy_screen(screen_id: str, request: Request) -> ScreenResponse:
     try:
         return await request.app.state.screen_service.copy(screen_id)
     except (ScreenNotFound, ScreenNameConflict, ScreenDocumentInvalid) as error:
+        _raise_screen_error(error)
+
+
+@router.post("/{screen_id}/publish", dependencies=[Depends(require_csrf)])
+async def publish_screen(
+    screen_id: str,
+    payload: ScreenPublish,
+    request: Request,
+) -> ScreenResponse:
+    try:
+        return await request.app.state.publishing_service.publish(
+            screen_id,
+            expected_revision=payload.expected_revision,
+        )
+    except (
+        ScreenNotFound,
+        ScreenRevisionConflict,
+        ScreenDocumentInvalid,
+        PublishValidationError,
+    ) as error:
         _raise_screen_error(error)
 
 

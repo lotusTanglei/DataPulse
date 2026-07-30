@@ -2,7 +2,9 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
+import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import { publishScreen } from "./api";
 import ComponentLibrary from "./editor/ComponentLibrary.vue";
 import EditorToolbar from "./editor/EditorToolbar.vue";
 import InspectorPanel from "./editor/InspectorPanel.vue";
@@ -14,6 +16,10 @@ const route = useRoute();
 const store = useScreenEditorStore();
 const screenId = computed(() => String(route.params.id));
 const canvas = ref<InstanceType<typeof ScreenCanvas> | null>(null);
+const publishConfirmationOpen = ref(false);
+const publishing = ref(false);
+const publishError = ref<ApiError | null>(null);
+const publishMessage = ref("");
 
 const saveLabel = computed(() => {
   const labels = {
@@ -28,6 +34,44 @@ const saveLabel = computed(() => {
 });
 
 onMounted(() => store.load(screenId.value));
+
+async function requestPublish(): Promise<void> {
+  publishError.value = null;
+  publishMessage.value = "";
+  await store.saveNow();
+  if (store.saveState === "saved") {
+    publishConfirmationOpen.value = true;
+  }
+}
+
+async function confirmPublish(): Promise<void> {
+  if (!store.screen || publishing.value) {
+    return;
+  }
+  publishing.value = true;
+  publishError.value = null;
+  try {
+    const published = await publishScreen(
+      store.screen.id,
+      store.screen.draft_revision,
+    );
+    store.screen = published;
+    publishConfirmationOpen.value = false;
+    publishMessage.value = "发布成功";
+  } catch (reason) {
+    publishError.value =
+      reason instanceof ApiError
+        ? reason
+        : new ApiError({
+            code: "SCREEN_PUBLISH_FAILED",
+            message: "暂时无法发布大屏。",
+            requestId: "",
+            status: 500,
+          });
+  } finally {
+    publishing.value = false;
+  }
+}
 </script>
 
 <template>
@@ -45,11 +89,20 @@ onMounted(() => store.load(screenId.value));
     <template v-else-if="store.screen && store.document">
       <EditorToolbar
         :save-label="saveLabel"
+        :publishing="publishing"
         :zoom="canvas?.zoom ?? 0.5"
         @align="canvas?.alignSelection($event)"
+        @publish="requestPublish"
         @zoom="canvas?.setZoom($event)"
       />
 
+      <InlineNotice v-if="publishMessage" class="editor-conflict" tone="info">
+        <p>{{ publishMessage }}</p>
+      </InlineNotice>
+      <InlineNotice v-if="publishError" class="editor-conflict" tone="error">
+        <p>{{ publishError.message }}</p>
+        <code v-if="publishError.requestId">{{ publishError.requestId }}</code>
+      </InlineNotice>
       <InlineNotice
         v-if="store.saveState === 'conflict'"
         class="editor-conflict"
@@ -69,6 +122,47 @@ onMounted(() => store.load(screenId.value));
         <aside class="editor-panel editor-panel--right" aria-label="属性面板">
           <InspectorPanel />
         </aside>
+      </div>
+
+      <div
+        v-if="publishConfirmationOpen"
+        class="dialog-backdrop"
+        role="presentation"
+        @click.self="publishConfirmationOpen = false"
+      >
+        <section
+          class="dialog-card publish-confirmation"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="publish-confirmation-title"
+        >
+          <div class="dialog-heading">
+            <div>
+              <h2 id="publish-confirmation-title">确认发布大屏</h2>
+              <p>发布将覆盖当前线上大屏，且无法直接回滚。</p>
+            </div>
+          </div>
+          <p>如需备份，请先复制大屏。</p>
+          <div class="dialog-actions">
+            <button
+              class="secondary-button"
+              type="button"
+              :disabled="publishing"
+              @click="publishConfirmationOpen = false"
+            >
+              取消
+            </button>
+            <button
+              class="primary-button"
+              data-action="confirm-publish"
+              type="button"
+              :disabled="publishing"
+              @click="confirmPublish"
+            >
+              {{ publishing ? "发布中…" : "确认发布" }}
+            </button>
+          </div>
+        </section>
       </div>
     </template>
   </section>

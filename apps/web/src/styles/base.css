@@ -1788,9 +1788,89 @@ textarea::placeholder {
 }
 
 .editor-save-button {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
   min-height: 32px;
   padding: 5px 10px;
   font-size: 12px;
+}
+
+.publish-confirmation {
+  width: min(440px, 100%);
+}
+
+.publish-confirmation .dialog-heading {
+  margin-bottom: 12px;
+}
+
+.publish-confirmation .dialog-heading p,
+.publish-confirmation > p {
+  margin: 8px 0 0;
+  color: var(--dp-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.publish-confirmation .dialog-actions {
+  margin-top: 24px;
+}
+
+.player-page {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0b1020;
+}
+
+.player-preview-bar {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--dp-border);
+  background: #fff;
+}
+
+.player-preview-bar > div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.player-preview-bar strong {
+  color: var(--dp-text);
+  font-size: 13px;
+}
+
+.player-preview-bar span {
+  color: var(--dp-muted);
+  font-size: 12px;
+}
+
+.player-preview-bar .secondary-button {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.player-stage {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.player-status {
+  display: grid;
+  height: 100%;
+  margin: 0;
+  place-items: center;
+  color: #cbd5e1;
+  font-size: 13px;
 }
 
 .editor-conflict {

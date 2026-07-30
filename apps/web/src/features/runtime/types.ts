@@ -21,7 +21,7 @@ export type BuiltinComponentType =
   | "builtin.geo_map";
 
 export type DataCapability = "none" | "single" | "table" | "series" | "geo";
-export type RuntimeMode = "editor" | "standalone" | "embed";
+export type RuntimeMode = "editor" | "preview" | "standalone" | "embed";
 
 export interface ComponentDefinition {
   type: BuiltinComponentType;

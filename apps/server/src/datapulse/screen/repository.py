@@ -170,6 +170,39 @@ class ScreenRepository:
             raise ScreenNotFound(screen_id)
         return self._to_response(record)
 
+    async def publish(
+        self,
+        screen_id: str,
+        *,
+        document: DashboardDocument,
+        expected_revision: int,
+    ) -> ScreenResponse:
+        published_at = utc_now()
+        async with self._session_factory.begin() as session:
+            result = await session.execute(
+                update(ScreenRecord)
+                .where(
+                    ScreenRecord.id == screen_id,
+                    ScreenRecord.draft_revision == expected_revision,
+                )
+                .values(
+                    published_document=_canonical_document(document),
+                    published_at=published_at,
+                    updated_at=published_at,
+                )
+            )
+            if not result.rowcount:
+                exists = await session.scalar(
+                    select(ScreenRecord.id).where(ScreenRecord.id == screen_id)
+                )
+                if exists is None:
+                    raise ScreenNotFound(screen_id)
+                raise ScreenRevisionConflict(screen_id)
+            record = await session.get(ScreenRecord, screen_id)
+        if record is None:
+            raise ScreenNotFound(screen_id)
+        return self._to_response(record)
+
     async def delete(self, screen_id: str) -> None:
         async with self._session_factory.begin() as session:
             result = await session.execute(delete(ScreenRecord).where(ScreenRecord.id == screen_id))

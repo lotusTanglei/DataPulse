@@ -124,3 +124,39 @@ def test_screen_draft_save_rejects_stale_revision(screen_app: AppClient) -> None
     )
     assert stale.status_code == 409
     assert stale.json()["error"]["code"] == "SCREEN_REVISION_CONFLICT"
+
+
+def test_screen_publish_requires_csrf_and_matching_revision(
+    screen_app: AppClient,
+) -> None:
+    setup_admin(screen_app)
+    created = screen_app.client.post(
+        "/api/admin/screens",
+        json={"name": "Operations"},
+        headers=mutation_headers(screen_app),
+    ).json()
+    publish_path = f"/api/admin/screens/{created['id']}/publish"
+
+    no_csrf = screen_app.client.post(
+        publish_path,
+        json={"expected_revision": 0},
+        headers={"Origin": screen_app.origin},
+    )
+    assert no_csrf.status_code == 403
+
+    published = screen_app.client.post(
+        publish_path,
+        json={"expected_revision": 0},
+        headers=mutation_headers(screen_app),
+    )
+    assert published.status_code == 200
+    assert published.json()["published_document"] == created["draft_document"]
+    assert published.json()["published_at"] is not None
+
+    stale = screen_app.client.post(
+        publish_path,
+        json={"expected_revision": 1},
+        headers=mutation_headers(screen_app),
+    )
+    assert stale.status_code == 409
+    assert stale.json()["error"]["code"] == "SCREEN_REVISION_CONFLICT"

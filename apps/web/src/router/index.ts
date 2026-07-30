@@ -13,6 +13,7 @@ import DatasourceDetailView from "../features/datasources/DatasourceDetailView.v
 import DatasourceFormView from "../features/datasources/DatasourceFormView.vue";
 import DatasourceListView from "../features/datasources/DatasourceListView.vue";
 import HomeView from "../features/home/HomeView.vue";
+import PlayerView from "../features/player/PlayerView.vue";
 import ScreenEditorView from "../features/screens/ScreenEditorView.vue";
 import ScreenListView from "../features/screens/ScreenListView.vue";
 import { useAuthStore } from "../stores/auth";
@@ -39,6 +40,13 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
         name: "login",
         component: LoginView,
         meta: { public: true, title: "登录" },
+      },
+      {
+        path: "/studio/screens/:id/preview",
+        name: "screen-preview",
+        component: PlayerView,
+        props: { mode: "preview" },
+        meta: { title: "大屏草稿预览" },
       },
       {
         path: "/studio",

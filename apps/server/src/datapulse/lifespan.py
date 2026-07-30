@@ -29,6 +29,7 @@ from datapulse.metadata import create_metadata_engine, create_session_factory
 from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
 from datapulse.screen.assets import AssetService, ScreenAssetRepository
+from datapulse.screen.publishing import PublishingService
 from datapulse.screen.repository import ScreenRepository
 from datapulse.screen.runtime import ScreenRuntimeService
 from datapulse.screen.service import ScreenService
@@ -124,9 +125,15 @@ def create_lifespan(
             app.state.screen_service = ScreenService(
                 repository=screen_repository,
             )
-            app.state.asset_service = AssetService(
+            asset_service = AssetService(
                 repository=ScreenAssetRepository(session_factory),
                 assets_dir=settings.resolved_assets_dir(),
+            )
+            app.state.asset_service = asset_service
+            app.state.publishing_service = PublishingService(
+                screen_repository=screen_repository,
+                dataset_repository=dataset_repository,
+                asset_service=asset_service,
             )
             app.state.screen_runtime_service = ScreenRuntimeService(
                 screen_repository=screen_repository,
