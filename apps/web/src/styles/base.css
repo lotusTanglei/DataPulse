@@ -1721,6 +1721,137 @@ textarea::placeholder {
   background: var(--dp-hover);
 }
 
+.screen-editor-page {
+  min-height: calc(100vh - 48px);
+}
+
+.studio-content:has(.screen-editor-page) {
+  padding: 0;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  height: 52px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--dp-border);
+  background: #fff;
+}
+
+.editor-icon-button {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 5px;
+  color: var(--dp-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.editor-icon-button:hover:not(:disabled) {
+  color: var(--dp-text);
+  background: var(--dp-hover);
+}
+
+.editor-icon-button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.editor-title {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.editor-title strong {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editor-title span {
+  color: var(--dp-subtle);
+  font-size: 10px;
+}
+
+.editor-title span[data-state="conflict"],
+.editor-title span[data-state="failed"] {
+  color: var(--dp-danger);
+}
+
+.editor-toolbar__spacer {
+  flex: 1;
+}
+
+.editor-save-button {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.editor-conflict {
+  margin: 12px 14px 0;
+}
+
+.editor-conflict p {
+  margin: 0;
+}
+
+.editor-skeleton {
+  display: grid;
+  grid-template-columns: 220px minmax(640px, 1fr) 260px;
+  min-height: calc(100vh - 152px);
+  background: #f4f4f2;
+}
+
+.editor-panel {
+  padding: 18px 16px;
+  background: #fbfbfa;
+}
+
+.editor-panel--left {
+  border-right: 1px solid var(--dp-border);
+}
+
+.editor-panel--right {
+  border-left: 1px solid var(--dp-border);
+}
+
+.editor-panel h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.editor-panel p {
+  margin: 0;
+  color: var(--dp-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.editor-canvas-host {
+  display: grid;
+  place-items: center;
+  padding: 42px;
+  overflow: auto;
+}
+
+.editor-canvas-placeholder {
+  display: grid;
+  width: min(100%, 960px);
+  place-items: center;
+  border: 1px solid #1f2937;
+  color: #94a3b8;
+  background: #0b1020;
+  box-shadow: 0 16px 40px rgb(15 23 42 / 16%);
+  font-size: 12px;
+}
+
 @media (max-width: 600px) {
   .auth-layout {
     align-items: start;
