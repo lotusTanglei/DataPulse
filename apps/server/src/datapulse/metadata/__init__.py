@@ -11,6 +11,7 @@ from datapulse.metadata.models import (
     DataSourceRecord,
     QueryRunRecord,
     QueryRunStatus,
+    ScreenAssetRecord,
     ScreenRecord,
     SystemState,
 )
@@ -23,6 +24,7 @@ __all__ = [
     "DatasetRecord",
     "QueryRunRecord",
     "QueryRunStatus",
+    "ScreenAssetRecord",
     "ScreenRecord",
     "SystemState",
     "create_metadata_engine",

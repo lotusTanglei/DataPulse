@@ -28,6 +28,7 @@ from datapulse.datasource.sqlite import SQLiteConnector
 from datapulse.metadata import create_metadata_engine, create_session_factory
 from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
+from datapulse.screen.assets import AssetService, ScreenAssetRepository
 from datapulse.screen.repository import ScreenRepository
 from datapulse.screen.service import ScreenService
 from datapulse.settings import Settings
@@ -61,6 +62,7 @@ def create_lifespan(
             raise RuntimeError("bootstrap_code_override is only allowed in the test environment.")
         settings.data_dir.resolve().mkdir(parents=True, exist_ok=True)
         settings.resolved_sources_dir().mkdir(parents=True, exist_ok=True)
+        settings.resolved_assets_dir().mkdir(parents=True, exist_ok=True)
 
         engine = create_metadata_engine(settings)
         datasource_engine_manager = EngineManager()
@@ -118,6 +120,10 @@ def create_lifespan(
             )
             app.state.screen_service = ScreenService(
                 repository=ScreenRepository(session_factory),
+            )
+            app.state.asset_service = AssetService(
+                repository=ScreenAssetRepository(session_factory),
+                assets_dir=settings.resolved_assets_dir(),
             )
 
             if not await repository.has_admin():

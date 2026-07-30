@@ -48,6 +48,7 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
         "dataset",
         "query_run",
         "screen",
+        "screen_asset",
         "alembic_version",
     } <= inspect_sqlite_tables(database_path)
     columns = inspect_sqlite_columns(database_path, "screen")

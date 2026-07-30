@@ -134,6 +134,18 @@ class ScreenRecord(Base):
     )
 
 
+class ScreenAssetRecord(Base):
+    __tablename__ = "screen_asset"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
+    asset_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    mime_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    storage_path: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now, nullable=False)
+
+
 class QueryRunRecord(Base):
     __tablename__ = "query_run"
 
