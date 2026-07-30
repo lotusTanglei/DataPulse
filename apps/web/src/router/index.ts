@@ -8,6 +8,9 @@ import {
 
 import LoginView from "../features/auth/LoginView.vue";
 import SetupView from "../features/auth/SetupView.vue";
+import DatasourceDetailView from "../features/datasources/DatasourceDetailView.vue";
+import DatasourceFormView from "../features/datasources/DatasourceFormView.vue";
+import DatasourceListView from "../features/datasources/DatasourceListView.vue";
 import HomeView from "../features/home/HomeView.vue";
 import { useAuthStore } from "../stores/auth";
 import StudioShell from "../ui/StudioShell.vue";
@@ -51,10 +54,37 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
           {
             path: "datasources",
             name: "datasources",
-            component: HomeView,
+            component: DatasourceListView,
             meta: {
               title: "数据源",
               description: "连接并管理用于分析的数据库。",
+            },
+          },
+          {
+            path: "datasources/new",
+            name: "datasource-new",
+            component: DatasourceFormView,
+            meta: {
+              title: "新建数据源",
+              description: "配置一个新的数据库连接。",
+            },
+          },
+          {
+            path: "datasources/:id/edit",
+            name: "datasource-edit",
+            component: DatasourceFormView,
+            meta: {
+              title: "编辑数据源",
+              description: "更新数据库连接配置。",
+            },
+          },
+          {
+            path: "datasources/:id",
+            name: "datasource-detail",
+            component: DatasourceDetailView,
+            meta: {
+              title: "数据源详情",
+              description: "查看连接信息、浏览 Schema 并调试查询。",
             },
           },
           {

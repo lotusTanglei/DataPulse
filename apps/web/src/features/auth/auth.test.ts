@@ -166,7 +166,8 @@ test("setup validates password confirmation before creating the administrator", 
   const fetchMock = vi
     .fn()
     .mockResolvedValueOnce(jsonResponse({ initialized: false }))
-    .mockResolvedValueOnce(jsonResponse({ username: "admin" }, 201));
+    .mockResolvedValueOnce(jsonResponse({ username: "admin" }, 201))
+    .mockResolvedValueOnce(jsonResponse([]));
   vi.stubGlobal("fetch", fetchMock);
   const router = createStudioRouter({
     history: createMemoryHistory(),
@@ -220,7 +221,8 @@ test("login submits credentials and opens the studio", async () => {
           401,
         ),
       )
-      .mockResolvedValueOnce(new Response(null, { status: 204 })),
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(jsonResponse([])),
   );
   const router = createStudioRouter({
     history: createMemoryHistory(),
