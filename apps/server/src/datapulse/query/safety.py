@@ -44,6 +44,7 @@ _forbidden_types = tuple(
     for name in _forbidden_names
     if (expression_type := getattr(exp, name, None)) is not None
 )
+_forbidden_functions = {"load_extension"}
 
 
 def validate_read_only_sql(sql: str, dialect: str) -> ValidatedQuery:
@@ -61,6 +62,11 @@ def validate_read_only_sql(sql: str, dialect: str) -> ValidatedQuery:
     if not isinstance(statement, exp.Query):
         raise QueryValidationError("QUERY_NOT_READ_ONLY")
     if any(isinstance(node, _forbidden_types) for node in statement.walk()):
+        raise QueryValidationError("QUERY_NOT_READ_ONLY")
+    if any(
+        isinstance(node, exp.Anonymous) and node.name.lower() in _forbidden_functions
+        for node in statement.walk()
+    ):
         raise QueryValidationError("QUERY_NOT_READ_ONLY")
     normalized = statement.sql(
         dialect=dialect,
