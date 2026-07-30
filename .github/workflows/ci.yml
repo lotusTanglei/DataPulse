@@ -8,6 +8,37 @@ jobs:
   foundation:
     name: Foundation
     runs-on: ubuntu-latest
+    env:
+      DATAPULSE_TEST_POSTGRES_URL: postgresql+asyncpg://datapulse:datapulse@127.0.0.1:55432/datapulse
+      DATAPULSE_TEST_MYSQL_URL: mysql+asyncmy://datapulse:datapulse@127.0.0.1:53306/datapulse
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: datapulse
+          POSTGRES_USER: datapulse
+          POSTGRES_PASSWORD: datapulse
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U datapulse -d datapulse"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_DATABASE: datapulse
+          MARIADB_USER: datapulse
+          MARIADB_PASSWORD: datapulse
+          MARIADB_ROOT_PASSWORD: datapulse-root
+        ports:
+          - 53306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
     steps:
       - uses: actions/checkout@v4
 

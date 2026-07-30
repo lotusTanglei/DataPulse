@@ -12,3 +12,6 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.pytest.ini_options]
 testpaths = ["apps/server/tests"]
 pythonpath = ["apps/server"]
+markers = [
+    "integration: requires external database services",
+]

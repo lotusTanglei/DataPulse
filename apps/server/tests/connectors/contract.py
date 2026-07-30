@@ -2,7 +2,12 @@ from dataclasses import dataclass
 
 import pytest
 
-from datapulse.datasource.connector import Connector, QueryPolicy, RelationKind
+from datapulse.datasource.connector import (
+    Connector,
+    ConnectorSecret,
+    QueryPolicy,
+    RelationKind,
+)
 from datapulse.datasource.models import DatasourceConfig
 from datapulse.query.safety import validate_read_only_sql
 
@@ -11,6 +16,12 @@ from datapulse.query.safety import validate_read_only_sql
 class ConnectorCase:
     connector: Connector
     config: DatasourceConfig
+    secret: ConnectorSecret | None = None
+    namespace: str | None = None
+    table_name: str = "sales"
+    view_name: str = "monthly_sales"
+    table_reference: str = "sales"
+    auxiliary_relation: str | None = None
 
 
 async def collect_stream(stream: object) -> tuple[tuple[object, ...], ...]:
@@ -29,7 +40,7 @@ class ConnectorContract:
     async def test_connection_succeeds(self, connector_case: ConnectorCase) -> None:
         result = await connector_case.connector.test_connection(
             connector_case.config,
-            None,
+            connector_case.secret,
         )
 
         assert result.ok is True
@@ -43,24 +54,25 @@ class ConnectorContract:
     ) -> None:
         namespaces = await connector_case.connector.list_namespaces(
             connector_case.config,
-            None,
+            connector_case.secret,
         )
         relations = await connector_case.connector.list_relations(
             connector_case.config,
-            None,
-            namespaces[0].name,
+            connector_case.secret,
+            connector_case.namespace,
         )
         sales = await connector_case.connector.describe_relation(
             connector_case.config,
-            None,
-            namespaces[0].name,
-            "sales",
+            connector_case.secret,
+            connector_case.namespace,
+            connector_case.table_name,
         )
 
         assert namespaces
+        assert connector_case.namespace in {namespace.name for namespace in namespaces}
         assert {(relation.name, relation.kind) for relation in relations} >= {
-            ("sales", RelationKind.TABLE),
-            ("monthly_sales", RelationKind.VIEW),
+            (connector_case.table_name, RelationKind.TABLE),
+            (connector_case.view_name, RelationKind.VIEW),
         }
         assert [(field.name, field.data_type, field.nullable) for field in sales.fields] == [
             ("month", "string", False),
@@ -74,12 +86,16 @@ class ConnectorContract:
         connector_case: ConnectorCase,
     ) -> None:
         query = validate_read_only_sql(
-            ("SELECT month, amount FROM sales WHERE region = :region ORDER BY month"),
+            (
+                "SELECT month, amount "
+                f"FROM {connector_case.table_reference} "
+                "WHERE region = :region ORDER BY month"
+            ),
             connector_case.connector.dialect,
         )
         stream = await connector_case.connector.stream_query(
             connector_case.config,
-            None,
+            connector_case.secret,
             query,
             {"region": "north"},
             QueryPolicy(),
@@ -92,9 +108,9 @@ class ConnectorContract:
 
         duplicate = await connector_case.connector.stream_query(
             connector_case.config,
-            None,
+            connector_case.secret,
             validate_read_only_sql(
-                "SELECT month, month FROM sales LIMIT 1",
+                f"SELECT month, month FROM {connector_case.table_reference} LIMIT 1",
                 connector_case.connector.dialect,
             ),
             {},
@@ -105,9 +121,9 @@ class ConnectorContract:
 
         empty = await connector_case.connector.stream_query(
             connector_case.config,
-            None,
+            connector_case.secret,
             validate_read_only_sql(
-                "SELECT month FROM sales WHERE 1 = 0",
+                f"SELECT month FROM {connector_case.table_reference} WHERE 1 = 0",
                 connector_case.connector.dialect,
             ),
             {},
