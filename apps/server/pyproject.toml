@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1,<2",
     "fastapi>=0.115,<1",
     "packaging>=24,<27",
+    "pwdlib[argon2]>=0.2,<1",
     "pydantic-settings>=2.7,<3",
     "sqlalchemy[asyncio]>=2,<3",
     "uvicorn[standard]>=0.34,<1",
