@@ -7,9 +7,13 @@ import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import ScreenRuntime from "../runtime/ScreenRuntime.vue";
 import {
+  exchangeStandaloneKey,
   getPreviewDocument,
+  getStandaloneDocument,
   loadPreviewAsset,
+  loadStandaloneAsset,
   queryPreviewComponent,
+  queryStandaloneComponent,
 } from "./api";
 import type { PlayerMode } from "./types";
 
@@ -27,6 +31,14 @@ const screenName = ref("");
 const loading = ref(true);
 const loadError = ref<ApiError | null>(null);
 let controller: AbortController | null = null;
+const bootstrapKey = ref(
+  props.mode === "standalone" && typeof route.query.key === "string"
+    ? route.query.key
+    : "",
+);
+if (props.mode === "standalone" && route.query.key !== undefined) {
+  window.history.replaceState(window.history.state, "", route.path);
+}
 
 async function load(): Promise<void> {
   controller?.abort();
@@ -35,13 +47,29 @@ async function load(): Promise<void> {
   loading.value = true;
   loadError.value = null;
   try {
-    if (props.mode !== "preview") {
+    let loaded;
+    if (props.mode === "preview") {
+      loaded = await getPreviewDocument(
+        resolvedScreenId.value,
+        nextController.signal,
+      );
+    } else if (props.mode === "standalone") {
+      const key = bootstrapKey.value;
+      bootstrapKey.value = "";
+      if (key) {
+        await exchangeStandaloneKey(
+          resolvedScreenId.value,
+          key,
+          nextController.signal,
+        );
+      }
+      loaded = await getStandaloneDocument(
+        resolvedScreenId.value,
+        nextController.signal,
+      );
+    } else {
       throw new Error("This playback mode is not configured yet.");
     }
-    const loaded = await getPreviewDocument(
-      resolvedScreenId.value,
-      nextController.signal,
-    );
     if (!nextController.signal.aborted && controller === nextController) {
       document.value = loaded.document;
       screenName.value = loaded.name;
@@ -76,12 +104,24 @@ const queryComponent = (
   parameters: Parameters<typeof queryPreviewComponent>[2],
   signal?: AbortSignal,
 ) =>
-  queryPreviewComponent(
-    resolvedScreenId.value,
-    componentId,
-    parameters,
-    signal,
-  );
+  props.mode === "standalone"
+    ? queryStandaloneComponent(
+        resolvedScreenId.value,
+        componentId,
+        parameters,
+        signal,
+      )
+    : queryPreviewComponent(
+        resolvedScreenId.value,
+        componentId,
+        parameters,
+        signal,
+      );
+
+const loadAsset = (assetId: string, signal?: AbortSignal) =>
+  props.mode === "standalone"
+    ? loadStandaloneAsset(resolvedScreenId.value, assetId, signal)
+    : loadPreviewAsset(assetId, signal);
 </script>
 
 <template>
@@ -100,6 +140,14 @@ const queryComponent = (
     </header>
     <section class="player-stage" aria-label="大屏播放区域">
       <p v-if="loading" class="player-status" role="status">正在加载大屏…</p>
+      <div
+        v-else-if="loadError && mode !== 'preview'"
+        class="player-neutral-error"
+        role="alert"
+      >
+        <strong>无法播放此大屏</strong>
+        <p>访问已失效，或大屏暂不可用。</p>
+      </div>
       <InlineNotice v-else-if="loadError" tone="error">
         <p>{{ loadError.message }}</p>
         <code v-if="loadError.requestId">{{ loadError.requestId }}</code>
@@ -107,7 +155,7 @@ const queryComponent = (
       <ScreenRuntime
         v-else-if="document"
         :document="document"
-        :load-asset="loadPreviewAsset"
+        :load-asset="loadAsset"
         :mode="mode"
         :query-component="queryComponent"
       />

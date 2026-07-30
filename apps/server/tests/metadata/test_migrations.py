@@ -49,6 +49,7 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
         "query_run",
         "screen",
         "screen_asset",
+        "display_access",
         "alembic_version",
     } <= inspect_sqlite_tables(database_path)
     columns = inspect_sqlite_columns(database_path, "screen")
@@ -58,6 +59,9 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
     assert columns["created_at"] == ("DATETIME", False)
     assert columns["updated_at"] == ("DATETIME", False)
     assert ("name",) in inspect_sqlite_unique_indexes(database_path, "screen")
+    display_columns = inspect_sqlite_columns(database_path, "display_access")
+    assert display_columns["key_hash"] == ("VARCHAR(64)", False)
+    assert display_columns["key_version"] == ("INTEGER", False)
 
 
 def test_upgrade_head_uses_configured_data_dir(

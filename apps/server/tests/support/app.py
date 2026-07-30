@@ -37,6 +37,7 @@ def build_test_app(
     *,
     setup_code: str = "test-setup-code",
     app_version: str = "0.1.0",
+    signing_key: str | None = None,
     static_dir: Path | None = None,
 ) -> Iterator[AppClient]:
     database_path = tmp_path / "datapulse.db"
@@ -47,6 +48,7 @@ def build_test_app(
         database_url=f"sqlite+aiosqlite:///{database_path}",
         bootstrap_code_override=setup_code,
         app_version=app_version,
+        signing_key=signing_key,
         static_dir=static_dir,
     )
     app = create_app(settings)

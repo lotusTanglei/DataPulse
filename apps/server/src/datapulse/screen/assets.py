@@ -77,17 +77,17 @@ def _contains_asset_reference(value: object, asset_id: str) -> bool:
     return False
 
 
-def _collect_asset_references(value: object) -> set[str]:
+def collect_asset_references(value: object) -> set[str]:
     found: set[str] = set()
     if isinstance(value, Mapping):
         asset_id = value.get("asset_id")
         if isinstance(asset_id, str):
             found.add(asset_id)
         for item in value.values():
-            found.update(_collect_asset_references(item))
+            found.update(collect_asset_references(item))
     elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         for item in value:
-            found.update(_collect_asset_references(item))
+            found.update(collect_asset_references(item))
     return found
 
 
@@ -254,7 +254,7 @@ class AssetService:
         Path(asset.storage_path).unlink(missing_ok=True)
 
     async def assert_references_exist(self, document: DashboardDocument) -> None:
-        references = _collect_asset_references(document.model_dump(mode="json"))
+        references = collect_asset_references(document.model_dump(mode="json"))
         existing = await self._repository.existing_ids(references)
         missing = references - existing
         if missing:
@@ -268,6 +268,7 @@ __all__ = [
     "AssetNotFound",
     "AssetService",
     "AssetTooLarge",
+    "collect_asset_references",
     "ScreenAssetRepository",
     "ScreenAssetResponse",
     "StoredScreenAsset",

@@ -49,6 +49,16 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
         meta: { title: "大屏草稿预览" },
       },
       {
+        path: "/play/:screenId",
+        name: "screen-standalone",
+        component: PlayerView,
+        props: (route) => ({
+          mode: "standalone",
+          screenId: String(route.params.screenId),
+        }),
+        meta: { publicPlayer: true, title: "大屏播放" },
+      },
+      {
         path: "/studio",
         component: StudioShell,
         children: [
@@ -150,6 +160,9 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
   });
 
   router.beforeEach(async (to) => {
+    if (to.meta.publicPlayer === true) {
+      return true;
+    }
     const auth = useAuthStore(options.pinia);
     const state = await auth.resolve();
     if (state.status === "setup-required") {

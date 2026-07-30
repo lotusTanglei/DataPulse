@@ -134,6 +134,28 @@ class ScreenRecord(Base):
     )
 
 
+class DisplayAccessRecord(Base):
+    __tablename__ = "display_access"
+
+    screen_id: Mapped[str] = mapped_column(
+        ForeignKey("screen.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    key_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    key_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime(),
+        default=utc_now,
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        UTCDateTime(),
+        default=utc_now,
+        onupdate=utc_now,
+        nullable=False,
+    )
+
+
 class ScreenAssetRecord(Base):
     __tablename__ = "screen_asset"
 

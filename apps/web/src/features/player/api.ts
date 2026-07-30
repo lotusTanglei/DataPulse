@@ -4,6 +4,7 @@ import type { Screen } from "../screens/types";
 import type { PlayerDocument } from "./types";
 
 const ADMIN_SCREENS_PATH = "/api/admin/screens";
+const PLAYER_SCREENS_PATH = "/api/player/screens";
 
 export async function getPreviewDocument(
   screenId: string,
@@ -42,6 +43,62 @@ export async function loadPreviewAsset(
 ): Promise<string> {
   const response = await fetch(
     `/api/admin/assets/${encodeURIComponent(assetId)}`,
+    { credentials: "same-origin", signal },
+  );
+  if (!response.ok) {
+    throw new Error("Asset unavailable.");
+  }
+  return URL.createObjectURL(await response.blob());
+}
+
+export function exchangeStandaloneKey(
+  screenId: string,
+  key: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  return apiRequest<void>(
+    `${PLAYER_SCREENS_PATH}/${encodeURIComponent(screenId)}/session`,
+    {
+      method: "POST",
+      json: { key },
+      signal,
+    },
+  );
+}
+
+export function getStandaloneDocument(
+  screenId: string,
+  signal?: AbortSignal,
+): Promise<PlayerDocument> {
+  return apiRequest<PlayerDocument>(
+    `${PLAYER_SCREENS_PATH}/${encodeURIComponent(screenId)}`,
+    { signal },
+  );
+}
+
+export function queryStandaloneComponent(
+  screenId: string,
+  componentId: string,
+  parameters: Record<string, JsonValue>,
+  signal?: AbortSignal,
+): Promise<QueryResult> {
+  return apiRequest<QueryResult>(
+    `${PLAYER_SCREENS_PATH}/${encodeURIComponent(screenId)}/query`,
+    {
+      method: "POST",
+      json: { component_id: componentId, parameters },
+      signal,
+    },
+  );
+}
+
+export async function loadStandaloneAsset(
+  screenId: string,
+  assetId: string,
+  signal?: AbortSignal,
+): Promise<string> {
+  const response = await fetch(
+    `${PLAYER_SCREENS_PATH}/${encodeURIComponent(screenId)}/assets/${encodeURIComponent(assetId)}`,
     { credentials: "same-origin", signal },
   );
   if (!response.ok) {

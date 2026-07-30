@@ -25,6 +25,9 @@ from datapulse.datasource.repository import DatasourceRepository
 from datapulse.datasource.secrets import SecretBox
 from datapulse.datasource.service import DatasourceService
 from datapulse.datasource.sqlite import SQLiteConnector
+from datapulse.display.repository import DisplayAccessRepository
+from datapulse.display.service import DisplayAccessService
+from datapulse.display.tokens import DisplaySessionCodec
 from datapulse.metadata import create_metadata_engine, create_session_factory
 from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
@@ -139,6 +142,16 @@ def create_lifespan(
                 screen_repository=screen_repository,
                 dataset_repository=dataset_repository,
                 datasource_service=app.state.datasource_service,
+            )
+            signing_key = settings.signing_key_bytes()
+            app.state.display_access_service = DisplayAccessService(
+                repository=DisplayAccessRepository(session_factory),
+                screen_repository=screen_repository,
+                codec=(
+                    DisplaySessionCodec(signing_key=signing_key)
+                    if signing_key is not None
+                    else None
+                ),
             )
 
             if not await repository.has_admin():

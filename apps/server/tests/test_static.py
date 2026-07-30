@@ -27,6 +27,25 @@ def test_spa_does_not_swallow_api_404(tmp_path: Path) -> None:
     assert TestClient(app).get("/api/missing").status_code == 404
 
 
+def test_standalone_player_page_disallows_embedding_and_caching(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "index.html").write_text(
+        "<h1>DataPulse Player</h1>",
+        encoding="utf-8",
+    )
+    app = FastAPI()
+    app.include_router(create_spa_router(tmp_path))
+
+    response = TestClient(app).get("/play/screen-1")
+
+    assert response.status_code == 200
+    assert "DataPulse Player" in response.text
+    assert response.headers["content-security-policy"] == "frame-ancestors 'none'"
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["x-content-type-options"] == "nosniff"
+
+
 def test_spa_returns_clear_404_when_web_is_not_built(tmp_path: Path) -> None:
     app = FastAPI()
     app.include_router(create_spa_router(tmp_path))
