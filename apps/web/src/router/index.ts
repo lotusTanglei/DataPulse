@@ -13,6 +13,7 @@ import DatasourceDetailView from "../features/datasources/DatasourceDetailView.v
 import DatasourceFormView from "../features/datasources/DatasourceFormView.vue";
 import DatasourceListView from "../features/datasources/DatasourceListView.vue";
 import HomeView from "../features/home/HomeView.vue";
+import ScreenListView from "../features/screens/ScreenListView.vue";
 import { useAuthStore } from "../stores/auth";
 import StudioShell from "../ui/StudioShell.vue";
 
@@ -110,10 +111,19 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
           {
             path: "screens",
             name: "screens",
-            component: HomeView,
+            component: ScreenListView,
             meta: {
               title: "大屏",
               description: "创建、调试并发布可嵌入的数据大屏。",
+            },
+          },
+          {
+            path: "screens/:id/edit",
+            name: "screen-edit",
+            component: HomeView,
+            meta: {
+              title: "大屏编辑器",
+              description: "编辑大屏草稿并预览最终效果。",
             },
           },
           {
