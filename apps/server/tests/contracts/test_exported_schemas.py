@@ -28,10 +28,10 @@ FIXTURES = {
         "name": "Sales",
         "query": {"kind": "sql", "sql": "SELECT month, amount FROM sales"},
     },
-    "embed-message": {"type": "ready"},
+    "embed-message": {"type": "ready", "instance_id": "embed-1"},
     "embed-ticket-claims": {
-        "dashboard_id": "sales-overview",
-        "published_version_id": "version-1",
+        "ticket_id": "ticket-1",
+        "screen_id": "sales-overview",
         "allowed_origin": "https://host.example.com",
         "issued_at": datetime(2026, 7, 29, tzinfo=UTC),
         "expires_at": datetime(2026, 7, 29, tzinfo=UTC) + timedelta(minutes=5),

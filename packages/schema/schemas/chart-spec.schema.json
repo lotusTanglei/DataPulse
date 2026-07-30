@@ -2,13 +2,11 @@
   "$defs": {
     "Aggregation": {
       "enum": [
-        "none",
         "sum",
-        "average",
-        "minimum",
-        "maximum",
-        "count",
-        "count_distinct"
+        "avg",
+        "min",
+        "max",
+        "count"
       ],
       "title": "Aggregation",
       "type": "string"
@@ -17,13 +15,12 @@
       "enum": [
         "area",
         "bar",
-        "funnel",
         "gauge",
+        "kpi",
         "line",
         "map",
         "pie",
-        "radar",
-        "scatter",
+        "progress",
         "table"
       ],
       "title": "ChartType",
@@ -41,8 +38,22 @@
           "$ref": "#/$defs/FilterOperator"
         },
         "value": {
-          "$ref": "#/$defs/JsonValue",
-          "default": null
+          "discriminator": {
+            "mapping": {
+              "literal": "#/$defs/LiteralValue",
+              "parameter": "#/$defs/ParameterRef"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ParameterRef"
+            },
+            {
+              "$ref": "#/$defs/LiteralValue"
+            }
+          ],
+          "title": "Value"
         }
       },
       "required": [
@@ -70,13 +81,59 @@
       "title": "FilterOperator",
       "type": "string"
     },
-    "JsonValue": {},
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "LiteralValue": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "literal",
+          "default": "literal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        }
+      },
+      "title": "LiteralValue",
+      "type": "object"
+    },
     "Measure": {
       "additionalProperties": false,
       "properties": {
         "aggregation": {
-          "$ref": "#/$defs/Aggregation",
-          "default": "none"
+          "$ref": "#/$defs/Aggregation"
         },
         "field": {
           "minLength": 1,
@@ -85,9 +142,31 @@
         }
       },
       "required": [
-        "field"
+        "field",
+        "aggregation"
       ],
       "title": "Measure",
+      "type": "object"
+    },
+    "ParameterRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "parameter",
+          "default": "parameter",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ParameterRef",
       "type": "object"
     },
     "Sort": {

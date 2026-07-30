@@ -1,11 +1,11 @@
 {
   "$defs": {
-    "AiQuestionMessage": {
+    "AckMessage": {
       "additionalProperties": false,
       "properties": {
-        "question": {
+        "instance_id": {
           "minLength": 1,
-          "title": "Question",
+          "title": "Instance Id",
           "type": "string"
         },
         "request_id": {
@@ -14,17 +14,17 @@
           "type": "string"
         },
         "type": {
-          "const": "aiQuestion",
+          "const": "ack",
           "title": "Type",
           "type": "string"
         }
       },
       "required": [
+        "instance_id",
         "type",
-        "request_id",
-        "question"
+        "request_id"
       ],
-      "title": "AiQuestionMessage",
+      "title": "AckMessage",
       "type": "object"
     },
     "ErrorMessage": {
@@ -33,6 +33,11 @@
         "code": {
           "minLength": 1,
           "title": "Code",
+          "type": "string"
+        },
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
           "type": "string"
         },
         "message": {
@@ -59,41 +64,12 @@
         }
       },
       "required": [
+        "instance_id",
         "type",
         "code",
         "message"
       ],
       "title": "ErrorMessage",
-      "type": "object"
-    },
-    "ExportImageMessage": {
-      "additionalProperties": false,
-      "properties": {
-        "format": {
-          "default": "png",
-          "enum": [
-            "png",
-            "jpeg"
-          ],
-          "title": "Format",
-          "type": "string"
-        },
-        "request_id": {
-          "minLength": 1,
-          "title": "Request Id",
-          "type": "string"
-        },
-        "type": {
-          "const": "exportImage",
-          "title": "Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "type",
-        "request_id"
-      ],
-      "title": "ExportImageMessage",
       "type": "object"
     },
     "FullscreenMessage": {
@@ -102,6 +78,11 @@
         "enabled": {
           "title": "Enabled",
           "type": "boolean"
+        },
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
         },
         "request_id": {
           "minLength": 1,
@@ -115,6 +96,7 @@
         }
       },
       "required": [
+        "instance_id",
         "type",
         "request_id",
         "enabled"
@@ -125,6 +107,11 @@
     "GetParametersMessage": {
       "additionalProperties": false,
       "properties": {
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
         "request_id": {
           "minLength": 1,
           "title": "Request Id",
@@ -137,16 +124,93 @@
         }
       },
       "required": [
+        "instance_id",
         "type",
         "request_id"
       ],
       "title": "GetParametersMessage",
       "type": "object"
     },
-    "JsonValue": {},
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ParametersMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Parameters",
+          "type": "object"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "parameters",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instance_id",
+        "type",
+        "request_id",
+        "parameters"
+      ],
+      "title": "ParametersMessage",
+      "type": "object"
+    },
     "ReadyMessage": {
       "additionalProperties": false,
       "properties": {
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "protocol_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Protocol Version",
+          "type": "integer"
+        },
         "type": {
           "const": "ready",
           "title": "Type",
@@ -154,6 +218,7 @@
         }
       },
       "required": [
+        "instance_id",
         "type"
       ],
       "title": "ReadyMessage",
@@ -162,6 +227,11 @@
     "RefreshMessage": {
       "additionalProperties": false,
       "properties": {
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
         "type": {
           "const": "refresh",
           "title": "Type",
@@ -169,6 +239,7 @@
         }
       },
       "required": [
+        "instance_id",
         "type"
       ],
       "title": "RefreshMessage",
@@ -177,6 +248,11 @@
     "SetParametersMessage": {
       "additionalProperties": false,
       "properties": {
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
         "parameters": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
@@ -196,6 +272,7 @@
         }
       },
       "required": [
+        "instance_id",
         "type",
         "request_id",
         "parameters"
@@ -207,11 +284,11 @@
   "$id": "https://datapulse.dev/schemas/v1/embed-message.schema.json",
   "discriminator": {
     "mapping": {
-      "aiQuestion": "#/$defs/AiQuestionMessage",
+      "ack": "#/$defs/AckMessage",
       "error": "#/$defs/ErrorMessage",
-      "exportImage": "#/$defs/ExportImageMessage",
       "fullscreen": "#/$defs/FullscreenMessage",
       "getParameters": "#/$defs/GetParametersMessage",
+      "parameters": "#/$defs/ParametersMessage",
       "ready": "#/$defs/ReadyMessage",
       "refresh": "#/$defs/RefreshMessage",
       "setParameters": "#/$defs/SetParametersMessage"
@@ -232,16 +309,16 @@
       "$ref": "#/$defs/GetParametersMessage"
     },
     {
+      "$ref": "#/$defs/ParametersMessage"
+    },
+    {
       "$ref": "#/$defs/FullscreenMessage"
     },
     {
-      "$ref": "#/$defs/ExportImageMessage"
+      "$ref": "#/$defs/AckMessage"
     },
     {
       "$ref": "#/$defs/ErrorMessage"
-    },
-    {
-      "$ref": "#/$defs/AiQuestionMessage"
     }
   ],
   "title": "EmbedMessageEnvelope"

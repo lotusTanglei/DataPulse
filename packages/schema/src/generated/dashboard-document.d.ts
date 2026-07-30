@@ -1,89 +1,116 @@
+export type JsonValue =
+  | JsonValue[]
+  | {
+      [k: string]: JsonValue;
+    }
+  | string
+  | boolean
+  | number
+  | null;
 export type Height = number;
 export type Width = number;
-export type JsonValue = unknown;
 export type Height1 = number;
-export type Rotation = number;
 export type Width1 = number;
 export type X = number;
 export type Y = number;
 export type ZIndex = number;
 export type Id = string;
-export type Id1 = string;
-export type Version = string;
+export type Action = "set_parameter";
+export type Event = "click";
+export type Field = string;
+export type Parameter = string;
+export type Interactions = ComponentInteraction[];
+export type Hidden = boolean;
+export type Locked = boolean;
 export type Type = string;
 export type Components = ComponentInstance[];
-export type Action = string;
-export type Event = string;
-export type Id2 = string;
-export type Parameter = string | null;
-export type SourceComponentId = string;
-export type TargetComponentId = string | null;
-export type Interactions = Interaction[];
-export type Id3 = string;
+export type AllowedValues = JsonValue[];
+export type DataType = "boolean" | "date" | "datetime" | "integer" | "number" | "string";
+export type Id1 = string;
+export type Mutable = boolean;
 export type Name = string;
 export type Parameters = DashboardParameter[];
+export type IntervalSeconds = (10 | 30 | 60 | 300) | null;
+export type Mode = "disabled" | "interval";
 export type SchemaVersion = 1;
+export type Id2 = string;
 
 export interface DashboardDocument {
   canvas: Canvas;
   components?: Components;
-  interactions?: Interactions;
   parameters?: Parameters;
+  refresh?: ScreenRefreshPolicy;
   schema_version?: SchemaVersion;
   theme?: Theme;
 }
 export interface Canvas {
+  background?: Background;
   height: Height;
   width: Width;
 }
+export interface Background {
+  [k: string]: JsonValue;
+}
 export interface ComponentInstance {
   data_binding?: DataBinding;
-  geometry: Geometry;
+  frame: Frame;
   id: Id;
-  plugin: PluginRef;
-  properties?: Properties;
+  interactions?: Interactions;
+  props?: Props;
+  state?: ComponentState;
   style?: Style;
   type: Type;
 }
 export interface DataBinding {
   [k: string]: JsonValue;
 }
-export interface Geometry {
+export interface Frame {
   height: Height1;
-  rotation?: Rotation;
   width: Width1;
   x: X;
   y: Y;
   z_index?: ZIndex;
 }
-export interface PluginRef {
-  id: Id1;
-  version: Version;
+export interface ComponentInteraction {
+  action: Action;
+  event: Event;
+  field: Field;
+  parameter: Parameter;
 }
-export interface Properties {
+export interface Props {
   [k: string]: JsonValue;
+}
+export interface ComponentState {
+  hidden?: Hidden;
+  locked?: Locked;
 }
 export interface Style {
   [k: string]: JsonValue;
 }
-export interface Interaction {
-  action: Action;
-  event: Event;
-  id: Id2;
-  parameter?: Parameter;
-  source_component_id: SourceComponentId;
-  target_component_id?: TargetComponentId;
-}
 export interface DashboardParameter {
-  id: Id3;
+  allowed_values?: AllowedValues;
+  data_type: DataType;
+  default?:
+    | JsonValue[]
+    | {
+        [k: string]: JsonValue;
+      }
+    | string
+    | boolean
+    | number
+    | null;
+  id: Id1;
+  mutable?: Mutable;
   name: Name;
-  value?: {
-    [k: string]: unknown;
-  };
+}
+export interface ScreenRefreshPolicy {
+  interval_seconds?: IntervalSeconds;
+  mode?: Mode;
 }
 export interface Theme {
-  variables?: Variables;
+  id?: Id2;
+  tokens?: Tokens;
 }
-export interface Variables {
+export interface Tokens {
   [k: string]: JsonValue;
 }

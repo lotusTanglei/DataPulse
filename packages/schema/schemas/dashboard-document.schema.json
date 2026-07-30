@@ -3,6 +3,13 @@
     "Canvas": {
       "additionalProperties": false,
       "properties": {
+        "background": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Background",
+          "type": "object"
+        },
         "height": {
           "exclusiveMinimum": 0,
           "title": "Height",
@@ -31,23 +38,30 @@
           "title": "Data Binding",
           "type": "object"
         },
-        "geometry": {
-          "$ref": "#/$defs/Geometry"
+        "frame": {
+          "$ref": "#/$defs/Frame"
         },
         "id": {
           "minLength": 1,
           "title": "Id",
           "type": "string"
         },
-        "plugin": {
-          "$ref": "#/$defs/PluginRef"
+        "interactions": {
+          "items": {
+            "$ref": "#/$defs/ComponentInteraction"
+          },
+          "title": "Interactions",
+          "type": "array"
         },
-        "properties": {
+        "props": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
           },
-          "title": "Properties",
+          "title": "Props",
           "type": "object"
+        },
+        "state": {
+          "$ref": "#/$defs/ComponentState"
         },
         "style": {
           "additionalProperties": {
@@ -65,48 +79,120 @@
       "required": [
         "id",
         "type",
-        "plugin",
-        "geometry"
+        "frame"
       ],
       "title": "ComponentInstance",
+      "type": "object"
+    },
+    "ComponentInteraction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "set_parameter",
+          "title": "Action",
+          "type": "string"
+        },
+        "event": {
+          "const": "click",
+          "title": "Event",
+          "type": "string"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "parameter": {
+          "minLength": 1,
+          "title": "Parameter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event",
+        "action",
+        "parameter",
+        "field"
+      ],
+      "title": "ComponentInteraction",
+      "type": "object"
+    },
+    "ComponentState": {
+      "additionalProperties": false,
+      "properties": {
+        "hidden": {
+          "default": false,
+          "title": "Hidden",
+          "type": "boolean"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        }
+      },
+      "title": "ComponentState",
       "type": "object"
     },
     "DashboardParameter": {
       "additionalProperties": false,
       "properties": {
+        "allowed_values": {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Allowed Values",
+          "type": "array"
+        },
+        "data_type": {
+          "$ref": "#/$defs/DataType"
+        },
+        "default": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
         "id": {
           "minLength": 1,
           "title": "Id",
           "type": "string"
         },
+        "mutable": {
+          "default": false,
+          "title": "Mutable",
+          "type": "boolean"
+        },
         "name": {
           "minLength": 1,
           "title": "Name",
           "type": "string"
-        },
-        "value": {
-          "$ref": "#/$defs/JsonValue",
-          "default": null
         }
       },
       "required": [
         "id",
-        "name"
+        "name",
+        "data_type"
       ],
       "title": "DashboardParameter",
       "type": "object"
     },
-    "Geometry": {
+    "DataType": {
+      "enum": [
+        "boolean",
+        "date",
+        "datetime",
+        "integer",
+        "number",
+        "string"
+      ],
+      "title": "DataType",
+      "type": "string"
+    },
+    "Frame": {
       "additionalProperties": false,
       "properties": {
         "height": {
           "exclusiveMinimum": 0,
           "title": "Height",
-          "type": "number"
-        },
-        "rotation": {
-          "default": 0,
-          "title": "Rotation",
           "type": "number"
         },
         "width": {
@@ -134,96 +220,88 @@
         "width",
         "height"
       ],
-      "title": "Geometry",
+      "title": "Frame",
       "type": "object"
     },
-    "Interaction": {
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ScreenRefreshPolicy": {
       "additionalProperties": false,
       "properties": {
-        "action": {
-          "minLength": 1,
-          "title": "Action",
-          "type": "string"
-        },
-        "event": {
-          "minLength": 1,
-          "title": "Event",
-          "type": "string"
-        },
-        "id": {
-          "minLength": 1,
-          "title": "Id",
-          "type": "string"
-        },
-        "parameter": {
+        "interval_seconds": {
           "anyOf": [
             {
-              "type": "string"
+              "enum": [
+                10,
+                30,
+                60,
+                300
+              ],
+              "type": "integer"
             },
             {
               "type": "null"
             }
           ],
           "default": null,
-          "title": "Parameter"
+          "title": "Interval Seconds"
         },
-        "source_component_id": {
-          "minLength": 1,
-          "title": "Source Component Id",
-          "type": "string"
-        },
-        "target_component_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
+        "mode": {
+          "default": "disabled",
+          "enum": [
+            "disabled",
+            "interval"
           ],
-          "default": null,
-          "title": "Target Component Id"
-        }
-      },
-      "required": [
-        "id",
-        "source_component_id",
-        "event",
-        "action"
-      ],
-      "title": "Interaction",
-      "type": "object"
-    },
-    "JsonValue": {},
-    "PluginRef": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "minLength": 1,
-          "title": "Id",
-          "type": "string"
-        },
-        "version": {
-          "minLength": 1,
-          "title": "Version",
+          "title": "Mode",
           "type": "string"
         }
       },
-      "required": [
-        "id",
-        "version"
-      ],
-      "title": "PluginRef",
+      "title": "ScreenRefreshPolicy",
       "type": "object"
     },
     "Theme": {
       "additionalProperties": false,
       "properties": {
-        "variables": {
+        "id": {
+          "default": "datapulse-dark",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "tokens": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
           },
-          "title": "Variables",
+          "title": "Tokens",
           "type": "object"
         }
       },
@@ -244,19 +322,15 @@
       "title": "Components",
       "type": "array"
     },
-    "interactions": {
-      "items": {
-        "$ref": "#/$defs/Interaction"
-      },
-      "title": "Interactions",
-      "type": "array"
-    },
     "parameters": {
       "items": {
         "$ref": "#/$defs/DashboardParameter"
       },
       "title": "Parameters",
       "type": "array"
+    },
+    "refresh": {
+      "$ref": "#/$defs/ScreenRefreshPolicy"
     },
     "schema_version": {
       "const": 1,

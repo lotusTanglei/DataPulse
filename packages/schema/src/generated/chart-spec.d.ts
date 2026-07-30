@@ -14,9 +14,22 @@ export type FilterOperator =
   | "between"
   | "is_null"
   | "is_not_null";
+export type Value = ParameterRef | LiteralValue;
+export type Kind = "parameter";
+export type Name = string;
+export type Kind1 = "literal";
+export type JsonValue =
+  | JsonValue[]
+  | {
+      [k: string]: JsonValue;
+    }
+  | string
+  | boolean
+  | number
+  | null;
 export type Filters = Filter[];
 export type Limit = number;
-export type Aggregation = "none" | "sum" | "average" | "minimum" | "maximum" | "count" | "count_distinct";
+export type Aggregation = "sum" | "avg" | "min" | "max" | "count";
 export type Field1 = string;
 export type Measures = Measure[];
 export type SchemaVersion = 1;
@@ -24,7 +37,7 @@ export type SortDirection = "asc" | "desc";
 export type Field2 = string;
 export type Sort = Sort1[];
 export type Title = string;
-export type ChartType = "area" | "bar" | "funnel" | "gauge" | "line" | "map" | "pie" | "radar" | "scatter" | "table";
+export type ChartType = "area" | "bar" | "gauge" | "kpi" | "line" | "map" | "pie" | "progress" | "table";
 
 export interface ChartSpec {
   dataset_id: DatasetId;
@@ -39,12 +52,26 @@ export interface ChartSpec {
 export interface Filter {
   field: Field;
   operator: FilterOperator;
-  value?: {
-    [k: string]: unknown;
-  };
+  value?: Value;
+}
+export interface ParameterRef {
+  kind?: Kind;
+  name: Name;
+}
+export interface LiteralValue {
+  kind?: Kind1;
+  value?:
+    | JsonValue[]
+    | {
+        [k: string]: JsonValue;
+      }
+    | string
+    | boolean
+    | number
+    | null;
 }
 export interface Measure {
-  aggregation?: Aggregation;
+  aggregation: Aggregation;
   field: Field1;
 }
 export interface Sort1 {

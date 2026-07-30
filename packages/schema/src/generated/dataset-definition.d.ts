@@ -7,6 +7,15 @@ export type Fields = DatasetField[];
 export type Id = string;
 export type MaxRows = number;
 export type Name1 = string;
+export type JsonValue =
+  | JsonValue[]
+  | {
+      [k: string]: JsonValue;
+    }
+  | string
+  | boolean
+  | number
+  | null;
 export type Name2 = string;
 export type Required = boolean;
 export type Parameters = DatasetParameter[];
@@ -51,9 +60,15 @@ export interface DatasetField {
 }
 export interface DatasetParameter {
   data_type: DataType;
-  default?: {
-    [k: string]: unknown;
-  };
+  default?:
+    | JsonValue[]
+    | {
+        [k: string]: JsonValue;
+      }
+    | string
+    | boolean
+    | number
+    | null;
   name: Name2;
   required?: Required;
 }

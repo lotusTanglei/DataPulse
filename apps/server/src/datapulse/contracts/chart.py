@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -7,25 +7,22 @@ from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 
 
 class Aggregation(StrEnum):
-    NONE = "none"
     SUM = "sum"
-    AVERAGE = "average"
-    MINIMUM = "minimum"
-    MAXIMUM = "maximum"
+    AVERAGE = "avg"
+    MINIMUM = "min"
+    MAXIMUM = "max"
     COUNT = "count"
-    COUNT_DISTINCT = "count_distinct"
 
 
 class ChartType(StrEnum):
     AREA = "area"
     BAR = "bar"
-    FUNNEL = "funnel"
     GAUGE = "gauge"
+    KPI = "kpi"
     LINE = "line"
     MAP = "map"
     PIE = "pie"
-    RADAR = "radar"
-    SCATTER = "scatter"
+    PROGRESS = "progress"
     TABLE = "table"
 
 
@@ -51,13 +48,29 @@ class SortDirection(StrEnum):
 
 class Measure(ContractModel):
     field: NonBlankStr
-    aggregation: Aggregation = Aggregation.NONE
+    aggregation: Aggregation
+
+
+class ParameterRef(ContractModel):
+    kind: Literal["parameter"] = "parameter"
+    name: NonBlankStr
+
+
+class LiteralValue(ContractModel):
+    kind: Literal["literal"] = "literal"
+    value: JsonValue = None
+
+
+FilterValue = Annotated[
+    ParameterRef | LiteralValue,
+    Field(discriminator="kind"),
+]
 
 
 class Filter(ContractModel):
     field: NonBlankStr
     operator: FilterOperator
-    value: JsonValue = None
+    value: FilterValue = Field(default_factory=LiteralValue)
 
 
 class Sort(ContractModel):

@@ -12,23 +12,25 @@ def ticket_payload() -> dict[str, object]:
         "schema_version": 1,
         "issuer": "datapulse",
         "audience": "datapulse-embed",
-        "dashboard_id": "executive-overview",
-        "published_version_id": "version-7",
+        "ticket_id": "ticket-1",
+        "screen_id": "executive-overview",
         "allowed_origin": "https://host.example.com",
         "issued_at": issued_at,
-        "expires_at": issued_at + timedelta(minutes=5),
-        "ai_enabled": True,
+        "expires_at": issued_at + timedelta(hours=1),
         "parameters": {"region": "east"},
+        "mutable_parameters": ("region",),
     }
 
 
-def test_embed_ticket_round_trips() -> None:
+def test_embed_ticket_round_trips_phase_two_claims() -> None:
     ticket = EmbedTicketClaims.model_validate(ticket_payload())
 
     restored = EmbedTicketClaims.model_validate_json(ticket.model_dump_json())
 
     assert restored == ticket
-    assert restored.allowed_origin == "https://host.example.com"
+    assert restored.ticket_id == "ticket-1"
+    assert restored.screen_id == "executive-overview"
+    assert restored.mutable_parameters == ("region",)
 
 
 @pytest.mark.parametrize(
@@ -47,7 +49,10 @@ def test_embed_ticket_rejects_unsafe_origins(origin: str) -> None:
         EmbedTicketClaims.model_validate(payload)
 
 
-@pytest.mark.parametrize("origin", ["http://localhost:5173", "http://127.0.0.1:5173"])
+@pytest.mark.parametrize(
+    "origin",
+    ["http://localhost:5173", "http://127.0.0.1:5173"],
+)
 def test_embed_ticket_allows_local_http_origins(origin: str) -> None:
     payload = ticket_payload()
     payload["allowed_origin"] = origin
@@ -57,46 +62,79 @@ def test_embed_ticket_allows_local_http_origins(origin: str) -> None:
     assert ticket.allowed_origin == origin
 
 
-def test_embed_ticket_requires_expiration_after_issue_time() -> None:
+def test_embed_ticket_rejects_expiration_beyond_eight_hours() -> None:
     payload = ticket_payload()
-    payload["expires_at"] = payload["issued_at"]
+    payload["expires_at"] = payload["issued_at"] + timedelta(hours=8, seconds=1)
 
-    with pytest.raises(ValidationError, match="expires_at must be after issued_at"):
+    with pytest.raises(ValidationError, match="eight hours"):
+        EmbedTicketClaims.model_validate(payload)
+
+
+def test_embed_ticket_rejects_duplicate_mutable_parameters() -> None:
+    payload = ticket_payload()
+    payload["mutable_parameters"] = ("region", "region")
+
+    with pytest.raises(ValidationError, match="must be unique"):
         EmbedTicketClaims.model_validate(payload)
 
 
 @pytest.mark.parametrize(
     "message",
     [
-        {"type": "ready"},
-        {"type": "refresh"},
+        {"type": "ready", "instance_id": "embed-1", "protocol_version": 1},
+        {"type": "refresh", "instance_id": "embed-1"},
         {
             "type": "setParameters",
+            "instance_id": "embed-1",
             "request_id": "request-1",
             "parameters": {"region": "east"},
         },
-        {"type": "getParameters", "request_id": "request-2"},
-        {"type": "fullscreen", "request_id": "request-3", "enabled": True},
-        {"type": "exportImage", "request_id": "request-4", "format": "png"},
+        {
+            "type": "getParameters",
+            "instance_id": "embed-1",
+            "request_id": "request-2",
+        },
+        {
+            "type": "parameters",
+            "instance_id": "embed-1",
+            "request_id": "request-2",
+            "parameters": {"region": "east"},
+        },
+        {
+            "type": "fullscreen",
+            "instance_id": "embed-1",
+            "request_id": "request-3",
+            "enabled": True,
+        },
+        {
+            "type": "ack",
+            "instance_id": "embed-1",
+            "request_id": "request-3",
+        },
         {
             "type": "error",
-            "request_id": "request-5",
+            "instance_id": "embed-1",
+            "request_id": "request-4",
             "code": "QUERY_TIMEOUT",
             "message": "Query timed out",
         },
-        {
-            "type": "aiQuestion",
-            "request_id": "request-6",
-            "question": "销售额为什么下降？",
-        },
     ],
 )
-def test_embed_message_accepts_supported_variants(message: dict[str, object]) -> None:
+def test_embed_message_accepts_minimal_sdk_variants(
+    message: dict[str, object],
+) -> None:
     envelope = EmbedMessageEnvelope.model_validate(message)
 
     assert envelope.root.type == message["type"]
 
 
-def test_embed_message_rejects_unknown_type() -> None:
+@pytest.mark.parametrize("message_type", ["exportImage", "aiQuestion", "unknown"])
+def test_embed_message_rejects_out_of_scope_variants(message_type: str) -> None:
     with pytest.raises(ValidationError):
-        EmbedMessageEnvelope.model_validate({"type": "unknown"})
+        EmbedMessageEnvelope.model_validate(
+            {
+                "type": message_type,
+                "instance_id": "embed-1",
+                "request_id": "request-1",
+            }
+        )

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, Literal, Self
 from urllib.parse import urlsplit
 
@@ -11,13 +11,13 @@ class EmbedTicketClaims(ContractModel):
     schema_version: Literal[1] = 1
     issuer: NonBlankStr = "datapulse"
     audience: NonBlankStr = "datapulse-embed"
-    dashboard_id: NonBlankStr
-    published_version_id: NonBlankStr
+    ticket_id: NonBlankStr
+    screen_id: NonBlankStr
     allowed_origin: NonBlankStr
     issued_at: datetime
     expires_at: datetime
-    ai_enabled: bool = False
     parameters: dict[str, JsonValue] = Field(default_factory=dict)
+    mutable_parameters: tuple[NonBlankStr, ...] = Field(default_factory=tuple)
 
     @field_validator("allowed_origin")
     @classmethod
@@ -35,54 +35,63 @@ class EmbedTicketClaims(ContractModel):
         return value
 
     @model_validator(mode="after")
-    def validate_expiration(self) -> Self:
-        if self.expires_at <= self.issued_at:
+    def validate_claims(self) -> Self:
+        lifetime = self.expires_at - self.issued_at
+        if lifetime <= timedelta(0):
             raise ValueError("expires_at must be after issued_at")
+        if lifetime > timedelta(hours=8):
+            raise ValueError("embed ticket lifetime cannot exceed eight hours")
+        if len(self.mutable_parameters) != len(set(self.mutable_parameters)):
+            raise ValueError("mutable_parameters must be unique")
         return self
 
 
-class ReadyMessage(ContractModel):
+class Message(ContractModel):
+    instance_id: NonBlankStr
+
+
+class ReadyMessage(Message):
     type: Literal["ready"]
+    protocol_version: Literal[1] = 1
 
 
-class RefreshMessage(ContractModel):
+class RefreshMessage(Message):
     type: Literal["refresh"]
 
 
-class SetParametersMessage(ContractModel):
+class SetParametersMessage(Message):
     type: Literal["setParameters"]
     request_id: NonBlankStr
     parameters: dict[str, JsonValue]
 
 
-class GetParametersMessage(ContractModel):
+class GetParametersMessage(Message):
     type: Literal["getParameters"]
     request_id: NonBlankStr
 
 
-class FullscreenMessage(ContractModel):
+class ParametersMessage(Message):
+    type: Literal["parameters"]
+    request_id: NonBlankStr
+    parameters: dict[str, JsonValue]
+
+
+class FullscreenMessage(Message):
     type: Literal["fullscreen"]
     request_id: NonBlankStr
     enabled: bool
 
 
-class ExportImageMessage(ContractModel):
-    type: Literal["exportImage"]
+class AckMessage(Message):
+    type: Literal["ack"]
     request_id: NonBlankStr
-    format: Literal["png", "jpeg"] = "png"
 
 
-class ErrorMessage(ContractModel):
+class ErrorMessage(Message):
     type: Literal["error"]
     request_id: str | None = None
     code: NonBlankStr
     message: NonBlankStr
-
-
-class AiQuestionMessage(ContractModel):
-    type: Literal["aiQuestion"]
-    request_id: NonBlankStr
-    question: NonBlankStr
 
 
 EmbedMessage = Annotated[
@@ -90,10 +99,10 @@ EmbedMessage = Annotated[
     | RefreshMessage
     | SetParametersMessage
     | GetParametersMessage
+    | ParametersMessage
     | FullscreenMessage
-    | ExportImageMessage
-    | ErrorMessage
-    | AiQuestionMessage,
+    | AckMessage
+    | ErrorMessage,
     Field(discriminator="type"),
 ]
 

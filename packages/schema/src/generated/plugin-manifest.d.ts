@@ -4,7 +4,16 @@ export type CompatibleApi = string;
  */
 export type Components = [PluginComponent, ...PluginComponent[]];
 export type Category = string;
-export type JsonValue = unknown;
+export type JsonValue =
+  | JsonValue[]
+  | {
+      [k: string]: JsonValue;
+    }
+  | string
+  | boolean
+  | number
+  | number
+  | null;
 export type Name = string;
 export type Type = string;
 export type Entry = string;
