@@ -29,7 +29,10 @@ class LoginLimiter:
 
     @staticmethod
     def _normalize(client_ip: str) -> str:
-        return ip_address(client_ip).compressed
+        try:
+            return ip_address(client_ip).compressed
+        except ValueError:
+            return client_ip.strip().lower()
 
     def _active_window(self, client_ip: str) -> FailureWindow | None:
         key = self._normalize(client_ip)

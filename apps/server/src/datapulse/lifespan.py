@@ -1,0 +1,80 @@
+import logging
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
+from datetime import timedelta
+from pathlib import Path
+
+from alembic.config import Config
+from alembic.script import ScriptDirectory
+from fastapi import FastAPI
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+from datapulse.auth.bootstrap import BootstrapService
+from datapulse.auth.limiter import LoginLimiter
+from datapulse.auth.repository import AuthRepository
+from datapulse.auth.session import SessionService
+from datapulse.metadata import create_metadata_engine, create_session_factory
+from datapulse.settings import Settings
+
+logger = logging.getLogger(__name__)
+SERVER_ROOT = Path(__file__).resolve().parents[2]
+
+
+async def check_migration_head(app: FastAPI) -> None:
+    config = Config(str(SERVER_ROOT / "alembic.ini"))
+    expected = ScriptDirectory.from_config(config).get_current_head()
+    try:
+        async with app.state.metadata_engine.connect() as connection:
+            current = await connection.scalar(text("SELECT version_num FROM alembic_version"))
+    except SQLAlchemyError as error:
+        raise RuntimeError(
+            "DataPulse metadata database is not migrated; run alembic upgrade head."
+        ) from error
+    if current != expected:
+        raise RuntimeError(
+            f"DataPulse metadata database revision is {current!r}; expected {expected!r}."
+        )
+
+
+def create_lifespan(
+    settings: Settings,
+) -> Callable[[FastAPI], AsyncIterator[None]]:
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        if settings.bootstrap_code_override is not None and settings.environment != "test":
+            raise RuntimeError("bootstrap_code_override is only allowed in the test environment.")
+        settings.data_dir.resolve().mkdir(parents=True, exist_ok=True)
+        settings.resolved_sources_dir().mkdir(parents=True, exist_ok=True)
+
+        engine = create_metadata_engine(settings)
+        app.state.settings = settings
+        app.state.metadata_engine = engine
+        try:
+            await check_migration_head(app)
+            repository = AuthRepository(create_session_factory(engine))
+            token_factory = (
+                (lambda: settings.bootstrap_code_override)
+                if settings.bootstrap_code_override is not None
+                else None
+            )
+            bootstrap_service = BootstrapService(
+                repository,
+                token_factory=token_factory,
+            )
+            app.state.auth_repository = repository
+            app.state.bootstrap_service = bootstrap_service
+            app.state.session_service = SessionService(repository)
+            app.state.login_limiter = LoginLimiter(
+                max_failures=5,
+                window=timedelta(minutes=15),
+            )
+
+            if not await repository.has_admin():
+                setup_code = await bootstrap_service.issue_code()
+                logger.warning("DataPulse one-time setup code: %s", setup_code)
+            yield
+        finally:
+            await engine.dispose()
+
+    return lifespan

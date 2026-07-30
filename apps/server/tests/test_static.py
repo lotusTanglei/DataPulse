@@ -3,9 +3,8 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from datapulse.app import create_app
-from datapulse.settings import Settings
 from datapulse.static import create_spa_router
+from tests.support.app import build_test_app
 
 
 def test_spa_serves_assets_and_falls_back_to_index(tmp_path: Path) -> None:
@@ -54,11 +53,16 @@ def test_spa_does_not_serve_files_outside_static_directory(tmp_path: Path) -> No
 
 
 def test_app_mounts_configured_static_directory(tmp_path: Path) -> None:
-    (tmp_path / "index.html").write_text("<h1>Configured DataPulse</h1>", encoding="utf-8")
-    app = create_app(Settings(environment="test", static_dir=tmp_path))
+    static_dir = tmp_path / "static"
+    static_dir.mkdir()
+    (static_dir / "index.html").write_text(
+        "<h1>Configured DataPulse</h1>",
+        encoding="utf-8",
+    )
 
-    response = TestClient(app).get("/")
-    health = TestClient(app).get("/api/health")
+    with build_test_app(tmp_path, static_dir=static_dir) as app_client:
+        response = app_client.client.get("/")
+        health = app_client.client.get("/api/health")
 
     assert response.status_code == 200
     assert "Configured DataPulse" in response.text

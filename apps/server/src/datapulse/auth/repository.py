@@ -66,6 +66,24 @@ class AuthRepository:
         async with self._session_factory() as session:
             return await session.get(AdminAccount, admin_id)
 
+    async def update_admin_password(
+        self,
+        admin_id: str,
+        *,
+        password_hash: str,
+        changed_at: datetime,
+    ) -> None:
+        async with self._session_factory.begin() as session:
+            await session.execute(
+                update(AdminAccount)
+                .where(AdminAccount.id == admin_id)
+                .values(
+                    password_hash=password_hash,
+                    password_changed_at=changed_at,
+                    updated_at=changed_at,
+                )
+            )
+
     async def create_admin_from_setup_code(
         self,
         *,
