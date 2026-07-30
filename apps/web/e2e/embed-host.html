@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DataPulse E2E Embed Host</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #f3f4f6;
+        font-family: system-ui, sans-serif;
+      }
+
+      .host-toolbar {
+        display: flex;
+        height: 48px;
+        box-sizing: border-box;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 12px;
+        background: #fff;
+        border-bottom: 1px solid #d1d5db;
+      }
+
+      #embed-root {
+        height: calc(100% - 48px);
+      }
+
+      .embedded-screen {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="host-toolbar" aria-label="宿主控制">
+      <button id="set-region" type="button">切换华南</button>
+      <button id="refresh" type="button">刷新大屏</button>
+      <button id="fullscreen" type="button">请求退出全屏</button>
+      <button id="forbidden" type="button">修改禁用参数</button>
+      <output id="host-status" aria-label="嵌入状态">loading</output>
+    </nav>
+    <main id="embed-root" aria-label="嵌入大屏"></main>
+    <script type="module" src="/src/e2eEmbedHost.ts"></script>
+  </body>
+</html>

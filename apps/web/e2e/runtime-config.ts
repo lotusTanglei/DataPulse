@@ -6,6 +6,7 @@ export interface E2EConfig {
   frontendPort: number;
   dataDir: string;
   setupCode: string;
+  signingKey: string;
 }
 
 export const repositoryRoot = resolve(import.meta.dirname, "../../..");

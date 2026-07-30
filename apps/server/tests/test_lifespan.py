@@ -8,6 +8,14 @@ from datapulse.settings import Settings
 from tests.support.app import migrate_database
 
 
+def test_screen_query_bursts_wait_for_a_limiter_slot_by_default() -> None:
+    settings = Settings()
+
+    assert settings.query_global_limit == 4
+    assert settings.query_per_source_limit == 2
+    assert settings.query_acquire_timeout_seconds == 5
+
+
 def test_bootstrap_override_is_rejected_outside_test_environment(tmp_path: Path) -> None:
     database_path = tmp_path / "datapulse.db"
     migrate_database(database_path)

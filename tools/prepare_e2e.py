@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import shutil
 import socket
@@ -60,6 +61,9 @@ def prepare(runtime_root: Path = E2E_ROOT) -> Path:
     backend_port, frontend_port = reserve_ports()
     data_dir = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)).resolve()
     config_path = runtime_root / f"{CONFIG_PREFIX}{uuid4().hex}.json"
+    signing_key = base64.urlsafe_b64encode(
+        b"e2e-signing-key-material-32-byte"
+    ).decode()
     try:
         sources_dir = data_dir / "sources"
         sources_dir.mkdir()
@@ -74,6 +78,7 @@ def prepare(runtime_root: Path = E2E_ROOT) -> Path:
                     "frontendPort": frontend_port,
                     "dataDir": str(data_dir),
                     "setupCode": "e2e-setup-code",
+                    "signingKey": signing_key,
                 },
                 indent=2,
             )

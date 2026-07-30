@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 
 from tools.prepare_e2e import REPOSITORY_ROOT, cleanup_run, prepare
 
 
 def main() -> int:
     config_path = prepare()
+    arguments = sys.argv[1:]
+    if arguments[:1] == ["--"]:
+        arguments = arguments[1:]
     environment = {
         **os.environ,
         "DATAPULSE_E2E_CONFIG": str(config_path),
@@ -23,6 +27,7 @@ def main() -> int:
                 "test",
                 "--config",
                 "playwright.config.ts",
+                *arguments,
             ],
             cwd=REPOSITORY_ROOT,
             env=environment,

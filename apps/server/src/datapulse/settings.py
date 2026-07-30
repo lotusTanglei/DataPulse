@@ -1,6 +1,7 @@
 import base64
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,6 +19,9 @@ class Settings(BaseSettings):
     bootstrap_code_override: str | None = None
     master_key: str | None = None
     signing_key: str | None = None
+    query_global_limit: int = Field(default=4, ge=1)
+    query_per_source_limit: int = Field(default=2, ge=1)
+    query_acquire_timeout_seconds: float = Field(default=5, ge=0)
 
     def resolved_sources_dir(self) -> Path:
         return (self.sources_dir or self.data_dir / "sources").resolve()

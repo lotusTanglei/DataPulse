@@ -109,9 +109,9 @@ def create_lifespan(
             query_executor = QueryExecutor(
                 repository=QueryRunRepository(session_factory),
                 limiter=QueryLimiter(
-                    global_limit=4,
-                    per_source_limit=2,
-                    acquire_timeout=0,
+                    global_limit=settings.query_global_limit,
+                    per_source_limit=settings.query_per_source_limit,
+                    acquire_timeout=settings.query_acquire_timeout_seconds,
                 ),
                 request_id_factory=lambda: str(uuid4()),
             )

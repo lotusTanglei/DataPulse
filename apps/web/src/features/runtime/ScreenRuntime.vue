@@ -94,6 +94,10 @@ function hasBinding(binding: unknown): binding is Record<string, JsonValue> {
   );
 }
 
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
 async function refresh(): Promise<void> {
   dataRuntime.beginGeneration();
   const parameters = parameterState.values();
@@ -103,7 +107,9 @@ async function refresh(): Promise<void> {
       dataRuntime
         .load(component.id, component.data_binding!, parameters)
         .catch((error: unknown) => {
-          emit("error", error);
+          if (!isAbortError(error)) {
+            emit("error", error);
+          }
         }),
     );
   await Promise.all(loads);

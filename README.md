@@ -1,6 +1,6 @@
 # DataPulse
 
-DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源数据分析与大屏创作软件。当前版本已经交付可实际使用的“数据源工作室”：单管理员登录、SQLite / PostgreSQL / MySQL（含 MariaDB）原生连接、Schema 浏览、只读参数化 SQL 调试，以及可保存和预览的数据集。
+DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源数据分析与大屏创作软件。当前版本已经交付数据源工作室和完整的大屏创作链路：单管理员登录、原生数据库连接、数据集、九类内置组件、可视化编辑、草稿预览、发布、独立播放和安全嵌入。
 
 编辑端由 DataPulse 的单一管理员账号保护；未来发布的大屏页面以嵌入宿主系统为主，查看权限和身份由宿主系统承担。
 
@@ -13,9 +13,16 @@ DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源
 - 数据库密码加密保存，响应与页面不回显明文密码
 - Schema 按需浏览、只读 SQL 校验、参数绑定、超时/行数/并发限制
 - 数据集保存、编辑和运行预览
+- 1920 × 1080 大屏画布、拖拽缩放、图层、撤销/重做和自动保存
+- 文本、图片、指标、表格、进度、折线图、柱状图、饼图和地图组件
+- 数据绑定、全局参数、点击联动、10/30/60/300 秒定时刷新
+- 草稿预览和覆盖式发布；需要历史版本时可在发布前复制大屏
+- 可撤销显示密钥保护的独立播放页面
+- 宿主 API Key、最长 8 小时短票据、精确 Origin 和 CSP 保护的系统嵌入
+- `@datapulse/embed-sdk` 的刷新、参数、全屏、错误回调和多实例通信
 - Vue 3 Studio 与 FastAPI 单镜像交付，容器启动自动执行 Alembic 迁移
 
-DuckDB、本地文件导入、查询缓存、大屏编辑与发布、Web 嵌入/单点安全、插件定时刷新和 AI 自然语言分析将在后续阶段实现。
+DuckDB、本地文件导入、查询缓存、组件插件和 AI 自然语言分析将在后续阶段实现。
 
 ## 环境要求
 
@@ -46,13 +53,16 @@ pnpm dev:web
 
 ## Docker 部署
 
-先生成独立的 32 字节主密钥：
+先分别生成数据库主密钥和页面签名密钥。两者都必须是独立随机的
+32 字节值，不要复用：
 
 ```bash
 python -c "import base64,secrets; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode().rstrip('='))"
 ```
 
-复制 `.env.example` 为 `.env`，把输出替换到 `DATAPULSE_MASTER_KEY`，再启动：
+运行两次命令，复制 `.env.example` 为 `.env`，分别填写
+`DATAPULSE_MASTER_KEY` 和 `DATAPULSE_SIGNING_KEY`。容器数据目录固定为
+`DATAPULSE_DATA_DIR=/data`，然后启动：
 
 ```bash
 docker compose up -d --build
@@ -68,6 +78,46 @@ docker compose cp ./sales.db datapulse:/data/sources/sales.db
 ```
 
 生产环境连接 PostgreSQL、MySQL 或 MariaDB 时，建议创建专用只读数据库账号，并只授予所需 Schema 的查询权限。
+
+## 大屏播放与系统嵌入
+
+独立播放适合电视、展厅和无人值守浏览器。管理员发布大屏后调用
+`POST /api/admin/screens/{screen_id}/display-key` 生成显示密钥，再打开：
+
+```text
+/play/{screen_id}?key=<display-key>
+```
+
+页面会立即从地址栏移除密钥并换取仅限 `/api/player` 的 HttpOnly 会话。
+再次生成显示密钥会立即撤销旧密钥和旧播放会话。
+
+系统嵌入由宿主后端持有 API Key。管理员调用
+`POST /api/admin/embed/api-key` 轮换宿主 API Key；宿主后端使用该 Key 调用
+`POST /api/embed/tickets`，为一个大屏、一个 HTTPS Origin 和一组参数签发最长
+8 小时的短票据。API Key 和票据都不应下发到日志、持久化存储或 URL 之外的
+第三方页面。
+
+宿主前端使用 SDK 挂载：
+
+```ts
+import { DataPulseEmbed } from "@datapulse/embed-sdk";
+
+const screen = DataPulseEmbed.mount(document.querySelector("#screen")!, {
+  url: "https://datapulse.example.com/embed/screen-id",
+  ticket,
+});
+
+await screen.setParameters({ region: "华东" });
+screen.refresh();
+const parameters = await screen.getParameters();
+await screen.fullscreen();
+screen.destroy();
+```
+
+SDK 和播放器会同时校验消息来源、窗口实例和请求 ID。票据只在 iframe
+首次启动时出现在 URL，随后立即移入内存并通过 Bearer 请求使用；不会写入
+Cookie、Local Storage 或 Session Storage。查看者身份和业务权限仍由宿主系统
+控制，DataPulse 只执行票据中明确授权的大屏和参数范围。
 
 ## 测试与验证
 

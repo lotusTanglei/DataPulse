@@ -53,6 +53,16 @@ const embedDocument = {
       data_binding: {},
       interactions: [],
     },
+    {
+      id: "kpi-1",
+      type: "builtin.kpi",
+      frame: { x: 380, y: 40, width: 280, height: 160, z_index: 1 },
+      state: { hidden: false, locked: false },
+      props: { label: "销售额" },
+      style: {},
+      data_binding: { chart_spec: { dataset_id: "sales" } },
+      interactions: [],
+    },
   ],
 };
 
@@ -219,6 +229,31 @@ test("embed player scrubs the ticket and uses Bearer-only runtime APIs", async (
           ),
         );
       }
+      if (url === "/api/embed/screens/screen-1/query") {
+        expect(new Headers(init?.headers).get("Authorization")).toBe(
+          "Bearer short-ticket",
+        );
+        expect(JSON.parse(String(init?.body))).toEqual({
+          component_id: "kpi-1",
+          parameters: { region: "west" },
+        });
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              request_id: "embed-query",
+              columns: [{ name: "amount", data_type: "number" }],
+              rows: [[500]],
+              row_count: 1,
+              truncated: false,
+              duration_ms: 1,
+            }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+        );
+      }
       throw new Error(`Unexpected request: ${url}`);
     },
   );
@@ -244,7 +279,7 @@ test("embed player scrubs the ticket and uses Bearer-only runtime APIs", async (
     "",
     "/embed/screen-1",
   );
-  expect(fetchMock).toHaveBeenCalledOnce();
+  expect(fetchMock).toHaveBeenCalledTimes(2);
   expect(fetchMock.mock.calls[0]?.[0]).not.toContain("short-ticket");
   expect(wrapper.get(".screen-runtime").attributes("data-mode")).toBe(
     "embed",

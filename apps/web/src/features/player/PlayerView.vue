@@ -246,10 +246,15 @@ const queryComponent = async (
     );
   }
   if (props.mode === "embed") {
+    const overrides = Object.fromEntries(
+      Object.entries(parameters).filter(([name]) =>
+        mutableParameters.value.has(name),
+      ),
+    );
     return queryEmbedComponent(
       resolvedScreenId.value,
       componentId,
-      parameters,
+      overrides,
       embedTicket.value,
       signal,
     );

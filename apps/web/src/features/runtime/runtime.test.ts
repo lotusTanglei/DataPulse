@@ -3,6 +3,7 @@ import { defineComponent, markRaw } from "vue";
 import { expect, test, vi } from "vitest";
 
 import type { DashboardDocument } from "../../contracts";
+import type { QueryResult } from "../query/types";
 import ComponentHost from "./ComponentHost.vue";
 import { createParameterState, ParameterValidationError } from "./parameters";
 import { ComponentRegistry } from "./registry";
@@ -134,6 +135,8 @@ test("maps primitive theme tokens to scoped CSS custom properties", () => {
   ).toEqual({
     "--dp-accent": "#2563eb",
     "--dp-panel-background": "#ffffff",
+    "--screen-accent": "#2563eb",
+    "--screen-panel-background": "#ffffff",
   });
 });
 
@@ -228,5 +231,71 @@ test("loads bound components through one unified screen runtime", async () => {
   expect(wrapper.get(".screen-runtime__canvas").attributes("style")).toContain(
     "background-color: #101828",
   );
+  wrapper.unmount();
+});
+
+test("refresh cancellation does not surface as a component error", async () => {
+  const registry = new ComponentRegistry().register({
+    type: "builtin.kpi",
+    label: "指标",
+    defaultFrame: { width: 240, height: 120 },
+    defaultProps: {},
+    dataCapability: "single",
+    component: StubComponent,
+  });
+  const document: DashboardDocument = {
+    schema_version: 1,
+    canvas: { width: 1920, height: 1080 },
+    components: [
+      {
+        id: "kpi-a",
+        type: "builtin.kpi",
+        frame: { x: 0, y: 0, width: 240, height: 120 },
+        data_binding: { chart_spec: { dataset_id: "sales" } },
+      },
+    ],
+  };
+  let call = 0;
+  const queryComponent = vi.fn(
+    (
+      _componentId: string,
+      _parameters: Record<string, unknown>,
+      signal?: AbortSignal,
+    ) => {
+      call += 1;
+      if (call > 1) {
+        return Promise.resolve({
+          request_id: "refreshed",
+          columns: [],
+          rows: [],
+          row_count: 0,
+          truncated: false,
+          duration_ms: 1,
+        });
+      }
+      return new Promise<QueryResult>((_, reject) => {
+        signal?.addEventListener("abort", () => {
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      });
+    },
+  );
+  const wrapper = mount(ScreenRuntime, {
+    props: {
+      document,
+      loadAsset: vi.fn(),
+      mode: "embed",
+      queryComponent,
+      registry,
+    },
+  });
+  await flushPromises();
+
+  await (
+    wrapper.vm as unknown as { refresh(): Promise<void> }
+  ).refresh();
+  await flushPromises();
+
+  expect(wrapper.emitted("error")).toBeUndefined();
   wrapper.unmount();
 });

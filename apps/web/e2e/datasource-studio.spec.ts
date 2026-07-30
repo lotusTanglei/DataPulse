@@ -62,7 +62,7 @@ test("administrator can configure and analyze a SQLite datasource", async ({
   await page.getByRole("button", { name: "运行", exact: true }).click();
   await expect(page.getByLabel("查询结果")).toContainText("120.5");
   await expect(page.getByLabel("查询结果")).toContainText("200");
-  await expect(page.getByText("2 行", { exact: true })).toBeVisible();
+  await expect(page.getByText("3 行", { exact: true })).toBeVisible();
 
   await editor.fill("DELETE FROM sales");
   await page.getByRole("button", { name: "运行", exact: true }).click();
@@ -70,7 +70,7 @@ test("administrator can configure and analyze a SQLite datasource", async ({
 
   await editor.fill(validSql);
   await page.getByRole("button", { name: "运行", exact: true }).click();
-  await expect(page.getByText("2 行", { exact: true })).toBeVisible();
+  await expect(page.getByText("3 行", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "保存为数据集" }).click();
   await page.getByLabel("数据集名称").fill("高价值销售");
   await page.getByRole("button", { name: "保存数据集" }).click();

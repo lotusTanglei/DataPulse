@@ -20,7 +20,9 @@ export function resolveTheme(
       safeName.length > 0 &&
       (typeof value === "string" || typeof value === "number")
     ) {
-      resolved[`--dp-${safeName}`] = String(value);
+      const resolvedValue = String(value);
+      resolved[`--dp-${safeName}`] = resolvedValue;
+      resolved[`--screen-${safeName}`] = resolvedValue;
     }
   }
   return resolved;

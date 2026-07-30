@@ -11,8 +11,8 @@
     "build:web": "pnpm --filter @datapulse/web build",
     "generate:contracts": "uv run --package datapulse-server python tools/export_schemas.py && node tools/generate_types.mjs",
     "check:contracts": "uv run --package datapulse-server python tools/check_generated.py",
-    "test": "pnpm test:web && uv run --package datapulse-server pytest -m \"not integration\"",
-    "typecheck": "pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json",
+    "test": "pnpm --filter @datapulse/embed-sdk test && pnpm test:web && uv run --package datapulse-server pytest -m \"not integration\"",
+    "typecheck": "pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck",
     "build": "pnpm build:web",
     "verify": "pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build",
     "verify:full": "pnpm verify && pnpm test:integration && pnpm test:e2e"

@@ -12,6 +12,7 @@ const backendEnvironment = {
   DATAPULSE_ENVIRONMENT: "test",
   DATAPULSE_DATA_DIR: runtime.dataDir,
   DATAPULSE_BOOTSTRAP_CODE_OVERRIDE: runtime.setupCode,
+  DATAPULSE_SIGNING_KEY: runtime.signingKey,
 };
 
 export default defineConfig({
@@ -20,6 +21,7 @@ export default defineConfig({
   workers: 1,
   timeout: 45_000,
   expect: { timeout: 8_000 },
+  snapshotPathTemplate: "{testDir}/snapshots/{arg}{ext}",
   globalTeardown: "./e2e/global-teardown.ts",
   use: {
     baseURL: frontendUrl,
