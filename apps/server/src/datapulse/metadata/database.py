@@ -1,3 +1,6 @@
+from typing import Any
+
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -16,7 +19,20 @@ def metadata_database_url(settings: Settings) -> str:
 
 
 def create_metadata_engine(settings: Settings) -> AsyncEngine:
-    return create_async_engine(metadata_database_url(settings))
+    engine = create_async_engine(metadata_database_url(settings))
+    if engine.dialect.name == "sqlite":
+        event.listen(engine.sync_engine, "connect", _enable_sqlite_foreign_keys)
+    return engine
+
+
+def _enable_sqlite_foreign_keys(
+    dbapi_connection: Any,
+    connection_record: Any,
+) -> None:
+    del connection_record
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 def create_session_factory(

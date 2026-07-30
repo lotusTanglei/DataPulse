@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     sources_dir: Path | None = None
     database_url: str | None = None
     bootstrap_code_override: str | None = None
+    master_key: str | None = None
 
     def resolved_sources_dir(self) -> Path:
         return (self.sources_dir or self.data_dir / "sources").resolve()
