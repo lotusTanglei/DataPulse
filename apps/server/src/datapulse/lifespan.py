@@ -3,6 +3,7 @@ from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from pathlib import Path
+from uuid import uuid4
 
 from alembic.config import Config
 from alembic.script import ScriptDirectory
@@ -14,7 +15,17 @@ from datapulse.auth.bootstrap import BootstrapService
 from datapulse.auth.limiter import LoginLimiter
 from datapulse.auth.repository import AuthRepository
 from datapulse.auth.session import SessionService
+from datapulse.datasource.engine_manager import EngineManager
+from datapulse.datasource.mysql import MySQLConnector
+from datapulse.datasource.postgresql import PostgreSQLConnector
+from datapulse.datasource.registry import ConnectorRegistry
+from datapulse.datasource.repository import DatasourceRepository
+from datapulse.datasource.secrets import SecretBox
+from datapulse.datasource.service import DatasourceService
+from datapulse.datasource.sqlite import SQLiteConnector
 from datapulse.metadata import create_metadata_engine, create_session_factory
+from datapulse.query.execution import QueryExecutor, QueryRunRepository
+from datapulse.query.limits import QueryLimiter
 from datapulse.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -48,11 +59,13 @@ def create_lifespan(
         settings.resolved_sources_dir().mkdir(parents=True, exist_ok=True)
 
         engine = create_metadata_engine(settings)
+        datasource_engine_manager = EngineManager()
         app.state.settings = settings
         app.state.metadata_engine = engine
         try:
             await check_migration_head(app)
-            repository = AuthRepository(create_session_factory(engine))
+            session_factory = create_session_factory(engine)
+            repository = AuthRepository(session_factory)
             token_factory = (
                 (lambda: settings.bootstrap_code_override)
                 if settings.bootstrap_code_override is not None
@@ -69,12 +82,37 @@ def create_lifespan(
                 max_failures=5,
                 window=timedelta(minutes=15),
             )
+            datasource_repository = DatasourceRepository(session_factory)
+            query_executor = QueryExecutor(
+                repository=QueryRunRepository(session_factory),
+                limiter=QueryLimiter(
+                    global_limit=4,
+                    per_source_limit=2,
+                    acquire_timeout=0,
+                ),
+                request_id_factory=lambda: str(uuid4()),
+            )
+            app.state.datasource_engine_manager = datasource_engine_manager
+            app.state.datasource_service = DatasourceService(
+                repository=datasource_repository,
+                secret_box=SecretBox.from_settings(settings),
+                registry=ConnectorRegistry(
+                    [
+                        SQLiteConnector(settings),
+                        PostgreSQLConnector(),
+                        MySQLConnector(),
+                    ]
+                ),
+                engine_manager=datasource_engine_manager,
+                query_executor=query_executor,
+            )
 
             if not await repository.has_admin():
                 setup_code = await bootstrap_service.issue_code()
                 logger.warning("DataPulse one-time setup code: %s", setup_code)
             yield
         finally:
+            await datasource_engine_manager.dispose_all()
             await engine.dispose()
 
     return lifespan

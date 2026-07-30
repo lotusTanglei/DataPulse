@@ -146,10 +146,11 @@ class QueryExecutor:
         config: DatasourceConfig,
         secret: ConnectorSecret | None,
         request: QueryRequest,
+        request_id: str | None = None,
     ) -> QueryResult:
         validated = validate_read_only_sql(request.sql, connector.dialect)
         validate_parameters(validated, request.parameters)
-        request_id = self._request_id_factory()
+        request_id = request_id or self._request_id_factory()
         started_at = self._clock()
         await self._repository.create(
             request_id=request_id,

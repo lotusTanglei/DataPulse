@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import TypeAdapter
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
@@ -151,3 +153,23 @@ class DatasourceRepository:
                     raise DatasourceNotFound(datasource_id)
         except IntegrityError as error:
             raise DatasourceInUse(datasource_id) from error
+
+    async def update_connection_status(
+        self,
+        datasource_id: str,
+        *,
+        status: DatasourceStatus,
+        checked_at: datetime,
+        latency_ms: int,
+        error_code: str | None,
+    ) -> DatasourceResponse:
+        async with self._session_factory.begin() as session:
+            record = await session.get(DataSourceRecord, datasource_id)
+            if record is None:
+                raise DatasourceNotFound(datasource_id)
+            record.status = status.value
+            record.last_checked_at = checked_at
+            record.last_latency_ms = latency_ms
+            record.last_error_code = error_code
+            await session.flush()
+        return self._to_response(record)

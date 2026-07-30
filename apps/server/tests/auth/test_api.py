@@ -3,6 +3,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+
 from tests.support.app import AppClient, build_test_app
 
 
