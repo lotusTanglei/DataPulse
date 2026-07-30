@@ -9,6 +9,8 @@ _valid_name = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 _invalid_placeholder = re.compile(r"(?<!:):(?!:)([0-9][A-Za-z0-9_]*)")
 _single_quoted = re.compile(r"'(?:''|[^'])*'")
 _double_quoted = re.compile(r'"(?:""|[^"])*"')
+_line_comment = re.compile(r"--[^\r\n]*")
+_block_comment = re.compile(r"/\*.*?\*/", re.DOTALL)
 
 
 class ParameterValidationError(ValueError):
@@ -22,9 +24,15 @@ def validate_parameters(
     query: ValidatedQuery,
     parameters: dict[str, object],
 ) -> None:
-    sql_without_strings = _double_quoted.sub(
+    sql_without_strings = _block_comment.sub(
         "",
-        _single_quoted.sub("", query.sql),
+        _line_comment.sub(
+            "",
+            _double_quoted.sub(
+                "",
+                _single_quoted.sub("", query.sql),
+            ),
+        ),
     )
     invalid_in_sql = set(_invalid_placeholder.findall(sql_without_strings))
     invalid_keys = {name for name in parameters if _valid_name.fullmatch(name) is None}

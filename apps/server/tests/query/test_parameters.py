@@ -77,3 +77,17 @@ def test_identifier_substitution_is_rejected() -> None:
 
     assert captured.value.code == "QUERY_PARAMETER_IDENTIFIER_INVALID"
     assert captured.value.field_errors == ({"field": "table"},)
+
+
+def test_parameter_like_text_inside_comments_is_ignored() -> None:
+    query = validate_read_only_sql(
+        """
+        SELECT amount
+        FROM sales
+        -- example invalid placeholder: :1year
+        /* another example: :2region */
+        """,
+        "postgres",
+    )
+
+    validate_parameters(query, {})
