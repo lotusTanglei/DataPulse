@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
+
 from tests.support.app import AppClient, build_test_app
 
 SIGNING_KEY = base64.urlsafe_b64encode(b"s" * 32).decode()

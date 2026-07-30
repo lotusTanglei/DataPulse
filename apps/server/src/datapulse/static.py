@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import FileResponse
+
+from datapulse.embedding.page import embed_page_response
 
 
 def create_spa_router(static_dir: Path) -> APIRouter:
@@ -21,6 +23,19 @@ def create_spa_router(static_dir: Path) -> APIRouter:
                 "Content-Security-Policy": "frame-ancestors 'none'",
                 "X-Content-Type-Options": "nosniff",
             },
+        )
+
+    @router.get("/embed/{screen_id}")
+    async def embedded_player(
+        request: Request,
+        screen_id: str,
+        ticket: str = Query(min_length=1),
+    ) -> FileResponse:
+        return await embed_page_response(
+            request=request,
+            static_root=root,
+            screen_id=screen_id,
+            ticket=ticket,
         )
 
     @router.get("/{path:path}")

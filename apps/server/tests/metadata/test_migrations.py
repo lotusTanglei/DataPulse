@@ -50,6 +50,7 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
         "screen",
         "screen_asset",
         "display_access",
+        "embed_access",
         "alembic_version",
     } <= inspect_sqlite_tables(database_path)
     columns = inspect_sqlite_columns(database_path, "screen")
@@ -62,6 +63,9 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
     display_columns = inspect_sqlite_columns(database_path, "display_access")
     assert display_columns["key_hash"] == ("VARCHAR(64)", False)
     assert display_columns["key_version"] == ("INTEGER", False)
+    embed_columns = inspect_sqlite_columns(database_path, "embed_access")
+    assert embed_columns["api_key_hash"] == ("VARCHAR(64)", False)
+    assert embed_columns["key_version"] == ("INTEGER", False)
 
 
 def test_upgrade_head_uses_configured_data_dir(

@@ -28,6 +28,10 @@ from datapulse.datasource.sqlite import SQLiteConnector
 from datapulse.display.repository import DisplayAccessRepository
 from datapulse.display.service import DisplayAccessService
 from datapulse.display.tokens import DisplaySessionCodec
+from datapulse.embedding.page import install_ticket_redaction_filter
+from datapulse.embedding.repository import EmbedAccessRepository
+from datapulse.embedding.service import EmbedService
+from datapulse.embedding.tokens import EmbedTicketCodec
 from datapulse.metadata import create_metadata_engine, create_session_factory
 from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
@@ -63,6 +67,7 @@ def create_lifespan(
 ) -> Callable[[FastAPI], AsyncIterator[None]]:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        install_ticket_redaction_filter()
         if settings.bootstrap_code_override is not None and settings.environment != "test":
             raise RuntimeError("bootstrap_code_override is only allowed in the test environment.")
         settings.data_dir.resolve().mkdir(parents=True, exist_ok=True)
@@ -149,6 +154,15 @@ def create_lifespan(
                 screen_repository=screen_repository,
                 codec=(
                     DisplaySessionCodec(signing_key=signing_key)
+                    if signing_key is not None
+                    else None
+                ),
+            )
+            app.state.embed_service = EmbedService(
+                repository=EmbedAccessRepository(session_factory),
+                screen_repository=screen_repository,
+                codec=(
+                    EmbedTicketCodec(signing_key=signing_key)
                     if signing_key is not None
                     else None
                 ),

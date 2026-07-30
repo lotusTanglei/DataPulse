@@ -156,6 +156,25 @@ class DisplayAccessRecord(Base):
     )
 
 
+class EmbedAccessRecord(Base):
+    __tablename__ = "embed_access"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    api_key_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    key_version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        UTCDateTime(),
+        default=utc_now,
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        UTCDateTime(),
+        default=utc_now,
+        onupdate=utc_now,
+        nullable=False,
+    )
+
+
 class ScreenAssetRecord(Base):
     __tablename__ = "screen_asset"
 

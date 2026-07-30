@@ -115,7 +115,7 @@ def _value_matches(parameter: DashboardParameter, value: JsonValue) -> bool:
     return True
 
 
-def _parameters(
+def resolve_parameters(
     document: DashboardDocument,
     supplied: dict[str, JsonValue],
 ) -> dict[str, JsonValue]:
@@ -159,7 +159,7 @@ class ScreenRuntimeService:
         del screen
         component = _component(document, data.component_id)
         spec = _chart_spec(component)
-        runtime_parameters = _parameters(document, data.parameters)
+        runtime_parameters = resolve_parameters(document, data.parameters)
         dataset = await self._dataset_repository.get(spec.dataset_id)
         request = self._compiler.compile(
             spec=spec,
@@ -217,4 +217,5 @@ __all__ = [
     "ScreenNotPublished",
     "ScreenParameterInvalid",
     "ScreenRuntimeService",
+    "resolve_parameters",
 ]

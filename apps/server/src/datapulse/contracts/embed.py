@@ -25,7 +25,7 @@ class EmbedTicketClaims(ContractModel):
         parsed = urlsplit(value)
         if value == "*" or not parsed.hostname:
             raise ValueError("allowed_origin must identify one host")
-        is_local = parsed.hostname in {"localhost", "127.0.0.1"}
+        is_local = parsed.hostname in {"localhost", "127.0.0.1", "::1"}
         if parsed.scheme != "https" and not (is_local and parsed.scheme == "http"):
             raise ValueError("allowed_origin must use HTTPS except for local development")
         if parsed.path or parsed.query or parsed.fragment or parsed.username or parsed.password:
