@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { Pencil } from "@lucide/vue";
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onBeforeUnmount,
+  ref,
+  watch,
+} from "vue";
 import { RouterLink, useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
@@ -17,6 +23,9 @@ import type {
 type DetailTab = "overview" | "schema" | "sql" | "settings";
 
 const route = useRoute();
+const SqlDebugView = defineAsyncComponent(
+  () => import("../query/SqlDebugView.vue"),
+);
 const datasource = ref<Datasource | null>(null);
 const loading = ref(true);
 const error = ref<ApiError | null>(null);
@@ -192,9 +201,8 @@ onBeforeUnmount(() => loadController?.abort());
         <SchemaBrowser :datasource="datasource" />
       </div>
 
-      <div v-else-if="activeTab === 'sql'" class="detail-panel placeholder-panel">
-        <h2>SQL 调试工作区</h2>
-        <p>下一阶段将在此接入只读 SQL 编辑器、参数和查询结果。</p>
+      <div v-else-if="activeTab === 'sql'" class="detail-panel detail-panel--flush">
+        <SqlDebugView :datasource="datasource" />
       </div>
 
       <div v-else class="detail-panel">

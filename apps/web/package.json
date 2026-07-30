@@ -9,8 +9,13 @@
     "build": "vue-tsc --noEmit && vite build"
   },
   "dependencies": {
+    "@codemirror/lang-sql": "^6.10.0",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.7",
     "@datapulse/schema": "workspace:*",
     "@lucide/vue": "^1.27.0",
+    "@tanstack/vue-virtual": "^3.13.35",
+    "codemirror": "^6.0.2",
     "pinia": "^3.0.0",
     "vue": "^3.5.0",
     "vue-router": "^4.6.4"

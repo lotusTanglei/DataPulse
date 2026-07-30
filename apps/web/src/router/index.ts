@@ -8,6 +8,7 @@ import {
 
 import LoginView from "../features/auth/LoginView.vue";
 import SetupView from "../features/auth/SetupView.vue";
+import DatasetListView from "../features/datasets/DatasetListView.vue";
 import DatasourceDetailView from "../features/datasources/DatasourceDetailView.vue";
 import DatasourceFormView from "../features/datasources/DatasourceFormView.vue";
 import DatasourceListView from "../features/datasources/DatasourceListView.vue";
@@ -90,10 +91,20 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
           {
             path: "datasets",
             name: "datasets",
-            component: HomeView,
+            component: DatasetListView,
             meta: {
               title: "数据集",
               description: "沉淀可复用的查询与字段定义。",
+            },
+          },
+          {
+            path: "datasets/:id",
+            name: "dataset-detail",
+            component: () =>
+              import("../features/datasets/DatasetDetailView.vue"),
+            meta: {
+              title: "数据集详情",
+              description: "编辑查询定义、参数并预览结果。",
             },
           },
           {
