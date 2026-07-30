@@ -109,16 +109,20 @@ test("undo and redo participate in autosave history", async () => {
   );
   const store = useScreenEditorStore();
   await store.load("screen-1");
+  expect(store.canUndo).toBe(false);
 
   store.dispatch({
     type: "update_frame",
     component_ids: ["text-1"],
     patch: { x: 120 },
   });
+  expect(store.canUndo).toBe(true);
   store.undo();
   expect(store.document?.components?.[0]?.frame.x).toBe(40);
+  expect(store.canRedo).toBe(true);
   store.redo();
   expect(store.document?.components?.[0]?.frame.x).toBe(120);
+  expect(store.canRedo).toBe(false);
 });
 
 test("a revision conflict stops automatic retry", async () => {

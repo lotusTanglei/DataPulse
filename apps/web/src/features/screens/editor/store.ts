@@ -25,13 +25,20 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
   const savingError = ref<ApiError | null>(null);
   const loading = ref(false);
   const editVersion = ref(0);
+  const historyVersion = ref(0);
   let history: EditorHistory | null = null;
   let saveTimer: ReturnType<typeof setTimeout> | null = null;
   let saveInFlight = false;
   let loadController: AbortController | null = null;
 
-  const canUndo = computed(() => history?.canUndo ?? false);
-  const canRedo = computed(() => history?.canRedo ?? false);
+  const canUndo = computed(() => {
+    historyVersion.value;
+    return history?.canUndo ?? false;
+  });
+  const canRedo = computed(() => {
+    historyVersion.value;
+    return history?.canRedo ?? false;
+  });
 
   function clearSaveTimer(): void {
     if (saveTimer !== null) {
@@ -79,6 +86,7 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
       document.value = structuredClone(loaded.draft_document);
       selection.value = [];
       history = new EditorHistory(loaded.draft_document);
+      historyVersion.value += 1;
       editVersion.value = 0;
       saveState.value = "saved";
     } catch (reason) {
@@ -105,17 +113,20 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
       throw new Error("The screen editor is not loaded.");
     }
     markChanged(history.execute(command));
+    historyVersion.value += 1;
   }
 
   function undo(): void {
     if (history?.canUndo) {
       markChanged(history.undo());
+      historyVersion.value += 1;
     }
   }
 
   function redo(): void {
     if (history?.canRedo) {
       markChanged(history.redo());
+      historyVersion.value += 1;
     }
   }
 

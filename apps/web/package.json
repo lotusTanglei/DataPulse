@@ -17,7 +17,9 @@
     "@tanstack/vue-virtual": "^3.13.35",
     "codemirror": "^6.0.2",
     "echarts": "^6.1.0",
+    "moveable": "^0.53.0",
     "pinia": "^3.0.0",
+    "selecto": "^1.26.3",
     "vue": "^3.5.0",
     "vue-echarts": "^8.0.1",
     "vue-router": "^4.6.4"

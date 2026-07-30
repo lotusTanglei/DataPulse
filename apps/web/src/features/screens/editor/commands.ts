@@ -30,6 +30,10 @@ export type EditorCommand =
       patch: Partial<ComponentFrame>;
     }
   | {
+      type: "update_frames";
+      patches: Record<string, Partial<ComponentFrame>>;
+    }
+  | {
       type: "update_props";
       component_id: string;
       patch: ComponentProps;
@@ -38,6 +42,16 @@ export type EditorCommand =
       type: "update_style";
       component_id: string;
       patch: ComponentStyle;
+    }
+  | {
+      type: "update_data_binding";
+      component_id: string;
+      data_binding: NonNullable<ComponentInstance["data_binding"]>;
+    }
+  | {
+      type: "update_interactions";
+      component_id: string;
+      interactions: NonNullable<ComponentInstance["interactions"]>;
     }
   | {
       type: "set_component_state";
@@ -151,6 +165,17 @@ export function applyCommand(
         }),
       );
       break;
+    case "update_frames": {
+      const ids = Object.keys(command.patches);
+      next.components = patchComponents(next, ids, (component) => ({
+        ...component,
+        frame: {
+          ...component.frame,
+          ...command.patches[component.id],
+        },
+      }));
+      break;
+    }
     case "update_props":
       next.components = patchComponents(
         next,
@@ -168,6 +193,26 @@ export function applyCommand(
         (component) => ({
           ...component,
           style: { ...(component.style ?? {}), ...command.patch },
+        }),
+      );
+      break;
+    case "update_data_binding":
+      next.components = patchComponents(
+        next,
+        [command.component_id],
+        (component) => ({
+          ...component,
+          data_binding: structuredClone(command.data_binding),
+        }),
+      );
+      break;
+    case "update_interactions":
+      next.components = patchComponents(
+        next,
+        [command.component_id],
+        (component) => ({
+          ...component,
+          interactions: structuredClone(command.interactions),
         }),
       );
       break;
