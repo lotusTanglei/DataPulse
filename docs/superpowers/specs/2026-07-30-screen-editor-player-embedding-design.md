@@ -208,7 +208,7 @@ Editor Shell 不包含任何图表专属渲染逻辑。
 
 ```json
 {
-  "schemaVersion": 1,
+  "schema_version": 1,
   "canvas": {
     "width": 1920,
     "height": 1080,
@@ -220,7 +220,7 @@ Editor Shell 不包含任何图表专属渲染逻辑。
   },
   "refresh": {
     "mode": "interval",
-    "intervalSeconds": 30
+    "interval_seconds": 30
   },
   "parameters": [],
   "components": []
@@ -238,7 +238,7 @@ Editor Shell 不包含任何图表专属渲染逻辑。
     "y": 120,
     "width": 640,
     "height": 320,
-    "zIndex": 3
+    "z_index": 3
   },
   "state": {
     "locked": false,
@@ -246,7 +246,7 @@ Editor Shell 不包含任何图表专属渲染逻辑。
   },
   "props": {},
   "style": {},
-  "dataBinding": {},
+  "data_binding": {},
   "interactions": []
 }
 ```
