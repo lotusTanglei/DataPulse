@@ -243,14 +243,16 @@ class DatasourceService:
         query_request: QueryRequest,
         *,
         request_id: str,
+        dataset_id: str | None = None,
+        trigger: str = "debug",
     ) -> QueryResult:
         if self._query_executor is None:
             raise RuntimeError("The query executor is unavailable.")
         datasource, connector, secret = await self._connection_context(datasource_id)
         return await self._query_executor.execute(
             datasource_id=datasource_id,
-            dataset_id=None,
-            trigger="debug",
+            dataset_id=dataset_id,
+            trigger=trigger,
             connector=connector,
             config=datasource.config,
             secret=secret,

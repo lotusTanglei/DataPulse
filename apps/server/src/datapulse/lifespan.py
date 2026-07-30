@@ -15,6 +15,8 @@ from datapulse.auth.bootstrap import BootstrapService
 from datapulse.auth.limiter import LoginLimiter
 from datapulse.auth.repository import AuthRepository
 from datapulse.auth.session import SessionService
+from datapulse.dataset.repository import DatasetRepository
+from datapulse.dataset.service import DatasetService
 from datapulse.datasource.engine_manager import EngineManager
 from datapulse.datasource.mysql import MySQLConnector
 from datapulse.datasource.postgresql import PostgreSQLConnector
@@ -83,6 +85,13 @@ def create_lifespan(
                 window=timedelta(minutes=15),
             )
             datasource_repository = DatasourceRepository(session_factory)
+            connector_registry = ConnectorRegistry(
+                [
+                    SQLiteConnector(settings),
+                    PostgreSQLConnector(),
+                    MySQLConnector(),
+                ]
+            )
             query_executor = QueryExecutor(
                 repository=QueryRunRepository(session_factory),
                 limiter=QueryLimiter(
@@ -96,15 +105,14 @@ def create_lifespan(
             app.state.datasource_service = DatasourceService(
                 repository=datasource_repository,
                 secret_box=SecretBox.from_settings(settings),
-                registry=ConnectorRegistry(
-                    [
-                        SQLiteConnector(settings),
-                        PostgreSQLConnector(),
-                        MySQLConnector(),
-                    ]
-                ),
+                registry=connector_registry,
                 engine_manager=datasource_engine_manager,
                 query_executor=query_executor,
+            )
+            app.state.dataset_service = DatasetService(
+                repository=DatasetRepository(session_factory),
+                datasource_service=app.state.datasource_service,
+                registry=connector_registry,
             )
 
             if not await repository.has_admin():

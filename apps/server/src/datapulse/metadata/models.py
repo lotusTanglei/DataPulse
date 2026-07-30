@@ -103,6 +103,7 @@ class DataSourceRecord(Base):
 
 class DatasetRecord(Base):
     __tablename__ = "dataset"
+    __table_args__ = (UniqueConstraint("name", name="uq_dataset_name"),)
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
