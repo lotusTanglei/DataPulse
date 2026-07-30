@@ -1,0 +1,111 @@
+import type { Pinia } from "pinia";
+import {
+  createRouter,
+  createWebHistory,
+  type Router,
+  type RouterHistory,
+} from "vue-router";
+
+import LoginView from "../features/auth/LoginView.vue";
+import SetupView from "../features/auth/SetupView.vue";
+import HomeView from "../features/home/HomeView.vue";
+import { useAuthStore } from "../stores/auth";
+import StudioShell from "../ui/StudioShell.vue";
+
+interface StudioRouterOptions {
+  pinia: Pinia;
+  history?: RouterHistory;
+}
+
+export function createStudioRouter(options: StudioRouterOptions): Router {
+  const router = createRouter({
+    history: options.history ?? createWebHistory(),
+    routes: [
+      { path: "/", redirect: "/studio" },
+      {
+        path: "/studio/setup",
+        name: "setup",
+        component: SetupView,
+        meta: { public: true, title: "初始化" },
+      },
+      {
+        path: "/studio/login",
+        name: "login",
+        component: LoginView,
+        meta: { public: true, title: "登录" },
+      },
+      {
+        path: "/studio",
+        component: StudioShell,
+        children: [
+          { path: "", redirect: "/studio/datasources" },
+          {
+            path: "overview",
+            name: "overview",
+            component: HomeView,
+            meta: {
+              title: "概览",
+              description: "查看工作区中的数据资产与最近活动。",
+            },
+          },
+          {
+            path: "datasources",
+            name: "datasources",
+            component: HomeView,
+            meta: {
+              title: "数据源",
+              description: "连接并管理用于分析的数据库。",
+            },
+          },
+          {
+            path: "datasets",
+            name: "datasets",
+            component: HomeView,
+            meta: {
+              title: "数据集",
+              description: "沉淀可复用的查询与字段定义。",
+            },
+          },
+          {
+            path: "screens",
+            name: "screens",
+            component: HomeView,
+            meta: {
+              title: "大屏",
+              description: "创建、调试并发布可嵌入的数据大屏。",
+            },
+          },
+          {
+            path: "settings",
+            name: "settings",
+            component: HomeView,
+            meta: {
+              title: "系统设置",
+              description: "管理管理员账号与系统运行配置。",
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  router.beforeEach(async (to) => {
+    const auth = useAuthStore(options.pinia);
+    const state = await auth.resolve();
+    if (state.status === "setup-required") {
+      return to.name === "setup" ? true : { name: "setup" };
+    }
+    if (state.status === "anonymous") {
+      return to.name === "login" ? true : { name: "login" };
+    }
+    if (
+      state.status === "authenticated" &&
+      (to.name === "setup" || to.name === "login")
+    ) {
+      return { name: "datasources" };
+    }
+    return true;
+  });
+
+  return router;
+}
