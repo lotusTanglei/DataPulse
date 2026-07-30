@@ -4,9 +4,12 @@ version = "0.1.0"
 description = "DataPulse API server"
 requires-python = ">=3.13,<3.15"
 dependencies = [
+    "aiosqlite>=0.20,<1",
+    "alembic>=1,<2",
     "fastapi>=0.115,<1",
     "packaging>=24,<27",
     "pydantic-settings>=2.7,<3",
+    "sqlalchemy[asyncio]>=2,<3",
     "uvicorn[standard]>=0.34,<1",
 ]
 
