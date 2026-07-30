@@ -5,14 +5,17 @@
   "scripts": {
     "dev:web": "pnpm --filter @datapulse/web dev",
     "test:web": "pnpm --filter @datapulse/web test",
+    "test:e2e": "uv run python -m tools.run_e2e",
+    "test:integration": "uv run --package datapulse-server pytest apps/server/tests/connectors -m integration",
     "typecheck:web": "pnpm --filter @datapulse/web typecheck",
     "build:web": "pnpm --filter @datapulse/web build",
     "generate:contracts": "uv run --package datapulse-server python tools/export_schemas.py && node tools/generate_types.mjs",
     "check:contracts": "uv run --package datapulse-server python tools/check_generated.py",
-    "test": "pnpm test:web && uv run --package datapulse-server pytest",
+    "test": "pnpm test:web && uv run --package datapulse-server pytest -m \"not integration\"",
     "typecheck": "pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json",
     "build": "pnpm build:web",
-    "verify": "pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build"
+    "verify": "pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build",
+    "verify:full": "pnpm verify && pnpm test:integration && pnpm test:e2e"
   },
   "devDependencies": {
     "json-schema-to-typescript": "^15.0.0"

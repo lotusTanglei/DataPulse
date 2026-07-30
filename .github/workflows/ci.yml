@@ -65,8 +65,11 @@ jobs:
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify contracts, backend, and Web
-        run: pnpm verify
+      - name: Install Chromium
+        run: pnpm --filter @datapulse/web exec playwright install --with-deps chromium
+
+      - name: Verify contracts, backend, databases, and Web
+        run: pnpm verify:full
 
       - name: Check Python style
         run: |
@@ -95,6 +98,6 @@ jobs:
 
       - name: Test backend and contract export
         run: |
-          uv run --package datapulse-server pytest apps/server/tests
+          uv run --package datapulse-server pytest apps/server/tests -m "not integration"
           uv run --package datapulse-server python tools/export_schemas.py
           git diff --exit-code -- packages/schema/schemas

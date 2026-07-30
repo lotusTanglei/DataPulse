@@ -1,15 +1,21 @@
 # DataPulse
 
-DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源数据分析与大屏创作软件。它的目标是让分析人员通过可视化编辑与自然语言完成数据探索、图表生成和大屏发布，同时允许业务系统通过安全的 Web 嵌入方式承接身份与权限。
+DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源数据分析与大屏创作软件。当前版本已经交付可实际使用的“数据源工作室”：单管理员登录、SQLite / PostgreSQL / MySQL（含 MariaDB）原生连接、Schema 浏览、只读参数化 SQL 调试，以及可保存和预览的数据集。
 
-当前仓库处于“工程基础与协议”阶段，已经具备：
+编辑端由 DataPulse 的单一管理员账号保护；未来发布的大屏页面以嵌入宿主系统为主，查看权限和身份由宿主系统承担。
 
-- FastAPI API 与 Vue 3 Web 工程骨架
-- 仪表板、图表、数据集、AI 计划、插件和嵌入协议
-- 从 Pydantic 确定性生成 JSON Schema 与 TypeScript 类型
-- SPA 静态交付、Docker 镜像和持续集成基础
+## 当前能力与边界
 
-数据源连接、可视化编辑器、嵌入票据签发与校验、定时刷新和 AI 分析能力将在后续计划中实现。
+已经具备：
+
+- 一次性初始化代码、Argon2 密码哈希、管理员会话、CSRF 和登录限流
+- SQLite、PostgreSQL、MySQL / MariaDB 原生异步连接器
+- 数据库密码加密保存，响应与页面不回显明文密码
+- Schema 按需浏览、只读 SQL 校验、参数绑定、超时/行数/并发限制
+- 数据集保存、编辑和运行预览
+- Vue 3 Studio 与 FastAPI 单镜像交付，容器启动自动执行 Alembic 迁移
+
+DuckDB、本地文件导入、查询缓存、大屏编辑与发布、Web 嵌入/单点安全、插件定时刷新和 AI 自然语言分析将在后续阶段实现。
 
 ## 环境要求
 
@@ -17,58 +23,89 @@ DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源
 - [uv](https://docs.astral.sh/uv/)
 - Node.js 22
 - pnpm 10
-- Docker（容器运行时需要）
+- Docker（容器部署和数据库集成测试需要）
 
 ## 本地开发
 
-安装依赖：
+安装依赖并迁移元数据数据库：
 
 ```bash
 uv sync --all-packages --group dev
 pnpm install
+uv run --package datapulse-server alembic -c apps/server/alembic.ini upgrade head
 ```
 
-启动后端：
+分别在两个终端启动后端和 Web：
 
 ```bash
 uv run --package datapulse-server uvicorn datapulse.app:app --reload
-```
-
-启动 Web 开发服务器：
-
-```bash
 pnpm dev:web
 ```
 
-Vite 默认把 `/api` 代理到 `http://127.0.0.1:8000`。
+后端启动日志会输出仅可使用一次、且有有效期的初始化代码。打开 `http://127.0.0.1:5173/studio` 创建管理员。Vite 默认把 `/api` 代理到 `http://127.0.0.1:8000`，也可用 `VITE_API_PROXY_TARGET` 覆盖。
 
-## 协议生成与验证
+## Docker 部署
 
-Python Pydantic 模型是协议的唯一源头。生成共享 JSON Schema 和 TypeScript 声明：
-
-```bash
-pnpm generate:contracts
-```
-
-检查生成物是否与模型同步：
+先生成独立的 32 字节主密钥：
 
 ```bash
-pnpm check:contracts
+python -c "import base64,secrets; print(base64.urlsafe_b64encode(secrets.token_bytes(32)).decode().rstrip('='))"
 ```
 
-执行完整本地验证：
+复制 `.env.example` 为 `.env`，把输出替换到 `DATAPULSE_MASTER_KEY`，再启动：
+
+```bash
+docker compose up -d --build
+docker compose logs datapulse
+```
+
+日志中的 `DataPulse one-time setup code` 是首次初始化代码。Studio 地址为 `http://127.0.0.1:8000/studio`，健康检查为 `http://127.0.0.1:8000/api/health`。容器会先执行 `alembic upgrade head`，成功后才启动 Web 服务。
+
+运行数据保存在 `datapulse-data` 卷。SQLite 文件必须放在容器 `/data/sources` 下，并在表单中填写相对路径，例如 `sales.db`：
+
+```bash
+docker compose cp ./sales.db datapulse:/data/sources/sales.db
+```
+
+生产环境连接 PostgreSQL、MySQL 或 MariaDB 时，建议创建专用只读数据库账号，并只授予所需 Schema 的查询权限。
+
+## 测试与验证
+
+常规验证（协议、单元测试、类型和构建）：
 
 ```bash
 pnpm verify
 ```
 
-## 容器运行
+独立浏览器端到端测试会创建临时 SQLite 数据目录，并在结束时只清理该目录：
 
 ```bash
-docker compose up --build
+pnpm --filter @datapulse/web exec playwright install chromium
+pnpm test:e2e
 ```
 
-服务启动后访问 `http://127.0.0.1:8000`，健康检查位于 `http://127.0.0.1:8000/api/health`。运行数据保存在名为 `datapulse-data` 的 Docker 卷中。
+运行 PostgreSQL / MariaDB 连接器集成测试：
+
+```bash
+docker compose -f compose.test.yaml up -d --wait
+DATAPULSE_TEST_POSTGRES_URL='postgresql+asyncpg://datapulse:datapulse@127.0.0.1:55432/datapulse' \
+DATAPULSE_TEST_MYSQL_URL='mysql+asyncmy://datapulse:datapulse@127.0.0.1:53306/datapulse' \
+pnpm test:integration
+docker compose -f compose.test.yaml down -v
+```
+
+当测试数据库已经启动并设置上述环境变量时，可运行包括集成与浏览器测试的完整门禁：
+
+```bash
+pnpm verify:full
+```
+
+协议由 Python Pydantic 模型生成：
+
+```bash
+pnpm generate:contracts
+pnpm check:contracts
+```
 
 ## 设计文档
 

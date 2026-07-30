@@ -1,6 +1,8 @@
 services:
   datapulse:
     build: .
+    environment:
+      DATAPULSE_MASTER_KEY: ${DATAPULSE_MASTER_KEY:?Generate DATAPULSE_MASTER_KEY before starting DataPulse}
     ports:
       - "8000:8000"
     volumes:

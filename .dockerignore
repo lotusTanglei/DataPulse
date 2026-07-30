@@ -1,5 +1,6 @@
 .git
 .github
+.e2e
 .worktrees
 .venv
 **/__pycache__
@@ -7,6 +8,8 @@
 **/.ruff_cache
 **/node_modules
 apps/web/dist
+apps/web/playwright-report
+apps/web/test-results
 data
 coverage
 htmlcov

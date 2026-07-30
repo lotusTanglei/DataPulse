@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { RouterLink, RouterView, useRoute } from "vue-router";
+import { LogOut } from "@lucide/vue";
+import { computed, ref } from "vue";
+import { RouterLink, RouterView, useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "../stores/auth";
 import IconGlyph from "./IconGlyph.vue";
 
 const route = useRoute();
+const router = useRouter();
 const auth = useAuthStore();
+const loggingOut = ref(false);
 
 const title = computed(() => String(route.meta.title ?? "DataPulse"));
 const username = computed(() =>
@@ -19,6 +22,19 @@ const navigation = [
   { label: "数据集", to: "/studio/datasets", icon: "datasets" as const },
   { label: "大屏", to: "/studio/screens", icon: "screens" as const },
 ];
+
+async function logout(): Promise<void> {
+  if (loggingOut.value) {
+    return;
+  }
+  loggingOut.value = true;
+  try {
+    await auth.logout();
+    await router.replace("/studio/login");
+  } finally {
+    loggingOut.value = false;
+  }
+}
 </script>
 
 <template>
@@ -58,6 +74,15 @@ const navigation = [
           {{ username.slice(0, 1).toUpperCase() }}
         </span>
         <span class="account-name">{{ username }}</span>
+        <button
+          class="account-logout"
+          type="button"
+          aria-label="退出管理员账号"
+          :disabled="loggingOut"
+          @click="logout"
+        >
+          <LogOut :size="14" aria-hidden="true" />
+        </button>
       </div>
     </aside>
 

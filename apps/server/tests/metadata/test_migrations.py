@@ -33,3 +33,17 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
         "query_run",
         "alembic_version",
     } <= inspect_sqlite_tables(database_path)
+
+
+def test_upgrade_head_uses_configured_data_dir(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    database_path = tmp_path / "datapulse.db"
+    config = Config(str(SERVER_ROOT / "alembic.ini"))
+    config.set_main_option("sqlalchemy.url", "sqlite:///:memory:")
+    monkeypatch.setenv("DATAPULSE_DATA_DIR", str(tmp_path))
+
+    command.upgrade(config, "head")
+
+    assert "alembic_version" in inspect_sqlite_tables(database_path)

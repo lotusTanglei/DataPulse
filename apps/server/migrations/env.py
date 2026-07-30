@@ -4,7 +4,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from datapulse.metadata import Base
+from datapulse.metadata import Base, metadata_database_url
+from datapulse.settings import Settings
 
 config = context.config
 
@@ -27,7 +28,10 @@ def synchronous_url(url: str) -> str:
 
 
 def configured_url() -> str:
-    url = os.environ.get("DATAPULSE_DATABASE_URL") or config.get_main_option("sqlalchemy.url")
+    if "DATAPULSE_DATABASE_URL" in os.environ or "DATAPULSE_DATA_DIR" in os.environ:
+        url = metadata_database_url(Settings())
+    else:
+        url = config.get_main_option("sqlalchemy.url")
     return synchronous_url(url)
 
 

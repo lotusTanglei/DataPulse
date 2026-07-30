@@ -243,6 +243,29 @@ textarea::placeholder {
   white-space: nowrap;
 }
 
+.account-logout {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  margin-left: auto;
+  border: 0;
+  border-radius: 5px;
+  color: var(--dp-subtle);
+  background: transparent;
+  cursor: pointer;
+}
+
+.account-logout:hover {
+  color: var(--dp-text);
+  background: var(--dp-hover);
+}
+
+.account-logout:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
 .studio-main {
   min-width: 0;
   background: var(--dp-surface);

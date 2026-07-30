@@ -11,7 +11,10 @@ dist/
 .env
 .env.*
 !.env.example
+.e2e/
 data/
 coverage/
 .coverage
 htmlcov/
+apps/web/playwright-report/
+apps/web/test-results/

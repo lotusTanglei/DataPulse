@@ -135,6 +135,7 @@ onBeforeUnmount(() => queryController?.abort());
 
       <InlineNotice v-if="error" tone="error">
         <p>{{ error.message }}</p>
+        <code>{{ error.code }}</code>
         <code v-if="error.requestId">{{ error.requestId }}</code>
       </InlineNotice>
 

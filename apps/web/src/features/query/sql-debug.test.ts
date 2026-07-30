@@ -148,6 +148,7 @@ test("shows safety limits, preserves SQL on errors, and cancels superseded work"
     "SELECT amount FROM sales",
   );
   expect(wrapper.text()).toContain("查询执行失败。");
+  expect(wrapper.text()).toContain("QUERY_EXECUTION_FAILED");
   expect(wrapper.text()).toContain("query-error-17");
 });
 
