@@ -52,6 +52,7 @@ export interface ComponentQueryState {
 }
 
 export interface RuntimeInteraction {
-  parameter: string;
+  type: "set_parameter";
+  name: string;
   value: JsonValue;
 }

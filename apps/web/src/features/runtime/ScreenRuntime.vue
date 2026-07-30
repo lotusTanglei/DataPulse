@@ -65,6 +65,7 @@ const components = computed(() =>
   ),
 );
 const themeStyle = computed(() => resolveTheme(props.document.theme));
+const themeTokens = computed(() => props.document.theme?.tokens ?? {});
 const canvasStyle = computed(() => {
   const background = props.document.canvas.background;
   const color =
@@ -121,7 +122,7 @@ function setParameter(
 }
 
 function handleInteraction(interaction: RuntimeInteraction): void {
-  setParameter(interaction.parameter, interaction.value);
+  setParameter(interaction.name, interaction.value);
 }
 
 function updateScale(): void {
@@ -224,6 +225,7 @@ defineExpose({
           :instance="component"
           :load-asset="loadAsset"
           :query-state="dataRuntime.state(component.id)"
+          :theme="themeTokens"
           @interaction="handleInteraction"
         />
       </div>

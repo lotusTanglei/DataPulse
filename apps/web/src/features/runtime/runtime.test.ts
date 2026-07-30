@@ -111,6 +111,7 @@ test("contains a component render failure inside its own host", async () => {
       },
       loadAsset: vi.fn(),
       queryState: { status: "idle", result: null, error: null },
+      theme: {},
     },
   });
 

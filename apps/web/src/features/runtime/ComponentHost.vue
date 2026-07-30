@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onErrorCaptured, ref, watch } from "vue";
 
+import type { JsonValue } from "../query/types";
 import type {
   ComponentDefinition,
   ComponentInstance,
@@ -14,6 +15,7 @@ const props = defineProps<{
   instance: ComponentInstance;
   loadAsset: LoadAsset;
   queryState: ComponentQueryState;
+  theme: Record<string, JsonValue>;
 }>();
 
 const emit = defineEmits<{
@@ -57,6 +59,12 @@ onErrorCaptured(() => {
       :loading="queryState.status === 'loading'"
       :error="queryState.error"
       :load-asset="loadAsset"
+      v-bind="
+        definition.dataCapability === 'series' ||
+        definition.dataCapability === 'geo'
+          ? { theme }
+          : {}
+      "
       @interaction="emit('interaction', $event)"
     />
   </div>

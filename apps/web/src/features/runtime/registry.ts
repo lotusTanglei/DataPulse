@@ -1,5 +1,7 @@
 import { markRaw } from "vue";
 
+import EChartComponent from "./builtins/EChartComponent.vue";
+import GeoMapComponent from "./builtins/GeoMapComponent.vue";
 import ImageComponent from "./builtins/ImageComponent.vue";
 import KpiComponent from "./builtins/KpiComponent.vue";
 import ProgressComponent from "./builtins/ProgressComponent.vue";
@@ -77,4 +79,41 @@ export const defaultComponentRegistry = new ComponentRegistry()
     defaultProps: { label: "进度", precision: 0, empty_text: "暂无数据" },
     dataCapability: "single",
     component: ProgressComponent,
+  })
+  .register({
+    type: "builtin.line",
+    label: "折线图",
+    defaultFrame: { width: 640, height: 360 },
+    defaultProps: { empty_text: "暂无数据" },
+    dataCapability: "series",
+    component: EChartComponent,
+  })
+  .register({
+    type: "builtin.bar",
+    label: "柱状图",
+    defaultFrame: { width: 640, height: 360 },
+    defaultProps: { orientation: "vertical", empty_text: "暂无数据" },
+    dataCapability: "series",
+    component: EChartComponent,
+  })
+  .register({
+    type: "builtin.pie",
+    label: "饼图",
+    defaultFrame: { width: 480, height: 360 },
+    defaultProps: { variant: "pie", empty_text: "暂无数据" },
+    dataCapability: "series",
+    component: EChartComponent,
+  })
+  .register({
+    type: "builtin.geo_map",
+    label: "地图",
+    defaultFrame: { width: 720, height: 480 },
+    defaultProps: {
+      asset_id: "",
+      region_code_property: "code",
+      region_name_property: "name",
+      empty_text: "暂无数据",
+    },
+    dataCapability: "geo",
+    component: GeoMapComponent,
   });
