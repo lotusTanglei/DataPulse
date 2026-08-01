@@ -58,6 +58,17 @@ def ai_response() -> AiAnalysisResponse:
                 "measures": ({"field": "amount", "aggregation": "sum"},),
                 "visual": {"type": "line"},
             },
+            "preview": {
+                "request_id": "analysis-preview-1",
+                "columns": (
+                    {"name": "month", "data_type": "string"},
+                    {"name": "amount", "data_type": "number"},
+                ),
+                "rows": (("2026-01", 100),),
+                "row_count": 1,
+                "truncated": False,
+                "duration_ms": 2,
+            },
             "warnings": (),
         }
     )

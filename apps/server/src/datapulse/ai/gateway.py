@@ -42,6 +42,10 @@ class AiGateway:
             return AiHealth(status="unconfigured", model=None)
         return AiHealth(status="configured", model=self._model)
 
+    def ensure_configured(self) -> None:
+        if not self._is_configured() or self._client is None:
+            raise AiGatewayError("AI_NOT_CONFIGURED", "AI is not configured.")
+
     async def aclose(self) -> None:
         if self._client is not None and hasattr(self._client, "aclose"):
             await self._client.aclose()
@@ -99,8 +103,8 @@ class AiGateway:
         user: str,
         response_model: type[T],
     ) -> T:
-        if not self._is_configured() or self._client is None:
-            raise AiGatewayError("AI_NOT_CONFIGURED", "AI is not configured.")
+        self.ensure_configured()
+        assert self._client is not None
 
         last_timeout: httpx.TimeoutException | None = None
         last_http_error: httpx.HTTPError | None = None

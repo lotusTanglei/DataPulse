@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from datapulse.ai.models import AiAnalysisError, AiHealth, DatasetContext
+from datapulse.ai.models import AiAnalysisError, AiGatewayError, AiHealth, DatasetContext
 from datapulse.ai.service import AiService
-from datapulse.contracts.ai import AiAnalysisRequest, AiAnalysisResponse, AiScreenRequest
+from datapulse.contracts.ai import AiAnalysisDraft, AiAnalysisRequest, AiScreenRequest
 from datapulse.contracts.chart import ChartSpec
 from datapulse.contracts.dataset import (
     CachePolicy,
@@ -19,6 +19,7 @@ from datapulse.contracts.dataset import (
 )
 from datapulse.dataset.models import DatasetResponse
 from datapulse.dataset.repository import DatasetNotFound
+from datapulse.filedata.repository import FileAssetNotFound
 from datapulse.query.models import QueryColumn, QueryRequest, QueryResult
 
 pytestmark = pytest.mark.anyio
@@ -57,8 +58,8 @@ def sql_dataset_response() -> DatasetResponse:
     )
 
 
-def ai_response() -> AiAnalysisResponse:
-    return AiAnalysisResponse.model_validate(
+def ai_response() -> AiAnalysisDraft:
+    return AiAnalysisDraft.model_validate(
         {
             "plan": {
                 "question": "按月份汇总销售额",
@@ -83,6 +84,13 @@ class FakeGateway:
     response: object
     calls: list[dict[str, object]] = field(default_factory=list)
     status: AiHealth = AiHealth(status="configured", model="gpt-4.1-mini")
+    ensure_error: AiGatewayError | None = None
+    ensure_calls: int = 0
+
+    def ensure_configured(self) -> None:
+        self.ensure_calls += 1
+        if self.ensure_error is not None:
+            raise self.ensure_error
 
     async def complete_json(
         self,
@@ -108,6 +116,7 @@ class FakeGateway:
 class FakeContextService:
     contexts: tuple[DatasetContext, ...]
     calls: list[dict[str, object]] = field(default_factory=list)
+    error: Exception | None = None
 
     async def build(
         self,
@@ -116,6 +125,8 @@ class FakeContextService:
         max_rows: int,
     ) -> tuple[DatasetContext, ...]:
         self.calls.append({"dataset_ids": dataset_ids, "max_rows": max_rows})
+        if self.error is not None:
+            raise self.error
         return self.contexts
 
 
@@ -220,11 +231,85 @@ async def test_service_builds_context_prompt_validates_chart_and_previews() -> N
     assert response.narrative == "销售额整体上升。"
     assert isinstance(response.chart_spec, ChartSpec)
     assert response.chart_spec.visual.type.value == "line"
+    assert response.preview.rows == (("2026-01", 100),)
     assert context_service.calls == [{"dataset_ids": ("sales",), "max_rows": 100}]
     assert len(gateway.calls) == 1
     assert "contexts:" in str(gateway.calls[0]["user"])
     assert datasource_service.calls[0]["trigger"] == "ai-analyze"
     assert "FROM (SELECT month, amount FROM sales)" in datasource_service.calls[0]["request"].sql
+
+
+async def test_service_rejects_unconfigured_before_reading_dataset_context() -> None:
+    gateway = FakeGateway(
+        response=ai_response(),
+        ensure_error=AiGatewayError("AI_NOT_CONFIGURED", "AI is not configured."),
+    )
+    context_service = FakeContextService(contexts=contexts())
+    datasource_service = FakeDatasourceService()
+    service = AiService(
+        gateway=gateway,
+        context_service=context_service,
+        dataset_repository=FakeDatasetRepository({"sales": sql_dataset_response()}),
+        datasource_service=datasource_service,
+        registry=type("Registry", (), {"get": lambda self, _name: FakeConnector()})(),
+    )
+
+    with pytest.raises(AiGatewayError) as error:
+        await service.analyze(
+            AiAnalysisRequest(question="分析销售趋势", dataset_ids=("sales",)),
+            request_id="ai-unconfigured",
+        )
+
+    assert error.value.code == "AI_NOT_CONFIGURED"
+    assert gateway.ensure_calls == 1
+    assert context_service.calls == []
+    assert datasource_service.calls == []
+
+
+async def test_service_rejects_missing_dataset_before_context_and_model() -> None:
+    gateway = FakeGateway(response=ai_response())
+    context_service = FakeContextService(contexts=contexts())
+    service = AiService(
+        gateway=gateway,
+        context_service=context_service,
+        dataset_repository=FakeDatasetRepository({}),
+        datasource_service=FakeDatasourceService(),
+        registry=type("Registry", (), {"get": lambda self, _name: FakeConnector()})(),
+    )
+
+    with pytest.raises(AiAnalysisError) as error:
+        await service.analyze(
+            AiAnalysisRequest(question="分析销售趋势", dataset_ids=("missing",)),
+            request_id="ai-missing",
+        )
+
+    assert error.value.code == "AI_DATASET_INVALID"
+    assert context_service.calls == []
+    assert gateway.calls == []
+
+
+async def test_service_translates_missing_file_during_context_build() -> None:
+    gateway = FakeGateway(response=ai_response())
+    context_service = FakeContextService(
+        contexts=contexts(),
+        error=FileAssetNotFound("file-missing"),
+    )
+    service = AiService(
+        gateway=gateway,
+        context_service=context_service,
+        dataset_repository=FakeDatasetRepository({"sales": sql_dataset_response()}),
+        datasource_service=FakeDatasourceService(),
+        registry=type("Registry", (), {"get": lambda self, _name: FakeConnector()})(),
+    )
+
+    with pytest.raises(AiAnalysisError) as error:
+        await service.analyze(
+            AiAnalysisRequest(question="分析销售趋势", dataset_ids=("sales",)),
+            request_id="ai-file-missing",
+        )
+
+    assert error.value.code == "AI_DATASET_INVALID"
+    assert gateway.calls == []
 
 
 async def test_service_rejects_datasets_outside_request_before_preview() -> None:

@@ -68,6 +68,24 @@ def test_ai_analysis_request_requires_at_least_one_dataset() -> None:
         AiAnalysisRequest.model_validate(payload)
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {
+            "question": "分析趋势",
+            "dataset_ids": tuple(f"dataset-{index}" for index in range(9)),
+        },
+        {
+            "question": "x" * 4001,
+            "dataset_ids": ("sales",),
+        },
+    ],
+)
+def test_ai_analysis_request_limits_prompt_resources(payload: dict[str, object]) -> None:
+    with pytest.raises(ValidationError):
+        AiAnalysisRequest.model_validate(payload)
+
+
 def test_ai_analysis_response_accepts_structured_plan_and_optional_chart() -> None:
     response = AiAnalysisResponse.model_validate(
         {
@@ -79,6 +97,17 @@ def test_ai_analysis_response_accepts_structured_plan_and_optional_chart() -> No
                 "measures": ({"field": "amount", "aggregation": "sum"},),
                 "visual": {"type": "line"},
             },
+            "preview": {
+                "request_id": "analysis-preview-1",
+                "columns": (
+                    {"name": "month", "data_type": "string"},
+                    {"name": "amount", "data_type": "number"},
+                ),
+                "rows": (("2026-01", 120),),
+                "row_count": 1,
+                "truncated": False,
+                "duration_ms": 4,
+            },
             "warnings": ("样例数据已截断。",),
         }
     )
@@ -86,6 +115,7 @@ def test_ai_analysis_response_accepts_structured_plan_and_optional_chart() -> No
     assert response.plan.question == "按月份汇总销售额"
     assert response.chart_spec is not None
     assert response.chart_spec.visual.type == "line"
+    assert response.preview.rows == (("2026-01", 120),)
 
 
 def test_ai_chart_request_accepts_optional_target_component_type() -> None:
@@ -105,6 +135,16 @@ def test_ai_chart_request_requires_non_blank_question() -> None:
         AiChartRequest.model_validate(
             {
                 "question": "  ",
+                "dataset_id": "sales",
+            }
+        )
+
+
+def test_ai_chart_request_limits_question_length() -> None:
+    with pytest.raises(ValidationError):
+        AiChartRequest.model_validate(
+            {
+                "question": "x" * 4001,
                 "dataset_id": "sales",
             }
         )
@@ -153,6 +193,34 @@ def test_ai_screen_request_defaults_canvas_and_theme() -> None:
     assert request.canvas_width == 1920
     assert request.canvas_height == 1080
     assert request.theme == "dark"
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {
+            "question": "生成大屏",
+            "dataset_ids": tuple(f"dataset-{index}" for index in range(9)),
+        },
+        {
+            "question": "x" * 4001,
+            "dataset_ids": ("sales",),
+        },
+        {
+            "question": "生成大屏",
+            "dataset_ids": ("sales",),
+            "canvas_width": 7681,
+        },
+        {
+            "question": "生成大屏",
+            "dataset_ids": ("sales",),
+            "canvas_height": 7681,
+        },
+    ],
+)
+def test_ai_screen_request_limits_prompt_resources(payload: dict[str, object]) -> None:
+    with pytest.raises(ValidationError):
+        AiScreenRequest.model_validate(payload)
 
 
 def test_ai_screen_response_round_trips_dashboard_document() -> None:

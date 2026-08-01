@@ -8,7 +8,7 @@ import pytest
 
 from datapulse.ai.gateway import AiGateway
 from datapulse.ai.models import AiGatewayError, AiHealth
-from datapulse.contracts.ai import AiAnalysisResponse
+from datapulse.contracts.ai import AiAnalysisDraft
 
 pytestmark = pytest.mark.anyio
 
@@ -72,7 +72,7 @@ class FakeAsyncClient:
 
 async def test_gateway_posts_openai_compatible_json_request() -> None:
     client = FakeAsyncClient(
-        responses=(openai_response(AiAnalysisResponse(**ai_response_payload()).model_dump_json()),),
+        responses=(openai_response(AiAnalysisDraft(**ai_response_payload()).model_dump_json()),),
     )
     gateway = AiGateway(
         enabled=True,
@@ -86,7 +86,7 @@ async def test_gateway_posts_openai_compatible_json_request() -> None:
     response = await gateway.complete_json(
         system="You are an analyst.",
         user="Question: 按月份汇总销售额",
-        response_model=AiAnalysisResponse,
+        response_model=AiAnalysisDraft,
     )
 
     assert response.narrative == "销售额整体上升。"
@@ -114,7 +114,7 @@ async def test_gateway_retries_once_for_transient_http_errors_and_redacts_api_ke
             httpx.ConnectError(
                 "boom", request=httpx.Request("POST", "https://llm.test/chat/completions")
             ),
-            openai_response(AiAnalysisResponse(**ai_response_payload()).model_dump_json()),
+            openai_response(AiAnalysisDraft(**ai_response_payload()).model_dump_json()),
         ),
     )
     gateway = AiGateway(
@@ -129,7 +129,7 @@ async def test_gateway_retries_once_for_transient_http_errors_and_redacts_api_ke
     response = await gateway.complete_json(
         system="system",
         user="user",
-        response_model=AiAnalysisResponse,
+        response_model=AiAnalysisDraft,
     )
 
     assert response.plan.dataset_ids == ("sales",)
@@ -160,7 +160,7 @@ async def test_gateway_maps_timeout_after_one_retry() -> None:
         await gateway.complete_json(
             system="system",
             user="user",
-            response_model=AiAnalysisResponse,
+            response_model=AiAnalysisDraft,
         )
 
     assert error.value.code == "AI_TIMEOUT"
@@ -181,7 +181,7 @@ async def test_gateway_rejects_invalid_json_model_refusal_and_non_2xx() -> None:
         await invalid_json_gateway.complete_json(
             system="system",
             user="user",
-            response_model=AiAnalysisResponse,
+            response_model=AiAnalysisDraft,
         )
     assert invalid_json_error.value.code == "AI_INVALID_OUTPUT"
 
@@ -214,7 +214,7 @@ async def test_gateway_rejects_invalid_json_model_refusal_and_non_2xx() -> None:
         await refusal_gateway.complete_json(
             system="system",
             user="user",
-            response_model=AiAnalysisResponse,
+            response_model=AiAnalysisDraft,
         )
     assert refusal_error.value.code == "AI_INVALID_OUTPUT"
 
@@ -243,7 +243,7 @@ async def test_gateway_rejects_invalid_json_model_refusal_and_non_2xx() -> None:
         await unavailable_gateway.complete_json(
             system="system",
             user="user",
-            response_model=AiAnalysisResponse,
+            response_model=AiAnalysisDraft,
         )
     assert unavailable_error.value.code == "AI_UNAVAILABLE"
 
@@ -264,7 +264,7 @@ async def test_gateway_reports_unconfigured_health_and_skips_network() -> None:
         await gateway.complete_json(
             system="system",
             user="user",
-            response_model=AiAnalysisResponse,
+            response_model=AiAnalysisDraft,
         )
     assert error.value.code == "AI_NOT_CONFIGURED"
     assert client.calls == []

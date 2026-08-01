@@ -102,6 +102,9 @@ class FakeGateway:
     def health(self) -> AiHealth:
         return self.status
 
+    def ensure_configured(self) -> None:
+        return None
+
 
 @dataclass
 class FakeContextService:

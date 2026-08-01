@@ -10,6 +10,7 @@ from datapulse.ai.gateway import AiGateway
 from datapulse.ai.models import AiAnalysisError, AiHealth
 from datapulse.ai.screen_generator import ScreenDraftGenerator
 from datapulse.contracts.ai import (
+    AiAnalysisDraft,
     AiAnalysisRequest,
     AiAnalysisResponse,
     AiChartRequest,
@@ -96,10 +97,31 @@ class AiService:
     def _default_limit(self, dataset: DatasetResponse) -> int:
         return min(1000, dataset.definition.max_rows)
 
+    async def _contexts(self, dataset_ids: tuple[str, ...]) -> tuple[object, ...]:
+        if self._context_service is None:
+            raise RuntimeError("context service is not configured")
+        try:
+            return await self._context_service.build(
+                dataset_ids,
+                max_rows=self._max_context_rows,
+            )
+        except (
+            DatasetNotFound,
+            DatasetDefinitionInvalid,
+            DatasourceNotFound,
+            FileAssetNotFound,
+            FileParseInvalid,
+            QueryValidationError,
+            ParameterValidationError,
+            QueryExecutionError,
+            FileQueryExecutionError,
+        ) as error:
+            raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.") from error
+
     def _chart_spec(
         self,
         *,
-        response: AiAnalysisResponse,
+        response: AiAnalysisDraft,
         dataset: DatasetResponse,
     ) -> ChartSpec:
         spec = response.chart_spec or ChartSpec(
@@ -275,10 +297,9 @@ class AiService:
     ) -> AiAnalysisResponse:
         if self._context_service is None:
             raise RuntimeError("context service is not configured")
-        contexts = await self._context_service.build(
-            request.dataset_ids,
-            max_rows=self._max_context_rows,
-        )
+        self._gateway.ensure_configured()
+        datasets = tuple([await self._dataset(dataset_id) for dataset_id in request.dataset_ids])
+        contexts = await self._contexts(request.dataset_ids)
         system = (
             "You are a DataPulse analytics assistant. "
             "Return only valid JSON that matches the requested response model."
@@ -297,22 +318,29 @@ class AiService:
         response = await self._gateway.complete_json(
             system=system,
             user=user,
-            response_model=AiAnalysisResponse,
+            response_model=AiAnalysisDraft,
         )
         if not response.plan.dataset_ids or any(
             dataset_id not in request.dataset_ids for dataset_id in response.plan.dataset_ids
         ):
             raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.")
 
-        dataset = await self._dataset(response.plan.dataset_ids[0])
+        datasets_by_id = {dataset.id: dataset for dataset in datasets}
+        dataset = datasets_by_id[response.plan.dataset_ids[0]]
         chart_spec = self._chart_spec(response=response, dataset=dataset)
-        await self._validate_and_preview(
+        preview = await self._validate_and_preview(
             dataset=dataset,
             chart_spec=chart_spec,
             request_id=request_id,
             trigger="ai-analyze",
         )
-        return response.model_copy(update={"chart_spec": chart_spec})
+        return AiAnalysisResponse.model_validate(
+            {
+                **response.model_dump(mode="json"),
+                "chart_spec": chart_spec,
+                "preview": preview,
+            }
+        )
 
     async def generate_chart(
         self,
@@ -322,11 +350,9 @@ class AiService:
     ) -> AiChartResponse:
         if self._context_service is None:
             raise RuntimeError("context service is not configured")
+        self._gateway.ensure_configured()
         dataset = await self._dataset(request.dataset_id)
-        contexts = await self._context_service.build(
-            (request.dataset_id,),
-            max_rows=self._max_context_rows,
-        )
+        contexts = await self._contexts((request.dataset_id,))
         system, user = self._chart_generation_prompt(
             request=request,
             dataset=dataset,
@@ -362,13 +388,27 @@ class AiService:
         *,
         request_id: str,
     ) -> AiScreenResponse:
+        self._gateway.ensure_configured()
         generator = ScreenDraftGenerator(
             gateway=self._gateway,
             context_service=self._context_service,
             dataset_repository=self._dataset_repository,
             max_context_rows=self._max_context_rows,
         )
-        return await generator.generate(request, request_id=request_id)
+        try:
+            return await generator.generate(request, request_id=request_id)
+        except (
+            DatasetNotFound,
+            DatasetDefinitionInvalid,
+            DatasourceNotFound,
+            FileAssetNotFound,
+            FileParseInvalid,
+            QueryValidationError,
+            ParameterValidationError,
+            QueryExecutionError,
+            FileQueryExecutionError,
+        ) as error:
+            raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.") from error
 
 
 __all__ = ["AiService"]
