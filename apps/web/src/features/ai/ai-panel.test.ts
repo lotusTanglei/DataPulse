@@ -26,9 +26,26 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
     limit: 1000,
     visual: { type: "table", title: "区域销售额" },
   };
+  let analysisRequests = 0;
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     if (url === "/api/admin/ai/analyze" && init?.method === "POST") {
+      analysisRequests += 1;
+      if (analysisRequests === 2) {
+        return Promise.resolve(
+          jsonResponse(
+            {
+              error: {
+                code: "AI_RESPONSE_INVALID",
+                message: "AI 返回结果无法使用。",
+                request_id: "ai-request-2",
+                field_errors: [],
+              },
+            },
+            502,
+          ),
+        );
+      }
       return Promise.resolve(
         jsonResponse({
           plan: {
@@ -45,15 +62,6 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
           },
           narrative: "建议先按区域汇总销售额，再观察差异。",
           chart_spec: chartSpec,
-          warnings: ["结果基于当前数据样本。"],
-        }),
-      );
-    }
-    if (url === "/api/admin/ai/chart" && init?.method === "POST") {
-      return Promise.resolve(
-        jsonResponse({
-          chart_spec: chartSpec,
-          explanation: "表格更适合先核对区域汇总结果。",
           preview: {
             request_id: "ai-preview-1",
             columns: [
@@ -68,7 +76,7 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
             truncated: false,
             duration_ms: 42,
           },
-          warnings: [],
+          warnings: ["结果基于当前数据样本。"],
         }),
       );
     }
@@ -91,12 +99,12 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
     "/api/admin/ai/analyze",
     expect.objectContaining({ method: "POST" }),
   );
-  expect(fetchMock).toHaveBeenCalledWith(
-    "/api/admin/ai/chart",
-    expect.objectContaining({ method: "POST" }),
-  );
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(
+    fetchMock.mock.calls.some(([input]) => String(input).endsWith("/chart")),
+  ).toBe(false);
   expect(wrapper.text()).toContain("建议先按区域汇总销售额");
-  expect(wrapper.text()).toContain("表格更适合先核对区域汇总结果");
+  expect(wrapper.text()).toContain("预览 2 行");
 
   await wrapper.get("article button").trigger("click");
 
@@ -104,4 +112,18 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
     dataset_id: "sales",
     visual: { type: "table", title: "区域销售额" },
   });
+
+  await wrapper
+    .get('textarea[name="aiQuestion"]')
+    .setValue("重新分析，但这次服务失败");
+  expect(wrapper.text()).not.toContain("建议先按区域汇总销售额");
+  expect(wrapper.find("article").exists()).toBe(false);
+
+  await wrapper.get("form").trigger("submit");
+  await flushPromises();
+
+  expect(analysisRequests).toBe(2);
+  expect(wrapper.text()).toContain("AI 返回结果无法使用");
+  expect(wrapper.text()).not.toContain("建议先按区域汇总销售额");
+  expect(wrapper.find("article button").exists()).toBe(false);
 });

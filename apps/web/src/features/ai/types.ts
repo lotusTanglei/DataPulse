@@ -15,6 +15,7 @@ export interface AiAnalysisResponse {
   plan: AnalysisPlan;
   narrative: string;
   chart_spec: ChartSpec | null;
+  preview: QueryResult;
   warnings: string[];
 }
 

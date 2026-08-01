@@ -7,7 +7,7 @@ import { listDatasets } from "../datasets/api";
 import type { Dataset } from "../datasets/types";
 import type { JsonValue } from "../query/types";
 import ChartSuggestionCard from "./ChartSuggestionCard.vue";
-import { analyzeAi, generateChart } from "./api";
+import { analyzeAi } from "./api";
 import type { AiAnalysisResponse, AiChartResponse } from "./types";
 
 const props = withDefaults(
@@ -57,6 +57,12 @@ watch(
   { immediate: true },
 );
 
+watch([effectiveDatasetId, question], () => {
+  analysis.value = null;
+  chart.value = null;
+  generateError.value = null;
+});
+
 watch(
   () => props.initialDatasetId,
   (initialDatasetId) => {
@@ -99,21 +105,23 @@ async function submit(): Promise<void> {
   generating.value = true;
   formError.value = "";
   generateError.value = null;
+  analysis.value = null;
+  chart.value = null;
   try {
-    const [nextAnalysis, nextChart] = await Promise.all([
-      analyzeAi({
-        question: nextQuestion,
-        dataset_ids: [nextDatasetId],
-        mode: "chart",
-      }),
-      generateChart({
-        question: nextQuestion,
-        dataset_id: nextDatasetId,
-        target_component_type: props.targetComponentType,
-      }),
-    ]);
+    const nextAnalysis = await analyzeAi({
+      question: nextQuestion,
+      dataset_ids: [nextDatasetId],
+      mode: "chart",
+    });
     analysis.value = nextAnalysis;
-    chart.value = nextChart;
+    chart.value = nextAnalysis.chart_spec
+      ? {
+          chart_spec: nextAnalysis.chart_spec,
+          explanation: nextAnalysis.narrative,
+          preview: nextAnalysis.preview,
+          warnings: nextAnalysis.warnings,
+        }
+      : null;
   } catch (reason) {
     generateError.value =
       reason instanceof ApiError
