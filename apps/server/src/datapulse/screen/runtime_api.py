@@ -22,6 +22,7 @@ from datapulse.screen.runtime import (
     ComponentBindingInvalid,
     ComponentQueryRequest,
     ScreenComponentUnavailable,
+    ScreenDocumentQueryRequest,
     ScreenNotPublished,
     ScreenParameterInvalid,
 )
@@ -105,6 +106,37 @@ def _raise_runtime_error(error: Exception) -> NoReturn:
     raise translated from error
 
 
+_RUNTIME_ERRORS = (
+    ScreenNotFound,
+    ScreenNotPublished,
+    ScreenComponentUnavailable,
+    ComponentBindingInvalid,
+    ScreenParameterInvalid,
+    ChartQueryInvalid,
+    ScreenDocumentInvalid,
+    DatasetNotFound,
+    DatasetDefinitionInvalid,
+    DatasourceNotFound,
+    QueryValidationError,
+    ParameterValidationError,
+    QueryExecutionError,
+)
+
+
+@router.post("/query-document", dependencies=[Depends(require_csrf)])
+async def query_document_component(
+    payload: ScreenDocumentQueryRequest,
+    request: Request,
+) -> QueryResult:
+    try:
+        return await request.app.state.screen_runtime_service.query_document_component(
+            payload,
+            request_id=request.state.request_id,
+        )
+    except _RUNTIME_ERRORS as error:
+        _raise_runtime_error(error)
+
+
 @router.post("/{screen_id}/query", dependencies=[Depends(require_csrf)])
 async def query_draft_component(
     screen_id: str,
@@ -117,19 +149,5 @@ async def query_draft_component(
             payload,
             request_id=request.state.request_id,
         )
-    except (
-        ScreenNotFound,
-        ScreenNotPublished,
-        ScreenComponentUnavailable,
-        ComponentBindingInvalid,
-        ScreenParameterInvalid,
-        ChartQueryInvalid,
-        ScreenDocumentInvalid,
-        DatasetNotFound,
-        DatasetDefinitionInvalid,
-        DatasourceNotFound,
-        QueryValidationError,
-        ParameterValidationError,
-        QueryExecutionError,
-    ) as error:
+    except _RUNTIME_ERRORS as error:
         _raise_runtime_error(error)

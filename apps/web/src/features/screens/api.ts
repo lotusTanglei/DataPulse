@@ -1,4 +1,6 @@
 import { apiRequest } from "../../lib/api";
+import type { DashboardDocument } from "../../contracts";
+import type { JsonValue, QueryResult } from "../query/types";
 import type {
   Screen,
   ScreenCreatePayload,
@@ -26,6 +28,23 @@ export function createScreen(payload: ScreenCreatePayload): Promise<Screen> {
   return apiRequest<Screen>(SCREENS_PATH, {
     method: "POST",
     json: payload,
+  });
+}
+
+export function queryScreenDocument(
+  document: DashboardDocument,
+  componentId: string,
+  parameters: Record<string, JsonValue>,
+  signal?: AbortSignal,
+): Promise<QueryResult> {
+  return apiRequest<QueryResult>(`${SCREENS_PATH}/query-document`, {
+    method: "POST",
+    json: {
+      document,
+      component_id: componentId,
+      parameters,
+    },
+    signal,
   });
 }
 

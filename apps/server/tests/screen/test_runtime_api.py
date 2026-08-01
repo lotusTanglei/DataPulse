@@ -72,13 +72,8 @@ def create_dataset(app_client: AppClient) -> str:
     return dataset.json()["id"]
 
 
-def create_bound_screen(app_client: AppClient, dataset_id: str) -> str:
-    created = app_client.client.post(
-        "/api/admin/screens",
-        json={"name": "Operations"},
-        headers=mutation_headers(app_client),
-    ).json()
-    document = {
+def bound_document(dataset_id: str) -> dict[str, object]:
+    return {
         "canvas": {"width": 1920, "height": 1080},
         "parameters": [
             {
@@ -112,9 +107,17 @@ def create_bound_screen(app_client: AppClient, dataset_id: str) -> str:
             }
         ],
     }
+
+
+def create_bound_screen(app_client: AppClient, dataset_id: str) -> str:
+    created = app_client.client.post(
+        "/api/admin/screens",
+        json={"name": "Operations"},
+        headers=mutation_headers(app_client),
+    ).json()
     saved = app_client.client.patch(
         f"/api/admin/screens/{created['id']}",
-        json={"draft_document": document, "expected_revision": 0},
+        json={"draft_document": bound_document(dataset_id), "expected_revision": 0},
         headers=mutation_headers(app_client),
     )
     assert saved.status_code == 200
@@ -172,3 +175,49 @@ def test_admin_runtime_query_requires_csrf_and_maps_component_errors(
     )
     assert missing.status_code == 422
     assert missing.json()["error"]["code"] == "SCREEN_COMPONENT_UNAVAILABLE"
+
+
+def test_admin_runtime_queries_unsaved_document_with_auth_and_csrf(
+    runtime_app: AppClient,
+) -> None:
+    path = "/api/admin/screens/query-document"
+    unauthenticated = runtime_app.client.post(
+        path,
+        json={
+            "document": {"canvas": {"width": 1920, "height": 1080}},
+            "component_id": "line-1",
+        },
+        headers={"Origin": runtime_app.origin},
+    )
+    assert unauthenticated.status_code == 401
+
+    setup_admin(runtime_app)
+    dataset_id = create_dataset(runtime_app)
+    payload = {
+        "document": bound_document(dataset_id),
+        "component_id": "line-1",
+        "parameters": {"region": "west"},
+    }
+    no_csrf = runtime_app.client.post(
+        path,
+        json=payload,
+        headers={"Origin": runtime_app.origin},
+    )
+    assert no_csrf.status_code == 403
+
+    response = runtime_app.client.post(
+        path,
+        json=payload,
+        headers={**mutation_headers(runtime_app), "X-Request-ID": "document-query-1"},
+    )
+    assert response.status_code == 200
+    assert response.json()["request_id"] == "document-query-1"
+    assert response.json()["rows"] == [["2026-01", 50]]
+
+    invalid = runtime_app.client.post(
+        path,
+        json={**payload, "component_id": "missing"},
+        headers=mutation_headers(runtime_app),
+    )
+    assert invalid.status_code == 422
+    assert invalid.json()["error"]["code"] == "SCREEN_COMPONENT_UNAVAILABLE"

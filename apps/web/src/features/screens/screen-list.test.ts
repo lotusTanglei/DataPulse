@@ -220,6 +220,18 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
           }),
         );
       }
+      if (url === "/api/admin/screens/query-document" && method === "POST") {
+        return Promise.resolve(
+          jsonResponse({
+            request_id: "preview-query-1",
+            columns: [{ name: "amount", type: "number" }],
+            rows: [[350]],
+            row_count: 1,
+            truncated: false,
+            duration_ms: 1,
+          }),
+        );
+      }
       if (url === "/api/admin/screens" && method === "POST") {
         return Promise.resolve(jsonResponse(created, 201));
       }
@@ -247,6 +259,25 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
   await flushPromises();
 
   expect(wrapper.text()).toContain("建议使用 1 个 KPI 和 1 张趋势图");
+  expect(wrapper.find(".screen-runtime").exists()).toBe(true);
+  expect(requests).toContainEqual({
+    url: "/api/admin/screens/query-document",
+    method: "POST",
+    body: {
+      document: generatedDocument,
+      component_id: "kpi-1",
+      parameters: {},
+    },
+  });
+  expect(
+    requests.some(
+      (request) =>
+        request.url === "/api/admin/screens" && request.method === "POST",
+    ),
+  ).toBe(false);
+  expect(requests.some((request) => request.url.endsWith("/publish"))).toBe(
+    false,
+  );
   await wrapper.get('[data-action="confirm-ai-screen"]').trigger("click");
   await flushPromises();
 

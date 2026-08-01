@@ -14,7 +14,6 @@ from datapulse.contracts.dashboard import (
 from datapulse.dataset.models import DatasetResponse
 from datapulse.filedata.parsers import parse_file
 from datapulse.filedata.query import FileDatasetQueryService
-from datapulse.filedata.repository import FileAssetRepository
 from datapulse.query.models import QueryResult
 from datapulse.screen.chart_query import ChartQueryCompiler
 from datapulse.screen.models import ScreenResponse
@@ -39,6 +38,10 @@ class ScreenNotPublished(LookupError):
 class ComponentQueryRequest(ContractModel):
     component_id: NonBlankStr
     parameters: dict[str, JsonValue] = Field(default_factory=dict)
+
+
+class ScreenDocumentQueryRequest(ComponentQueryRequest):
+    document: DashboardDocument
 
 
 class _ScreenRepository(Protocol):
@@ -162,13 +165,11 @@ class ScreenRuntimeService:
     async def _query(
         self,
         *,
-        screen: ScreenResponse,
         document: DashboardDocument,
         data: ComponentQueryRequest,
         request_id: str,
         trigger: str,
     ) -> QueryResult:
-        del screen
         component = _component(document, data.component_id)
         spec = _chart_spec(component)
         runtime_parameters = resolve_parameters(document, data.parameters)
@@ -212,7 +213,6 @@ class ScreenRuntimeService:
     ) -> QueryResult:
         screen = await self._screen_repository.get(screen_id)
         return await self._query(
-            screen=screen,
             document=screen.draft_document,
             data=data,
             request_id=request_id,
@@ -231,11 +231,26 @@ class ScreenRuntimeService:
         if screen.published_document is None:
             raise ScreenNotPublished(screen_id)
         return await self._query(
-            screen=screen,
             document=screen.published_document,
             data=data,
             request_id=request_id,
             trigger=trigger,
+        )
+
+    async def query_document_component(
+        self,
+        data: ScreenDocumentQueryRequest,
+        *,
+        request_id: str,
+    ) -> QueryResult:
+        return await self._query(
+            document=data.document,
+            data=ComponentQueryRequest(
+                component_id=data.component_id,
+                parameters=data.parameters,
+            ),
+            request_id=request_id,
+            trigger="screen-document-preview",
         )
 
 
@@ -243,6 +258,7 @@ __all__ = [
     "ComponentBindingInvalid",
     "ComponentQueryRequest",
     "ScreenComponentUnavailable",
+    "ScreenDocumentQueryRequest",
     "ScreenNotPublished",
     "ScreenParameterInvalid",
     "ScreenRuntimeService",

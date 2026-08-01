@@ -7,6 +7,7 @@ import InlineNotice from "../../ui/InlineNotice.vue";
 import { listDatasets } from "../datasets/api";
 import type { Dataset } from "../datasets/types";
 import { generateScreen } from "./api";
+import ScreenDraftPreview from "./ScreenDraftPreview.vue";
 import type { AiScreenResponse } from "./types";
 
 const props = withDefaults(
@@ -101,9 +102,9 @@ function confirm(): void {
   if (!result.value || props.submitting) {
     return;
   }
-    emit("confirm", {
+  emit("confirm", {
     name: screenName.value.trim(),
-      result: result.value as AiScreenResponse,
+    result: result.value as AiScreenResponse,
   });
 }
 
@@ -250,6 +251,7 @@ watch(
             组件 {{ result.document.components?.length ?? 0 }}
           </span>
         </div>
+        <ScreenDraftPreview :document="result.document" />
         <ul
           v-if="result.warnings.length > 0"
           class="ai-screen-dialog__warnings"

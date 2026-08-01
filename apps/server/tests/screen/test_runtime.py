@@ -34,6 +34,7 @@ from datapulse.screen.runtime import (
     ComponentBindingInvalid,
     ComponentQueryRequest,
     ScreenComponentUnavailable,
+    ScreenDocumentQueryRequest,
     ScreenNotPublished,
     ScreenParameterInvalid,
     ScreenRuntimeService,
@@ -122,7 +123,9 @@ class FakeFileAssetRepository:
 @dataclass
 class FakeFileDatasetQueryService:
     result: QueryResult
-    requests: list[tuple[object, object, dict[str, object], str, Path]] = field(default_factory=list)
+    requests: list[tuple[object, object, dict[str, object], str, Path]] = field(
+        default_factory=list
+    )
 
     async def query(
         self,
@@ -230,6 +233,30 @@ async def test_runtime_authorizes_and_executes_stored_component_query(
     assert "west" not in request.sql
 
 
+async def test_runtime_executes_component_query_from_unsaved_document(
+    screen_repository: ScreenRepository,
+) -> None:
+    datasource_service = FakeDatasourceService(query_result())
+    runtime = ScreenRuntimeService(
+        screen_repository=screen_repository,
+        dataset_repository=FakeDatasetRepository(dataset_response()),
+        datasource_service=datasource_service,
+    )
+
+    result = await runtime.query_document_component(
+        ScreenDocumentQueryRequest(
+            document=screen_document(),
+            component_id="line-1",
+            parameters={"region": "west"},
+        ),
+        request_id="request-preview-1",
+    )
+
+    assert result == query_result()
+    assert datasource_service.requests[0][2] == "request-preview-1"
+    assert datasource_service.requests[0][4] == "screen-document-preview"
+
+
 @pytest.mark.parametrize(
     ("document", "component_id", "error_type"),
     [
@@ -305,7 +332,9 @@ async def test_runtime_routes_file_datasets_to_file_query_service(
     file_path.write_text("month,amount\n2026-01,10\n", encoding="utf-8")
     document = screen_document(
         data_binding={
-            "chart_spec": chart_spec().model_copy(update={"dataset_id": "sales-file"}).model_dump(mode="json")
+            "chart_spec": chart_spec()
+            .model_copy(update={"dataset_id": "sales-file"})
+            .model_dump(mode="json")
         }
     )
     screen = await screen_repository.create("File runtime", document)
