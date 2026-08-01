@@ -9,10 +9,10 @@ from datapulse.ai.screen_generator import ScreenDraftGenerator, validate_ai_docu
 from datapulse.contracts.ai import AiScreenRequest
 from datapulse.contracts.dataset import (
     CachePolicy,
-    DataType,
     DatasetDefinition,
     DatasetField,
     DatasetParameter,
+    DataType,
     RefreshPolicy,
     SqlQuery,
 )
@@ -182,9 +182,7 @@ class FakeGateway:
         user: str,
         response_model,  # noqa: ANN001
     ):
-        self.calls.append(
-            {"system": system, "user": user, "response_model": response_model}
-        )
+        self.calls.append({"system": system, "user": user, "response_model": response_model})
         return response_model.model_validate(self.payload)
 
     def health(self) -> AiHealth:

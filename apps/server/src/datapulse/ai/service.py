@@ -147,6 +147,15 @@ class AiService:
         capabilities = "; ".join(
             f"{chart_type.value}={rule}" for chart_type, rule in _VISUAL_CAPABILITIES.items()
         )
+        target_component_type = (
+            request.target_component_type.value
+            if request.target_component_type is not None
+            else "any"
+        )
+        serialized_contexts = json.dumps(
+            [item.model_dump(mode="json") for item in contexts],
+            ensure_ascii=False,
+        )
         system = (
             "You are a DataPulse chart assistant. "
             "Return only valid JSON for the response model. "
@@ -157,14 +166,14 @@ class AiService:
             f"request_id: {request_id}\n"
             f"dataset_id: {request.dataset_id}\n"
             f"question: {request.question}\n"
-            f"target_component_type: {request.target_component_type.value if request.target_component_type is not None else 'any'}\n"
+            f"target_component_type: {target_component_type}\n"
             f"allowed_fields: {fields}\n"
             f"allowed_aggregations: {', '.join(item.value for item in Aggregation)}\n"
             f"allowed_filter_operators: {', '.join(item.value for item in FilterOperator)}\n"
             f"visual_capabilities: {capabilities}\n"
             "rules: do not invent fields; do not emit SQL; do not exceed limit 5000; "
             "chart_spec must omit dataset_id because the server will inject it.\n"
-            f"contexts: {json.dumps([item.model_dump(mode='json') for item in contexts], ensure_ascii=False)}"
+            f"contexts: {serialized_contexts}"
         )
         return system, user
 
@@ -274,12 +283,16 @@ class AiService:
             "You are a DataPulse analytics assistant. "
             "Return only valid JSON that matches the requested response model."
         )
+        serialized_contexts = json.dumps(
+            [item.model_dump(mode="json") for item in contexts],
+            ensure_ascii=False,
+        )
         user = (
             f"request_id: {request_id}\n"
             f"mode: {request.mode}\n"
             f"dataset_ids: {', '.join(request.dataset_ids)}\n"
             f"question: {request.question}\n"
-            f"contexts: {json.dumps([item.model_dump(mode='json') for item in contexts], ensure_ascii=False)}"
+            f"contexts: {serialized_contexts}"
         )
         response = await self._gateway.complete_json(
             system=system,
@@ -287,8 +300,7 @@ class AiService:
             response_model=AiAnalysisResponse,
         )
         if not response.plan.dataset_ids or any(
-            dataset_id not in request.dataset_ids
-            for dataset_id in response.plan.dataset_ids
+            dataset_id not in request.dataset_ids for dataset_id in response.plan.dataset_ids
         ):
             raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.")
 

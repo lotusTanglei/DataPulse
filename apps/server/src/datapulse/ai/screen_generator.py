@@ -59,8 +59,7 @@ _DEFAULT_PROPS: dict[str, dict[str, JsonValue]] = {
 }
 
 _ALLOWED_PROP_KEYS = {
-    component_type: set(defaults)
-    for component_type, defaults in _DEFAULT_PROPS.items()
+    component_type: set(defaults) for component_type, defaults in _DEFAULT_PROPS.items()
 }
 
 _BANNED_DOCUMENT_KEYS = {
@@ -83,7 +82,14 @@ _BANNED_PROP_KEYS = {
     "image_path",
     "sql",
 }
-_ALLOWED_DOCUMENT_KEYS = {"schema_version", "canvas", "theme", "refresh", "parameters", "components"}
+_ALLOWED_DOCUMENT_KEYS = {
+    "schema_version",
+    "canvas",
+    "theme",
+    "refresh",
+    "parameters",
+    "components",
+}
 _ALLOWED_COMPONENT_KEYS = {
     "id",
     "type",
@@ -226,11 +232,7 @@ def _sanitize_props(component_type: str, payload: object) -> dict[str, JsonValue
 
 def _sanitize_frame(payload: object) -> dict[str, object]:
     value = _mapping(payload)
-    frame = {
-        key: value[key]
-        for key in ("x", "y", "width", "height", "z_index")
-        if key in value
-    }
+    frame = {key: value[key] for key in ("x", "y", "width", "height", "z_index") if key in value}
     return frame
 
 
@@ -246,11 +248,7 @@ def _validate_chart_spec(
         raise _screen_error()
     raw = _mapping(payload)
     _assert_safe_json(raw)
-    spec_payload = {
-        key: raw[key]
-        for key in _ALLOWED_CHART_SPEC_KEYS
-        if key in raw
-    }
+    spec_payload = {key: raw[key] for key in _ALLOWED_CHART_SPEC_KEYS if key in raw}
     try:
         spec = ChartSpec.model_validate(spec_payload)
     except (ValidationError, TypeError, ValueError) as error:
@@ -386,11 +384,7 @@ def validate_ai_document(
     if len(components) > _MAX_COMPONENTS:
         raise _screen_error()
 
-    normalized = {
-        key: value[key]
-        for key in _ALLOWED_DOCUMENT_KEYS
-        if key in value
-    }
+    normalized = {key: value[key] for key in _ALLOWED_DOCUMENT_KEYS if key in value}
     normalized["canvas"] = _sanitize_canvas(
         normalized.get("canvas"),
         canvas_width=canvas_width,
@@ -463,6 +457,10 @@ class ScreenDraftGenerator:
             "You are a DataPulse screen design assistant. "
             "Return only valid JSON for the response model."
         )
+        serialized_contexts = json.dumps(
+            [item.model_dump(mode="json") for item in contexts],
+            ensure_ascii=False,
+        )
         user = (
             f"request_id: {request_id}\n"
             f"question: {request.question}\n"
@@ -474,7 +472,7 @@ class ScreenDraftGenerator:
             "do not emit JavaScript; do not emit image paths or external URLs; "
             "for data components include chart_spec with dataset_id, fields, filters, and visual.\n"
             f"datasets: {json.dumps(datasets_description, ensure_ascii=False)}\n"
-            f"contexts: {json.dumps([item.model_dump(mode='json') for item in contexts], ensure_ascii=False)}"
+            f"contexts: {serialized_contexts}"
         )
         return system, user
 

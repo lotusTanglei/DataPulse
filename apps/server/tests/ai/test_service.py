@@ -10,10 +10,10 @@ from datapulse.contracts.ai import AiAnalysisRequest, AiAnalysisResponse, AiScre
 from datapulse.contracts.chart import ChartSpec
 from datapulse.contracts.dataset import (
     CachePolicy,
-    DataType,
     DatasetDefinition,
     DatasetField,
     DatasetParameter,
+    DataType,
     RefreshPolicy,
     SqlQuery,
 )

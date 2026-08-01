@@ -141,7 +141,9 @@ class AiGateway:
         if last_timeout is not None:
             raise AiGatewayError("AI_TIMEOUT", "AI request timed out.") from last_timeout
         if last_http_error is not None:
-            raise AiGatewayError("AI_UNAVAILABLE", "AI service is unavailable.") from last_http_error
+            raise AiGatewayError(
+                "AI_UNAVAILABLE", "AI service is unavailable."
+            ) from last_http_error
         raise AiGatewayError("AI_UNAVAILABLE", "AI service is unavailable.")
 
 

@@ -72,10 +72,10 @@ async def check_migration_head(app: FastAPI) -> None:
 
 def create_lifespan(
     settings: Settings,
-) -> Callable[[FastAPI], AsyncGenerator[None, None]]:
+) -> Callable[[FastAPI], AsyncGenerator[None]]:
     # Keep startup wiring in one place so tests and production use the same service graph.
     @asynccontextmanager
-    async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         install_ticket_redaction_filter()
         if settings.bootstrap_code_override is not None and settings.environment != "test":
             raise RuntimeError("bootstrap_code_override is only allowed in the test environment.")
@@ -209,9 +209,7 @@ def create_lifespan(
                 repository=EmbedAccessRepository(session_factory),
                 screen_repository=screen_repository,
                 codec=(
-                    EmbedTicketCodec(signing_key=signing_key)
-                    if signing_key is not None
-                    else None
+                    EmbedTicketCodec(signing_key=signing_key) if signing_key is not None else None
                 ),
             )
 

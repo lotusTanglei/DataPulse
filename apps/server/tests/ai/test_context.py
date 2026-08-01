@@ -7,9 +7,9 @@ import pytest
 from datapulse.ai.context import DatasetContextService
 from datapulse.contracts.dataset import (
     CachePolicy,
-    DataType,
     DatasetDefinition,
     DatasetField,
+    DataType,
     RefreshPolicy,
     SqlQuery,
 )
@@ -21,8 +21,7 @@ pytestmark = pytest.mark.anyio
 
 def dataset_response() -> DatasetResponse:
     fields = tuple(
-        DatasetField(name=f"field_{index}", data_type=DataType.STRING)
-        for index in range(60)
+        DatasetField(name=f"field_{index}", data_type=DataType.STRING) for index in range(60)
     )
     return DatasetResponse(
         id="sales",
@@ -86,8 +85,7 @@ class FakeDatasourceService:
         self.calls.append(request)
         long_text = "x" * 160
         columns = tuple(
-            QueryColumn(name=f"field_{index}", data_type="string")
-            for index in range(60)
+            QueryColumn(name=f"field_{index}", data_type="string") for index in range(60)
         )
         rows = tuple(
             tuple(long_text if index == 0 else f"value-{row}-{index}" for index in range(60))

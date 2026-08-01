@@ -27,12 +27,7 @@ def _rows(result: QueryResult) -> tuple[dict[str, JsonValue], ...]:
     columns = [column.name for column in result.columns]
     rendered: list[dict[str, JsonValue]] = []
     for row in result.rows:
-        rendered.append(
-            {
-                columns[index]: _truncate(value)
-                for index, value in enumerate(row)
-            }
-        )
+        rendered.append({columns[index]: _truncate(value) for index, value in enumerate(row)})
     return tuple(rendered)
 
 
@@ -61,8 +56,7 @@ class DatasetContextService:
             QueryRequest(
                 sql=dataset.definition.query.sql,
                 parameters={
-                    parameter.name: parameter.default
-                    for parameter in dataset.definition.parameters
+                    parameter.name: parameter.default for parameter in dataset.definition.parameters
                 },
                 max_rows=min(max_rows, dataset.definition.max_rows),
                 timeout_seconds=dataset.definition.timeout_seconds,

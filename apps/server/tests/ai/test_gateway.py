@@ -111,7 +111,9 @@ async def test_gateway_retries_once_for_transient_http_errors_and_redacts_api_ke
     api_key = "top-secret-key"
     client = FakeAsyncClient(
         responses=(
-            httpx.ConnectError("boom", request=httpx.Request("POST", "https://llm.test/chat/completions")),
+            httpx.ConnectError(
+                "boom", request=httpx.Request("POST", "https://llm.test/chat/completions")
+            ),
             openai_response(AiAnalysisResponse(**ai_response_payload()).model_dump_json()),
         ),
     )
@@ -137,8 +139,12 @@ async def test_gateway_retries_once_for_transient_http_errors_and_redacts_api_ke
 async def test_gateway_maps_timeout_after_one_retry() -> None:
     client = FakeAsyncClient(
         responses=(
-            httpx.ReadTimeout("slow", request=httpx.Request("POST", "https://llm.test/chat/completions")),
-            httpx.ReadTimeout("still slow", request=httpx.Request("POST", "https://llm.test/chat/completions")),
+            httpx.ReadTimeout(
+                "slow", request=httpx.Request("POST", "https://llm.test/chat/completions")
+            ),
+            httpx.ReadTimeout(
+                "still slow", request=httpx.Request("POST", "https://llm.test/chat/completions")
+            ),
         ),
     )
     gateway = AiGateway(

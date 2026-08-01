@@ -10,9 +10,9 @@ from datapulse.contracts.ai import AiChartRequest
 from datapulse.contracts.chart import ChartType
 from datapulse.contracts.dataset import (
     CachePolicy,
-    DataType,
     DatasetDefinition,
     DatasetField,
+    DataType,
     RefreshPolicy,
     SqlQuery,
 )
@@ -168,7 +168,9 @@ class FakeDatasourceService:
         return preview_result(request_id)
 
 
-def build_service(payload: dict[str, object]) -> tuple[AiService, FakeDatasourceService, FakeGateway]:
+def build_service(
+    payload: dict[str, object],
+) -> tuple[AiService, FakeDatasourceService, FakeGateway]:
     gateway = FakeGateway(payload=payload)
     datasource_service = FakeDatasourceService()
     service = AiService(
