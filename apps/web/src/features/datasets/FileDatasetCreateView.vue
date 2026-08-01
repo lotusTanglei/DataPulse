@@ -1,17 +1,25 @@
 <script setup lang="ts">
-import { FileUp } from "@lucide/vue";
-import { computed, onMounted, ref } from "vue";
+import { FileUp, Trash2 } from "@lucide/vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
-import { listFileAssets, uploadFileAsset } from "../files/api";
-import type { FileAsset } from "../files/types";
+import {
+  deleteFileAsset,
+  listFileAssets,
+  previewFileAsset,
+  uploadFileAsset,
+} from "../files/api";
+import type { FileAsset, FilePreviewResponse } from "../files/types";
+import QueryResultTable from "../query/QueryResultTable.vue";
 import { createFileDataset } from "./api";
 
 const router = useRouter();
 const loading = ref(true);
 const uploading = ref(false);
+const previewing = ref(false);
+const deleting = ref(false);
 const submitting = ref(false);
 const assets = ref<FileAsset[]>([]);
 const selectedAssetId = ref("");
@@ -22,18 +30,29 @@ const timeoutSeconds = ref(30);
 const loadError = ref<ApiError | null>(null);
 const uploadError = ref<ApiError | null>(null);
 const submitError = ref<ApiError | null>(null);
+const previewError = ref<ApiError | null>(null);
+const previewResponse = ref<FilePreviewResponse | null>(null);
+let previewController: AbortController | null = null;
 
 const selectedAsset = computed(() =>
   assets.value.find((asset) => asset.id === selectedAssetId.value) ?? null,
 );
 const needsSheetName = computed(() => selectedAsset.value?.format === "excel");
+const sheetNames = computed(() => previewResponse.value?.sheet_names ?? []);
 const canSubmit = computed(
   () =>
     selectedAsset.value !== null &&
     name.value.trim() !== "" &&
     !uploading.value &&
-    !submitting.value,
+    !submitting.value &&
+    (!needsSheetName.value || sheetName.value.trim() !== ""),
 );
+
+function fallbackError(reason: unknown, code: string, message: string): ApiError {
+  return reason instanceof ApiError
+    ? reason
+    : new ApiError({ code, message, requestId: "", status: 500 });
+}
 
 async function load(): Promise<void> {
   loading.value = true;
@@ -92,6 +111,79 @@ async function onFileChange(event: Event): Promise<void> {
   }
 }
 
+async function loadPreview(
+  assetId: string,
+  requestedSheet?: string,
+): Promise<void> {
+  previewController?.abort();
+  previewResponse.value = null;
+  previewError.value = null;
+  if (!assetId) {
+    previewing.value = false;
+    return;
+  }
+  const controller = new AbortController();
+  previewController = controller;
+  previewing.value = true;
+  try {
+    const response = await previewFileAsset(
+      assetId,
+      requestedSheet,
+      controller.signal,
+    );
+    if (!controller.signal.aborted) {
+      previewResponse.value = response;
+      sheetName.value = response.selected_sheet ?? "";
+    }
+  } catch (reason) {
+    if (!controller.signal.aborted) {
+      previewError.value = fallbackError(
+        reason,
+        "FILE_PREVIEW_FAILED",
+        "文件样例预览失败，请稍后重试。",
+      );
+    }
+  } finally {
+    if (!controller.signal.aborted) {
+      previewing.value = false;
+    }
+  }
+}
+
+function onSheetChange(): void {
+  if (selectedAssetId.value && sheetName.value) {
+    void loadPreview(selectedAssetId.value, sheetName.value);
+  }
+}
+
+async function removeSelectedAsset(): Promise<void> {
+  const asset = selectedAsset.value;
+  if (
+    asset === null ||
+    deleting.value ||
+    !window.confirm(
+      `删除文件“${asset.original_name}”？仅未被数据集引用的文件可以删除。`,
+    )
+  ) {
+    return;
+  }
+  deleting.value = true;
+  uploadError.value = null;
+  try {
+    await deleteFileAsset(asset.id);
+    assets.value = assets.value.filter((item) => item.id !== asset.id);
+    selectedAssetId.value = assets.value[0]?.id ?? "";
+  } catch (reason) {
+    uploadError.value = fallbackError(
+      reason,
+      "FILE_DELETE_FAILED",
+      "文件删除失败；请确认它没有被数据集引用。",
+    );
+  } finally {
+    deleting.value = false;
+  }
+}
+
 async function submit(): Promise<void> {
   if (!canSubmit.value || selectedAsset.value === null) {
     return;
@@ -129,7 +221,13 @@ function formatLabel(value: string): string {
   return value.toUpperCase();
 }
 
+watch(selectedAssetId, (assetId) => {
+  sheetName.value = "";
+  void loadPreview(assetId);
+});
+
 onMounted(() => void load());
+onBeforeUnmount(() => previewController?.abort());
 </script>
 
 <template>
@@ -188,7 +286,19 @@ onMounted(() => void load());
           <div v-if="selectedAsset" class="dataset-file-asset">
             <div class="dataset-file-asset__header">
               <strong>{{ selectedAsset.original_name }}</strong>
-              <span class="type-pill">{{ formatLabel(selectedAsset.format) }}</span>
+              <div class="query-actions">
+                <span class="type-pill">{{ formatLabel(selectedAsset.format) }}</span>
+                <button
+                  class="secondary-button primary-button--compact"
+                  type="button"
+                  data-action="delete-file-asset"
+                  :disabled="deleting"
+                  @click="removeSelectedAsset"
+                >
+                  <Trash2 :size="13" aria-hidden="true" />
+                  {{ deleting ? "正在删除…" : "删除文件" }}
+                </button>
+              </div>
             </div>
             <p>
               {{ selectedAsset.row_count.toLocaleString("zh-CN") }} 行 ·
@@ -216,13 +326,17 @@ onMounted(() => void load());
               />
             </label>
             <label v-if="needsSheetName">
-              <span>Excel Sheet（可选）</span>
-              <input
+              <span>Excel Sheet</span>
+              <select
                 v-model="sheetName"
                 name="sheetName"
-                autocomplete="off"
-                placeholder="例如：Sheet1"
-              />
+                :disabled="previewing || sheetNames.length === 0"
+                @change="onSheetChange"
+              >
+                <option v-for="sheet in sheetNames" :key="sheet" :value="sheet">
+                  {{ sheet }}
+                </option>
+              </select>
             </label>
             <label>
               <span>最大行数</span>
@@ -250,6 +364,10 @@ onMounted(() => void load());
             <p>{{ submitError.message }}</p>
             <code v-if="submitError.requestId">{{ submitError.requestId }}</code>
           </InlineNotice>
+          <InlineNotice v-if="previewError" tone="error">
+            <p>{{ previewError.message }}</p>
+            <code v-if="previewError.requestId">{{ previewError.requestId }}</code>
+          </InlineNotice>
 
           <div class="dialog-actions">
             <button
@@ -264,6 +382,18 @@ onMounted(() => void load());
           </div>
         </section>
       </div>
+
+      <div v-if="previewResponse" class="query-result-panel">
+        <div class="result-summary">
+          <strong>{{ previewResponse.result.row_count.toLocaleString("zh-CN") }} 行样例</strong>
+          <span>{{ previewResponse.result.duration_ms.toLocaleString("zh-CN") }} ms</span>
+          <code>{{ previewResponse.result.request_id }}</code>
+        </div>
+        <QueryResultTable :result="previewResponse.result" />
+      </div>
+      <p v-else-if="previewing" class="loading-copy" role="status">
+        正在加载文件样例…
+      </p>
     </template>
   </section>
 </template>

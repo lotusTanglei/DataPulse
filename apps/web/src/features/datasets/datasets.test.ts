@@ -113,6 +113,10 @@ function testRouter(): Router {
         component: { template: "<div />" },
       },
       {
+        path: "/studio/datasets",
+        component: { template: "<div />" },
+      },
+      {
         path: "/studio/datasources",
         component: { template: "<div />" },
       },
@@ -304,6 +308,10 @@ test("edits dataset config and preserves preview parameters after an error", asy
 
 test("loads file datasets without requesting a datasource and previews rows", async () => {
   let previewCalls = 0;
+  let patched: unknown;
+  let deleteCalls = 0;
+  const confirm = vi.fn(() => true);
+  vi.stubGlobal("confirm", confirm);
   vi.stubGlobal(
     "fetch",
     vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
@@ -316,6 +324,31 @@ test("loads file datasets without requesting a datasource and previews rows", as
       }
       if (url === "/api/admin/files" && init?.method === "GET") {
         return Promise.resolve(jsonResponse([fileAsset]));
+      }
+      if (
+        url === "/api/admin/datasets/dataset-file-1" &&
+        init?.method === "PATCH"
+      ) {
+        patched = JSON.parse(String(init.body));
+        return Promise.resolve(
+          jsonResponse({
+            ...fileDataset,
+            name: "销售明细文件",
+            definition: {
+              ...fileDataset.definition,
+              name: "销售明细文件",
+              max_rows: 100,
+              timeout_seconds: 12,
+            },
+          }),
+        );
+      }
+      if (
+        url === "/api/admin/datasets/dataset-file-1" &&
+        init?.method === "DELETE"
+      ) {
+        deleteCalls += 1;
+        return Promise.resolve(new Response(null, { status: 204 }));
       }
       if (
         url === "/api/admin/datasets/dataset-file-1/preview" &&
@@ -347,8 +380,20 @@ test("loads file datasets without requesting a datasource and previews rows", as
 
   expect(wrapper.text()).toContain("sales.csv");
   expect(wrapper.text()).toContain("CSV");
-  expect(wrapper.text()).toContain("文件数据集当前为只读");
-  expect(wrapper.find('[data-action="save-dataset"]').exists()).toBe(false);
+  expect(wrapper.text()).not.toContain("文件数据集当前为只读");
+  expect(wrapper.find('[data-action="save-dataset"]').exists()).toBe(true);
+
+  await wrapper.get('input[name="name"]').setValue("销售明细文件");
+  await wrapper.get('input[name="maxRows"]').setValue("100");
+  await wrapper.get('input[name="timeoutSeconds"]').setValue("12");
+  await wrapper.get('[data-action="save-dataset"]').trigger("click");
+  await flushPromises();
+
+  expect(patched).toEqual({
+    name: "销售明细文件",
+    max_rows: 100,
+    timeout_seconds: 12,
+  });
 
   await wrapper.get('[data-action="preview-dataset"]').trigger("click");
   await flushPromises();
@@ -358,6 +403,14 @@ test("loads file datasets without requesting a datasource and previews rows", as
   expect(wrapper.text()).toContain("2 行");
   expect(wrapper.text()).toContain("region");
   expect(wrapper.text()).toContain("amount");
+
+  await wrapper.get('[data-action="delete-dataset"]').trigger("click");
+  await flushPromises();
+  expect(confirm).toHaveBeenCalledWith(
+    "删除“销售明细文件”？此操作无法撤销。来源文件不会自动删除。",
+  );
+  expect(deleteCalls).toBe(1);
+  expect(router.currentRoute.value.fullPath).toBe("/studio/datasets");
 });
 
 test("uploads a file and creates a file dataset", async () => {
@@ -371,6 +424,23 @@ test("uploads a file and creates a file dataset", async () => {
       }
       if (url === "/api/admin/files" && init?.method === "POST") {
         return Promise.resolve(jsonResponse(fileAsset, 201));
+      }
+      if (url === "/api/admin/files/file-1/preview" && init?.method === "GET") {
+        return Promise.resolve(
+          jsonResponse({
+            format: "csv",
+            sheet_names: [],
+            selected_sheet: null,
+            result: {
+              request_id: "file-preview-1",
+              columns: fileAsset.fields,
+              rows: [["north", "10"], ["south", "20"]],
+              row_count: 2,
+              truncated: false,
+              duration_ms: 1,
+            },
+          }),
+        );
       }
       if (url === "/api/admin/datasets/files" && init?.method === "POST") {
         submitted = JSON.parse(String(init.body));
@@ -400,6 +470,8 @@ test("uploads a file and creates a file dataset", async () => {
   await flushPromises();
 
   expect(wrapper.text()).toContain("sales.csv");
+  expect(wrapper.text()).toContain("file-preview-1");
+  expect(wrapper.find(".query-result-panel").exists()).toBe(true);
   await wrapper.get('input[name="datasetName"]').setValue("销售文件数据集");
   await wrapper.get('[data-action="create-file-dataset"]').trigger("click");
   await flushPromises();
@@ -413,4 +485,98 @@ test("uploads a file and creates a file dataset", async () => {
   expect(router.currentRoute.value.fullPath).toBe(
     "/studio/datasets/dataset-file-1",
   );
+});
+
+test("switches Excel preview sheets and deletes an unused file asset", async () => {
+  const excelAsset = {
+    ...fileAsset,
+    id: "excel-1",
+    original_name: "sales.xlsx",
+    format: "excel",
+  };
+  const requests: string[] = [];
+  const confirm = vi.fn(() => true);
+  vi.stubGlobal("confirm", confirm);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      requests.push(`${init?.method ?? "GET"} ${url}`);
+      if (url === "/api/admin/files" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse([excelAsset]));
+      }
+      if (
+        url === "/api/admin/files/excel-1/preview" &&
+        init?.method === "GET"
+      ) {
+        return Promise.resolve(
+          jsonResponse({
+            format: "excel",
+            sheet_names: ["Summary", "Detail"],
+            selected_sheet: "Summary",
+            result: {
+              request_id: "summary-preview",
+              columns: [{ name: "metric", data_type: "string" }],
+              rows: [["revenue"]],
+              row_count: 1,
+              truncated: false,
+              duration_ms: 1,
+            },
+          }),
+        );
+      }
+      if (
+        url === "/api/admin/files/excel-1/preview?sheet_name=Detail" &&
+        init?.method === "GET"
+      ) {
+        return Promise.resolve(
+          jsonResponse({
+            format: "excel",
+            sheet_names: ["Summary", "Detail"],
+            selected_sheet: "Detail",
+            result: {
+              request_id: "detail-preview",
+              columns: [{ name: "order_id", data_type: "string" }],
+              rows: [["A-1"]],
+              row_count: 1,
+              truncated: false,
+              duration_ms: 1,
+            },
+          }),
+        );
+      }
+      if (
+        url === "/api/admin/files/excel-1" &&
+        init?.method === "DELETE"
+      ) {
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+
+  const router = testRouter();
+  await router.push("/studio/datasets/files/new");
+  await router.isReady();
+  const wrapper = mount(FileDatasetCreateView, {
+    global: { plugins: [router] },
+  });
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("summary-preview");
+  const sheetSelect = wrapper.get('select[name="sheetName"]');
+  expect((sheetSelect.element as HTMLSelectElement).value).toBe("Summary");
+  await sheetSelect.setValue("Detail");
+  await flushPromises();
+  expect(wrapper.text()).toContain("detail-preview");
+  expect(requests).toContain(
+    "GET /api/admin/files/excel-1/preview?sheet_name=Detail",
+  );
+
+  await wrapper.get('[data-action="delete-file-asset"]').trigger("click");
+  await flushPromises();
+  expect(confirm).toHaveBeenCalledWith(
+    "删除文件“sales.xlsx”？仅未被数据集引用的文件可以删除。",
+  );
+  expect(wrapper.find('option[value="excel-1"]').exists()).toBe(false);
 });

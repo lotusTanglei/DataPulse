@@ -29,3 +29,9 @@ export function previewFileAsset(
     { signal },
   );
 }
+
+export function deleteFileAsset(assetId: string): Promise<void> {
+  return apiRequest<void>(`${FILES_PATH}/${encodeURIComponent(assetId)}`, {
+    method: "DELETE",
+  });
+}

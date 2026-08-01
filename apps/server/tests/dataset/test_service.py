@@ -1,14 +1,17 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
-from datapulse.contracts.dataset import DataType
-from datapulse.dataset.models import DatasetCreate
+from datapulse.contracts.dataset import DataType, FileFormat
+from datapulse.contracts.filedata import FileDatasetCreate
+from datapulse.dataset.models import DatasetCreate, DatasetUpdate
 from datapulse.dataset.repository import DatasetRepository
-from datapulse.dataset.service import DatasetService
+from datapulse.dataset.service import DatasetService, DatasetUpdateInvalid
 from datapulse.datasource.models import DatasourceCreate, SQLiteConfig
 from datapulse.datasource.registry import ConnectorRegistry
 from datapulse.datasource.repository import DatasourceNotFound, DatasourceRepository
+from datapulse.filedata.repository import FileAssetRepository
 from datapulse.query.models import QueryColumn, QueryRequest, QueryResult
 from datapulse.query.safety import QueryValidationError
 
@@ -68,6 +71,7 @@ async def build_service(
     dataset_repository: DatasetRepository,
     *,
     error: Exception | None = None,
+    file_asset_repository: FileAssetRepository | None = None,
 ) -> tuple[DatasetService, FakeDatasourceService]:
     try:
         source = await datasource_repository.get("source-1")
@@ -86,6 +90,7 @@ async def build_service(
             repository=dataset_repository,
             datasource_service=datasource_service,
             registry=ConnectorRegistry([DialectConnector()]),
+            file_asset_repository=file_asset_repository,
             id_factory=lambda: "dataset-1",
         ),
         datasource_service,
@@ -141,7 +146,9 @@ async def test_invalid_source_unsafe_sql_and_preview_failure_do_not_persist(
     assert datasource_service.requests == []
     assert await repository.list() == ()
 
-    missing = payload.model_copy(update={"data_source_id": "missing", "sql": "SELECT * FROM sales"})
+    missing = payload.model_copy(
+        update={"data_source_id": "missing", "sql": "SELECT * FROM sales"}
+    )
     with pytest.raises(DatasourceNotFound):
         await service.create(missing, request_id="missing-1")
     assert await repository.list() == ()
@@ -157,3 +164,59 @@ async def test_invalid_source_unsafe_sql_and_preview_failure_do_not_persist(
             request_id="failed-1",
         )
     assert await repository.list() == ()
+
+
+async def test_file_update_reparses_fields_and_rejects_sql_configuration(
+    datasource_repository: DatasourceRepository,
+    metadata_session_factory: object,
+    tmp_path: Path,
+) -> None:
+    repository = DatasetRepository(metadata_session_factory)
+    file_repository = FileAssetRepository(metadata_session_factory)
+    file_path = tmp_path / "sales.csv"
+    file_path.write_text("region,amount\nnorth,10\nsouth,20\n", encoding="utf-8")
+    await file_repository.create(
+        asset_id="asset-1",
+        original_name="sales.csv",
+        format=FileFormat.CSV,
+        mime_type="text/csv",
+        sha256="a" * 64,
+        size_bytes=file_path.stat().st_size,
+        storage_path=str(file_path),
+        row_count=2,
+        fields_json=[],
+    )
+    service, _ = await build_service(
+        datasource_repository,
+        repository,
+        file_asset_repository=file_repository,
+    )
+    created = await service.create_file(
+        FileDatasetCreate(name="Sales file", file_asset_id="asset-1"),
+        request_id="file-create-1",
+    )
+
+    updated = await service.update(
+        created.id,
+        DatasetUpdate(name="Sales renamed", max_rows=100, timeout_seconds=12),
+        request_id="file-update-1",
+    )
+
+    assert updated.name == "Sales renamed"
+    assert updated.definition.max_rows == 100
+    assert updated.definition.timeout_seconds == 12
+    assert [field.name for field in updated.definition.fields] == ["region", "amount"]
+    assert updated.definition.query == created.definition.query
+
+    with pytest.raises(DatasetUpdateInvalid):
+        await service.update(
+            created.id,
+            DatasetUpdate(sql="SELECT * FROM dataset_source"),
+            request_id="file-update-sql",
+        )
+    with pytest.raises(DatasetUpdateInvalid):
+        await service.update(
+            created.id,
+            DatasetUpdate(parameters=()),
+            request_id="file-update-parameters",
+        )

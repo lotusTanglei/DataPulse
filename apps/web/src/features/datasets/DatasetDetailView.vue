@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Play, Save } from "@lucide/vue";
+import { Play, Save, Trash2 } from "@lucide/vue";
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
@@ -18,14 +18,21 @@ import type {
   QueryResult,
   SqlDialect,
 } from "../query/types";
-import { getDataset, previewDataset, updateDataset } from "./api";
+import {
+  deleteDataset,
+  getDataset,
+  previewDataset,
+  updateDataset,
+} from "./api";
 import type { Dataset } from "./types";
 
 const route = useRoute();
+const router = useRouter();
 const dataset = ref<Dataset | null>(null);
 const loading = ref(true);
 const saving = ref(false);
 const previewing = ref(false);
+const deleting = ref(false);
 const loadError = ref<ApiError | null>(null);
 const formError = ref<ApiError | null>(null);
 const previewError = ref<ApiError | null>(null);
@@ -116,29 +123,40 @@ async function load(id: string): Promise<void> {
 async function save(): Promise<void> {
   if (
     dataset.value === null ||
-    dataset.value.definition.query.kind !== "sql" ||
     name.value.trim() === "" ||
-    sql.value.trim() === "" ||
     !parametersValid.value
   ) {
+    return;
+  }
+  const isSql = dataset.value.definition.query.kind === "sql";
+  if (isSql && sql.value.trim() === "") {
     return;
   }
   saving.value = true;
   formError.value = null;
   try {
-    const updated = await updateDataset(dataset.value.id, {
-      name: name.value.trim(),
-      sql: sql.value,
-      parameters: parameters.value.map((parameter) => ({
-        name: parameter.name.trim(),
-        data_type: parameter.data_type,
-        required: false,
-        default: parameter.value,
-      })),
-      max_rows: maxRows.value,
-      timeout_seconds: timeoutSeconds.value,
-    });
-    dataset.value = updated;
+    const updated = await updateDataset(
+      dataset.value.id,
+      isSql
+        ? {
+            name: name.value.trim(),
+            sql: sql.value,
+            parameters: parameters.value.map((parameter) => ({
+              name: parameter.name.trim(),
+              data_type: parameter.data_type,
+              required: false,
+              default: parameter.value,
+            })),
+            max_rows: maxRows.value,
+            timeout_seconds: timeoutSeconds.value,
+          }
+        : {
+            name: name.value.trim(),
+            max_rows: maxRows.value,
+            timeout_seconds: timeoutSeconds.value,
+          },
+    );
+    hydrate(updated);
   } catch (reason) {
     formError.value =
       reason instanceof ApiError
@@ -151,6 +169,36 @@ async function save(): Promise<void> {
           });
   } finally {
     saving.value = false;
+  }
+}
+
+async function remove(): Promise<void> {
+  if (
+    dataset.value === null ||
+    deleting.value ||
+    !window.confirm(
+      `删除“${dataset.value.name}”？此操作无法撤销。来源文件不会自动删除。`,
+    )
+  ) {
+    return;
+  }
+  deleting.value = true;
+  formError.value = null;
+  try {
+    await deleteDataset(dataset.value.id);
+    await router.push("/studio/datasets");
+  } catch (reason) {
+    formError.value =
+      reason instanceof ApiError
+        ? reason
+        : new ApiError({
+            code: "DATASET_DELETE_FAILED",
+            message: "暂时无法删除数据集。",
+            requestId: "",
+            status: 500,
+          });
+  } finally {
+    deleting.value = false;
   }
 }
 
@@ -233,7 +281,6 @@ onBeforeUnmount(() => {
         </div>
         <div class="query-actions">
           <button
-            v-if="isSqlDataset"
             class="secondary-button"
             data-action="save-dataset"
             type="button"
@@ -242,6 +289,16 @@ onBeforeUnmount(() => {
           >
             <Save :size="14" aria-hidden="true" />
             {{ saving ? "正在保存…" : "保存" }}
+          </button>
+          <button
+            class="secondary-button"
+            data-action="delete-dataset"
+            type="button"
+            :disabled="deleting"
+            @click="remove"
+          >
+            <Trash2 :size="14" aria-hidden="true" />
+            {{ deleting ? "正在删除…" : "删除" }}
           </button>
           <button
             class="primary-button"
@@ -284,13 +341,10 @@ onBeforeUnmount(() => {
       </div>
 
       <div v-else-if="dataset.definition.query.kind === 'file'" class="dataset-file-detail">
-        <InlineNotice tone="info">
-          <p>文件数据集当前为只读，可预览不可编辑。</p>
-        </InlineNotice>
         <div class="dataset-config-grid dataset-config-grid--stacked">
           <label>
             <span>名称</span>
-            <input :value="dataset.name" disabled />
+            <input v-model="name" name="name" />
           </label>
           <label>
             <span>来源文件</span>
@@ -306,11 +360,11 @@ onBeforeUnmount(() => {
           </label>
           <label>
             <span>最大行数</span>
-            <input :value="String(dataset.definition.max_rows)" disabled />
+            <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" />
           </label>
           <label>
             <span>超时（秒）</span>
-            <input :value="String(dataset.definition.timeout_seconds)" disabled />
+            <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" />
           </label>
         </div>
         <div v-if="fileAsset" class="dataset-file-asset">

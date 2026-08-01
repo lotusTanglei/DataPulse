@@ -26,6 +26,10 @@ from datapulse.query.models import QueryColumn, QueryRequest, QueryResult
 from datapulse.query.safety import validate_read_only_sql
 
 
+class DatasetUpdateInvalid(ValueError):
+    code = "DATASET_DEFINITION_INVALID"
+
+
 def _field_type(column: QueryColumn) -> DataType:
     try:
         return DataType(column.data_type)
@@ -138,8 +142,33 @@ class DatasetService:
     ) -> DatasetResponse:
         existing = await self._repository.get(dataset_id)
         definition = existing.definition
+        if isinstance(definition.query, FileQuery):
+            if data.sql is not None or data.parameters is not None:
+                raise DatasetUpdateInvalid(
+                    "SQL and parameters are not valid for file datasets."
+                )
+            if self._file_asset_repository is None:
+                raise RuntimeError("file asset repository is not configured")
+            max_rows = data.max_rows or definition.max_rows
+            timeout_seconds = data.timeout_seconds or definition.timeout_seconds
+            asset = await self._file_asset_repository.get(definition.query.asset_id)
+            parsed = await parse_file(
+                Path(asset.storage_path),
+                definition.query.format,
+                sheet_name=definition.query.sheet_name,
+                max_rows=max_rows,
+            )
+            updated = definition.model_copy(
+                update={
+                    "name": data.name or definition.name,
+                    "fields": parsed.fields,
+                    "max_rows": max_rows,
+                    "timeout_seconds": timeout_seconds,
+                }
+            )
+            return await self._repository.update(dataset_id, updated)
         if not isinstance(definition.query, SqlQuery):
-            raise ValueError("Only SQL datasets can be edited.")
+            raise DatasetUpdateInvalid("Unsupported dataset query type.")
         sql = data.sql or definition.query.sql
         parameters = data.parameters if data.parameters is not None else definition.parameters
         max_rows = data.max_rows or definition.max_rows

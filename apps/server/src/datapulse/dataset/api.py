@@ -16,6 +16,7 @@ from datapulse.dataset.repository import (
     DatasetNotFound,
     DatasetSourceNotFound,
 )
+from datapulse.dataset.service import DatasetUpdateInvalid
 from datapulse.datasource.repository import DatasourceNotFound
 from datapulse.errors import DataPulseError
 from datapulse.filedata.duckdb_executor import FileQueryExecutionError
@@ -63,6 +64,12 @@ def _raise_dataset_error(error: Exception) -> NoReturn:
             code="FILE_NOT_FOUND",
             message="The file asset does not exist.",
             status_code=404,
+        )
+    elif isinstance(error, DatasetUpdateInvalid):
+        translated = DataPulseError(
+            code=error.code,
+            message="The dataset update is invalid for its source type.",
+            status_code=422,
         )
     else:
         raise error
@@ -195,9 +202,16 @@ async def update_dataset(
         DatasetNameConflict,
         DatasetSourceNotFound,
         DatasourceNotFound,
+        FileAssetNotFound,
+        DatasetUpdateInvalid,
     ) as error:
         _raise_dataset_error(error)
-    except (QueryValidationError, ParameterValidationError, QueryExecutionError) as error:
+    except (
+        QueryValidationError,
+        ParameterValidationError,
+        QueryExecutionError,
+        FileParseInvalid,
+    ) as error:
         _raise_query_error(error)
 
 

@@ -72,3 +72,10 @@ export function previewDataset(
     },
   );
 }
+
+export function deleteDataset(datasetId: string): Promise<void> {
+  return apiRequest<void>(
+    `${DATASETS_PATH}/${encodeURIComponent(datasetId)}`,
+    { method: "DELETE" },
+  );
+}

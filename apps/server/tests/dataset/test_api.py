@@ -170,3 +170,56 @@ def test_dataset_preview_accepts_parameter_values_and_uses_safe_query_path(
     )
     assert unsafe.status_code == 422
     assert unsafe.json()["error"]["code"] == "QUERY_NOT_READ_ONLY"
+
+
+def test_file_dataset_update_accepts_limits_and_rejects_sql_fields(
+    dataset_app: AppClient,
+) -> None:
+    setup_admin(dataset_app)
+    uploaded = dataset_app.client.post(
+        "/api/admin/files",
+        files={"file": ("sales.csv", b"region,amount\nnorth,10\n", "text/csv")},
+        headers=mutation_headers(dataset_app),
+    )
+    assert uploaded.status_code == 201
+    created = dataset_app.client.post(
+        "/api/admin/datasets/files",
+        json={
+            "name": "Sales file",
+            "file_asset_id": uploaded.json()["id"],
+            "max_rows": 5000,
+            "timeout_seconds": 30,
+        },
+        headers=mutation_headers(dataset_app),
+    )
+    assert created.status_code == 201
+    path = f"/api/admin/datasets/{created.json()['id']}"
+
+    updated = dataset_app.client.patch(
+        path,
+        json={"name": "Sales renamed", "max_rows": 100, "timeout_seconds": 12},
+        headers=mutation_headers(dataset_app),
+    )
+    assert updated.status_code == 200
+    assert updated.json()["name"] == "Sales renamed"
+    assert updated.json()["definition"]["max_rows"] == 100
+    assert updated.json()["definition"]["timeout_seconds"] == 12
+
+    for invalid_payload in (
+        {"sql": "SELECT * FROM dataset_source"},
+        {"parameters": []},
+    ):
+        invalid = dataset_app.client.patch(
+            path,
+            json=invalid_payload,
+            headers=mutation_headers(dataset_app),
+        )
+        assert invalid.status_code == 422
+        assert invalid.json()["error"]["code"] == "DATASET_DEFINITION_INVALID"
+
+    deleted = dataset_app.client.delete(
+        path,
+        headers=mutation_headers(dataset_app),
+    )
+    assert deleted.status_code == 204
+    assert dataset_app.client.get("/api/admin/files").json()[0]["id"] == uploaded.json()["id"]
