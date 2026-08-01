@@ -7,7 +7,7 @@ import pyarrow.parquet as pq
 import pytest
 
 from datapulse.contracts.dataset import FileFormat
-from datapulse.filedata.parsers import FileParseInvalid, parse_file
+from datapulse.filedata.parsers import FileParseInvalid, excel_sheet_names, parse_file
 
 pytestmark = pytest.mark.anyio
 
@@ -57,6 +57,41 @@ async def test_parse_excel_requires_sheet_selection_and_exports_normalized_path(
     assert parsed.sample_rows[0]["sku"] == "A-1"
     assert parsed.normalized_path.suffix == ".parquet"
     assert parsed.normalized_path.is_file()
+
+
+async def test_excel_sheet_names_preserve_order_and_select_distinct_sheets(
+    tmp_path: Path,
+) -> None:
+    excel_path = tmp_path / "workbook.xlsx"
+    workbook = openpyxl.Workbook()
+    summary = workbook.active
+    summary.title = "Summary"
+    summary.append(["metric", "value"])
+    summary.append(["revenue", 100])
+    detail = workbook.create_sheet("Detail")
+    detail.append(["order_id", "amount"])
+    detail.append(["A-1", 60])
+    workbook.save(excel_path)
+
+    names = await excel_sheet_names(excel_path)
+    summary_result = await parse_file(
+        excel_path,
+        FileFormat.EXCEL,
+        sheet_name="Summary",
+        max_rows=10,
+    )
+    detail_result = await parse_file(
+        excel_path,
+        FileFormat.EXCEL,
+        sheet_name="Detail",
+        max_rows=10,
+    )
+
+    assert names == ("Summary", "Detail")
+    assert summary_result.fields[0].name == "metric"
+    assert summary_result.sample_rows[0]["metric"] == "revenue"
+    assert detail_result.fields[0].name == "order_id"
+    assert detail_result.sample_rows[0]["order_id"] == "A-1"
 
 
 async def test_parse_json_requires_object_array_root_and_rejects_nested_objects(

@@ -80,7 +80,11 @@ class FileStorage:
         size_bytes = 0
         digest = hashlib.sha256()
         try:
-            descriptor, raw_temp_path = tempfile.mkstemp(dir=asset_dir, prefix="upload-", suffix=".tmp")
+            descriptor, raw_temp_path = tempfile.mkstemp(
+                dir=asset_dir,
+                prefix="upload-",
+                suffix=".tmp",
+            )
             temp_path = Path(raw_temp_path).resolve()
             with os.fdopen(descriptor, "wb") as handle:
                 descriptor = None
@@ -120,9 +124,13 @@ class FileStorage:
             raise
 
     @contextmanager
-    def open_read(self, asset_id: str) -> Generator[object, None, None]:
+    def open_read(self, asset_id: str) -> Generator[object]:
         asset_dir = (self._files_dir / asset_id).resolve()
-        if not asset_dir.exists() or not asset_dir.is_dir() or not asset_dir.is_relative_to(self._files_dir):
+        if (
+            not asset_dir.exists()
+            or not asset_dir.is_dir()
+            or not asset_dir.is_relative_to(self._files_dir)
+        ):
             raise FileNotFound(asset_id)
         candidates = [path for path in asset_dir.iterdir() if path.name.startswith("source.")]
         if len(candidates) != 1:
@@ -138,7 +146,11 @@ class FileStorage:
 
     def delete(self, asset_id: str) -> None:
         asset_dir = (self._files_dir / asset_id).resolve()
-        if not asset_dir.exists() or not asset_dir.is_dir() or not asset_dir.is_relative_to(self._files_dir):
+        if (
+            not asset_dir.exists()
+            or not asset_dir.is_dir()
+            or not asset_dir.is_relative_to(self._files_dir)
+        ):
             raise FileNotFound(asset_id)
         for child in asset_dir.iterdir():
             child.unlink(missing_ok=True)

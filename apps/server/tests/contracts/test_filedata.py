@@ -1,7 +1,11 @@
 import pytest
 from pydantic import ValidationError
 
-from datapulse.contracts.filedata import FileAssetResponse, FileDatasetCreate
+from datapulse.contracts.filedata import (
+    FileAssetResponse,
+    FileDatasetCreate,
+    FilePreviewResponse,
+)
 
 
 def file_asset_payload() -> dict[str, object]:
@@ -49,6 +53,27 @@ def test_file_dataset_create_accepts_optional_sheet_name() -> None:
     dataset = FileDatasetCreate.model_validate(payload)
 
     assert dataset.sheet_name is None
+
+
+def test_file_preview_response_accepts_sheet_metadata_and_query_result() -> None:
+    preview = FilePreviewResponse.model_validate(
+        {
+            "format": "excel",
+            "sheet_names": ["Summary", "Detail"],
+            "selected_sheet": "Summary",
+            "result": {
+                "request_id": "preview-1",
+                "columns": [{"name": "metric", "data_type": "string"}],
+                "rows": [["revenue"]],
+                "row_count": 1,
+                "truncated": False,
+                "duration_ms": 1,
+            },
+        }
+    )
+
+    assert preview.sheet_names == ("Summary", "Detail")
+    assert preview.result.rows == (("revenue",),)
 
 
 @pytest.mark.parametrize("file_format", ["txt", "sqlite", ""])

@@ -100,13 +100,16 @@ class FileAssetRepository:
         async with self._session_factory() as session:
             records = (await session.scalars(select(DatasetRecord.definition_json))).all()
         return any(
-            isinstance(definition.get("query"), dict) and definition["query"].get("asset_id") == asset_id
+            isinstance(definition.get("query"), dict)
+            and definition["query"].get("asset_id") == asset_id
             for definition in records
             if isinstance(definition, dict)
         )
 
     async def delete(self, asset_id: str) -> None:
         async with self._session_factory.begin() as session:
-            result = await session.execute(delete(FileAssetRecord).where(FileAssetRecord.id == asset_id))
+            result = await session.execute(
+                delete(FileAssetRecord).where(FileAssetRecord.id == asset_id)
+            )
             if not result.rowcount:
                 raise FileAssetNotFound(asset_id)

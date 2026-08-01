@@ -1,6 +1,8 @@
 from collections.abc import Iterator
+from io import BytesIO
 from pathlib import Path
 
+import openpyxl
 import pytest
 
 from tests.support.app import AppClient, build_test_app
@@ -30,6 +32,20 @@ def mutation_headers(app_client: AppClient) -> dict[str, str]:
         "Origin": app_client.origin,
         "X-CSRF-Token": app_client.client.cookies["datapulse_csrf"],
     }
+
+
+def excel_bytes() -> bytes:
+    workbook = openpyxl.Workbook()
+    summary = workbook.active
+    summary.title = "Summary"
+    summary.append(["metric", "value"])
+    summary.append(["revenue", 100])
+    detail = workbook.create_sheet("Detail")
+    detail.append(["order_id", "amount"])
+    detail.append(["A-1", 60])
+    stream = BytesIO()
+    workbook.save(stream)
+    return stream.getvalue()
 
 
 def test_file_upload_create_dataset_preview_and_in_use_delete(file_app: AppClient) -> None:
@@ -90,7 +106,9 @@ def test_file_upload_create_dataset_preview_and_in_use_delete(file_app: AppClien
     assert in_use.json()["error"]["code"] == "FILE_IN_USE"
 
 
-def test_file_api_rejects_missing_asset_and_preserves_sql_dataset_behavior(file_app: AppClient) -> None:
+def test_file_api_rejects_missing_asset_and_preserves_sql_dataset_behavior(
+    file_app: AppClient,
+) -> None:
     setup_admin(file_app)
 
     missing = file_app.client.post(
@@ -106,3 +124,63 @@ def test_file_api_rejects_missing_asset_and_preserves_sql_dataset_behavior(file_
 
     assert missing.status_code == 404
     assert missing.json()["error"]["code"] == "FILE_NOT_FOUND"
+
+
+def test_file_preview_supports_csv_and_excel_sheets(file_app: AppClient) -> None:
+    unauthenticated = file_app.client.get("/api/admin/files/missing/preview")
+    assert unauthenticated.status_code == 401
+    setup_admin(file_app)
+
+    csv_upload = file_app.client.post(
+        "/api/admin/files",
+        files={"file": ("sales.csv", b"region,amount\nnorth,10\nsouth,20\n", "text/csv")},
+        headers=mutation_headers(file_app),
+    )
+    assert csv_upload.status_code == 201
+    csv_preview = file_app.client.get(
+        f"/api/admin/files/{csv_upload.json()['id']}/preview",
+        headers={"Origin": file_app.origin},
+    )
+    assert csv_preview.status_code == 200
+    assert csv_preview.json()["sheet_names"] == []
+    assert csv_preview.json()["selected_sheet"] is None
+    assert csv_preview.json()["result"]["rows"] == [["north", "10"], ["south", "20"]]
+
+    excel_upload = file_app.client.post(
+        "/api/admin/files",
+        files={
+            "file": (
+                "sales.xlsx",
+                excel_bytes(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        },
+        headers=mutation_headers(file_app),
+    )
+    assert excel_upload.status_code == 201
+    asset_id = excel_upload.json()["id"]
+
+    default_preview = file_app.client.get(f"/api/admin/files/{asset_id}/preview")
+    assert default_preview.status_code == 200
+    assert default_preview.json()["sheet_names"] == ["Summary", "Detail"]
+    assert default_preview.json()["selected_sheet"] == "Summary"
+    assert default_preview.json()["result"]["rows"] == [["revenue", 100]]
+
+    detail_preview = file_app.client.get(
+        f"/api/admin/files/{asset_id}/preview",
+        params={"sheet_name": "Detail"},
+    )
+    assert detail_preview.status_code == 200
+    assert detail_preview.json()["selected_sheet"] == "Detail"
+    assert detail_preview.json()["result"]["rows"] == [["A-1", 60]]
+
+    unknown_sheet = file_app.client.get(
+        f"/api/admin/files/{asset_id}/preview",
+        params={"sheet_name": "Missing"},
+    )
+    assert unknown_sheet.status_code == 422
+    assert unknown_sheet.json()["error"]["code"] == "FILE_PARSE_INVALID"
+
+    missing_asset = file_app.client.get("/api/admin/files/missing/preview")
+    assert missing_asset.status_code == 404
+    assert missing_asset.json()["error"]["code"] == "FILE_NOT_FOUND"

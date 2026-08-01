@@ -4,7 +4,13 @@ from pathlib import Path
 import pytest
 
 from datapulse.contracts.chart import Aggregation, ChartSpec, ChartType, Measure, VisualSpec
-from datapulse.contracts.dataset import DatasetDefinition, DatasetField, DataType, FileQuery, FileFormat
+from datapulse.contracts.dataset import (
+    DatasetDefinition,
+    DatasetField,
+    DataType,
+    FileFormat,
+    FileQuery,
+)
 from datapulse.filedata.duckdb_executor import DuckDBExecutor, FileQueryExecutionError
 from datapulse.filedata.query import FileDatasetQueryService, FileQueryCompiler
 from datapulse.screen.chart_query import ChartQueryInvalid

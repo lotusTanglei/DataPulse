@@ -4,6 +4,7 @@ from pydantic import Field
 
 from datapulse.contracts.common import ContractModel, NonBlankStr, PositiveInt
 from datapulse.contracts.dataset import DatasetField, FileFormat
+from datapulse.query.models import QueryResult
 
 
 class FileAssetResponse(ContractModel):
@@ -24,3 +25,10 @@ class FileDatasetCreate(ContractModel):
     sheet_name: NonBlankStr | None = None
     max_rows: PositiveInt = Field(default=5000, le=5000)
     timeout_seconds: PositiveInt = Field(default=30, le=300)
+
+
+class FilePreviewResponse(ContractModel):
+    format: FileFormat
+    sheet_names: tuple[NonBlankStr, ...] = Field(default_factory=tuple)
+    selected_sheet: NonBlankStr | None = None
+    result: QueryResult

@@ -8,12 +8,11 @@ from datapulse.contracts.common import JsonValue
 from datapulse.contracts.dataset import DatasetDefinition, FileQuery
 from datapulse.filedata.duckdb_executor import DuckDBExecutor
 from datapulse.query.models import QueryResult
-from datapulse.query.models import QueryResult
 from datapulse.screen.chart_query import (
     ChartQueryInvalid,
-    _FilterCompiler,
     _aggregate,
     _column,
+    _FilterCompiler,
     _validate_visual,
 )
 
@@ -67,7 +66,11 @@ class FileQueryCompiler:
 
         selections = [_column(field) for field in spec.dimensions]
         selections.extend(_aggregate(measure).as_(measure.field) for measure in spec.measures)
-        query = exp.select(*selections).from_("dataset_source").limit(min(spec.limit, dataset.max_rows))
+        query = (
+            exp.select(*selections)
+            .from_("dataset_source")
+            .limit(min(spec.limit, dataset.max_rows))
+        )
         if spec.filters:
             conditions = [filter_compiler.compile(filter_) for filter_ in spec.filters]
             condition = conditions[0]

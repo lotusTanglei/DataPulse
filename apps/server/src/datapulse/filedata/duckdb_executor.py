@@ -48,7 +48,11 @@ class DuckDBExecutor:
     def _validated_source_path(self, source_path: Path) -> Path:
         resolved = source_path.resolve(strict=True)
         files_dir = self._settings.resolved_files_dir()
-        if not resolved.is_file() or source_path.is_symlink() or not resolved.is_relative_to(files_dir):
+        if (
+            not resolved.is_file()
+            or source_path.is_symlink()
+            or not resolved.is_relative_to(files_dir)
+        ):
             raise FileQueryExecutionError("FILE_NOT_FOUND", 404, "")
         return resolved
 
@@ -75,8 +79,9 @@ class DuckDBExecutor:
         try:
             connection.execute(f"SET threads = {self._settings.duckdb_threads}")
             connection.execute(f"SET memory_limit = '{self._settings.duckdb_memory_limit}'")
+            source_sql = self._dataset_source_sql(source_path)
             connection.execute(
-                f"CREATE VIEW dataset_source AS SELECT * FROM {self._dataset_source_sql(source_path)}"
+                f"CREATE VIEW dataset_source AS SELECT * FROM {source_sql}"
             )
             cursor = connection.execute(sql, parameters)
             fetched = cursor.fetchmany(max_rows + 1)

@@ -1,9 +1,12 @@
 from pathlib import Path
+from time import perf_counter
 
-from datapulse.contracts.filedata import FileAssetResponse
-from datapulse.filedata.parsers import parse_file
+from datapulse.contracts.dataset import FileFormat
+from datapulse.contracts.filedata import FileAssetResponse, FilePreviewResponse
+from datapulse.filedata.parsers import FileParseInvalid, excel_sheet_names, parse_file
 from datapulse.filedata.repository import FileAssetRepository
 from datapulse.filedata.storage import FileStorage
+from datapulse.query.models import QueryColumn, QueryResult
 
 
 class FileAssetService:
@@ -58,6 +61,55 @@ class FileAssetService:
 
     async def get(self, asset_id: str):
         return await self._repository.get(asset_id)
+
+    async def preview(
+        self,
+        asset_id: str,
+        *,
+        sheet_name: str | None,
+        request_id: str,
+    ) -> FilePreviewResponse:
+        asset = await self._repository.get(asset_id)
+        path = Path(asset.storage_path)
+        sheet_names: tuple[str, ...] = ()
+        selected_sheet: str | None = None
+        if asset.format is FileFormat.EXCEL:
+            sheet_names = await excel_sheet_names(path)
+            selected_sheet = sheet_name or (sheet_names[0] if sheet_names else None)
+        elif sheet_name is not None:
+            raise FileParseInvalid("Sheets are only available for Excel files.")
+        if selected_sheet is not None and not selected_sheet.strip():
+            raise FileParseInvalid("The Excel sheet name is invalid.")
+
+        started_at = perf_counter()
+        parsed = await parse_file(
+            path,
+            asset.format,
+            sheet_name=selected_sheet,
+            max_rows=100,
+        )
+        fields = parsed.fields
+        rows = tuple(
+            tuple(row.get(field.name) for field in fields)
+            for row in parsed.sample_rows
+        )
+        result = QueryResult(
+            request_id=request_id,
+            columns=tuple(
+                QueryColumn(name=field.name, data_type=field.data_type.value)
+                for field in fields
+            ),
+            rows=rows,
+            row_count=len(rows),
+            truncated=parsed.row_count > len(rows),
+            duration_ms=max(0, int((perf_counter() - started_at) * 1000)),
+        )
+        return FilePreviewResponse(
+            format=asset.format,
+            sheet_names=sheet_names,
+            selected_sheet=selected_sheet,
+            result=result,
+        )
 
     async def delete(self, asset_id: str) -> None:
         await self._repository.get(asset_id)

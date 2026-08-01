@@ -1,9 +1,9 @@
-from typing import NoReturn
+from typing import Annotated, NoReturn
 
 from fastapi import APIRouter, Depends, File, Request, Response, UploadFile
 
 from datapulse.auth.dependencies import require_admin, require_csrf
-from datapulse.contracts.filedata import FileAssetResponse
+from datapulse.contracts.filedata import FileAssetResponse, FilePreviewResponse
 from datapulse.errors import DataPulseError
 from datapulse.filedata.parsers import FileParseInvalid
 from datapulse.filedata.repository import FileAssetNotFound, FileInUse
@@ -69,7 +69,7 @@ async def list_files(request: Request) -> tuple[FileAssetResponse, ...]:
 @router.post("", status_code=201, dependencies=[Depends(require_csrf)])
 async def upload_file(
     request: Request,
-    file: UploadFile = File(...),
+    file: Annotated[UploadFile, File()],
 ) -> FileAssetResponse:
     try:
         return await request.app.state.file_asset_service.ingest(
@@ -84,6 +84,22 @@ async def upload_file(
         FileEmpty,
         FileParseInvalid,
     ) as error:
+        _raise_file_error(error)
+
+
+@router.get("/{asset_id}/preview")
+async def preview_file(
+    asset_id: str,
+    request: Request,
+    sheet_name: str | None = None,
+) -> FilePreviewResponse:
+    try:
+        return await request.app.state.file_asset_service.preview(
+            asset_id,
+            sheet_name=sheet_name,
+            request_id=request.state.request_id,
+        )
+    except (FileAssetNotFound, FileParseInvalid) as error:
         _raise_file_error(error)
 
 

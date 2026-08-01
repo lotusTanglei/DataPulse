@@ -1,7 +1,6 @@
 import hashlib
 import io
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -51,7 +50,7 @@ async def test_save_stores_file_inside_generated_asset_directory(
         upload(
             filename="../../sales.csv",
             content_type="text/csv",
-            content="name,amount\n华东,10\n".encode("utf-8"),
+            content="name,amount\n华东,10\n".encode(),
         )
     )
 
@@ -60,11 +59,11 @@ async def test_save_stores_file_inside_generated_asset_directory(
     assert stored.asset_id == "asset-1"
     assert stored.original_name == "../../sales.csv"
     assert stored.size_bytes > 0
-    assert stored.sha256 == hashlib.sha256("name,amount\n华东,10\n".encode("utf-8")).hexdigest()
+    assert stored.sha256 == hashlib.sha256("name,amount\n华东,10\n".encode()).hexdigest()
     assert path.parent == settings.resolved_files_dir() / "asset-1"
     assert path.name == "source.csv"
     assert ".." not in path.parts
-    assert path.read_bytes() == "name,amount\n华东,10\n".encode("utf-8")
+    assert path.read_bytes() == "name,amount\n华东,10\n".encode()
 
 
 @pytest.mark.parametrize(

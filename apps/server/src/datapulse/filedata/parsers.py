@@ -12,7 +12,7 @@ import pyarrow.parquet as pq
 from pydantic import BaseModel, ConfigDict
 
 from datapulse.contracts.common import JsonValue
-from datapulse.contracts.dataset import DataType, DatasetField, FileFormat
+from datapulse.contracts.dataset import DatasetField, DataType, FileFormat
 
 
 class FileParseInvalid(ValueError):
@@ -115,34 +115,57 @@ def _parse_csv(path: Path, *, max_rows: int) -> ParsedFile:
     return ParsedFile(
         fields=fields,
         row_count=len(rows),
-        sample_rows=tuple({key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]),
+        sample_rows=tuple(
+            {key: _normalize_value(value) for key, value in row.items()}
+            for row in rows[:max_rows]
+        ),
         normalized_path=normalized_path,
     )
 
 
 def _parse_excel(path: Path, *, sheet_name: str | None, max_rows: int) -> ParsedFile:
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    worksheet = workbook[sheet_name] if sheet_name is not None else workbook.active
-    rows_iter = worksheet.iter_rows(values_only=True)
     try:
-        header_row = next(rows_iter)
-    except StopIteration as error:
-        raise FileParseInvalid("The Excel sheet is empty.") from error
-    headers = [str(cell).strip() if cell is not None else "" for cell in header_row]
-    if not any(headers) or any(not header for header in headers):
-        raise FileParseInvalid("The Excel header is invalid.")
-    rows: list[dict[str, object]] = []
-    for values in rows_iter:
-        row = {headers[index]: value for index, value in enumerate(values)}
-        rows.append(row)
-    normalized_path = path.with_suffix(f".{worksheet.title}.parquet")
-    _write_parquet(rows, normalized_path)
-    return ParsedFile(
-        fields=_fields_from_rows(rows),
-        row_count=len(rows),
-        sample_rows=tuple({key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]),
-        normalized_path=normalized_path,
-    )
+        if sheet_name is not None and sheet_name not in workbook.sheetnames:
+            raise FileParseInvalid("The Excel sheet does not exist.")
+        worksheet = workbook[sheet_name] if sheet_name is not None else workbook.active
+        rows_iter = worksheet.iter_rows(values_only=True)
+        try:
+            header_row = next(rows_iter)
+        except StopIteration as error:
+            raise FileParseInvalid("The Excel sheet is empty.") from error
+        headers = [str(cell).strip() if cell is not None else "" for cell in header_row]
+        if not any(headers) or any(not header for header in headers):
+            raise FileParseInvalid("The Excel header is invalid.")
+        rows: list[dict[str, object]] = []
+        for values in rows_iter:
+            row = {headers[index]: value for index, value in enumerate(values)}
+            rows.append(row)
+        normalized_path = path.with_suffix(f".{worksheet.title}.parquet")
+        _write_parquet(rows, normalized_path)
+        return ParsedFile(
+            fields=_fields_from_rows(rows),
+            row_count=len(rows),
+            sample_rows=tuple(
+                {key: _normalize_value(value) for key, value in row.items()}
+                for row in rows[:max_rows]
+            ),
+            normalized_path=normalized_path,
+        )
+    finally:
+        workbook.close()
+
+
+def _excel_sheet_names_sync(path: Path) -> tuple[str, ...]:
+    workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    try:
+        return tuple(workbook.sheetnames)
+    finally:
+        workbook.close()
+
+
+async def excel_sheet_names(path: Path) -> tuple[str, ...]:
+    return await asyncio.to_thread(_excel_sheet_names_sync, path)
 
 
 def _parse_json(path: Path, *, max_rows: int) -> ParsedFile:
@@ -161,7 +184,10 @@ def _parse_json(path: Path, *, max_rows: int) -> ParsedFile:
     return ParsedFile(
         fields=_fields_from_rows(rows),
         row_count=len(rows),
-        sample_rows=tuple({key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]),
+        sample_rows=tuple(
+            {key: _normalize_value(value) for key, value in row.items()}
+            for row in rows[:max_rows]
+        ),
         normalized_path=normalized_path,
     )
 

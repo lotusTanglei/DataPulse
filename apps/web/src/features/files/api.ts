@@ -1,5 +1,5 @@
 import { apiRequest } from "../../lib/api";
-import type { FileAsset } from "./types";
+import type { FileAsset, FilePreviewResponse } from "./types";
 
 const FILES_PATH = "/api/admin/files";
 
@@ -14,4 +14,18 @@ export function uploadFileAsset(file: File): Promise<FileAsset> {
     method: "POST",
     body,
   });
+}
+
+export function previewFileAsset(
+  assetId: string,
+  sheetName?: string,
+  signal?: AbortSignal,
+): Promise<FilePreviewResponse> {
+  const query = sheetName
+    ? `?sheet_name=${encodeURIComponent(sheetName)}`
+    : "";
+  return apiRequest<FilePreviewResponse>(
+    `${FILES_PATH}/${encodeURIComponent(assetId)}/preview${query}`,
+    { signal },
+  );
 }
