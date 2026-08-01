@@ -68,8 +68,6 @@ class DatasetRepository:
         )
 
     async def create(self, definition: DatasetDefinition) -> DatasetResponse:
-        if definition.data_source_id is None:
-            raise DatasetSourceNotFound("")
         record = DatasetRecord(
             id=definition.id,
             name=definition.name,
@@ -112,8 +110,6 @@ class DatasetRepository:
     ) -> DatasetResponse:
         if definition.id != dataset_id:
             raise DatasetDefinitionInvalid(dataset_id)
-        if definition.data_source_id is None:
-            raise DatasetSourceNotFound("")
         try:
             async with self._session_factory.begin() as session:
                 record = await session.get(DatasetRecord, dataset_id)

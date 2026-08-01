@@ -8,6 +8,7 @@ from datapulse.display.api import player_router
 from datapulse.embedding.api import admin_router as embed_admin_router
 from datapulse.embedding.api import router as embed_router
 from datapulse.errors import install_error_handlers, request_id_middleware
+from datapulse.filedata.api import router as file_router
 from datapulse.lifespan import create_lifespan
 from datapulse.screen.api import router as screen_router
 from datapulse.screen.asset_api import router as screen_asset_router
@@ -33,6 +34,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_router)
     app.include_router(datasource_router)
     app.include_router(dataset_router)
+    app.include_router(file_router)
     app.include_router(screen_router)
     app.include_router(screen_asset_router)
     app.include_router(screen_runtime_router)

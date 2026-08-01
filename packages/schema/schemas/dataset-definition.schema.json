@@ -115,6 +115,19 @@
           "default": "file",
           "title": "Kind",
           "type": "string"
+        },
+        "sheet_name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sheet Name"
         }
       },
       "required": [

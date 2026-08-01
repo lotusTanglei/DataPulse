@@ -28,6 +28,7 @@ export type Sql = string;
 export type AssetId = string;
 export type FileFormat = "csv" | "excel" | "json" | "parquet";
 export type Kind2 = "file";
+export type SheetName = string | null;
 export type Kind3 = "rest";
 export type Method = "GET" | "POST";
 export type Url = string;
@@ -85,6 +86,7 @@ export interface FileQuery {
   asset_id: AssetId;
   format: FileFormat;
   kind?: Kind2;
+  sheet_name?: SheetName;
 }
 export interface RestQuery {
   kind?: Kind3;

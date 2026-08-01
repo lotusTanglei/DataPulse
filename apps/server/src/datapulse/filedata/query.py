@@ -1,10 +1,13 @@
 from collections.abc import Mapping
 from typing import NamedTuple
 
+from sqlglot import exp
+
 from datapulse.contracts.chart import ChartSpec
 from datapulse.contracts.common import JsonValue
 from datapulse.contracts.dataset import DatasetDefinition, FileQuery
 from datapulse.filedata.duckdb_executor import DuckDBExecutor
+from datapulse.query.models import QueryResult
 from datapulse.query.models import QueryResult
 from datapulse.screen.chart_query import (
     ChartQueryInvalid,
@@ -64,16 +67,12 @@ class FileQueryCompiler:
 
         selections = [_column(field) for field in spec.dimensions]
         selections.extend(_aggregate(measure).as_(measure.field) for measure in spec.measures)
-        query = (
-            __import__("sqlglot").exp.select(*selections)
-            .from_("dataset_source")
-            .limit(min(spec.limit, dataset.max_rows))
-        )
+        query = exp.select(*selections).from_("dataset_source").limit(min(spec.limit, dataset.max_rows))
         if spec.filters:
             conditions = [filter_compiler.compile(filter_) for filter_ in spec.filters]
             condition = conditions[0]
             for next_condition in conditions[1:]:
-                condition = __import__("sqlglot").exp.and_(condition, next_condition)
+                condition = exp.and_(condition, next_condition)
             query = query.where(condition)
         if spec.measures and spec.dimensions:
             query = query.group_by(*(_column(field) for field in spec.dimensions))
@@ -85,7 +84,7 @@ class FileQueryCompiler:
                 else _column(sort.field)
             )
             query = query.order_by(
-                __import__("sqlglot").exp.Ordered(
+                exp.Ordered(
                     this=sort_expression,
                     desc=sort.direction.value == "desc",
                 ),
@@ -126,4 +125,21 @@ class FileDatasetQueryService:
             request_id=request_id,
             timeout_seconds=min(dataset.timeout_seconds, self._executor.timeout_seconds),
             max_rows=min(chart_spec.limit, dataset.max_rows),
+        )
+
+    async def preview(
+        self,
+        *,
+        request_id: str,
+        source_path,
+        max_rows: int,
+        timeout_seconds: int,
+    ) -> QueryResult:
+        return await self._executor.execute(
+            f"SELECT * FROM dataset_source LIMIT {max_rows}",
+            (),
+            source_path=source_path,
+            request_id=request_id,
+            timeout_seconds=min(timeout_seconds, self._executor.timeout_seconds),
+            max_rows=max_rows,
         )

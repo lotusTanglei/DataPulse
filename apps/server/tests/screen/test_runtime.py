@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -21,9 +22,12 @@ from datapulse.contracts.dataset import (
     DatasetDefinition,
     DatasetField,
     DataType,
+    FileFormat,
+    FileQuery,
     SqlQuery,
 )
 from datapulse.dataset.models import DatasetResponse
+from datapulse.filedata.models import StoredFileAsset
 from datapulse.query.models import QueryRequest, QueryResult
 from datapulse.screen.repository import ScreenRepository
 from datapulse.screen.runtime import (
@@ -105,6 +109,34 @@ class FakeDatasourceService:
         return self.result
 
 
+@dataclass
+class FakeFileAssetRepository:
+    asset: StoredFileAsset
+    requested_ids: list[str] = field(default_factory=list)
+
+    async def get(self, asset_id: str) -> StoredFileAsset:
+        self.requested_ids.append(asset_id)
+        return self.asset
+
+
+@dataclass
+class FakeFileDatasetQueryService:
+    result: QueryResult
+    requests: list[tuple[object, object, dict[str, object], str, Path]] = field(default_factory=list)
+
+    async def query(
+        self,
+        *,
+        dataset,
+        chart_spec,
+        parameters,
+        request_id: str,
+        source_path: Path,
+    ) -> QueryResult:
+        self.requests.append((dataset, chart_spec, dict(parameters), request_id, source_path))
+        return self.result
+
+
 def dataset_response() -> DatasetResponse:
     timestamp = datetime(2026, 7, 30, tzinfo=UTC)
     return DatasetResponse(
@@ -135,6 +167,27 @@ def query_result() -> QueryResult:
         row_count=0,
         truncated=False,
         duration_ms=1,
+    )
+
+
+def file_dataset_response() -> DatasetResponse:
+    timestamp = datetime(2026, 8, 1, tzinfo=UTC)
+    return DatasetResponse(
+        id="sales-file",
+        name="Sales File",
+        data_source_id=None,
+        definition=DatasetDefinition(
+            id="sales-file",
+            name="Sales File",
+            data_source_id=None,
+            query=FileQuery(asset_id="asset-1", format=FileFormat.CSV),
+            fields=(
+                DatasetField(name="month", data_type=DataType.STRING),
+                DatasetField(name="amount", data_type=DataType.NUMBER),
+            ),
+        ),
+        created_at=timestamp,
+        updated_at=timestamp,
     )
 
 
@@ -241,3 +294,53 @@ async def test_published_query_requires_a_published_document(
         )
 
     assert datasource_service.requests == []
+
+
+async def test_runtime_routes_file_datasets_to_file_query_service(
+    screen_repository: ScreenRepository,
+    tmp_path: Path,
+) -> None:
+    file_path = tmp_path / "files" / "asset-1" / "source.csv"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_path.write_text("month,amount\n2026-01,10\n", encoding="utf-8")
+    document = screen_document(
+        data_binding={
+            "chart_spec": chart_spec().model_copy(update={"dataset_id": "sales-file"}).model_dump(mode="json")
+        }
+    )
+    screen = await screen_repository.create("File runtime", document)
+    datasource_service = FakeDatasourceService(query_result())
+    file_query_service = FakeFileDatasetQueryService(query_result())
+    runtime = ScreenRuntimeService(
+        screen_repository=screen_repository,
+        dataset_repository=FakeDatasetRepository(file_dataset_response()),
+        datasource_service=datasource_service,
+        file_asset_repository=FakeFileAssetRepository(
+            StoredFileAsset(
+                id="asset-1",
+                original_name="sales.csv",
+                format=FileFormat.CSV,
+                mime_type="text/csv",
+                sha256="a" * 64,
+                size_bytes=12,
+                storage_path=str(file_path),
+                row_count=2,
+                fields=(
+                    DatasetField(name="month", data_type=DataType.STRING),
+                    DatasetField(name="amount", data_type=DataType.NUMBER),
+                ),
+                created_at=datetime(2026, 8, 1, tzinfo=UTC),
+            )
+        ),
+        file_query_service=file_query_service,
+    )
+
+    result = await runtime.query_draft_component(
+        screen.id,
+        ComponentQueryRequest(component_id="line-1"),
+        request_id="request-1",
+    )
+
+    assert result == query_result()
+    assert datasource_service.requests == []
+    assert file_query_service.requests[0][3] == "request-1"

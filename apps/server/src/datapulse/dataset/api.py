@@ -3,6 +3,7 @@ from typing import NoReturn
 from fastapi import APIRouter, Depends, Request, Response
 
 from datapulse.auth.dependencies import require_admin, require_csrf
+from datapulse.contracts.filedata import FileDatasetCreate
 from datapulse.dataset.models import (
     DatasetCreate,
     DatasetPreviewRequest,
@@ -17,6 +18,9 @@ from datapulse.dataset.repository import (
 )
 from datapulse.datasource.repository import DatasourceNotFound
 from datapulse.errors import DataPulseError
+from datapulse.filedata.duckdb_executor import FileQueryExecutionError
+from datapulse.filedata.parsers import FileParseInvalid
+from datapulse.filedata.repository import FileAssetNotFound
 from datapulse.query.execution import QueryExecutionError
 from datapulse.query.models import QueryResult
 from datapulse.query.parameters import ParameterValidationError
@@ -54,6 +58,12 @@ def _raise_dataset_error(error: Exception) -> NoReturn:
             message="The stored dataset definition is invalid.",
             status_code=500,
         )
+    elif isinstance(error, FileAssetNotFound):
+        translated = DataPulseError(
+            code="FILE_NOT_FOUND",
+            message="The file asset does not exist.",
+            status_code=404,
+        )
     else:
         raise error
     raise translated from error
@@ -84,6 +94,18 @@ def _raise_query_error(error: Exception) -> NoReturn:
             code=error.code,
             message="The dataset query could not be executed.",
             status_code=error.status_code,
+        )
+    elif isinstance(error, FileQueryExecutionError):
+        translated = DataPulseError(
+            code=error.code,
+            message="The file dataset query could not be executed.",
+            status_code=error.status_code,
+        )
+    elif isinstance(error, FileParseInvalid):
+        translated = DataPulseError(
+            code="FILE_PARSE_INVALID",
+            message="The file dataset could not be parsed.",
+            status_code=422,
         )
     else:
         raise error
@@ -116,6 +138,34 @@ async def create_dataset(
     ) as error:
         _raise_dataset_error(error)
     except (QueryValidationError, ParameterValidationError, QueryExecutionError) as error:
+        _raise_query_error(error)
+
+
+@router.post("/files", status_code=201, dependencies=[Depends(require_csrf)])
+async def create_file_dataset(
+    payload: FileDatasetCreate,
+    request: Request,
+) -> DatasetResponse:
+    try:
+        return await request.app.state.dataset_service.create_file(
+            payload,
+            request_id=request.state.request_id,
+        )
+    except (
+        DatasetDefinitionInvalid,
+        DatasetNameConflict,
+        DatasetSourceNotFound,
+        DatasourceNotFound,
+        FileAssetNotFound,
+    ) as error:
+        _raise_dataset_error(error)
+    except (
+        QueryValidationError,
+        ParameterValidationError,
+        QueryExecutionError,
+        FileQueryExecutionError,
+        FileParseInvalid,
+    ) as error:
         _raise_query_error(error)
 
 
@@ -179,7 +229,14 @@ async def preview_dataset(
         DatasetNotFound,
         DatasetDefinitionInvalid,
         DatasourceNotFound,
+        FileAssetNotFound,
     ) as error:
         _raise_dataset_error(error)
-    except (QueryValidationError, ParameterValidationError, QueryExecutionError) as error:
+    except (
+        QueryValidationError,
+        ParameterValidationError,
+        QueryExecutionError,
+        FileQueryExecutionError,
+        FileParseInvalid,
+    ) as error:
         _raise_query_error(error)

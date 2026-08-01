@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from pathlib import Path
 from typing import Protocol
 
 from pydantic import Field, ValidationError
@@ -11,6 +12,9 @@ from datapulse.contracts.dashboard import (
     DashboardParameter,
 )
 from datapulse.dataset.models import DatasetResponse
+from datapulse.filedata.parsers import parse_file
+from datapulse.filedata.query import FileDatasetQueryService
+from datapulse.filedata.repository import FileAssetRepository
 from datapulse.query.models import QueryResult
 from datapulse.screen.chart_query import ChartQueryCompiler
 from datapulse.screen.models import ScreenResponse
@@ -43,6 +47,10 @@ class _ScreenRepository(Protocol):
 
 class _DatasetRepository(Protocol):
     async def get(self, dataset_id: str) -> DatasetResponse: ...
+
+
+class _FileAssetRepository(Protocol):
+    async def get(self, asset_id: str): ...
 
 
 class _DatasourceService(Protocol):
@@ -140,11 +148,15 @@ class ScreenRuntimeService:
         screen_repository: _ScreenRepository,
         dataset_repository: _DatasetRepository,
         datasource_service: _DatasourceService,
+        file_asset_repository: _FileAssetRepository | None = None,
+        file_query_service: FileDatasetQueryService | None = None,
         compiler: ChartQueryCompiler | None = None,
     ) -> None:
         self._screen_repository = screen_repository
         self._dataset_repository = dataset_repository
         self._datasource_service = datasource_service
+        self._file_asset_repository = file_asset_repository
+        self._file_query_service = file_query_service
         self._compiler = compiler or ChartQueryCompiler()
 
     async def _query(
@@ -161,6 +173,23 @@ class ScreenRuntimeService:
         spec = _chart_spec(component)
         runtime_parameters = resolve_parameters(document, data.parameters)
         dataset = await self._dataset_repository.get(spec.dataset_id)
+        if dataset.definition.query.kind == "file":
+            if self._file_asset_repository is None or self._file_query_service is None:
+                raise ComponentBindingInvalid(component.id)
+            asset = await self._file_asset_repository.get(dataset.definition.query.asset_id)
+            parsed = await parse_file(
+                Path(asset.storage_path),
+                dataset.definition.query.format,
+                sheet_name=dataset.definition.query.sheet_name,
+                max_rows=dataset.definition.max_rows,
+            )
+            return await self._file_query_service.query(
+                dataset=dataset.definition,
+                chart_spec=spec,
+                parameters=runtime_parameters,
+                request_id=request_id,
+                source_path=parsed.normalized_path,
+            )
         request = self._compiler.compile(
             spec=spec,
             dataset=dataset.definition,

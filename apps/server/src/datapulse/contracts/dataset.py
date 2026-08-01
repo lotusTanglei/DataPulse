@@ -37,6 +37,7 @@ class FileQuery(ContractModel):
     kind: Literal["file"] = "file"
     asset_id: NonBlankStr
     format: FileFormat
+    sheet_name: NonBlankStr | None = None
 
 
 class RestQuery(ContractModel):

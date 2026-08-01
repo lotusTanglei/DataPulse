@@ -135,3 +135,11 @@ class FileStorage:
             raise FileNotFound(asset_id)
         with resolved.open("rb") as handle:
             yield handle
+
+    def delete(self, asset_id: str) -> None:
+        asset_dir = (self._files_dir / asset_id).resolve()
+        if not asset_dir.exists() or not asset_dir.is_dir() or not asset_dir.is_relative_to(self._files_dir):
+            raise FileNotFound(asset_id)
+        for child in asset_dir.iterdir():
+            child.unlink(missing_ok=True)
+        asset_dir.rmdir()

@@ -1,5 +1,5 @@
 import logging
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from pathlib import Path
@@ -32,6 +32,8 @@ from datapulse.embedding.page import install_ticket_redaction_filter
 from datapulse.embedding.repository import EmbedAccessRepository
 from datapulse.embedding.service import EmbedService
 from datapulse.embedding.tokens import EmbedTicketCodec
+from datapulse.filedata.duckdb_executor import DuckDBExecutor
+from datapulse.filedata.query import FileDatasetQueryService, FileQueryCompiler
 from datapulse.filedata.repository import FileAssetRepository
 from datapulse.filedata.service import FileAssetService
 from datapulse.filedata.storage import FileStorage
@@ -67,9 +69,10 @@ async def check_migration_head(app: FastAPI) -> None:
 
 def create_lifespan(
     settings: Settings,
-) -> Callable[[FastAPI], AsyncIterator[None]]:
+) -> Callable[[FastAPI], AsyncGenerator[None, None]]:
+    # Keep startup wiring in one place so tests and production use the same service graph.
     @asynccontextmanager
-    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         install_ticket_redaction_filter()
         if settings.bootstrap_code_override is not None and settings.environment != "test":
             raise RuntimeError("bootstrap_code_override is only allowed in the test environment.")
@@ -128,13 +131,20 @@ def create_lifespan(
                 query_executor=query_executor,
             )
             dataset_repository = DatasetRepository(session_factory)
+            file_asset_repository = FileAssetRepository(session_factory)
+            file_query_service = FileDatasetQueryService(
+                compiler=FileQueryCompiler(),
+                executor=DuckDBExecutor(settings),
+            )
             app.state.dataset_service = DatasetService(
                 repository=dataset_repository,
                 datasource_service=app.state.datasource_service,
                 registry=connector_registry,
+                file_asset_repository=file_asset_repository,
+                file_query_service=file_query_service,
             )
             app.state.file_asset_service = FileAssetService(
-                repository=FileAssetRepository(session_factory),
+                repository=file_asset_repository,
                 storage=FileStorage(settings),
             )
             screen_repository = ScreenRepository(session_factory)
@@ -155,6 +165,8 @@ def create_lifespan(
                 screen_repository=screen_repository,
                 dataset_repository=dataset_repository,
                 datasource_service=app.state.datasource_service,
+                file_asset_repository=file_asset_repository,
+                file_query_service=file_query_service,
             )
             signing_key = settings.signing_key_bytes()
             app.state.display_access_service = DisplayAccessService(

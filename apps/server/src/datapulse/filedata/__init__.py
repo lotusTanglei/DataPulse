@@ -2,7 +2,7 @@ from datapulse.filedata.duckdb_executor import DuckDBExecutor, FileQueryExecutio
 from datapulse.filedata.models import StoredFile, StoredFileAsset
 from datapulse.filedata.parsers import FileParseInvalid, ParsedFile, parse_file
 from datapulse.filedata.query import CompiledFileQuery, FileDatasetQueryService, FileQueryCompiler
-from datapulse.filedata.repository import FileAssetNotFound, FileAssetRepository
+from datapulse.filedata.repository import FileAssetNotFound, FileAssetRepository, FileInUse
 from datapulse.filedata.service import FileAssetService
 from datapulse.filedata.storage import (
     FileEmpty,
@@ -19,6 +19,7 @@ __all__ = [
     "FileAssetRepository",
     "FileAssetService",
     "FileEmpty",
+    "FileInUse",
     "FileNotFound",
     "FileParseInvalid",
     "FileQueryCompiler",

@@ -1,12 +1,15 @@
 from collections.abc import Callable
+from pathlib import Path
 from uuid import uuid4
 
 from datapulse.contracts.dataset import (
     DatasetDefinition,
     DatasetField,
     DataType,
+    FileQuery,
     SqlQuery,
 )
+from datapulse.contracts.filedata import FileDatasetCreate
 from datapulse.dataset.models import (
     DatasetCreate,
     DatasetPreviewRequest,
@@ -16,6 +19,9 @@ from datapulse.dataset.models import (
 from datapulse.dataset.repository import DatasetRepository
 from datapulse.datasource.registry import ConnectorRegistry
 from datapulse.datasource.service import DatasourceService
+from datapulse.filedata.parsers import parse_file
+from datapulse.filedata.query import FileDatasetQueryService
+from datapulse.filedata.repository import FileAssetRepository
 from datapulse.query.models import QueryColumn, QueryRequest, QueryResult
 from datapulse.query.safety import validate_read_only_sql
 
@@ -42,11 +48,15 @@ class DatasetService:
         repository: DatasetRepository,
         datasource_service: DatasourceService,
         registry: ConnectorRegistry,
+        file_asset_repository: FileAssetRepository | None = None,
+        file_query_service: FileDatasetQueryService | None = None,
         id_factory: Callable[[], str] | None = None,
     ) -> None:
         self._repository = repository
         self._datasource_service = datasource_service
         self._registry = registry
+        self._file_asset_repository = file_asset_repository
+        self._file_query_service = file_query_service
         self._id_factory = id_factory or (lambda: str(uuid4()))
 
     async def list(self) -> tuple[DatasetResponse, ...]:
@@ -83,6 +93,37 @@ class DatasetService:
             query=SqlQuery(sql=data.sql),
             fields=_fields(result),
             parameters=data.parameters,
+            max_rows=data.max_rows,
+            timeout_seconds=data.timeout_seconds,
+        )
+        return await self._repository.create(definition)
+
+    async def create_file(
+        self,
+        data: FileDatasetCreate,
+        *,
+        request_id: str,
+    ) -> DatasetResponse:
+        del request_id
+        if self._file_asset_repository is None:
+            raise RuntimeError("file asset repository is not configured")
+        asset = await self._file_asset_repository.get(data.file_asset_id)
+        parsed = await parse_file(
+            Path(asset.storage_path),
+            asset.format,
+            sheet_name=data.sheet_name,
+            max_rows=data.max_rows,
+        )
+        definition = DatasetDefinition(
+            id=self._id_factory(),
+            name=data.name,
+            data_source_id=None,
+            query=FileQuery(
+                asset_id=asset.id,
+                format=asset.format,
+                sheet_name=data.sheet_name,
+            ),
+            fields=parsed.fields,
             max_rows=data.max_rows,
             timeout_seconds=data.timeout_seconds,
         )
@@ -145,20 +186,36 @@ class DatasetService:
     ) -> QueryResult:
         dataset = await self._repository.get(dataset_id)
         definition = dataset.definition
-        if not isinstance(definition.query, SqlQuery):
-            raise ValueError("Only SQL datasets can be previewed.")
-        source = await self._datasource_service.get(dataset.data_source_id)
-        connector = self._registry.get(source.config.type)
-        validate_read_only_sql(definition.query.sql, connector.dialect)
-        return await self._datasource_service.query(
-            dataset.data_source_id,
-            QueryRequest(
-                sql=definition.query.sql,
-                parameters=data.parameters,
+        if isinstance(definition.query, SqlQuery):
+            source = await self._datasource_service.get(dataset.data_source_id)
+            connector = self._registry.get(source.config.type)
+            validate_read_only_sql(definition.query.sql, connector.dialect)
+            return await self._datasource_service.query(
+                dataset.data_source_id,
+                QueryRequest(
+                    sql=definition.query.sql,
+                    parameters=data.parameters,
+                    max_rows=definition.max_rows,
+                    timeout_seconds=definition.timeout_seconds,
+                ),
+                request_id=request_id,
+                dataset_id=dataset_id,
+                trigger="dataset-preview",
+            )
+        if isinstance(definition.query, FileQuery):
+            if self._file_asset_repository is None or self._file_query_service is None:
+                raise RuntimeError("file dataset services are not configured")
+            asset = await self._file_asset_repository.get(definition.query.asset_id)
+            parsed = await parse_file(
+                Path(asset.storage_path),
+                definition.query.format,
+                sheet_name=definition.query.sheet_name,
+                max_rows=definition.max_rows,
+            )
+            return await self._file_query_service.preview(
+                request_id=request_id,
+                source_path=parsed.normalized_path,
                 max_rows=definition.max_rows,
                 timeout_seconds=definition.timeout_seconds,
-            ),
-            request_id=request_id,
-            dataset_id=dataset_id,
-            trigger="dataset-preview",
-        )
+            )
+        raise ValueError("Unsupported dataset query type.")
