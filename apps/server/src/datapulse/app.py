@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from datapulse.ai.api import router as ai_router
 from datapulse.auth.api import router as auth_router
 from datapulse.dataset.api import router as dataset_router
 from datapulse.datasource.api import router as datasource_router
@@ -32,6 +33,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"status": "ok", "version": resolved.app_version}
 
     app.include_router(auth_router)
+    app.include_router(ai_router)
     app.include_router(datasource_router)
     app.include_router(dataset_router)
     app.include_router(file_router)

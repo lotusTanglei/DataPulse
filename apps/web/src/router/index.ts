@@ -9,6 +9,7 @@ import {
 import LoginView from "../features/auth/LoginView.vue";
 import SetupView from "../features/auth/SetupView.vue";
 import DatasetListView from "../features/datasets/DatasetListView.vue";
+import FileDatasetCreateView from "../features/datasets/FileDatasetCreateView.vue";
 import DatasourceDetailView from "../features/datasources/DatasourceDetailView.vue";
 import DatasourceFormView from "../features/datasources/DatasourceFormView.vue";
 import DatasourceListView from "../features/datasources/DatasourceListView.vue";
@@ -125,6 +126,15 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
             meta: {
               title: "数据集",
               description: "沉淀可复用的查询与字段定义。",
+            },
+          },
+          {
+            path: "datasets/files/new",
+            name: "dataset-file-new",
+            component: FileDatasetCreateView,
+            meta: {
+              title: "导入文件数据集",
+              description: "上传文件并生成可复用的数据集。",
             },
           },
           {

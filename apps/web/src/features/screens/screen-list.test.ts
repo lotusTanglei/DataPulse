@@ -139,6 +139,148 @@ test("creates a screen from the empty workspace and opens the editor", async () 
   );
 });
 
+test("creates an AI draft only after confirmation and does not publish it", async () => {
+  const created = { ...copiedScreen, id: "screen-ai", name: "AI 经营总览" };
+  const requests: Array<{ url: string; method: string; body?: unknown }> = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+      requests.push({
+        url,
+        method,
+        body: init?.body ? JSON.parse(String(init.body)) : undefined,
+      });
+      if (url === "/api/admin/screens" && method === "GET") {
+        return Promise.resolve(jsonResponse([]));
+      }
+      if (url === "/api/admin/datasets" && method === "GET") {
+        return Promise.resolve(
+          jsonResponse([
+            {
+              id: "sales",
+              name: "销售数据",
+              data_source_id: "source-1",
+              created_at: "2026-07-30T03:00:00Z",
+              updated_at: "2026-07-30T03:00:00Z",
+              definition: {
+                schema_version: 1,
+                id: "sales",
+                name: "销售数据",
+                data_source_id: "source-1",
+                query: { kind: "sql", sql: "select * from sales" },
+                fields: [],
+                parameters: [],
+                cache: { mode: "disabled", ttl_seconds: null },
+                refresh: { mode: "manual", interval_seconds: null, cron: null },
+                max_rows: 1000,
+                timeout_seconds: 30,
+              },
+            },
+          ]),
+        );
+      }
+      if (url === "/api/admin/ai/screen" && method === "POST") {
+        return Promise.resolve(
+          jsonResponse({
+            explanation: "建议使用 1 个 KPI 和 1 张趋势图。",
+            warnings: [],
+            document: {
+              schema_version: 1,
+              canvas: { width: 1920, height: 1080, background: {} },
+              components: [
+                {
+                  id: "kpi-1",
+                  type: "builtin.kpi",
+                  frame: { x: 40, y: 40, width: 280, height: 160, z_index: 0 },
+                  state: { locked: false, hidden: false },
+                  props: { label: "销售额" },
+                  style: {},
+                  data_binding: {
+                    chart_spec: {
+                      schema_version: 1,
+                      dataset_id: "sales",
+                      dimensions: [],
+                      measures: [{ field: "amount", aggregation: "sum" }],
+                      filters: [],
+                      sort: [],
+                      limit: 1000,
+                      visual: { type: "kpi", title: "销售额" },
+                    },
+                  },
+                  interactions: [],
+                },
+              ],
+              parameters: [],
+              refresh: { mode: "disabled", interval_seconds: null },
+              theme: { id: "datapulse-dark", tokens: {} },
+            },
+          }),
+        );
+      }
+      if (url === "/api/admin/screens" && method === "POST") {
+        return Promise.resolve(jsonResponse(created, 201));
+      }
+      if (url === "/api/admin/screens/screen-ai" && method === "PATCH") {
+        return Promise.resolve(
+          jsonResponse({
+            ...created,
+            draft_revision: 1,
+            draft_document: JSON.parse(String(init?.body)).draft_document,
+          }),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+  const router = testRouter();
+  await router.push("/");
+  await router.isReady();
+  const wrapper = mount(ScreenListView, {
+    global: { plugins: [router] },
+  });
+  await flushPromises();
+
+  await wrapper.get('[data-action="open-ai-screen"]').trigger("click");
+  await flushPromises();
+  expect(wrapper.get('[role="dialog"]').text()).toContain("AI 生成大屏");
+
+  await wrapper.get('input[name="aiScreenName"]').setValue("AI 经营总览");
+  await wrapper
+    .get('textarea[name="aiScreenQuestion"]')
+    .setValue("生成一个经营总览大屏");
+  await wrapper.get('input[name="aiScreenDatasets"]').setValue(true);
+  await wrapper.get("form").trigger("submit");
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("建议使用 1 个 KPI 和 1 张趋势图");
+  await wrapper.get('[data-action="confirm-ai-screen"]').trigger("click");
+  await flushPromises();
+
+  expect(requests).toContainEqual({
+    url: "/api/admin/ai/screen",
+    method: "POST",
+    body: {
+      question: "生成一个经营总览大屏",
+      dataset_ids: ["sales"],
+      theme: "dark",
+    },
+  });
+  expect(requests).toContainEqual({
+    url: "/api/admin/screens",
+    method: "POST",
+    body: {
+      name: "AI 经营总览",
+      description: "",
+    },
+  });
+  expect(requests.some((request) => request.url.endsWith("/publish"))).toBe(false);
+  expect(router.currentRoute.value.fullPath).toBe(
+    "/studio/screens/screen-ai/edit",
+  );
+});
+
 test("deletes a screen only after confirmation", async () => {
   const confirm = vi.fn(() => true);
   vi.stubGlobal("confirm", confirm);

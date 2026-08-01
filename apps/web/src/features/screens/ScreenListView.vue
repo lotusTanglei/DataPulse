@@ -11,11 +11,14 @@ import { RouterLink, useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import AiScreenGeneratorDialog from "../ai/AiScreenGeneratorDialog.vue";
+import type { AiScreenResponse } from "../ai/types";
 import {
   copyScreen,
   createScreen,
   deleteScreen,
   listScreens,
+  updateScreen,
 } from "./api";
 import type { ScreenSummary } from "./types";
 
@@ -29,6 +32,8 @@ const createOpen = ref(false);
 const createName = ref("");
 const createError = ref("");
 const creating = ref(false);
+const aiCreateOpen = ref(false);
+const aiCreating = ref(false);
 const controller = new AbortController();
 
 const updatedAtFormatter = new Intl.DateTimeFormat("zh-CN", {
@@ -86,6 +91,11 @@ function closeCreate(): void {
   }
 }
 
+function openAiCreate(): void {
+  aiCreateOpen.value = true;
+  actionError.value = null;
+}
+
 async function submitCreate(): Promise<void> {
   const name = createName.value.trim();
   if (!name) {
@@ -107,6 +117,34 @@ async function submitCreate(): Promise<void> {
     createError.value = apiError.message;
   } finally {
     creating.value = false;
+  }
+}
+
+async function submitAiCreate(payload: {
+  name: string;
+  result: AiScreenResponse;
+}): Promise<void> {
+  aiCreating.value = true;
+  actionError.value = null;
+  try {
+    const created = await createScreen({
+      name: payload.name,
+      description: "",
+    });
+    await updateScreen(created.id, {
+      draft_document: payload.result.document,
+      expected_revision: created.draft_revision,
+    });
+    aiCreateOpen.value = false;
+    await router.push(`/studio/screens/${created.id}/edit`);
+  } catch (reason) {
+    actionError.value = fallbackError(
+      reason,
+      "AI_SCREEN_CREATE_FAILED",
+      "暂时无法创建 AI 大屏草稿。",
+    );
+  } finally {
+    aiCreating.value = false;
   }
 }
 
@@ -171,15 +209,25 @@ onBeforeUnmount(() => controller.abort());
           创建、调试并发布可独立播放或安全嵌入业务系统的数据大屏。
         </p>
       </div>
-      <button
-        class="primary-button primary-button--compact"
-        type="button"
-        data-action="open-create-screen"
-        @click="openCreate"
-      >
-        <Plus :size="15" aria-hidden="true" />
-        新建大屏
-      </button>
+      <div class="query-actions">
+        <button
+          class="secondary-button"
+          type="button"
+          data-action="open-ai-screen"
+          @click="openAiCreate"
+        >
+          AI 生成大屏
+        </button>
+        <button
+          class="primary-button primary-button--compact"
+          type="button"
+          data-action="open-create-screen"
+          @click="openCreate"
+        >
+          <Plus :size="15" aria-hidden="true" />
+          新建大屏
+        </button>
+      </div>
     </div>
 
     <p v-if="loading" class="loading-copy" role="status">正在加载大屏…</p>
@@ -200,15 +248,25 @@ onBeforeUnmount(() => controller.abort());
         </span>
         <h2>还没有大屏</h2>
         <p>从一张空白的 1920 × 1080 画布开始搭建。</p>
-        <button
-          class="secondary-button"
-          type="button"
-          data-action="open-create-screen"
-          @click="openCreate"
-        >
-          <Plus :size="14" aria-hidden="true" />
-          新建第一个大屏
-        </button>
+        <div class="query-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            data-action="open-ai-screen"
+            @click="openAiCreate"
+          >
+            AI 生成草稿
+          </button>
+          <button
+            class="secondary-button"
+            type="button"
+            data-action="open-create-screen"
+            @click="openCreate"
+          >
+            <Plus :size="14" aria-hidden="true" />
+            新建第一个大屏
+          </button>
+        </div>
       </div>
 
       <div v-else class="screen-list" aria-label="大屏列表">
@@ -328,5 +386,12 @@ onBeforeUnmount(() => controller.abort());
         </form>
       </section>
     </div>
+
+    <AiScreenGeneratorDialog
+      :open="aiCreateOpen"
+      :submitting="aiCreating"
+      @close="aiCreateOpen = false"
+      @confirm="submitAiCreate"
+    />
   </section>
 </template>

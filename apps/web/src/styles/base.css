@@ -1516,6 +1516,19 @@ textarea::placeholder {
   font-size: 12px;
 }
 
+.dataset-config-grid input:disabled,
+.dataset-file-panel select:disabled {
+  color: var(--dp-muted);
+  background: #f8f8f7;
+  cursor: not-allowed;
+}
+
+.dataset-config-grid--stacked {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  border-radius: var(--dp-radius-md);
+  border-bottom: 1px solid var(--dp-border);
+}
+
 .dataset-sql-editor {
   border: 1px solid var(--dp-border);
   border-bottom: 0;
@@ -1524,6 +1537,109 @@ textarea::placeholder {
 .dataset-detail-page > .parameter-editor {
   border: 1px solid var(--dp-border);
   border-radius: 0 0 var(--dp-radius-md) var(--dp-radius-md);
+}
+
+.dataset-file-page,
+.dataset-file-detail {
+  gap: 16px;
+}
+
+.dataset-file-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dataset-file-panel {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--dp-border);
+  border-radius: var(--dp-radius-md);
+  background: #fff;
+}
+
+.dataset-file-panel h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.dataset-file-panel select {
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.dataset-file-uploader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.dataset-file-uploader h2 {
+  margin-bottom: 4px;
+}
+
+.dataset-file-uploader p,
+.dataset-file-asset p {
+  margin: 0;
+  color: var(--dp-muted);
+  font-size: 12px;
+}
+
+.dataset-file-input {
+  position: relative;
+  overflow: hidden;
+}
+
+.dataset-file-input input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dataset-file-asset {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--dp-border);
+  border-radius: var(--dp-radius-md);
+  background: #fbfbfa;
+}
+
+.dataset-file-asset__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dataset-file-fields {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dataset-file-fields li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--dp-border);
+  border-radius: var(--dp-radius-sm);
+  background: #fff;
+  font-size: 11px;
+}
+
+@media (max-width: 1100px) {
+  .dataset-file-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 .empty-state {

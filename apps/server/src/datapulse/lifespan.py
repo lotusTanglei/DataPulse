@@ -11,6 +11,9 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from datapulse.ai.context import DatasetContextService
+from datapulse.ai.gateway import AiGateway
+from datapulse.ai.service import AiService
 from datapulse.auth.bootstrap import BootstrapService
 from datapulse.auth.limiter import LoginLimiter
 from datapulse.auth.repository import AuthRepository
@@ -147,6 +150,30 @@ def create_lifespan(
                 repository=file_asset_repository,
                 storage=FileStorage(settings),
             )
+            app.state.ai_gateway = AiGateway(
+                enabled=settings.ai_enabled,
+                base_url=settings.ai_base_url,
+                api_key=settings.ai_api_key,
+                model=settings.ai_model,
+                timeout_seconds=settings.ai_timeout_seconds,
+            )
+            app.state.dataset_context_service = DatasetContextService(
+                dataset_repository=dataset_repository,
+                datasource_service=app.state.datasource_service,
+                registry=connector_registry,
+                file_asset_repository=file_asset_repository,
+                file_query_service=file_query_service,
+            )
+            app.state.ai_service = AiService(
+                gateway=app.state.ai_gateway,
+                context_service=app.state.dataset_context_service,
+                dataset_repository=dataset_repository,
+                datasource_service=app.state.datasource_service,
+                registry=connector_registry,
+                file_asset_repository=file_asset_repository,
+                file_query_service=file_query_service,
+                max_context_rows=settings.ai_max_context_rows,
+            )
             screen_repository = ScreenRepository(session_factory)
             app.state.screen_service = ScreenService(
                 repository=screen_repository,
@@ -193,6 +220,8 @@ def create_lifespan(
                 logger.warning("DataPulse one-time setup code: %s", setup_code)
             yield
         finally:
+            if hasattr(app.state, "ai_gateway"):
+                await app.state.ai_gateway.aclose()
             await datasource_engine_manager.dispose_all()
             await engine.dispose()
 

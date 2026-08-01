@@ -17,6 +17,11 @@ type Refresh = NonNullable<DashboardDocument["refresh"]>;
 
 export type EditorCommand =
   | { type: "add_component"; component: ComponentInstance }
+  | {
+      type: "replace_component";
+      component_id: string;
+      component: ComponentInstance;
+    }
   | { type: "remove_components"; component_ids: string[] }
   | {
       type: "duplicate_components";
@@ -117,6 +122,18 @@ export function applyCommand(
       next.components = [...components(next), structuredClone(command.component)];
       break;
     }
+    case "replace_component":
+      if (command.component.id !== command.component_id) {
+        throw new EditorCommandError(
+          `Replacement component ID mismatch: ${command.component_id}`,
+        );
+      }
+      next.components = patchComponents(
+        next,
+        [command.component_id],
+        () => structuredClone(command.component),
+      );
+      break;
     case "remove_components": {
       assertKnownIds(next, command.component_ids);
       const removed = new Set(command.component_ids);

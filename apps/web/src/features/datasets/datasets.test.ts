@@ -7,6 +7,7 @@ import {
 } from "vue-router";
 
 import DatasetDetailView from "./DatasetDetailView.vue";
+import FileDatasetCreateView from "./FileDatasetCreateView.vue";
 import DatasetListView from "./DatasetListView.vue";
 import SaveDatasetDialog from "./SaveDatasetDialog.vue";
 import type { Dataset } from "./types";
@@ -45,6 +46,50 @@ const dataset: Dataset = {
   updated_at: "2026-07-30T03:00:00Z",
 };
 
+const fileDataset: Dataset = {
+  id: "dataset-file-1",
+  name: "销售文件数据集",
+  data_source_id: null,
+  definition: {
+    schema_version: 1,
+    id: "dataset-file-1",
+    name: "销售文件数据集",
+    data_source_id: null,
+    query: {
+      kind: "file",
+      asset_id: "file-1",
+      format: "csv",
+      sheet_name: null,
+    },
+    fields: [
+      { name: "region", data_type: "string" },
+      { name: "amount", data_type: "number" },
+    ],
+    parameters: [],
+    cache: { mode: "disabled", ttl_seconds: null },
+    refresh: { mode: "manual", interval_seconds: null, cron: null },
+    max_rows: 5000,
+    timeout_seconds: 30,
+  },
+  created_at: "2026-07-30T03:00:00Z",
+  updated_at: "2026-07-30T03:00:00Z",
+};
+
+const fileAsset = {
+  id: "file-1",
+  original_name: "sales.csv",
+  format: "csv",
+  mime_type: "text/csv",
+  size_bytes: 32,
+  sha256: "hash",
+  row_count: 2,
+  fields: [
+    { name: "region", data_type: "string" },
+    { name: "amount", data_type: "number" },
+  ],
+  created_at: "2026-07-30T03:00:00Z",
+};
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -60,6 +105,11 @@ function testRouter(): Router {
       {
         path: "/studio/datasets/:id",
         name: "dataset-detail",
+        component: { template: "<div />" },
+      },
+      {
+        path: "/studio/datasets/files/new",
+        name: "dataset-file-new",
         component: { template: "<div />" },
       },
       {
@@ -136,7 +186,7 @@ test("lists datasets with their source and fields", async () => {
     vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
       if (url === "/api/admin/datasets") {
-        return Promise.resolve(jsonResponse([dataset]));
+        return Promise.resolve(jsonResponse([dataset, fileDataset]));
       }
       if (url === "/api/admin/datasources") {
         return Promise.resolve(
@@ -148,6 +198,9 @@ test("lists datasets with their source and fields", async () => {
             },
           ]),
         );
+      }
+      if (url === "/api/admin/files") {
+        return Promise.resolve(jsonResponse([fileAsset]));
       }
       throw new Error(`Unexpected request: ${url}`);
     }),
@@ -163,6 +216,9 @@ test("lists datasets with their source and fields", async () => {
   expect(wrapper.text()).toContain("月度销售");
   expect(wrapper.text()).toContain("分析仓库");
   expect(wrapper.text()).toContain("2 个字段");
+  expect(wrapper.text()).toContain("销售文件数据集");
+  expect(wrapper.text()).toContain("sales.csv");
+  expect(wrapper.text()).toContain("导入文件");
 });
 
 test("edits dataset config and preserves preview parameters after an error", async () => {
@@ -244,4 +300,117 @@ test("edits dataset config and preserves preview parameters after an error", asy
   expect((parameter.element as HTMLInputElement).value).toBe('"south"');
   expect(wrapper.text()).toContain("预览失败。");
   expect(wrapper.text()).toContain("preview-error-5");
+});
+
+test("loads file datasets without requesting a datasource and previews rows", async () => {
+  let previewCalls = 0;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (
+        url === "/api/admin/datasets/dataset-file-1" &&
+        init?.method === "GET"
+      ) {
+        return Promise.resolve(jsonResponse(fileDataset));
+      }
+      if (url === "/api/admin/files" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse([fileAsset]));
+      }
+      if (
+        url === "/api/admin/datasets/dataset-file-1/preview" &&
+        init?.method === "POST"
+      ) {
+        previewCalls += 1;
+        return Promise.resolve(
+          jsonResponse({
+            request_id: "preview-file-1",
+            columns: fileAsset.fields,
+            rows: [["north", 10], ["south", 20]],
+            row_count: 2,
+            truncated: false,
+            duration_ms: 12,
+          }),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+
+  const router = testRouter();
+  await router.push("/studio/datasets/dataset-file-1");
+  await router.isReady();
+  const wrapper = mount(DatasetDetailView, {
+    global: { plugins: [router] },
+  });
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("sales.csv");
+  expect(wrapper.text()).toContain("CSV");
+  expect(wrapper.text()).toContain("文件数据集当前为只读");
+  expect(wrapper.find('[data-action="save-dataset"]').exists()).toBe(false);
+
+  await wrapper.get('[data-action="preview-dataset"]').trigger("click");
+  await flushPromises();
+
+  expect(previewCalls).toBe(1);
+  expect(wrapper.text()).toContain("preview-file-1");
+  expect(wrapper.text()).toContain("2 行");
+  expect(wrapper.text()).toContain("region");
+  expect(wrapper.text()).toContain("amount");
+});
+
+test("uploads a file and creates a file dataset", async () => {
+  let submitted: unknown;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/admin/files" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse([]));
+      }
+      if (url === "/api/admin/files" && init?.method === "POST") {
+        return Promise.resolve(jsonResponse(fileAsset, 201));
+      }
+      if (url === "/api/admin/datasets/files" && init?.method === "POST") {
+        submitted = JSON.parse(String(init.body));
+        return Promise.resolve(jsonResponse(fileDataset, 201));
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+
+  const router = testRouter();
+  await router.push("/studio/datasets/files/new");
+  await router.isReady();
+  const wrapper = mount(FileDatasetCreateView, {
+    global: { plugins: [router] },
+  });
+  await flushPromises();
+
+  const file = new File(["region,amount\nnorth,10\nsouth,20\n"], "sales.csv", {
+    type: "text/csv",
+  });
+  const fileInput = wrapper.get('input[name="fileAsset"]');
+  Object.defineProperty(fileInput.element, "files", {
+    value: [file],
+    configurable: true,
+  });
+  await fileInput.trigger("change");
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("sales.csv");
+  await wrapper.get('input[name="datasetName"]').setValue("销售文件数据集");
+  await wrapper.get('[data-action="create-file-dataset"]').trigger("click");
+  await flushPromises();
+
+  expect(submitted).toEqual({
+    name: "销售文件数据集",
+    file_asset_id: "file-1",
+    max_rows: 5000,
+    timeout_seconds: 30,
+  });
+  expect(router.currentRoute.value.fullPath).toBe(
+    "/studio/datasets/dataset-file-1",
+  );
 });

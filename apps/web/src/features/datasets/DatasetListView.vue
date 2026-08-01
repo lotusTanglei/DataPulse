@@ -6,26 +6,44 @@ import { RouterLink } from "vue-router";
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import { listDatasources } from "../datasources/api";
+import { listFileAssets } from "../files/api";
 import { listDatasets } from "./api";
-import type { Dataset } from "./types";
+interface DatasetCardModel {
+  id: string;
+  name: string;
+  sourceLabel: string;
+  fieldCount: number;
+  parameterCount: number;
+}
 
-const datasets = ref<Dataset[]>([]);
-const sourceNames = ref(new Map<string, string>());
+const datasets = ref<DatasetCardModel[]>([]);
 const loading = ref(true);
 const error = ref<ApiError | null>(null);
 const controller = new AbortController();
 
 async function load(): Promise<void> {
   try {
-    const [loadedDatasets, sources] = await Promise.all([
+    const [loadedDatasets, sources, files] = await Promise.all([
       listDatasets(controller.signal),
       listDatasources(controller.signal),
+      listFileAssets(controller.signal),
     ]);
     if (!controller.signal.aborted) {
-      datasets.value = loadedDatasets;
-      sourceNames.value = new Map(
+      const sourceNames = new Map(
         sources.map((source) => [source.id, source.name]),
       );
+      const fileNames = new Map(
+        files.map((asset) => [asset.id, asset.original_name]),
+      );
+      datasets.value = loadedDatasets.map((dataset) => ({
+        id: dataset.id,
+        name: dataset.name,
+        sourceLabel: dataset.definition.query.kind === "file"
+          ? (fileNames.get(dataset.definition.query.asset_id) ?? "上传文件")
+          : (sourceNames.get(dataset.data_source_id ?? "") ?? "未知数据源"),
+        fieldCount: dataset.definition.fields.length,
+        parameterCount: dataset.definition.parameters.length,
+      }));
     }
   } catch (reason) {
     if (!controller.signal.aborted) {
@@ -60,10 +78,16 @@ onBeforeUnmount(() => controller.abort());
           将验证过的只读 SQL、参数和字段定义沉淀为稳定的数据资产。
         </p>
       </div>
-      <RouterLink class="primary-button" to="/studio/datasources">
-        <Plus :size="15" aria-hidden="true" />
-        从数据源创建
-      </RouterLink>
+      <div class="query-actions">
+        <RouterLink class="secondary-button" to="/studio/datasets/files/new">
+          <Plus :size="15" aria-hidden="true" />
+          导入文件
+        </RouterLink>
+        <RouterLink class="primary-button" to="/studio/datasources">
+          <Plus :size="15" aria-hidden="true" />
+          从数据源创建
+        </RouterLink>
+      </div>
     </div>
 
     <p v-if="loading" class="loading-copy" role="status">正在加载数据集…</p>
@@ -78,9 +102,14 @@ onBeforeUnmount(() => controller.abort());
       </span>
       <h2>还没有数据集</h2>
       <p>进入一个数据源的 SQL 调试页，运行查询后即可保存。</p>
-      <RouterLink class="secondary-button" to="/studio/datasources">
-        浏览数据源
-      </RouterLink>
+      <div class="query-actions">
+        <RouterLink class="secondary-button" to="/studio/datasets/files/new">
+          导入文件
+        </RouterLink>
+        <RouterLink class="secondary-button" to="/studio/datasources">
+          浏览数据源
+        </RouterLink>
+      </div>
     </div>
 
     <div v-else class="dataset-grid">
@@ -95,11 +124,11 @@ onBeforeUnmount(() => controller.abort());
         </span>
         <div>
           <h2>{{ item.name }}</h2>
-          <p>{{ sourceNames.get(item.data_source_id) ?? "未知数据源" }}</p>
+          <p>{{ item.sourceLabel }}</p>
         </div>
         <div class="dataset-card-meta">
-          <span>{{ item.definition.fields.length }} 个字段</span>
-          <span>{{ item.definition.parameters.length }} 个参数</span>
+          <span>{{ item.fieldCount }} 个字段</span>
+          <span>{{ item.parameterCount }} 个参数</span>
         </div>
       </RouterLink>
     </div>

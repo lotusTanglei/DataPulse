@@ -23,7 +23,13 @@ export interface DatasetDefinition {
   data_source_id: string | null;
   query:
     | { kind: "sql"; sql: string }
-    | { kind: "table"; table: string; schema_name: string | null };
+    | { kind: "table"; table: string; schema_name: string | null }
+    | {
+        kind: "file";
+        asset_id: string;
+        format: "csv" | "excel" | "json" | "parquet";
+        sheet_name: string | null;
+      };
   fields: DatasetField[];
   parameters: DatasetParameter[];
   cache: {
@@ -42,7 +48,7 @@ export interface DatasetDefinition {
 export interface Dataset {
   id: string;
   name: string;
-  data_source_id: string;
+  data_source_id: string | null;
   definition: DatasetDefinition;
   created_at: string;
   updated_at: string;

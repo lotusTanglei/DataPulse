@@ -4,7 +4,11 @@ import { useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
+import type { JsonValue } from "../query/types";
+import { defaultComponentRegistry } from "../runtime/registry";
 import { publishScreen } from "./api";
+import { componentTypeToChartType } from "./editor/chartSuggestion";
 import ComponentLibrary from "./editor/ComponentLibrary.vue";
 import EditorToolbar from "./editor/EditorToolbar.vue";
 import InspectorPanel from "./editor/InspectorPanel.vue";
@@ -20,6 +24,50 @@ const publishConfirmationOpen = ref(false);
 const publishing = ref(false);
 const publishError = ref<ApiError | null>(null);
 const publishMessage = ref("");
+const selectedComponent = computed(() => {
+  if (store.selection.length !== 1) {
+    return null;
+  }
+  return store.document?.components?.find(
+    (component) => component.id === store.selection[0],
+  ) ?? null;
+});
+const selectedDefinition = computed(() =>
+  selectedComponent.value
+    ? defaultComponentRegistry.get(selectedComponent.value.type)
+    : undefined,
+);
+const selectedAiTarget = computed(() =>
+  selectedComponent.value
+    ? componentTypeToChartType(selectedComponent.value.type)
+    : null,
+);
+
+function datasetIdFromSelection(): string {
+  const chartSpec = selectedComponent.value?.data_binding?.chart_spec;
+  if (
+    chartSpec &&
+    typeof chartSpec === "object" &&
+    !Array.isArray(chartSpec) &&
+    typeof chartSpec.dataset_id === "string"
+  ) {
+    return chartSpec.dataset_id;
+  }
+  return "";
+}
+
+const selectedDatasetId = computed(() => {
+  return datasetIdFromSelection();
+});
+const selectedCurrentProps = computed(
+  () => (selectedComponent.value?.props ?? {}) as Record<string, JsonValue>,
+);
+const canUseAiPanel = computed(
+  () =>
+    selectedComponent.value !== null &&
+    selectedDefinition.value?.dataCapability !== "none" &&
+    selectedAiTarget.value !== null,
+);
 
 const saveLabel = computed(() => {
   const labels = {
@@ -55,7 +103,7 @@ async function confirmPublish(): Promise<void> {
       store.screen.id,
       store.screen.draft_revision,
     );
-    store.screen = published;
+    store.screen = published as never;
     publishConfirmationOpen.value = false;
     publishMessage.value = "发布成功";
   } catch (reason) {
@@ -121,6 +169,22 @@ async function confirmPublish(): Promise<void> {
         </main>
         <aside class="editor-panel editor-panel--right" aria-label="属性面板">
           <InspectorPanel />
+          <AiAnalysisPanel
+            v-if="canUseAiPanel && selectedComponent"
+            :key="selectedComponent.id"
+            :initial-dataset-id="selectedDatasetId"
+            :target-component-type="selectedAiTarget ?? undefined"
+            :current-props="selectedCurrentProps"
+            :can-apply="true"
+            apply-label="应用到当前组件"
+            @apply-chart="
+              store.applyChartSuggestion(selectedComponent.id, $event)
+            "
+          />
+          <section v-else class="editor-panel__hint" aria-label="AI 使用说明">
+            <h2>AI 分析</h2>
+            <p>选中一个可绑定数据的组件后，就可以生成图表建议并直接应用。</p>
+          </section>
         </aside>
       </div>
 
@@ -167,3 +231,18 @@ async function confirmPublish(): Promise<void> {
     </template>
   </section>
 </template>
+
+<style scoped>
+.editor-panel__hint {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed rgb(148 163 184 / 25%);
+  border-radius: 14px;
+}
+
+.editor-panel__hint h2,
+.editor-panel__hint p {
+  margin: 0;
+}
+</style>

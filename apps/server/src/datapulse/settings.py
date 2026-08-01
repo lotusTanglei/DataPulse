@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     duckdb_threads: int = Field(default=2, ge=1, le=8)
     duckdb_memory_limit: str = "512MB"
     duckdb_timeout_seconds: int = Field(default=30, ge=1, le=300)
+    ai_enabled: bool = False
+    ai_base_url: str | None = None
+    ai_api_key: str | None = None
+    ai_model: str | None = None
+    ai_timeout_seconds: int = Field(default=30, ge=1, le=300)
+    ai_max_context_rows: int = Field(default=100, ge=1, le=100)
     query_global_limit: int = Field(default=4, ge=1)
     query_per_source_limit: int = Field(default=2, ge=1)
     query_acquire_timeout_seconds: float = Field(default=5, ge=0)

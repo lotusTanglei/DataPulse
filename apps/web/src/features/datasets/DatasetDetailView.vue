@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { Play, Save } from "@lucide/vue";
-import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
 import { getDatasource } from "../datasources/api";
+import { listFileAssets } from "../files/api";
+import type { FileAsset } from "../files/types";
 import ParameterEditor from "../query/ParameterEditor.vue";
 import QueryResultTable from "../query/QueryResultTable.vue";
 import SqlEditor from "../query/SqlEditor.vue";
@@ -27,6 +30,7 @@ const loadError = ref<ApiError | null>(null);
 const formError = ref<ApiError | null>(null);
 const previewError = ref<ApiError | null>(null);
 const result = ref<QueryResult | null>(null);
+const fileAsset = ref<FileAsset | null>(null);
 const name = ref("");
 const sql = ref("");
 const maxRows = ref(5000);
@@ -37,6 +41,13 @@ let loadController: AbortController | null = null;
 let previewController: AbortController | null = null;
 
 const datasourceDialect = ref<SqlDialect>("sqlite");
+const isSqlDataset = computed(() => dataset.value?.definition.query.kind === "sql");
+const fileFormatLabel = computed(() => {
+  if (dataset.value?.definition.query.kind !== "file") {
+    return "";
+  }
+  return dataset.value.definition.query.format.toUpperCase();
+});
 
 function hydrate(value: Dataset): void {
   dataset.value = value;
@@ -46,11 +57,13 @@ function hydrate(value: Dataset): void {
     : "";
   maxRows.value = value.definition.max_rows;
   timeoutSeconds.value = value.definition.timeout_seconds;
-  parameters.value = value.definition.parameters.map((parameter) => ({
-    name: parameter.name,
-    data_type: parameter.data_type,
-    value: parameter.default,
-  }));
+  parameters.value = value.definition.query.kind === "sql"
+    ? value.definition.parameters.map((parameter) => ({
+        name: parameter.name,
+        data_type: parameter.data_type,
+        value: parameter.default,
+      }))
+    : [];
 }
 
 async function load(id: string): Promise<void> {
@@ -61,12 +74,24 @@ async function load(id: string): Promise<void> {
   loadError.value = null;
   try {
     const loaded = await getDataset(id, controller.signal);
-    const source = await getDatasource(
-      loaded.data_source_id,
-      controller.signal,
-    );
+    const query = loaded.definition.query;
+    let nextDialect: SqlDialect = "sqlite";
+    let nextFileAsset: FileAsset | null = null;
+    if (loaded.data_source_id !== null) {
+      const source = await getDatasource(
+        loaded.data_source_id,
+        controller.signal,
+      );
+      nextDialect = source.config.type;
+    } else if (query.kind === "file") {
+      const assets = await listFileAssets(controller.signal);
+      nextFileAsset = assets.find(
+        (asset) => asset.id === query.asset_id,
+      ) ?? null;
+    }
     if (!controller.signal.aborted) {
-      datasourceDialect.value = source.config.type;
+      datasourceDialect.value = nextDialect;
+      fileAsset.value = nextFileAsset;
       hydrate(loaded);
     }
   } catch (reason) {
@@ -91,6 +116,7 @@ async function load(id: string): Promise<void> {
 async function save(): Promise<void> {
   if (
     dataset.value === null ||
+    dataset.value.definition.query.kind !== "sql" ||
     name.value.trim() === "" ||
     sql.value.trim() === "" ||
     !parametersValid.value
@@ -198,11 +224,16 @@ onBeforeUnmount(() => {
           <p class="page-eyebrow">Dataset · {{ dataset.id }}</p>
           <h1 id="dataset-detail-title">{{ dataset.name }}</h1>
           <p class="page-description">
-            编辑查询定义并使用参数预览结果。
+            {{
+              isSqlDataset
+                ? "编辑查询定义并使用参数预览结果。"
+                : "查看文件结构并直接预览解析结果。"
+            }}
           </p>
         </div>
         <div class="query-actions">
           <button
+            v-if="isSqlDataset"
             class="secondary-button"
             data-action="save-dataset"
             type="button"
@@ -225,30 +256,80 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="dataset-config-grid">
-        <label>
-          <span>名称</span>
-          <input v-model="name" name="name" />
-        </label>
-        <label>
-          <span>最大行数</span>
-          <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" />
-        </label>
-        <label>
-          <span>超时（秒）</span>
-          <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" />
-        </label>
+      <div v-if="isSqlDataset">
+        <div class="dataset-config-grid">
+          <label>
+            <span>名称</span>
+            <input v-model="name" name="name" />
+          </label>
+          <label>
+            <span>最大行数</span>
+            <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" />
+          </label>
+          <label>
+            <span>超时（秒）</span>
+            <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" />
+          </label>
+        </div>
+
+        <div class="sql-editor-frame dataset-sql-editor">
+          <SqlEditor v-model="sql" :dialect="datasourceDialect" />
+        </div>
+
+        <ParameterEditor
+          v-model="parameters"
+          :allow-add="false"
+          @validity="parametersValid = $event"
+        />
       </div>
 
-      <div class="sql-editor-frame dataset-sql-editor">
-        <SqlEditor v-model="sql" :dialect="datasourceDialect" />
+      <div v-else-if="dataset.definition.query.kind === 'file'" class="dataset-file-detail">
+        <InlineNotice tone="info">
+          <p>文件数据集当前为只读，可预览不可编辑。</p>
+        </InlineNotice>
+        <div class="dataset-config-grid dataset-config-grid--stacked">
+          <label>
+            <span>名称</span>
+            <input :value="dataset.name" disabled />
+          </label>
+          <label>
+            <span>来源文件</span>
+            <input :value="fileAsset?.original_name ?? dataset.definition.query.asset_id" disabled />
+          </label>
+          <label>
+            <span>格式</span>
+            <input :value="fileFormatLabel" disabled />
+          </label>
+          <label v-if="dataset.definition.query.sheet_name">
+            <span>Excel Sheet</span>
+            <input :value="dataset.definition.query.sheet_name" disabled />
+          </label>
+          <label>
+            <span>最大行数</span>
+            <input :value="String(dataset.definition.max_rows)" disabled />
+          </label>
+          <label>
+            <span>超时（秒）</span>
+            <input :value="String(dataset.definition.timeout_seconds)" disabled />
+          </label>
+        </div>
+        <div v-if="fileAsset" class="dataset-file-asset">
+          <div class="dataset-file-asset__header">
+            <strong>{{ fileAsset.original_name }}</strong>
+            <span class="type-pill">{{ fileFormatLabel }}</span>
+          </div>
+          <p>
+            {{ fileAsset.row_count.toLocaleString("zh-CN") }} 行 ·
+            {{ fileAsset.fields.length }} 个字段
+          </p>
+          <ul class="dataset-file-fields">
+            <li v-for="field in fileAsset.fields" :key="field.name">
+              <code>{{ field.name }}</code>
+              <span>{{ field.data_type }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
-
-      <ParameterEditor
-        v-model="parameters"
-        :allow-add="false"
-        @validity="parametersValid = $event"
-      />
 
       <InlineNotice v-if="formError" tone="error">
         <p>{{ formError.message }}</p>
@@ -258,6 +339,11 @@ onBeforeUnmount(() => {
         <p>{{ previewError.message }}</p>
         <code v-if="previewError.requestId">{{ previewError.requestId }}</code>
       </InlineNotice>
+
+      <AiAnalysisPanel
+        class="dataset-ai-panel"
+        :fixed-dataset-id="dataset.id"
+      />
 
       <div v-if="result" class="query-result-panel">
         <div class="result-summary">
@@ -270,3 +356,9 @@ onBeforeUnmount(() => {
     </template>
   </section>
 </template>
+
+<style scoped>
+.dataset-ai-panel {
+  margin-top: 20px;
+}
+</style>

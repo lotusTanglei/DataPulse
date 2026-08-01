@@ -32,6 +32,19 @@ export function createDataset(
   });
 }
 
+export function createFileDataset(payload: {
+  name: string;
+  file_asset_id: string;
+  sheet_name?: string | null;
+  max_rows: number;
+  timeout_seconds: number;
+}): Promise<Dataset> {
+  return apiRequest<Dataset>(`${DATASETS_PATH}/files`, {
+    method: "POST",
+    json: payload,
+  });
+}
+
 export function updateDataset(
   datasetId: string,
   payload: DatasetUpdatePayload,

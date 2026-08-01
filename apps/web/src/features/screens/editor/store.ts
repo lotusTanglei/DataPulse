@@ -5,7 +5,9 @@ import { computed, onScopeDispose, ref, toRaw } from "vue";
 import { ApiError } from "../../../lib/api";
 import { getScreen, updateScreen } from "../api";
 import type { Screen } from "../types";
+import type { ChartSpec } from "../../../contracts";
 import type { EditorCommand } from "./commands";
+import { createSuggestedComponent } from "./chartSuggestion";
 import { EditorHistory } from "./history";
 
 export type SaveState =
@@ -116,6 +118,23 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
     historyVersion.value += 1;
   }
 
+  function applyChartSuggestion(
+    componentId: string,
+    chartSpec: ChartSpec,
+  ): void {
+    const current = document.value?.components?.find(
+      (component) => component.id === componentId,
+    );
+    if (!current) {
+      throw new Error(`Unknown component ID: ${componentId}`);
+    }
+    dispatch({
+      type: "replace_component",
+      component_id: componentId,
+      component: createSuggestedComponent(current, chartSpec),
+    });
+  }
+
   function undo(): void {
     if (history?.canUndo) {
       markChanged(history.undo());
@@ -196,6 +215,7 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
     canUndo,
     dispatch,
     document,
+    applyChartSuggestion,
     load,
     loadError,
     loading,

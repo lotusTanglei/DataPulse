@@ -2,6 +2,7 @@ import { flushPromises } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
+import type { ChartSpec } from "../../../contracts";
 import type { Screen } from "../types";
 import { useScreenEditorStore } from "./store";
 
@@ -127,7 +128,7 @@ test("undo and redo participate in autosave history", async () => {
 
 test("a revision conflict stops automatic retry", async () => {
   const fetchMock = vi.fn(
-    (input: RequestInfo | URL, init?: RequestInit) => {
+    (_input: RequestInfo | URL, init?: RequestInit) => {
       if (init?.method === "GET") {
         return Promise.resolve(jsonResponse(screen));
       }
@@ -167,4 +168,39 @@ test("a revision conflict stops automatic retry", async () => {
   expect(store.saveState).toBe("conflict");
   await vi.advanceTimersByTimeAsync(5000);
   expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test("chart suggestions replace the target component and mark the draft dirty", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.resolve(jsonResponse(screen))),
+  );
+  const store = useScreenEditorStore();
+  await store.load("screen-1");
+
+  const suggestion: ChartSpec = {
+    schema_version: 1,
+    dataset_id: "sales",
+    dimensions: ["region"],
+    measures: [{ field: "amount", aggregation: "sum" }],
+    filters: [],
+    sort: [],
+    limit: 1000,
+    visual: { type: "bar", title: "按区域销售额" },
+  };
+
+  store.applyChartSuggestion("text-1", suggestion);
+
+  expect(store.saveState).toBe("dirty");
+  expect(store.document?.components?.[0]).toMatchObject({
+    id: "text-1",
+    type: "builtin.bar",
+    props: { title: "按区域销售额" },
+    data_binding: {
+      chart_spec: {
+        dataset_id: "sales",
+        visual: { type: "bar", title: "按区域销售额" },
+      },
+    },
+  });
 });
