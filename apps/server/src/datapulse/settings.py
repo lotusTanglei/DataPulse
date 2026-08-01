@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     bootstrap_code_override: str | None = None
     master_key: str | None = None
     signing_key: str | None = None
+    file_max_bytes: int = Field(default=100 * 1024 * 1024, ge=1)
+    file_max_rows: int = Field(default=5000, ge=1)
+    duckdb_threads: int = Field(default=2, ge=1, le=8)
+    duckdb_memory_limit: str = "512MB"
+    duckdb_timeout_seconds: int = Field(default=30, ge=1, le=300)
     query_global_limit: int = Field(default=4, ge=1)
     query_per_source_limit: int = Field(default=2, ge=1)
     query_acquire_timeout_seconds: float = Field(default=5, ge=0)
@@ -28,6 +33,9 @@ class Settings(BaseSettings):
 
     def resolved_assets_dir(self) -> Path:
         return (self.assets_dir or self.data_dir / "assets").resolve()
+
+    def resolved_files_dir(self) -> Path:
+        return (self.data_dir / "files").resolve()
 
     def signing_key_bytes(self) -> bytes | None:
         if self.signing_key is None:

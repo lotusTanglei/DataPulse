@@ -45,7 +45,7 @@ class DatasetPreviewRequest(ContractModel):
 class DatasetResponse(ContractModel):
     id: str
     name: NonBlankStr
-    data_source_id: NonBlankStr
+    data_source_id: str | None
     definition: DatasetDefinition
     created_at: datetime
     updated_at: datetime

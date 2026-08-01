@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from datapulse.contracts.chart import ChartType, Filter, Measure, Sort
+from datapulse.contracts.chart import ChartSpec, ChartType, Filter, Measure, Sort
 from datapulse.contracts.common import ContractModel, NonBlankStr
 
 
@@ -17,3 +17,16 @@ class AnalysisPlan(ContractModel):
     recommended_chart: ChartType
     assumptions: tuple[str, ...] = Field(default_factory=tuple)
     requires_confirmation: bool = True
+
+
+class AiAnalysisRequest(ContractModel):
+    question: NonBlankStr
+    dataset_ids: tuple[NonBlankStr, ...] = Field(min_length=1)
+    mode: Literal["analysis", "chart"] = "analysis"
+
+
+class AiAnalysisResponse(ContractModel):
+    plan: AnalysisPlan
+    narrative: NonBlankStr
+    chart_spec: ChartSpec | None = None
+    warnings: tuple[str, ...] = Field(default_factory=tuple)
