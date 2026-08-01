@@ -18,6 +18,7 @@ export interface Screen extends ScreenSummary {
 export interface ScreenCreatePayload {
   name: string;
   description?: string;
+  draft_document?: DashboardDocument;
 }
 
 export interface ScreenDraftUpdatePayload {

@@ -10,6 +10,7 @@ from datapulse.contracts.dashboard import DashboardDocument
 class ScreenCreate(ContractModel):
     name: NonBlankStr
     description: str = ""
+    draft_document: DashboardDocument | None = None
 
 
 class ScreenDraftUpdate(ContractModel):

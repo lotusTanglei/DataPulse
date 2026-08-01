@@ -141,6 +141,36 @@ test("creates a screen from the empty workspace and opens the editor", async () 
 
 test("creates an AI draft only after confirmation and does not publish it", async () => {
   const created = { ...copiedScreen, id: "screen-ai", name: "AI 经营总览" };
+  const generatedDocument = {
+    schema_version: 1,
+    canvas: { width: 1920, height: 1080, background: {} },
+    components: [
+      {
+        id: "kpi-1",
+        type: "builtin.kpi",
+        frame: { x: 40, y: 40, width: 280, height: 160, z_index: 0 },
+        state: { locked: false, hidden: false },
+        props: { label: "销售额" },
+        style: {},
+        data_binding: {
+          chart_spec: {
+            schema_version: 1,
+            dataset_id: "sales",
+            dimensions: [],
+            measures: [{ field: "amount", aggregation: "sum" }],
+            filters: [],
+            sort: [],
+            limit: 1000,
+            visual: { type: "kpi", title: "销售额" },
+          },
+        },
+        interactions: [],
+      },
+    ],
+    parameters: [],
+    refresh: { mode: "disabled", interval_seconds: null },
+    theme: { id: "datapulse-dark", tokens: {} },
+  };
   const requests: Array<{ url: string; method: string; body?: unknown }> = [];
   vi.stubGlobal(
     "fetch",
@@ -186,50 +216,12 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
           jsonResponse({
             explanation: "建议使用 1 个 KPI 和 1 张趋势图。",
             warnings: [],
-            document: {
-              schema_version: 1,
-              canvas: { width: 1920, height: 1080, background: {} },
-              components: [
-                {
-                  id: "kpi-1",
-                  type: "builtin.kpi",
-                  frame: { x: 40, y: 40, width: 280, height: 160, z_index: 0 },
-                  state: { locked: false, hidden: false },
-                  props: { label: "销售额" },
-                  style: {},
-                  data_binding: {
-                    chart_spec: {
-                      schema_version: 1,
-                      dataset_id: "sales",
-                      dimensions: [],
-                      measures: [{ field: "amount", aggregation: "sum" }],
-                      filters: [],
-                      sort: [],
-                      limit: 1000,
-                      visual: { type: "kpi", title: "销售额" },
-                    },
-                  },
-                  interactions: [],
-                },
-              ],
-              parameters: [],
-              refresh: { mode: "disabled", interval_seconds: null },
-              theme: { id: "datapulse-dark", tokens: {} },
-            },
+            document: generatedDocument,
           }),
         );
       }
       if (url === "/api/admin/screens" && method === "POST") {
         return Promise.resolve(jsonResponse(created, 201));
-      }
-      if (url === "/api/admin/screens/screen-ai" && method === "PATCH") {
-        return Promise.resolve(
-          jsonResponse({
-            ...created,
-            draft_revision: 1,
-            draft_document: JSON.parse(String(init?.body)).draft_document,
-          }),
-        );
       }
       throw new Error(`Unexpected request: ${url}`);
     }),
@@ -273,8 +265,16 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
     body: {
       name: "AI 经营总览",
       description: "",
+      draft_document: generatedDocument,
     },
   });
+  expect(
+    requests.filter(
+      (request) =>
+        request.url === "/api/admin/screens" && request.method === "POST",
+    ),
+  ).toHaveLength(1);
+  expect(requests.some((request) => request.method === "PATCH")).toBe(false);
   expect(requests.some((request) => request.url.endsWith("/publish"))).toBe(false);
   expect(router.currentRoute.value.fullPath).toBe(
     "/studio/screens/screen-ai/edit",

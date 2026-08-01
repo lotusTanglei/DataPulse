@@ -126,6 +126,32 @@ def test_screen_draft_save_rejects_stale_revision(screen_app: AppClient) -> None
     assert stale.json()["error"]["code"] == "SCREEN_REVISION_CONFLICT"
 
 
+def test_screen_create_accepts_initial_document(screen_app: AppClient) -> None:
+    setup_admin(screen_app)
+    document = {
+        "canvas": {"width": 1440, "height": 900},
+        "components": [
+            {
+                "id": "text-1",
+                "type": "builtin.text",
+                "frame": {"x": 40, "y": 40, "width": 320, "height": 120},
+            }
+        ],
+    }
+
+    response = screen_app.client.post(
+        "/api/admin/screens",
+        json={"name": "Generated", "draft_document": document},
+        headers=mutation_headers(screen_app),
+    )
+
+    assert response.status_code == 201
+    created = response.json()
+    assert created["draft_revision"] == 0
+    assert created["draft_document"]["canvas"]["width"] == 1440
+    assert created["draft_document"]["components"][0]["id"] == "text-1"
+
+
 def test_screen_publish_requires_csrf_and_matching_revision(
     screen_app: AppClient,
 ) -> None:

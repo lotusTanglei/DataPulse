@@ -18,7 +18,6 @@ import {
   createScreen,
   deleteScreen,
   listScreens,
-  updateScreen,
 } from "./api";
 import type { ScreenSummary } from "./types";
 
@@ -130,10 +129,7 @@ async function submitAiCreate(payload: {
     const created = await createScreen({
       name: payload.name,
       description: "",
-    });
-    await updateScreen(created.id, {
       draft_document: payload.result.document,
-      expected_revision: created.draft_revision,
     });
     aiCreateOpen.value = false;
     await router.push(`/studio/screens/${created.id}/edit`);

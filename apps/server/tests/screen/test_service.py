@@ -44,6 +44,20 @@ async def test_service_creates_default_screen_and_updates_metadata(
     assert updated.draft_revision == 0
 
 
+async def test_service_creates_screen_with_initial_document(
+    screen_repository: ScreenRepository,
+) -> None:
+    service = ScreenService(repository=screen_repository)
+    document = document_with_components()
+
+    created = await service.create(
+        ScreenCreate(name="Generated", draft_document=document)
+    )
+
+    assert created.draft_document == document
+    assert created.draft_revision == 0
+
+
 async def test_service_saves_draft_with_optimistic_revision(
     screen_repository: ScreenRepository,
 ) -> None:

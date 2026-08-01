@@ -28,7 +28,7 @@ class ScreenService:
     async def create(self, data: ScreenCreate) -> ScreenResponse:
         return await self._repository.create(
             data.name,
-            _empty_document(),
+            data.draft_document or _empty_document(),
             description=data.description,
             screen_id=self._id_factory(),
         )
