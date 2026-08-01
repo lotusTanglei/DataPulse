@@ -282,6 +282,8 @@ watch(
   display: grid;
   gap: 16px;
   width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 
 .ai-screen-dialog__form,

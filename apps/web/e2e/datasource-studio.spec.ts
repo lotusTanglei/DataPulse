@@ -1,31 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-const adminPassword = "datapulse-e2e-password";
+import { adminPassword, authenticate } from "./helpers.js";
 
 test("administrator can configure and analyze a SQLite datasource", async ({
   page,
 }) => {
-  await page.goto("/studio");
-  await expect(
-    page.getByRole("heading", { name: "初始化 DataPulse" }),
-  ).toBeVisible();
-
-  await page.getByLabel("初始化代码").fill("e2e-setup-code");
-  await page.getByLabel("管理员用户名").fill("admin");
-  await page.getByLabel("密码", { exact: true }).fill(adminPassword);
-  await page.getByLabel("确认密码").fill(adminPassword);
-  await page
-    .getByRole("button", { name: "创建管理员并进入工作区" })
-    .click();
-  await expect(page).toHaveURL(/\/studio\/datasources$/);
-  await expect(page.locator("body")).not.toContainText(adminPassword);
-
-  await page.getByRole("button", { name: "退出管理员账号" }).click();
-  await expect(page).toHaveURL(/\/studio\/login$/);
-  await page.getByLabel("用户名").fill("admin");
-  await page.getByLabel("密码").fill(adminPassword);
-  await page.getByRole("button", { name: "登录", exact: true }).click();
-  await expect(page).toHaveURL(/\/studio\/datasources$/);
+  await authenticate(page);
+  await page.goto("/studio/datasources");
 
   await page.getByRole("link", { name: "新建数据源" }).first().click();
   await page.getByLabel("数据源名称").fill("销售数据库");

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from datapulse.ai.gateway import AiGateway
 from datapulse.app import create_app
 from datapulse.settings import Settings
 from tests.support.app import migrate_database
@@ -47,3 +48,27 @@ def test_startup_rejects_unmigrated_metadata_database(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="alembic upgrade head"):
         with TestClient(app):
             pass
+
+
+def test_lifespan_closes_ai_gateway(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    database_path = tmp_path / "datapulse.db"
+    migrate_database(database_path)
+    closed: list[AiGateway] = []
+
+    async def close(gateway: AiGateway) -> None:
+        closed.append(gateway)
+
+    monkeypatch.setattr(AiGateway, "aclose", close)
+    app = create_app(
+        Settings(
+            environment="test",
+            data_dir=tmp_path,
+            database_url=f"sqlite+aiosqlite:///{database_path}",
+            bootstrap_code_override="test-code",
+        )
+    )
+
+    with TestClient(app):
+        assert app.state.ai_gateway.health().status == "unconfigured"
+
+    assert closed == [app.state.ai_gateway]

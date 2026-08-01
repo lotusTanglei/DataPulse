@@ -111,7 +111,7 @@ class AiGateway:
         for attempt in range(2):
             try:
                 response = await self._client.post(
-                    "/chat/completions",
+                    "chat/completions",
                     headers=self._headers(),
                     json=self._payload(system=system, user=user),
                     timeout=self._timeout_seconds,

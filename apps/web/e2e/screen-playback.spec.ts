@@ -30,9 +30,9 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
 }) => {
   test.setTimeout(90_000);
   const queryFailures: string[] = [];
-  page.on("response", async (response) => {
+  page.on("response", (response) => {
     if (response.url().includes("/query") && !response.ok()) {
-      queryFailures.push(`${response.status()} ${await response.text()}`);
+      queryFailures.push(`${response.status()} ${response.url()}`);
     }
   });
   await authenticate(page);

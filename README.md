@@ -13,6 +13,8 @@ DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源
 - 数据库密码加密保存，响应与页面不回显明文密码
 - Schema 按需浏览、只读 SQL 校验、参数绑定、超时/行数/并发限制
 - 数据集保存、编辑和运行预览
+- CSV、Excel、JSON、Parquet 文件数据集，包含 Sheet 选择、样例预览和维护
+- AI 自然语言分析、图表建议和整张大屏草稿生成
 - 1920 × 1080 大屏画布、拖拽缩放、图层、撤销/重做和自动保存
 - 文本、图片、指标、表格、进度、折线图、柱状图、饼图和地图组件
 - 数据绑定、全局参数、点击联动、10/30/60/300 秒定时刷新
@@ -22,7 +24,8 @@ DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源
 - `@datapulse/embed-sdk` 的刷新、参数、全屏、错误回调和多实例通信
 - Vue 3 Studio 与 FastAPI 单镜像交付，容器启动自动执行 Alembic 迁移
 
-DuckDB、本地文件导入、查询缓存、组件插件和 AI 自然语言分析将在后续阶段实现。
+当前不包含多用户协作、复杂权限、模板市场和组件市场。AI 生成结果只会写入
+草稿，不会自动发布；发布仍需管理员在编辑器中明确确认。
 
 ## 环境要求
 
@@ -78,6 +81,41 @@ docker compose cp ./sales.db datapulse:/data/sources/sales.db
 ```
 
 生产环境连接 PostgreSQL、MySQL 或 MariaDB 时，建议创建专用只读数据库账号，并只授予所需 Schema 的查询权限。
+
+## 文件数据集与 DuckDB
+
+Studio 可以上传 CSV、Excel（`.xlsx`）、JSON 对象数组和 Parquet 文件。上传后会
+显示最多 100 行样例；Excel 会列出工作簿中的 Sheet，并允许在创建数据集前切换
+预览。文件数据集创建后可以修改名称、最大行数和查询超时。删除数据集不会自动
+删除源文件；仍被数据集引用的文件不能删除。
+
+DuckDB 只负责 DataPulse 托管文件的本地分析查询。SQLite、PostgreSQL、MySQL /
+MariaDB 等外部数据库始终走各自的原生异步连接器，DuckDB 不充当数据库代理。
+文件路径由服务端控制，接口不会返回存储绝对路径。相关资源限制可通过
+`DATAPULSE_FILE_MAX_BYTES`、`DATAPULSE_FILE_MAX_ROWS`、
+`DATAPULSE_DUCKDB_THREADS`、`DATAPULSE_DUCKDB_MEMORY_LIMIT` 和
+`DATAPULSE_DUCKDB_TIMEOUT_SECONDS` 配置。
+
+## AI 分析与大屏生成
+
+DataPulse 使用 OpenAI-compatible `/chat/completions` 接口。默认关闭 AI；启用时
+至少配置以下变量：
+
+```bash
+DATAPULSE_AI_ENABLED=true
+DATAPULSE_AI_BASE_URL=https://your-ai-provider.example/v1
+DATAPULSE_AI_API_KEY=replace-with-secret
+DATAPULSE_AI_MODEL=your-model
+DATAPULSE_AI_TIMEOUT_SECONDS=30
+DATAPULSE_AI_MAX_CONTEXT_ROWS=100
+```
+
+单次分析或整屏生成最多选择 8 个数据集，问题最长 4000 字符；每个数据集发送给
+模型的上下文最多 100 行和 50 个字段。上下文包含数据集名称、字段结构和受限的
+样例数据，因此使用第三方模型服务前必须确认数据分类、脱敏、跨境传输和供应商
+留存策略符合组织要求。API Key、数据库连接密码和文件绝对路径不会放入模型
+上下文。模型返回的字段、数据集、组件类型和画布边界都会由服务端再次校验，
+非法输出不会创建草稿。
 
 ## 大屏播放与系统嵌入
 

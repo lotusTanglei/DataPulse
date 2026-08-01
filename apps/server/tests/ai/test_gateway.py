@@ -91,7 +91,7 @@ async def test_gateway_posts_openai_compatible_json_request() -> None:
 
     assert response.narrative == "销售额整体上升。"
     assert len(client.calls) == 1
-    assert client.calls[0]["url"] == "/chat/completions"
+    assert client.calls[0]["url"] == "chat/completions"
     assert client.calls[0]["headers"] == {
         "Authorization": "Bearer super-secret",
         "Content-Type": "application/json",
