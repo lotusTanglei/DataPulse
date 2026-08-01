@@ -46,6 +46,7 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
         "admin_session",
         "data_source",
         "dataset",
+        "file_asset",
         "query_run",
         "screen",
         "screen_asset",
@@ -60,6 +61,12 @@ def test_upgrade_head_creates_expected_tables(tmp_path: Path) -> None:
     assert columns["created_at"] == ("DATETIME", False)
     assert columns["updated_at"] == ("DATETIME", False)
     assert ("name",) in inspect_sqlite_unique_indexes(database_path, "screen")
+    dataset_columns = inspect_sqlite_columns(database_path, "dataset")
+    assert dataset_columns["data_source_id"] == ("VARCHAR(36)", True)
+    file_columns = inspect_sqlite_columns(database_path, "file_asset")
+    assert file_columns["format"] == ("VARCHAR(16)", False)
+    assert file_columns["storage_path"] == ("TEXT", False)
+    assert file_columns["fields_json"] == ("JSON", False)
     display_columns = inspect_sqlite_columns(database_path, "display_access")
     assert display_columns["key_hash"] == ("VARCHAR(64)", False)
     assert display_columns["key_version"] == ("INTEGER", False)

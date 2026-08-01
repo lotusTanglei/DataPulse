@@ -32,6 +32,9 @@ from datapulse.embedding.page import install_ticket_redaction_filter
 from datapulse.embedding.repository import EmbedAccessRepository
 from datapulse.embedding.service import EmbedService
 from datapulse.embedding.tokens import EmbedTicketCodec
+from datapulse.filedata.repository import FileAssetRepository
+from datapulse.filedata.service import FileAssetService
+from datapulse.filedata.storage import FileStorage
 from datapulse.metadata import create_metadata_engine, create_session_factory
 from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
@@ -73,6 +76,7 @@ def create_lifespan(
         settings.data_dir.resolve().mkdir(parents=True, exist_ok=True)
         settings.resolved_sources_dir().mkdir(parents=True, exist_ok=True)
         settings.resolved_assets_dir().mkdir(parents=True, exist_ok=True)
+        settings.resolved_files_dir().mkdir(parents=True, exist_ok=True)
 
         engine = create_metadata_engine(settings)
         datasource_engine_manager = EngineManager()
@@ -128,6 +132,10 @@ def create_lifespan(
                 repository=dataset_repository,
                 datasource_service=app.state.datasource_service,
                 registry=connector_registry,
+            )
+            app.state.file_asset_service = FileAssetService(
+                repository=FileAssetRepository(session_factory),
+                storage=FileStorage(settings),
             )
             screen_repository = ScreenRepository(session_factory)
             app.state.screen_service = ScreenService(
