@@ -6,7 +6,14 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue"
 import ComponentHost from "../../runtime/ComponentHost.vue";
 import { defaultComponentRegistry } from "../../runtime/registry";
 import type { ComponentInstance } from "./commands";
-import { snapToGrid, translateFrame } from "./geometry";
+import {
+  alignFrames,
+  distributeFrames,
+  selectionBounds as getSelectionBounds,
+  snapFrame,
+  snapToGrid,
+  translateFrame,
+} from "./geometry";
 import { useScreenEditorStore } from "./store";
 
 type Alignment = "left" | "center" | "right" | "top" | "middle" | "bottom";
@@ -24,6 +31,11 @@ const store = useScreenEditorStore();
 const host = ref<HTMLElement | null>(null);
 const canvas = ref<HTMLElement | null>(null);
 const zoom = ref(0.5);
+const showGrid = ref(true);
+const snapEnabled = ref(true);
+const hoveredId = ref<string | null>(null);
+const activeGuides = ref<ReturnType<typeof snapFrame>["guides"]>([]);
+const activeOverlapIds = ref<string[]>([]);
 let clipboard: string[] = [];
 let selecto: Selecto | null = null;
 let moveable: Moveable | null = null;
@@ -41,26 +53,28 @@ const selectedComponents = computed(() => {
   );
 });
 const selectionBounds = computed(() => {
-  if (selectedComponents.value.length === 0) {
-    return null;
+  return getSelectionBounds(
+    selectedComponents.value.map((component) => component.frame),
+  );
+});
+const overlapIds = computed(() => {
+  const ids = new Set(activeOverlapIds.value);
+  if (!store.document) {
+    return ids;
   }
-  const left = Math.min(
-    ...selectedComponents.value.map((component) => component.frame.x),
-  );
-  const top = Math.min(
-    ...selectedComponents.value.map((component) => component.frame.y),
-  );
-  const right = Math.max(
-    ...selectedComponents.value.map(
-      (component) => component.frame.x + component.frame.width,
-    ),
-  );
-  const bottom = Math.max(
-    ...selectedComponents.value.map(
-      (component) => component.frame.y + component.frame.height,
-    ),
-  );
-  return { x: left, y: top, width: right - left, height: bottom - top };
+  for (const component of selectedComponents.value) {
+    const siblings = visibleComponents.value
+      .filter((item) => item.id !== component.id)
+      .map((item) => ({ id: item.id, frame: item.frame }));
+    for (const id of snapFrame(
+      { id: component.id, frame: component.frame },
+      { canvas: store.document.canvas, siblings },
+      { enabled: false },
+    ).overlapIds) {
+      ids.add(id);
+    }
+  }
+  return ids;
 });
 const canvasStyle = computed(() => ({
   width: `${store.document?.canvas.width ?? 1920}px`,
@@ -91,6 +105,7 @@ function editable(ids: string[]): ComponentInstance[] {
 function commitDrag(
   ids: string[],
   delta: { dx: number; dy: number },
+  finalPositions?: Record<string, { x: number; y: number }>,
 ): void {
   if (!store.document) {
     return;
@@ -105,8 +120,10 @@ function commitDrag(
       return [
         component.id,
         {
-          x: snapToGrid(translated.x),
-          y: snapToGrid(translated.y),
+          x: finalPositions?.[component.id]?.x ??
+            (snapEnabled.value ? snapToGrid(translated.x) : translated.x),
+          y: finalPositions?.[component.id]?.y ??
+            (snapEnabled.value ? snapToGrid(translated.y) : translated.y),
         },
       ];
     }),
@@ -134,34 +151,57 @@ function commitResize(id: string, width: number, height: number): void {
 
 function alignSelection(alignment: Alignment): void {
   const components = editable(store.selection);
-  if (components.length < 2 || !selectionBounds.value) {
+  if (components.length < 2) {
     return;
   }
-  const bounds = selectionBounds.value;
-  const patches = Object.fromEntries(
-    components.map((component) => {
-      const patch =
-        alignment === "left"
-          ? { x: bounds.x }
-          : alignment === "center"
-            ? { x: bounds.x + (bounds.width - component.frame.width) / 2 }
-            : alignment === "right"
-              ? { x: bounds.x + bounds.width - component.frame.width }
-              : alignment === "top"
-                ? { y: bounds.y }
-                : alignment === "middle"
-                  ? {
-                      y:
-                        bounds.y +
-                        (bounds.height - component.frame.height) / 2,
-                    }
-                  : {
-                      y: bounds.y + bounds.height - component.frame.height,
-                    };
-      return [component.id, patch];
-    }),
+  store.dispatch({
+    type: "update_frames",
+    patches: alignFrames(
+      components.map((component) => ({ id: component.id, frame: component.frame })),
+      alignment,
+    ),
+  });
+}
+
+function distributeSelection(axis: "horizontal" | "vertical"): void {
+  const components = editable(store.selection);
+  if (components.length < 3) {
+    return;
+  }
+  store.dispatch({
+    type: "update_frames",
+    patches: distributeFrames(
+      components.map((component) => ({ id: component.id, frame: component.frame })),
+      axis,
+    ),
+  });
+}
+
+function groupSelection(): void {
+  const ids = editable(store.selection).map((component) => component.id);
+  if (ids.length < 2) {
+    return;
+  }
+  store.dispatch({
+    type: "group_components",
+    component_ids: ids,
+    group_id: props.idFactory(),
+  });
+}
+
+function ungroupSelection(): void {
+  const groupIds = new Set(
+    editable(store.selection)
+      .map((component) => component.state?.group_id)
+      .filter((groupId): groupId is string => Boolean(groupId)),
   );
-  store.dispatch({ type: "update_frames", patches });
+  if (groupIds.size === 0) {
+    return;
+  }
+  const ids = (store.document?.components ?? [])
+    .filter((component) => component.state?.group_id && groupIds.has(component.state.group_id))
+    .map((component) => component.id);
+  store.dispatch({ type: "ungroup_components", component_ids: ids });
 }
 
 function copySelection(): void {
@@ -212,13 +252,55 @@ function fitToViewport(width: number, height: number): void {
 }
 
 function selectComponent(id: string, event: MouseEvent): void {
+  if (event.altKey && canvas.value) {
+    const rect = canvas.value.getBoundingClientRect();
+    const point = {
+      x: (event.clientX - rect.left) / zoom.value,
+      y: (event.clientY - rect.top) / zoom.value,
+    };
+    const underPointer = visibleComponents.value
+      .filter(
+        (component) =>
+          point.x >= component.frame.x &&
+          point.x <= component.frame.x + component.frame.width &&
+          point.y >= component.frame.y &&
+          point.y <= component.frame.y + component.frame.height,
+      )
+      .sort(
+        (first, second) =>
+          (second.frame.z_index ?? 0) - (first.frame.z_index ?? 0),
+      );
+    const currentIndex = underPointer.findIndex(
+      (component) => component.id === store.selection[0],
+    );
+    const next = underPointer[(currentIndex + 1) % underPointer.length];
+    if (next) {
+      store.selection = [next.id];
+    }
+    return;
+  }
+  const component = componentById(id);
+  const groupId = component?.state?.group_id;
+  const groupMembers = groupId
+    ? visibleComponents.value
+        .filter((item) => item.state?.group_id === groupId)
+        .map((item) => item.id)
+    : [id];
   if (event.metaKey || event.ctrlKey || event.shiftKey) {
     store.selection = store.selection.includes(id)
       ? store.selection.filter((selectedId) => selectedId !== id)
-      : [...store.selection, id];
+      : [...store.selection, ...groupMembers.filter((memberId) => !store.selection.includes(memberId))];
   } else {
-    store.selection = [id];
+    store.selection = groupMembers;
   }
+}
+
+function toggleGrid(): void {
+  showGrid.value = !showGrid.value;
+}
+
+function toggleSnap(): void {
+  snapEnabled.value = !snapEnabled.value;
 }
 
 function keyboard(event: KeyboardEvent): void {
@@ -232,6 +314,27 @@ function keyboard(event: KeyboardEvent): void {
   } else if (modifier && event.key.toLowerCase() === "v") {
     event.preventDefault();
     pasteSelection();
+  } else if (modifier && event.key.toLowerCase() === "g") {
+    event.preventDefault();
+    event.shiftKey ? ungroupSelection() : groupSelection();
+  } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+    const distance = event.shiftKey ? 10 : 1;
+    const delta = {
+      x: event.key === "ArrowLeft" ? -distance : event.key === "ArrowRight" ? distance : 0,
+      y: event.key === "ArrowUp" ? -distance : event.key === "ArrowDown" ? distance : 0,
+    };
+    const ids = editable(store.selection).map((component) => component.id);
+    if (ids.length > 0) {
+      event.preventDefault();
+      commitDrag(ids, { dx: delta.x, dy: delta.y });
+    }
   } else if (
     event.key === "Delete" ||
     (event.key === "Backspace" &&
@@ -281,9 +384,7 @@ onMounted(() => {
       draggable: true,
       resizable: true,
       origin: false,
-      snappable: true,
-      snapGridWidth: 10,
-      snapGridHeight: 10,
+      snappable: false,
     });
     moveable.on("dragStart", (event) => {
       interactionStartFrames.clear();
@@ -293,9 +394,30 @@ onMounted(() => {
       event.datas.startFrames = new Map(interactionStartFrames);
     });
     moveable.on("drag", (event) => {
+      const id = event.target.getAttribute("data-canvas-component");
+      const start = id ? interactionStartFrames.get(id) : undefined;
+      const current = id ? componentById(id) : undefined;
+      if (!id || !start || !current || !store.document) {
+        return;
+      }
+      const siblings = visibleComponents.value
+        .filter((component) => component.id !== id)
+        .map((component) => ({ id: component.id, frame: component.frame }));
+      const inputEvent = event.inputEvent as MouseEvent | TouchEvent | undefined;
+      const disableSnap = inputEvent instanceof MouseEvent && inputEvent.altKey;
+      const snapped = snapFrame(
+        {
+          id,
+          frame: { ...current.frame, x: event.left, y: event.top },
+        },
+        { canvas: store.document.canvas, siblings },
+        { enabled: snapEnabled.value && !disableSnap },
+      );
+      activeGuides.value = snapped.guides;
+      activeOverlapIds.value = snapped.overlapIds;
       const target = event.target as HTMLElement;
-      target.style.left = `${event.left}px`;
-      target.style.top = `${event.top}px`;
+      target.style.left = `${snapped.frame.x}px`;
+      target.style.top = `${snapped.frame.y}px`;
     });
     moveable.on("dragEnd", (event) => {
       const id = event.target.getAttribute("data-canvas-component");
@@ -305,10 +427,16 @@ onMounted(() => {
         const left = Number.parseFloat(target.style.left);
         const top = Number.parseFloat(target.style.top);
         if (Number.isFinite(left) && Number.isFinite(top)) {
-          commitDrag([id], { dx: left - start.x, dy: top - start.y });
+          commitDrag(
+            [id],
+            { dx: left - start.x, dy: top - start.y },
+            { [id]: { x: left, y: top } },
+          );
         }
       }
       interactionStartFrames.clear();
+      activeGuides.value = [];
+      activeOverlapIds.value = [];
       void updateMoveableTargets();
     });
     moveable.on("resize", (event) => {
@@ -328,6 +456,8 @@ onMounted(() => {
       if (id && Number.isFinite(width) && Number.isFinite(height)) {
         commitResize(id, width, height);
       }
+      activeGuides.value = [];
+      activeOverlapIds.value = [];
       void updateMoveableTargets();
     });
     void updateMoveableTargets();
@@ -360,10 +490,17 @@ defineExpose({
   commitDrag,
   commitResize,
   copySelection,
+  distributeSelection,
   fitToViewport,
   pasteSelection,
   selectionBounds,
   setZoom,
+  groupSelection,
+  ungroupSelection,
+  showGrid,
+  snapEnabled,
+  toggleGrid,
+  toggleSnap,
   zoom,
 });
 </script>
@@ -371,7 +508,24 @@ defineExpose({
 <template>
   <div ref="host" class="screen-canvas-host">
     <div class="screen-canvas-stage" :style="stageStyle">
-      <div ref="canvas" class="screen-canvas" :style="canvasStyle">
+      <div
+        ref="canvas"
+        class="screen-canvas"
+        :class="{ 'has-grid': showGrid }"
+        :style="canvasStyle"
+      >
+        <div
+          v-for="(guide, index) in activeGuides"
+          :key="`${guide.orientation}-${guide.position}-${index}`"
+          class="canvas-guide"
+          :class="`is-${guide.orientation}`"
+          :style="
+            guide.orientation === 'vertical'
+              ? { left: `${guide.position}px`, top: 0, height: `${store.document?.canvas.height ?? 1080}px` }
+              : { top: `${guide.position}px`, left: 0, width: `${store.document?.canvas.width ?? 1920}px` }
+          "
+          data-canvas-guide
+        />
         <button
           v-for="component in visibleComponents"
           :key="component.id"
@@ -379,6 +533,8 @@ defineExpose({
           :class="{
             'is-selected': store.selection.includes(component.id),
             'is-locked': component.state?.locked,
+            'is-hovered': hoveredId === component.id,
+            'is-overlapped': overlapIds.has(component.id),
           }"
           type="button"
           :data-canvas-component="component.id"
@@ -389,8 +545,16 @@ defineExpose({
             height: `${component.frame.height}px`,
             zIndex: component.frame.z_index ?? 0,
           }"
+          @mouseenter="hoveredId = component.id"
+          @mouseleave="hoveredId = null"
           @click.stop="selectComponent(component.id, $event)"
         >
+          <span
+            v-if="hoveredId === component.id || store.selection.includes(component.id) || overlapIds.has(component.id)"
+            class="canvas-component-label"
+          >
+            {{ defaultComponentRegistry.get(component.type)?.label ?? component.type }}
+          </span>
           <ComponentHost
             :definition="defaultComponentRegistry.get(component.type)"
             :instance="component"

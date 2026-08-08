@@ -213,6 +213,17 @@
     "RestQuery": {
       "additionalProperties": false,
       "properties": {
+        "body": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JsonValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "kind": {
           "const": "rest",
           "default": "rest",
@@ -232,26 +243,12 @@
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
           },
-          "default": {},
           "title": "Query",
           "type": "object"
-        },
-        "body": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/JsonValue"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Body"
         },
         "response_path": {
           "anyOf": [
             {
-              "minLength": 1,
               "type": "string"
             },
             {

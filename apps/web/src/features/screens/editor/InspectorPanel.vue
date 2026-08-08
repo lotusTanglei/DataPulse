@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 
+import type { ChartSpec } from "../../../contracts";
 import { listDatasets } from "../../datasets/api";
 import type { Dataset } from "../../datasets/types";
 import { defaultComponentRegistry } from "../../runtime/registry";
@@ -8,6 +9,7 @@ import type { JsonValue } from "../../query/types";
 import { useScreenEditorStore } from "./store";
 
 type Aggregation = "sum" | "avg" | "min" | "max" | "count";
+type InspectorTab = "base" | "data" | "style" | "interaction" | "advanced";
 
 const store = useScreenEditorStore();
 const datasets = ref<Dataset[]>([]);
@@ -19,6 +21,7 @@ const accent = ref("#3b82f6");
 const background = ref("#0b1020");
 const clickField = ref("");
 const clickParameter = ref("");
+const activeTab = ref<InspectorTab>("base");
 const selected = computed(() => {
   if (store.selection.length !== 1) {
     return null;
@@ -43,7 +46,55 @@ const supportsInteraction = computed(() =>
   ["series", "geo"].includes(selectedDefinition.value?.dataCapability ?? ""),
 );
 
+const persistedChartSpec = computed<ChartSpec | null>(() => {
+  const value = selected.value?.data_binding?.chart_spec;
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+  return value as unknown as ChartSpec;
+});
+
+function syncInspectorFromSelection(): void {
+  const chartSpec = persistedChartSpec.value;
+  datasetId.value = typeof chartSpec?.dataset_id === "string"
+    ? chartSpec.dataset_id
+    : "";
+
+  const availableFields = fields.value.map((field) => field.name);
+  const persistedDimension = chartSpec?.dimensions?.[0];
+  const persistedMeasure = chartSpec?.measures?.[0]?.field;
+  dimension.value = availableFields.includes(persistedDimension ?? "")
+    ? persistedDimension!
+    : availableFields[0] ?? "";
+  measure.value = availableFields.includes(persistedMeasure ?? "")
+    ? persistedMeasure!
+    : availableFields[1] ?? availableFields[0] ?? "";
+  aggregation.value = chartSpec?.measures?.[0]?.aggregation ?? "sum";
+
+  const clickInteraction = selected.value?.interactions?.find(
+    (interaction) =>
+      interaction.event === "click" && interaction.action === "set_parameter",
+  );
+  clickField.value = clickInteraction?.field ?? dimension.value;
+  clickParameter.value = clickInteraction?.parameter ?? "";
+
+  const accentToken = store.document?.theme?.tokens?.screen_accent;
+  const backgroundColor = store.document?.canvas?.background?.color;
+  accent.value = typeof accentToken === "string" ? accentToken : "#3b82f6";
+  background.value =
+    typeof backgroundColor === "string" ? backgroundColor : "#0b1020";
+}
+
+watch([selected, datasets], syncInspectorFromSelection, { immediate: true });
+
+watch(selected, () => {
+  activeTab.value = supportsData.value ? "data" : "base";
+});
+
 watch(datasetId, () => {
+  if (persistedChartSpec.value?.dataset_id === datasetId.value) {
+    return;
+  }
   dimension.value = fields.value[0]?.name ?? "";
   measure.value = fields.value[1]?.name ?? fields.value[0]?.name ?? "";
   clickField.value = dimension.value;
@@ -154,7 +205,26 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
     <h2>属性</h2>
     <p v-if="!selected" class="editor-panel-empty">选择一个组件后编辑属性。</p>
     <template v-else>
-      <div class="inspector-section">
+      <nav class="inspector-tabs" aria-label="属性分类">
+        <button
+          v-for="tab in [
+            { id: 'base', label: '基础' },
+            ...(supportsData ? [{ id: 'data', label: '数据' }] : []),
+            { id: 'style', label: '样式' },
+            ...(supportsInteraction ? [{ id: 'interaction', label: '交互' }] : []),
+            { id: 'advanced', label: '高级' },
+          ]"
+          :key="tab.id"
+          class="inspector-tab"
+          :class="{ 'is-active': activeTab === tab.id }"
+          type="button"
+          :data-inspector-tab="tab.id"
+          @click="activeTab = tab.id as InspectorTab"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
+      <div v-show="activeTab === 'base'" class="inspector-section">
         <strong>{{ selected.type }}</strong>
         <label>
           X
@@ -217,7 +287,7 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
           />
         </label>
       </div>
-      <div v-if="supportsData" class="inspector-section">
+      <div v-if="supportsData" v-show="activeTab === 'data'" class="inspector-section">
         <strong>数据</strong>
         <label class="inspector-field--wide">
           数据集
@@ -246,7 +316,7 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
         </label>
         <label class="inspector-field--wide">
           聚合
-          <select v-model="aggregation">
+          <select v-model="aggregation" data-inspector-aggregation>
             <option value="sum">求和</option>
             <option value="avg">平均</option>
             <option value="min">最小</option>
@@ -264,7 +334,7 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
           应用数据绑定
         </button>
       </div>
-      <div class="inspector-section">
+      <div v-show="activeTab === 'style'" class="inspector-section">
         <strong>主题与背景</strong>
         <label>
           强调色
@@ -282,7 +352,7 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
           应用主题
         </button>
       </div>
-      <div v-if="supportsInteraction" class="inspector-section">
+      <div v-if="supportsInteraction" v-show="activeTab === 'interaction'" class="inspector-section">
         <strong>交互</strong>
         <label>
           点击字段
@@ -313,6 +383,10 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
         >
           应用点击联动
         </button>
+      </div>
+      <div v-show="activeTab === 'advanced'" class="inspector-section inspector-advanced-hint">
+        <strong>高级</strong>
+        <p>组件级错误、刷新策略和事件动作将在此处逐步扩展。</p>
       </div>
     </template>
   </section>

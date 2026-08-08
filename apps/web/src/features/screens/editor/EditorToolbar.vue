@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import {
   AlignCenter,
+  AlignCenterHorizontal,
+  AlignCenterVertical,
   AlignLeft,
+  AlignRight,
   ArrowLeft,
   Eye,
+  Grid3X3,
+  Magnet,
   Redo2,
   Save,
   Send,
+  Space,
   Undo2,
   ZoomIn,
   ZoomOut,
@@ -15,12 +21,25 @@ import { RouterLink } from "vue-router";
 
 import { useScreenEditorStore } from "./store";
 
-withDefaults(
-  defineProps<{ publishing?: boolean; saveLabel: string; zoom: number }>(),
-  { publishing: false },
+  withDefaults(
+  defineProps<{
+    publishing?: boolean;
+    saveLabel: string;
+    zoom: number;
+    showGrid?: boolean;
+    snapEnabled?: boolean;
+    selectionCount?: number;
+    canUngroup?: boolean;
+  }>(),
+  { publishing: false, showGrid: true, snapEnabled: true, selectionCount: 0, canUngroup: false },
 );
 const emit = defineEmits<{
-  align: [alignment: "left" | "center"];
+  align: [alignment: "left" | "center" | "right" | "top" | "middle" | "bottom"];
+  distribute: [axis: "horizontal" | "vertical"];
+  toggleGrid: [];
+  toggleSnap: [];
+  group: [];
+  ungroup: [];
   publish: [];
   zoom: [value: number];
 }>();
@@ -42,6 +61,70 @@ const store = useScreenEditorStore();
     </button>
     <button class="editor-icon-button" type="button" aria-label="水平居中" @click="emit('align', 'center')">
       <AlignCenter :size="15" />
+    </button>
+    <button class="editor-icon-button" type="button" aria-label="右对齐" @click="emit('align', 'right')">
+      <AlignRight :size="15" />
+    </button>
+    <button
+      class="editor-icon-button editor-text-tool"
+      type="button"
+      aria-label="组合"
+      :disabled="selectionCount < 2"
+      @click="emit('group')"
+    >
+      组合
+    </button>
+    <button
+      class="editor-icon-button editor-text-tool"
+      type="button"
+      aria-label="取消组合"
+      :disabled="!canUngroup"
+      @click="emit('ungroup')"
+    >
+      取消组合
+    </button>
+    <button class="editor-icon-button" type="button" aria-label="顶部对齐" @click="emit('align', 'top')">
+      <AlignCenterHorizontal :size="15" />
+    </button>
+    <button class="editor-icon-button" type="button" aria-label="垂直居中" @click="emit('align', 'middle')">
+      <AlignCenterVertical :size="15" />
+    </button>
+    <button class="editor-icon-button" type="button" aria-label="底部对齐" @click="emit('align', 'bottom')">
+      <AlignCenterHorizontal :size="15" />
+    </button>
+    <button
+      class="editor-icon-button"
+      type="button"
+      aria-label="水平等间距"
+      @click="emit('distribute', 'horizontal')"
+    >
+      <Space :size="15" />
+    </button>
+    <button
+      class="editor-icon-button"
+      type="button"
+      aria-label="垂直等间距"
+      @click="emit('distribute', 'vertical')"
+    >
+      <Space :size="15" />
+    </button>
+    <button
+      class="editor-icon-button"
+      type="button"
+      aria-label="网格"
+      :class="{ 'is-active': showGrid }"
+      @click="emit('toggleGrid')"
+    >
+      <Grid3X3 :size="15" />
+    </button>
+    <button
+      class="editor-icon-button"
+      type="button"
+      aria-label="吸附"
+      :class="{ 'is-active': snapEnabled }"
+      @click="emit('toggleSnap')"
+    >
+      <Magnet :size="15" />
     </button>
     <button class="editor-icon-button" type="button" aria-label="缩小" @click="emit('zoom', zoom - 0.1)">
       <ZoomOut :size="15" />

@@ -29,6 +29,7 @@ class Frame(ContractModel):
 class ComponentState(ContractModel):
     locked: bool = False
     hidden: bool = False
+    group_id: NonBlankStr | None = None
 
 
 class ComponentInteraction(ContractModel):

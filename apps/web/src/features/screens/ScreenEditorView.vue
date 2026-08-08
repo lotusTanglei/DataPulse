@@ -47,6 +47,12 @@ const selectedComponent = computed(() => {
     (component) => component.id === store.selection[0],
   ) ?? null;
 });
+const canUngroupSelection = computed(() =>
+  store.selection.some((id) => {
+    const component = store.document?.components?.find((item) => item.id === id);
+    return Boolean(component?.state?.group_id);
+  }),
+);
 const selectedDefinition = computed(() =>
   selectedComponent.value
     ? defaultComponentRegistry.get(selectedComponent.value.type)
@@ -120,7 +126,7 @@ async function confirmPublish(): Promise<void> {
     );
     store.screen = published as never;
     publishConfirmationOpen.value = false;
-    publishMessage.value = "发布成功";
+    publishMessage.value = "发布完成";
     usagePanelOpen.value = true;
     displayKey.value = "";
     usageError.value = "";
@@ -174,8 +180,17 @@ async function copyText(value: string): Promise<void> {
         :save-label="saveLabel"
         :publishing="publishing"
         :zoom="canvas?.zoom ?? 0.5"
+        :show-grid="canvas?.showGrid ?? true"
+        :snap-enabled="canvas?.snapEnabled ?? true"
+        :selection-count="store.selection.length"
+        :can-ungroup="canUngroupSelection"
         @align="canvas?.alignSelection($event)"
+        @distribute="canvas?.distributeSelection($event)"
+        @group="canvas?.groupSelection()"
         @publish="requestPublish"
+        @toggle-grid="canvas?.toggleGrid()"
+        @toggle-snap="canvas?.toggleSnap()"
+        @ungroup="canvas?.ungroupSelection()"
         @zoom="canvas?.setZoom($event)"
       />
 

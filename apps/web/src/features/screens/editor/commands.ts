@@ -18,6 +18,12 @@ type Refresh = NonNullable<DashboardDocument["refresh"]>;
 export type EditorCommand =
   | { type: "add_component"; component: ComponentInstance }
   | {
+      type: "group_components";
+      component_ids: string[];
+      group_id: string;
+    }
+  | { type: "ungroup_components"; component_ids: string[] }
+  | {
       type: "replace_component";
       component_id: string;
       component: ComponentInstance;
@@ -122,6 +128,33 @@ export function applyCommand(
       next.components = [...components(next), structuredClone(command.component)];
       break;
     }
+    case "group_components": {
+      if (command.component_ids.length < 2) {
+        throw new EditorCommandError("A group must contain at least two components.");
+      }
+      assertKnownIds(next, command.component_ids);
+      next.components = patchComponents(
+        next,
+        command.component_ids,
+        (component) => ({
+          ...component,
+          state: { ...(component.state ?? {}), group_id: command.group_id },
+        }),
+      );
+      break;
+    }
+    case "ungroup_components":
+      assertKnownIds(next, command.component_ids);
+      next.components = patchComponents(
+        next,
+        command.component_ids,
+        (component) => {
+          const state = { ...(component.state ?? {}) };
+          delete state.group_id;
+          return { ...component, state };
+        },
+      );
+      break;
     case "replace_component":
       if (command.component.id !== command.component_id) {
         throw new EditorCommandError(

@@ -120,6 +120,19 @@
     "ComponentState": {
       "additionalProperties": false,
       "properties": {
+        "group_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group Id"
+        },
         "hidden": {
           "default": false,
           "title": "Hidden",

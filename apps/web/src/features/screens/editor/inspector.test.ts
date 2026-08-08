@@ -42,8 +42,8 @@ const screen: Screen = {
   published_document: null,
   draft_document: {
     schema_version: 1,
-    canvas: { width: 1920, height: 1080, background: {} },
-    theme: { id: "datapulse-dark", tokens: {} },
+    canvas: { width: 1920, height: 1080, background: { color: "#101827" } },
+    theme: { id: "datapulse-dark", tokens: { screen_accent: "#22c55e" } },
     parameters: [
       {
         id: "region",
@@ -59,8 +59,22 @@ const screen: Screen = {
         type: "builtin.bar",
         frame: { x: 40, y: 40, width: 640, height: 360 },
         props: {},
-        data_binding: {},
-        interactions: [],
+        data_binding: {
+          chart_spec: {
+            dataset_id: "sales",
+            dimensions: ["region"],
+            measures: [{ field: "amount", aggregation: "avg" }],
+            visual: { type: "bar" },
+          },
+        },
+        interactions: [
+          {
+            event: "click",
+            action: "set_parameter",
+            field: "region",
+            parameter: "region",
+          },
+        ],
       },
     ],
   },
@@ -160,6 +174,30 @@ test("visible data form applies selected dataset fields", async () => {
       }
     ).dataset_id,
   ).toBe("sales");
+});
+
+test("inspector restores persisted data binding when selecting a component", async () => {
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  expect(
+    (wrapper.get('[data-inspector-dataset]').element as HTMLSelectElement).value,
+  ).toBe("sales");
+  expect(
+    (wrapper.get('[data-inspector-dimension]').element as HTMLSelectElement).value,
+  ).toBe("region");
+  expect(
+    (wrapper.get('[data-inspector-measure]').element as HTMLSelectElement).value,
+  ).toBe("amount");
+  expect(
+    (wrapper.get('[data-inspector-aggregation]').element as HTMLSelectElement).value,
+  ).toBe("avg");
+  expect((wrapper.find('input[type="color"]').element as HTMLInputElement).value).toBe(
+    "#22c55e",
+  );
+  expect(
+    (wrapper.findAll('input[type="color"]')[1].element as HTMLInputElement).value,
+  ).toBe("#101827");
 });
 
 test("non-data image components hide chart binding and click interaction", () => {

@@ -31,12 +31,8 @@ export type Kind2 = "file";
 export type SheetName = string | null;
 export type Kind3 = "rest";
 export type Method = "GET" | "POST";
-export type Url = string;
-export type Query1 = {
-  [k: string]: JsonValue;
-};
-export type Body = JsonValue | null;
 export type ResponsePath = string | null;
+export type Url = string;
 export type Cron = string | null;
 export type IntervalSeconds = number | null;
 export type Mode1 = "manual" | "interval" | "cron";
@@ -94,12 +90,15 @@ export interface FileQuery {
   sheet_name?: SheetName;
 }
 export interface RestQuery {
-  body?: Body;
+  body?: JsonValue | null;
   kind?: Kind3;
   method?: Method;
   query?: Query1;
   response_path?: ResponsePath;
   url: Url;
+}
+export interface Query1 {
+  [k: string]: JsonValue;
 }
 export interface RefreshPolicy {
   cron?: Cron;

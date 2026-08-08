@@ -20,6 +20,7 @@ export type Event = "click";
 export type Field = string;
 export type Parameter = string;
 export type Interactions = ComponentInteraction[];
+export type GroupId = string | null;
 export type Hidden = boolean;
 export type Locked = boolean;
 export type Type = string;
@@ -81,6 +82,7 @@ export interface Props {
   [k: string]: JsonValue;
 }
 export interface ComponentState {
+  group_id?: GroupId;
   hidden?: Hidden;
   locked?: Locked;
 }

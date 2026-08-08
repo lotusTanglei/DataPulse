@@ -109,6 +109,38 @@ test("component commands add, duplicate, patch, reorder, lock, hide, and remove"
   });
 });
 
+test("group commands preserve component data and can be undone", () => {
+  const initial = documentWithText();
+  initial.components!.push({
+    id: "text-2",
+    type: "builtin.text",
+    frame: { x: 400, y: 40, width: 320, height: 120, z_index: 1 },
+    state: { locked: false, hidden: false },
+    props: { text: "第二个文本" },
+    style: { color: "#fff" },
+    data_binding: {},
+    interactions: [],
+  });
+  const history = new EditorHistory(initial);
+  history.execute({
+    type: "group_components",
+    component_ids: ["text-1", "text-2"],
+    group_id: "group-1",
+  });
+  expect(history.current.components?.map((item) => item.state?.group_id)).toEqual([
+    "group-1",
+    "group-1",
+  ]);
+  expect(history.current.components?.[1]?.style).toEqual({ color: "#fff" });
+  history.execute({
+    type: "ungroup_components",
+    component_ids: ["text-1", "text-2"],
+  });
+  expect(history.current.components?.every((item) => !item.state?.group_id)).toBe(true);
+  history.undo();
+  expect(history.current.components?.every((item) => item.state?.group_id === "group-1")).toBe(true);
+});
+
 test("document commands update canvas, theme, refresh, and parameters immutably", () => {
   const initial = documentWithText();
   const result = [

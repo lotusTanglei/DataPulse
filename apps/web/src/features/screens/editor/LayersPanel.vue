@@ -14,7 +14,13 @@ const layers = computed(() =>
 );
 
 function select(id: string): void {
-  store.selection = [id];
+  const component = store.document?.components?.find((item) => item.id === id);
+  const groupId = component?.state?.group_id;
+  store.selection = groupId
+    ? (store.document?.components ?? [])
+        .filter((item) => item.state?.group_id === groupId)
+        .map((item) => item.id)
+    : [id];
 }
 
 function toggleHidden(id: string, hidden: boolean): void {
@@ -66,7 +72,10 @@ defineExpose({ moveLayer });
       @click="select(layer.id)"
       @keydown.enter="select(layer.id)"
     >
-      <span>{{ defaultComponentRegistry.get(layer.type)?.label ?? layer.type }}</span>
+      <span>
+        <small v-if="layer.state?.group_id" class="layer-group-badge">组</small>
+        {{ defaultComponentRegistry.get(layer.type)?.label ?? layer.type }}
+      </span>
       <button
         type="button"
         aria-label="移到最底层"
