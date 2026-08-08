@@ -113,6 +113,11 @@ function testRouter(): Router {
         component: { template: "<div />" },
       },
       {
+        path: "/studio/datasets/api/new",
+        name: "dataset-api-new",
+        component: { template: "<div />" },
+      },
+      {
         path: "/studio/datasets",
         component: { template: "<div />" },
       },

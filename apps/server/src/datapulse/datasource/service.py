@@ -3,14 +3,18 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from datapulse.contracts.common import JsonValue
+from datapulse.contracts.dataset import RestQuery
 from datapulse.datasource.connector import (
     Connector,
     ConnectorSecret,
     NamespaceInfo,
+    QueryPolicy,
     RelationInfo,
     RelationSchema,
 )
 from datapulse.datasource.engine_manager import EngineManager
+from datapulse.datasource.http_api import HttpApiConnector
 from datapulse.datasource.models import (
     DatasourceCreate,
     DatasourceResponse,
@@ -301,3 +305,32 @@ class DatasourceService:
             request=query_request,
             request_id=request_id,
         )
+
+    async def rest_query(
+        self,
+        datasource_id: str,
+        query: RestQuery,
+        *,
+        parameters: dict[str, JsonValue],
+        max_rows: int,
+        timeout_seconds: int,
+        request_id: str,
+    ) -> QueryResult:
+        datasource, connector, secret = await self._connection_context(datasource_id)
+        if not isinstance(connector, HttpApiConnector):
+            raise DataPulseError(
+                code="DATASET_QUERY_SOURCE_INVALID",
+                message="REST queries require an HTTP API datasource.",
+                status_code=422,
+            )
+        try:
+            return await connector.execute_rest(
+                datasource.config,
+                secret,
+                query,
+                parameters=parameters,
+                policy=QueryPolicy(max_rows=max_rows, timeout_seconds=timeout_seconds),
+                request_id=request_id,
+            )
+        except Exception as error:
+            raise translate_connector_error(error, request_id) from error

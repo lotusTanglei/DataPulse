@@ -3,12 +3,12 @@ from pathlib import Path
 
 import pytest
 
-from datapulse.contracts.dataset import DataType, FileFormat
+from datapulse.contracts.dataset import DataType, FileFormat, RestQuery
 from datapulse.contracts.filedata import FileDatasetCreate
 from datapulse.dataset.models import DatasetCreate, DatasetUpdate
 from datapulse.dataset.repository import DatasetRepository
 from datapulse.dataset.service import DatasetService, DatasetUpdateInvalid
-from datapulse.datasource.models import DatasourceCreate, SQLiteConfig
+from datapulse.datasource.models import DatasourceCreate, HttpApiConfig, SQLiteConfig
 from datapulse.datasource.registry import ConnectorRegistry
 from datapulse.datasource.repository import DatasourceNotFound, DatasourceRepository
 from datapulse.filedata.repository import FileAssetRepository
@@ -25,11 +25,18 @@ class DialectConnector:
 
 
 @dataclass
+class ApiConnector:
+    type: str = "http_api"
+    dialect: str = "http_api"
+
+
+@dataclass
 class FakeDatasourceService:
     source: object
     result: QueryResult
     error: Exception | None = None
     requests: list[QueryRequest] = field(default_factory=list)
+    rest_requests: list[RestQuery] = field(default_factory=list)
 
     async def get(self, datasource_id: str) -> object:
         if datasource_id != self.source.id:
@@ -47,6 +54,22 @@ class FakeDatasourceService:
     ) -> QueryResult:
         del datasource_id, request_id, dataset_id, trigger
         self.requests.append(request)
+        if self.error is not None:
+            raise self.error
+        return self.result
+
+    async def rest_query(
+        self,
+        datasource_id: str,
+        *,
+        query: RestQuery,
+        parameters: dict[str, object],
+        max_rows: int,
+        timeout_seconds: int,
+        request_id: str,
+    ) -> QueryResult:
+        del datasource_id, parameters, max_rows, timeout_seconds, request_id
+        self.rest_requests.append(query)
         if self.error is not None:
             raise self.error
         return self.result
@@ -123,6 +146,40 @@ async def test_save_query_previews_infers_fields_and_persists_definition(
     assert created.definition.fields[1].name == "sales"
     assert created.definition.fields[1].data_type is DataType.NUMBER
     assert datasource_service.requests[0].sql == created.definition.query.sql
+    assert await repository.list() == (created,)
+
+
+async def test_save_rest_query_previews_and_persists_definition(
+    datasource_repository: DatasourceRepository,
+    metadata_session_factory: object,
+) -> None:
+    repository = DatasetRepository(metadata_session_factory)
+    source = await datasource_repository.create(
+        "http-source",
+        DatasourceCreate(
+            name="HTTP API",
+            config=HttpApiConfig(base_url="https://api.example.com"),
+        ),
+    )
+    datasource_service = FakeDatasourceService(source=source, result=preview_result())
+    service = DatasetService(
+        repository=repository,
+        datasource_service=datasource_service,
+        registry=ConnectorRegistry([ApiConnector()]),
+        id_factory=lambda: "rest-dataset-1",
+    )
+
+    created = await service.create(
+        DatasetCreate(
+            name="Remote report",
+            data_source_id=source.id,
+            query=RestQuery(url="https://api.example.com/report", response_path="data"),
+        ),
+        request_id="rest-save-1",
+    )
+
+    assert created.definition.query.kind == "rest"
+    assert datasource_service.rest_requests[0].response_path == "data"
     assert await repository.list() == (created,)
 
 

@@ -21,6 +21,7 @@ from datapulse.auth.session import SessionService
 from datapulse.dataset.repository import DatasetRepository
 from datapulse.dataset.service import DatasetService
 from datapulse.datasource.engine_manager import EngineManager
+from datapulse.datasource.http_api import HttpApiConnector
 from datapulse.datasource.mysql import MySQLConnector
 from datapulse.datasource.postgresql import PostgreSQLConnector
 from datapulse.datasource.registry import ConnectorRegistry
@@ -114,6 +115,7 @@ def create_lifespan(
                     SQLiteConnector(settings),
                     PostgreSQLConnector(),
                     MySQLConnector(),
+                    HttpApiConnector(),
                 ]
             )
             query_executor = QueryExecutor(

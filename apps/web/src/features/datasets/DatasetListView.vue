@@ -83,6 +83,10 @@ onBeforeUnmount(() => controller.abort());
           <Plus :size="15" aria-hidden="true" />
           导入文件
         </RouterLink>
+        <RouterLink class="secondary-button" to="/studio/datasets/api/new">
+          <Plus :size="15" aria-hidden="true" />
+          API 数据集
+        </RouterLink>
         <RouterLink class="primary-button" to="/studio/datasources">
           <Plus :size="15" aria-hidden="true" />
           从数据源创建

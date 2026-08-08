@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import Field, HttpUrl
+from pydantic import Field, HttpUrl, field_validator
 
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 
@@ -44,6 +44,16 @@ class RestQuery(ContractModel):
     kind: Literal["rest"] = "rest"
     method: Literal["GET", "POST"] = "GET"
     url: HttpUrl
+    query: dict[str, JsonValue] = Field(default_factory=dict)
+    body: JsonValue | None = None
+    response_path: str | None = None
+
+    @field_validator("response_path")
+    @classmethod
+    def _validate_response_path(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("response_path must not be blank")
+        return value
 
 
 QueryDefinition = Annotated[

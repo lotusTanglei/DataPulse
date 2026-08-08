@@ -20,7 +20,7 @@ from datapulse.contracts.ai import (
 )
 from datapulse.contracts.chart import Aggregation, ChartSpec, ChartType, FilterOperator
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
-from datapulse.contracts.dataset import FileQuery, SqlQuery
+from datapulse.contracts.dataset import FileQuery, RestQuery, SqlQuery
 from datapulse.dataset.models import DatasetResponse
 from datapulse.dataset.repository import (
     DatasetDefinitionInvalid,
@@ -30,6 +30,7 @@ from datapulse.dataset.repository import (
 from datapulse.datasource.registry import ConnectorRegistry
 from datapulse.datasource.repository import DatasourceNotFound
 from datapulse.datasource.service import DatasourceService
+from datapulse.errors import DataPulseError
 from datapulse.filedata.duckdb_executor import FileQueryExecutionError
 from datapulse.filedata.parsers import FileParseInvalid, parse_file
 from datapulse.filedata.query import FileDatasetQueryService
@@ -115,6 +116,7 @@ class AiService:
             ParameterValidationError,
             QueryExecutionError,
             FileQueryExecutionError,
+            DataPulseError,
         ) as error:
             raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.") from error
 
@@ -248,6 +250,29 @@ class AiService:
             source_path=parsed.normalized_path,
         )
 
+    async def _preview_rest(
+        self,
+        *,
+        dataset: DatasetResponse,
+        request_id: str,
+    ) -> QueryResult:
+        if self._datasource_service is None:
+            raise RuntimeError("REST dataset services are not configured")
+        query = dataset.definition.query
+        if not isinstance(query, RestQuery):
+            raise AiAnalysisError("AI_CHART_INVALID", "The chart is invalid.")
+        return await self._datasource_service.rest_query(
+            dataset.data_source_id,
+            query,
+            parameters={
+                parameter.name: parameter.default
+                for parameter in dataset.definition.parameters
+            },
+            max_rows=self._default_limit(dataset),
+            timeout_seconds=dataset.definition.timeout_seconds,
+            request_id=request_id,
+        )
+
     async def _validate_and_preview(
         self,
         *,
@@ -271,6 +296,11 @@ class AiService:
                     request_id=request_id,
                     trigger=trigger,
                 )
+            if isinstance(dataset.definition.query, RestQuery):
+                return await self._preview_rest(
+                    dataset=dataset,
+                    request_id=request_id,
+                )
             raise AiAnalysisError("AI_CHART_INVALID", "The chart is invalid.")
         except (
             ChartQueryInvalid,
@@ -279,6 +309,7 @@ class AiService:
             QueryExecutionError,
             FileQueryExecutionError,
             FileParseInvalid,
+            DataPulseError,
         ) as error:
             raise AiAnalysisError("AI_CHART_INVALID", "The chart is invalid.") from error
         except (

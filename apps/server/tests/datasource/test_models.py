@@ -9,6 +9,7 @@ from datapulse.datasource.models import (
     DatasourceResponse,
     DatasourceStatus,
     DatasourceUpdate,
+    HttpApiConfig,
     MySQLConfig,
     PostgreSQLConfig,
     SQLiteConfig,
@@ -53,6 +54,17 @@ def test_connector_defaults_are_explicit() -> None:
     assert postgresql.ssl_mode == "prefer"
     assert mysql.port == 3306
     assert mysql.ssl_mode == "preferred"
+
+
+def test_http_api_auth_requires_secret_on_create() -> None:
+    with pytest.raises(ValidationError):
+        DatasourceCreate(
+            name="Remote",
+            config=HttpApiConfig(
+                base_url="https://api.example.com",
+                auth_type="bearer",
+            ),
+        )
 
 
 @pytest.mark.parametrize(

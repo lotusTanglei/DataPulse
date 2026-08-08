@@ -9,6 +9,7 @@ import {
 import LoginView from "../features/auth/LoginView.vue";
 import SetupView from "../features/auth/SetupView.vue";
 import DatasetListView from "../features/datasets/DatasetListView.vue";
+import ApiDatasetCreateView from "../features/datasets/ApiDatasetCreateView.vue";
 import FileDatasetCreateView from "../features/datasets/FileDatasetCreateView.vue";
 import DatasourceDetailView from "../features/datasources/DatasourceDetailView.vue";
 import DatasourceFormView from "../features/datasources/DatasourceFormView.vue";
@@ -135,6 +136,15 @@ export function createStudioRouter(options: StudioRouterOptions): Router {
             meta: {
               title: "导入文件数据集",
               description: "上传文件并生成可复用的数据集。",
+            },
+          },
+          {
+            path: "datasets/api/new",
+            name: "dataset-api-new",
+            component: ApiDatasetCreateView,
+            meta: {
+              title: "创建 API 数据集",
+              description: "将 JSON 接口保存为可复用数据集。",
             },
           },
           {

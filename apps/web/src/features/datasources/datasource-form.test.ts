@@ -109,6 +109,55 @@ test("switches between connector-specific fields and resets their defaults", asy
   ).toBe("preferred");
 });
 
+test("creates an HTTP API datasource without exposing its credential in config", async () => {
+  let submitted: unknown;
+  const fetchMock = authenticatedFetch(async (url, init) => {
+    if (url === "/api/admin/datasources" && init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return jsonResponse({
+        id: "http-source",
+        name: "订单 API",
+        config: {
+          type: "http_api",
+          base_url: "https://api.example.com/v1",
+          auth_type: "bearer",
+          api_key_header: "X-API-Key",
+          username: null,
+        },
+        status: "unknown",
+        has_password: true,
+        last_checked_at: null,
+        last_latency_ms: null,
+        last_error_code: null,
+        created_at: "2026-08-09T00:00:00Z",
+        updated_at: "2026-08-09T00:00:00Z",
+      }, 201);
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  });
+  const { wrapper, router } = await mountForm("/studio/datasources/new", fetchMock);
+  await wrapper.get('select[name="connectorType"]').setValue("http_api");
+  await wrapper.get('input[name="name"]').setValue("订单 API");
+  await wrapper.get('input[name="base_url"]').setValue("https://api.example.com/v1");
+  await wrapper.get('select[name="auth_type"]').setValue("bearer");
+  await wrapper.get('input[name="password"]').setValue("secret-token");
+  await wrapper.get("form").trigger("submit");
+  await flushPromises();
+
+  expect(submitted).toEqual({
+    name: "订单 API",
+    config: {
+      type: "http_api",
+      base_url: "https://api.example.com/v1",
+      auth_type: "bearer",
+      api_key_header: "X-API-Key",
+      username: null,
+    },
+    password: "secret-token",
+  });
+  expect(router.currentRoute.value.fullPath).toBe("/studio/datasources/http-source");
+});
+
 test("does not expose datasource credentials as login autofill targets on create", async () => {
   const { wrapper } = await mountForm(
     "/studio/datasources/new",

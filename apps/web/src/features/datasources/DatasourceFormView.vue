@@ -13,6 +13,7 @@ import type {
   MySQLConfig,
   PostgreSQLConfig,
   SQLiteConfig,
+  HttpApiConfig,
 } from "./types";
 
 interface SQLiteForm {
@@ -45,7 +46,18 @@ interface MySQLForm {
   clear_password: boolean;
 }
 
-type DatasourceForm = SQLiteForm | PostgreSQLForm | MySQLForm;
+interface HttpApiForm {
+  type: "http_api";
+  name: string;
+  base_url: string;
+  auth_type: HttpApiConfig["auth_type"];
+  api_key_header: string;
+  username: string;
+  password: string;
+  clear_password: boolean;
+}
+
+type DatasourceForm = SQLiteForm | PostgreSQLForm | MySQLForm | HttpApiForm;
 
 const route = useRoute();
 const router = useRouter();
@@ -85,6 +97,18 @@ function blankForm(type: ConnectorType, name = ""): DatasourceForm {
       clear_password: false,
     };
   }
+  if (type === "http_api") {
+    return {
+      type,
+      name,
+      base_url: "",
+      auth_type: "none",
+      api_key_header: "X-API-Key",
+      username: "",
+      password: "",
+      clear_password: false,
+    };
+  }
   return {
     type,
     name,
@@ -104,6 +128,15 @@ function formFromDatasource(datasource: Datasource): DatasourceForm {
       type: "sqlite",
       name: datasource.name,
       path: datasource.config.path,
+    };
+  }
+  if (datasource.config.type === "http_api") {
+    return {
+      ...datasource.config,
+      name: datasource.name,
+      username: datasource.config.username ?? "",
+      password: "",
+      clear_password: false,
     };
   }
   return {
@@ -132,6 +165,29 @@ function validate(): boolean {
       errors.path = "路径不能包含上级目录";
     } else if (path === "" || path === ".") {
       errors.path = "请输入 SQLite 文件路径";
+    }
+  } else if (current.type === "http_api") {
+    if (current.base_url.trim() === "") {
+      errors.base_url = "请输入 API 基础地址";
+    } else {
+      try {
+        const parsed = new URL(current.base_url.trim());
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          errors.base_url = "仅支持 HTTP 或 HTTPS 地址";
+        }
+      } catch {
+        errors.base_url = "请输入有效的 API 地址";
+      }
+    }
+    if (current.auth_type === "api_key" && current.api_key_header.trim() === "") {
+      errors.api_key_header = "请输入 API Key 请求头名称";
+    }
+    if (current.auth_type === "basic" && current.username.trim() === "") {
+      errors.username = "Basic 认证需要用户名";
+    }
+    if (isEdit.value && current.password !== "" && current.clear_password) {
+      errors.password = "新凭据与清除凭据不能同时设置";
+      errors.clear_password = "新凭据与清除凭据不能同时设置";
     }
   } else {
     if (current.host.trim() === "") {
@@ -175,6 +231,16 @@ function configFromForm(current: DatasourceForm): DatasourceConfig {
       database: current.database.trim(),
       username: current.username.trim(),
       ssl_mode: current.ssl_mode,
+    };
+    return config;
+  }
+  if (current.type === "http_api") {
+    const config: HttpApiConfig = {
+      type: "http_api",
+      base_url: current.base_url.trim(),
+      auth_type: current.auth_type,
+      api_key_header: current.api_key_header.trim() || "X-API-Key",
+      username: current.auth_type === "basic" ? current.username.trim() : null,
     };
     return config;
   }
@@ -308,6 +374,7 @@ onMounted(loadDatasource);
                 <option value="sqlite">SQLite</option>
                 <option value="postgresql">PostgreSQL</option>
                 <option value="mysql">MySQL / MariaDB</option>
+                <option value="http_api">HTTP API</option>
               </select>
             </FormField>
           </div>
@@ -336,6 +403,82 @@ onMounted(loadDatasource);
                 autocomplete="off"
               />
             </FormField>
+          </div>
+
+          <div v-else-if="model.type === 'http_api'" class="form-grid">
+            <FormField
+              label="API 基础地址"
+              name="base_url"
+              hint="例如 https://api.example.com/v1"
+              :error="fieldError('base_url')"
+              required
+              data-field="base_url"
+            >
+              <input
+                id="base_url"
+                v-model="model.base_url"
+                name="base_url"
+                type="url"
+                autocomplete="off"
+                placeholder="https://api.example.com/v1"
+              />
+            </FormField>
+            <FormField label="认证方式" name="auth_type" required>
+              <select id="auth_type" v-model="model.auth_type" name="auth_type">
+                <option value="none">无认证</option>
+                <option value="bearer">Bearer Token</option>
+                <option value="api_key">API Key</option>
+                <option value="basic">Basic Auth</option>
+              </select>
+            </FormField>
+            <FormField
+              v-if="model.auth_type === 'api_key'"
+              label="API Key 请求头"
+              name="api_key_header"
+              :error="fieldError('api_key_header')"
+              required
+            >
+              <input
+                id="api_key_header"
+                v-model="model.api_key_header"
+                name="api_key_header"
+                autocomplete="off"
+                placeholder="X-API-Key"
+              />
+            </FormField>
+            <FormField
+              v-if="model.auth_type === 'basic'"
+              label="Basic 用户名"
+              name="username"
+              :error="fieldError('username')"
+              required
+            >
+              <input
+                id="username"
+                v-model="model.username"
+                name="username"
+                autocomplete="new-password"
+              />
+            </FormField>
+            <FormField
+              v-if="model.auth_type !== 'none'"
+              label="Token / 密码"
+              name="password"
+              :hint="isEdit ? '留空则保留现有凭据' : '凭据只会在服务端加密保存'"
+              :error="fieldError('password')"
+            >
+              <input
+                id="password"
+                v-model="model.password"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+              />
+            </FormField>
+            <label v-if="isEdit && model.auth_type !== 'none'" class="checkbox-field">
+              <input v-model="model.clear_password" type="checkbox" name="clear_password" />
+              <span><strong>清除已保存凭据</strong></span>
+            </label>
           </div>
 
           <div v-else class="form-grid">

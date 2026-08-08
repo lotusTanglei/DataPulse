@@ -179,6 +179,12 @@ async def preview_relation(
         )
     except DatasourceNotFound as error:
         _raise_repository_error(error)
+    except QueryExecutionError as error:
+        raise DataPulseError(
+            code=error.code,
+            message="The relation preview could not be executed.",
+            status_code=error.status_code,
+        ) from error
 
 
 @router.post(

@@ -142,6 +142,7 @@ async def create_dataset(
         DatasetNameConflict,
         DatasetSourceNotFound,
         DatasourceNotFound,
+        DatasetUpdateInvalid,
     ) as error:
         _raise_dataset_error(error)
     except (QueryValidationError, ParameterValidationError, QueryExecutionError) as error:

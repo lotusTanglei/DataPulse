@@ -24,6 +24,7 @@ const typeLabels: Record<ConnectorType, string> = {
   sqlite: "SQLite",
   postgresql: "PostgreSQL",
   mysql: "MySQL / MariaDB",
+  http_api: "HTTP API",
 };
 
 const statusLabels: Record<DatasourceStatus, string> = {
@@ -41,6 +42,9 @@ const statusAriaLabels: Record<DatasourceStatus, string> = {
 function address(config: DatasourceConfig): string {
   if (config.type === "sqlite") {
     return config.path;
+  }
+  if (config.type === "http_api") {
+    return config.base_url;
   }
   return `${config.host}:${config.port}/${config.database}`;
 }
@@ -154,7 +158,7 @@ onMounted(load);
         <Plus :size="20" />
       </div>
       <h2>还没有数据源</h2>
-      <p>添加 SQLite、PostgreSQL 或 MySQL / MariaDB 连接。</p>
+      <p>添加 SQLite、PostgreSQL、MySQL / MariaDB 或 HTTP API 连接。</p>
       <RouterLink class="secondary-button" to="/studio/datasources/new">
         新建数据源
       </RouterLink>

@@ -1,4 +1,4 @@
-export type ConnectorType = "sqlite" | "postgresql" | "mysql";
+export type ConnectorType = "sqlite" | "postgresql" | "mysql" | "http_api";
 export type DatasourceStatus = "unknown" | "available" | "unavailable";
 
 export interface SQLiteConfig {
@@ -30,10 +30,19 @@ export interface MySQLConfig {
   ssl_mode: "disabled" | "preferred" | "required";
 }
 
+export interface HttpApiConfig {
+  type: "http_api";
+  base_url: string;
+  auth_type: "none" | "bearer" | "api_key" | "basic";
+  api_key_header: string;
+  username: string | null;
+}
+
 export type DatasourceConfig =
   | SQLiteConfig
   | PostgreSQLConfig
-  | MySQLConfig;
+  | MySQLConfig
+  | HttpApiConfig;
 
 export interface Datasource {
   id: string;

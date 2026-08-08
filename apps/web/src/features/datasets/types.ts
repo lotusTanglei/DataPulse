@@ -29,6 +29,14 @@ export interface DatasetDefinition {
         asset_id: string;
         format: "csv" | "excel" | "json" | "parquet";
         sheet_name: string | null;
+      }
+    | {
+        kind: "rest";
+        method: "GET" | "POST";
+        url: string;
+        query: Record<string, JsonValue>;
+        body: JsonValue | null;
+        response_path: string | null;
       };
   fields: DatasetField[];
   parameters: DatasetParameter[];
@@ -57,7 +65,15 @@ export interface Dataset {
 export interface DatasetCreatePayload {
   name: string;
   data_source_id: string;
-  sql: string;
+  sql?: string;
+  query?: {
+    kind: "rest";
+    method: "GET" | "POST";
+    url: string;
+    query: Record<string, JsonValue>;
+    body: JsonValue | null;
+    response_path: string | null;
+  };
   parameters: DatasetParameter[];
   max_rows: number;
   timeout_seconds: number;
@@ -66,6 +82,7 @@ export interface DatasetCreatePayload {
 export interface DatasetUpdatePayload {
   name?: string;
   sql?: string;
+  query?: DatasetCreatePayload["query"];
   parameters?: DatasetParameter[];
   max_rows?: number;
   timeout_seconds?: number;

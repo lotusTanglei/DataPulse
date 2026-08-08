@@ -3,7 +3,7 @@ from enum import StrEnum
 from pathlib import PurePosixPath
 from typing import Annotated, Literal
 
-from pydantic import Field, SecretStr, field_validator, model_validator
+from pydantic import Field, HttpUrl, SecretStr, field_validator, model_validator
 
 from datapulse.contracts.common import ContractModel, NonBlankStr
 
@@ -12,6 +12,7 @@ class ConnectorType(StrEnum):
     SQLITE = "sqlite"
     POSTGRESQL = "postgresql"
     MYSQL = "mysql"
+    HTTP_API = "http_api"
 
 
 class DatasourceStatus(StrEnum):
@@ -65,8 +66,22 @@ class MySQLConfig(ContractModel):
     ssl_mode: Literal["disabled", "preferred", "required"] = "preferred"
 
 
+class HttpApiConfig(ContractModel):
+    """Connection metadata for an HTTP JSON API.
+
+    The credential itself is intentionally not part of this model.  It is stored
+    in the datasource secret envelope and provided to the connector at runtime.
+    """
+
+    type: Literal[ConnectorType.HTTP_API] = ConnectorType.HTTP_API
+    base_url: HttpUrl
+    auth_type: Literal["none", "bearer", "api_key", "basic"] = "none"
+    api_key_header: NonBlankStr = "X-API-Key"
+    username: NonBlankStr | None = None
+
+
 DatasourceConfig = Annotated[
-    SQLiteConfig | PostgreSQLConfig | MySQLConfig,
+    SQLiteConfig | PostgreSQLConfig | MySQLConfig | HttpApiConfig,
     Field(discriminator="type"),
 ]
 
@@ -75,6 +90,15 @@ class DatasourceCreate(ContractModel):
     name: NonBlankStr
     config: DatasourceConfig
     password: SecretStr | None = None
+
+    @model_validator(mode="after")
+    def validate_http_api_credentials(self) -> "DatasourceCreate":
+        if isinstance(self.config, HttpApiConfig):
+            if self.config.auth_type == "basic" and not self.config.username:
+                raise ValueError("username is required for basic HTTP API authentication")
+            if self.config.auth_type != "none" and self.password is None:
+                raise ValueError("password is required for authenticated HTTP API datasources")
+        return self
 
 
 class DatasourceUpdate(ContractModel):

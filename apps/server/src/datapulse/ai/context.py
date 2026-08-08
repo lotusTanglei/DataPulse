@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from datapulse.ai.models import DatasetContext, DatasetContextField
 from datapulse.contracts.common import JsonValue
-from datapulse.contracts.dataset import FileQuery, SqlQuery
+from datapulse.contracts.dataset import FileQuery, RestQuery, SqlQuery
 from datapulse.dataset.models import DatasetResponse
 from datapulse.dataset.repository import DatasetRepository
 from datapulse.datasource.registry import ConnectorRegistry
@@ -86,6 +86,22 @@ class DatasetContextService:
             timeout_seconds=dataset.definition.timeout_seconds,
         )
 
+    async def _preview_rest(self, dataset: DatasetResponse, *, max_rows: int) -> QueryResult:
+        query = dataset.definition.query
+        if not isinstance(query, RestQuery):
+            raise RuntimeError("REST dataset query is invalid")
+        return await self._datasource_service.rest_query(
+            dataset.data_source_id,
+            query,
+            parameters={
+                parameter.name: parameter.default
+                for parameter in dataset.definition.parameters
+            },
+            max_rows=min(max_rows, dataset.definition.max_rows),
+            timeout_seconds=dataset.definition.timeout_seconds,
+            request_id=str(uuid4()),
+        )
+
     async def build(
         self,
         dataset_ids: tuple[str, ...],
@@ -99,6 +115,8 @@ class DatasetContextService:
                 preview = await self._preview_sql(dataset, max_rows=max_rows)
             elif isinstance(dataset.definition.query, FileQuery):
                 preview = await self._preview_file(dataset, max_rows=max_rows)
+            elif isinstance(dataset.definition.query, RestQuery):
+                preview = await self._preview_rest(dataset, max_rows=max_rows)
             else:
                 raise ValueError("Unsupported dataset query type.")
             field_limit = dataset.definition.fields[:50]

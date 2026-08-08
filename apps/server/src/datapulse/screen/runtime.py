@@ -11,6 +11,7 @@ from datapulse.contracts.dashboard import (
     DashboardDocument,
     DashboardParameter,
 )
+from datapulse.contracts.dataset import RestQuery
 from datapulse.dataset.models import DatasetResponse
 from datapulse.filedata.parsers import parse_file
 from datapulse.filedata.query import FileDatasetQueryService
@@ -65,6 +66,17 @@ class _DatasourceService(Protocol):
         request_id: str,
         dataset_id: str | None = None,
         trigger: str = "debug",
+    ) -> QueryResult: ...
+
+    async def rest_query(
+        self,
+        datasource_id: str,
+        query: RestQuery,
+        *,
+        parameters: dict[str, JsonValue],
+        max_rows: int,
+        timeout_seconds: int,
+        request_id: str,
     ) -> QueryResult: ...
 
 
@@ -190,6 +202,15 @@ class ScreenRuntimeService:
                 parameters=runtime_parameters,
                 request_id=request_id,
                 source_path=parsed.normalized_path,
+            )
+        if dataset.definition.query.kind == "rest":
+            return await self._datasource_service.rest_query(
+                dataset.data_source_id,
+                dataset.definition.query,
+                parameters=runtime_parameters,
+                max_rows=dataset.definition.max_rows,
+                timeout_seconds=dataset.definition.timeout_seconds,
+                request_id=request_id,
             )
         request = self._compiler.compile(
             spec=spec,

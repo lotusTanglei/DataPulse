@@ -32,10 +32,22 @@ const error = ref<ApiError | null>(null);
 const activeTab = ref<DetailTab>("overview");
 let loadController: AbortController | null = null;
 
+const tabs = computed(() =>
+  datasource.value?.config.type === "http_api"
+    ? [{ id: "overview", label: "概览" }, { id: "settings", label: "设置" }]
+    : [
+        { id: "overview", label: "概览" },
+        { id: "schema", label: "Schema" },
+        { id: "sql", label: "SQL 调试" },
+        { id: "settings", label: "设置" },
+      ],
+);
+
 const typeLabels: Record<ConnectorType, string> = {
   sqlite: "SQLite",
   postgresql: "PostgreSQL",
   mysql: "MySQL / MariaDB",
+  http_api: "HTTP API",
 };
 
 const statusLabels: Record<DatasourceStatus, string> = {
@@ -55,6 +67,9 @@ const address = computed(() => {
 function safeAddress(config: DatasourceConfig): string {
   if (config.type === "sqlite") {
     return config.path;
+  }
+  if (config.type === "http_api") {
+    return config.base_url;
   }
   return `${config.host}:${config.port}/${config.database}`;
 }
@@ -144,12 +159,7 @@ onBeforeUnmount(() => loadController?.abort());
 
       <div class="detail-tabs" role="tablist" aria-label="数据源详情">
         <button
-          v-for="tab in [
-            { id: 'overview', label: '概览' },
-            { id: 'schema', label: 'Schema' },
-            { id: 'sql', label: 'SQL 调试' },
-            { id: 'settings', label: '设置' },
-          ]"
+          v-for="tab in tabs"
           :key="tab.id"
           role="tab"
           type="button"

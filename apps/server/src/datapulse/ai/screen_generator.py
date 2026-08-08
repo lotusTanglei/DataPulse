@@ -12,7 +12,7 @@ from datapulse.contracts.ai import AiScreenRequest, AiScreenResponse
 from datapulse.contracts.chart import ChartSpec, ChartType
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 from datapulse.contracts.dashboard import DashboardDocument
-from datapulse.contracts.dataset import FileQuery, SqlQuery
+from datapulse.contracts.dataset import FileQuery, RestQuery, SqlQuery
 from datapulse.dataset.models import DatasetResponse
 from datapulse.dataset.repository import (
     DatasetDefinitionInvalid,
@@ -265,6 +265,15 @@ def _validate_chart_spec(
             ChartQueryCompiler().compile(spec, dataset.definition, parameter_defaults)
         elif isinstance(dataset.definition.query, FileQuery):
             FileQueryCompiler().compile(spec, dataset.definition, None, parameter_defaults)
+        elif isinstance(dataset.definition.query, RestQuery):
+            requested_fields = {
+                *spec.dimensions,
+                *(measure.field for measure in spec.measures),
+                *(filter_.field for filter_ in spec.filters),
+                *(sort.field for sort in spec.sort),
+            }
+            if not requested_fields <= {field.name for field in dataset.definition.fields}:
+                raise _screen_error("AI_FIELD_UNKNOWN")
         else:
             raise _screen_error()
     except ChartQueryInvalid as error:

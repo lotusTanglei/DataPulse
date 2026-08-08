@@ -7,6 +7,7 @@ from datapulse.contracts.dataset import (
     DatasetField,
     DataType,
     FileQuery,
+    RestQuery,
     SqlQuery,
 )
 from datapulse.contracts.filedata import FileDatasetCreate
@@ -77,30 +78,45 @@ class DatasetService:
     ) -> DatasetResponse:
         source = await self._datasource_service.get(data.data_source_id)
         connector = self._registry.get(source.config.type)
-        validate_read_only_sql(data.sql, connector.dialect)
         parameter_values = {parameter.name: parameter.default for parameter in data.parameters}
-        result = await self._datasource_service.query(
-            data.data_source_id,
-            QueryRequest(
-                sql=data.sql,
+        if data.query is not None:
+            result = await self._datasource_service.rest_query(
+                data.data_source_id,
+                query=data.query,
                 parameters=parameter_values,
                 max_rows=data.max_rows,
                 timeout_seconds=data.timeout_seconds,
-            ),
-            request_id=request_id,
-            trigger="dataset-save",
-        )
+                request_id=request_id,
+            )
+            definition_query = data.query
+        else:
+            # DatasetCreate validates that exactly one query form is present.
+            assert data.sql is not None
+            validate_read_only_sql(data.sql, connector.dialect)
+            result = await self._datasource_service.query(
+                data.data_source_id,
+                QueryRequest(
+                    sql=data.sql,
+                    parameters=parameter_values,
+                    max_rows=data.max_rows,
+                    timeout_seconds=data.timeout_seconds,
+                ),
+                request_id=request_id,
+                trigger="dataset-save",
+            )
+            definition_query = SqlQuery(sql=data.sql)
         definition = DatasetDefinition(
             id=self._id_factory(),
             name=data.name,
             data_source_id=data.data_source_id,
-            query=SqlQuery(sql=data.sql),
+            query=definition_query,
             fields=_fields(result),
             parameters=data.parameters,
             max_rows=data.max_rows,
             timeout_seconds=data.timeout_seconds,
         )
         return await self._repository.create(definition)
+
 
     async def create_file(
         self,
@@ -167,8 +183,39 @@ class DatasetService:
                 }
             )
             return await self._repository.update(dataset_id, updated)
+        if isinstance(definition.query, RestQuery):
+            if data.sql is not None:
+                raise DatasetUpdateInvalid("SQL is not valid for REST datasets.")
+            query = data.query or definition.query
+            if data.query is not None:
+                result = await self._datasource_service.rest_query(
+                    existing.data_source_id,
+                    query=query,
+                    parameters={
+                        parameter.name: parameter.default
+                        for parameter in definition.parameters
+                    },
+                    max_rows=data.max_rows or definition.max_rows,
+                    timeout_seconds=data.timeout_seconds or definition.timeout_seconds,
+                    request_id=request_id,
+                )
+                fields = _fields(result)
+            else:
+                fields = definition.fields
+            updated = definition.model_copy(
+                update={
+                    "name": data.name or definition.name,
+                    "query": query,
+                    "fields": fields,
+                    "max_rows": data.max_rows or definition.max_rows,
+                    "timeout_seconds": data.timeout_seconds or definition.timeout_seconds,
+                }
+            )
+            return await self._repository.update(dataset_id, updated)
         if not isinstance(definition.query, SqlQuery):
             raise DatasetUpdateInvalid("Unsupported dataset query type.")
+        if data.query is not None:
+            raise DatasetUpdateInvalid("REST query is not valid for SQL datasets.")
         sql = data.sql or definition.query.sql
         parameters = data.parameters if data.parameters is not None else definition.parameters
         max_rows = data.max_rows or definition.max_rows
@@ -246,5 +293,14 @@ class DatasetService:
                 source_path=parsed.normalized_path,
                 max_rows=definition.max_rows,
                 timeout_seconds=definition.timeout_seconds,
+            )
+        if isinstance(definition.query, RestQuery):
+            return await self._datasource_service.rest_query(
+                dataset.data_source_id,
+                query=definition.query,
+                parameters=data.parameters,
+                max_rows=definition.max_rows,
+                timeout_seconds=definition.timeout_seconds,
+                request_id=request_id,
             )
         raise ValueError("Unsupported dataset query type.")
