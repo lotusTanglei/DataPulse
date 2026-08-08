@@ -81,6 +81,19 @@ export function publishScreen(
   );
 }
 
+export interface DisplayKeyResponse {
+  screen_id: string;
+  key_version: number;
+  key: string;
+}
+
+export function generateDisplayKey(screenId: string): Promise<DisplayKeyResponse> {
+  return apiRequest<DisplayKeyResponse>(
+    `${SCREENS_PATH}/${encodeURIComponent(screenId)}/display-key`,
+    { method: "POST" },
+  );
+}
+
 export function deleteScreen(screenId: string): Promise<void> {
   return apiRequest<void>(
     `${SCREENS_PATH}/${encodeURIComponent(screenId)}`,

@@ -11,12 +11,27 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from datapulse.datasource.connector import ConnectorSecret, QueryPolicy
 from datapulse.datasource.models import MySQLConfig
-from datapulse.datasource.mysql import MySQLConnector
+from datapulse.datasource.mysql import _CHECK_CONSTRAINT_SQL, MySQLConnector
 from datapulse.query.models import ValidatedQuery
 from datapulse.query.safety import validate_read_only_sql
 from tests.connectors.contract import ConnectorCase, ConnectorContract, collect_stream
 
 pytestmark = pytest.mark.integration
+
+
+def test_mysql_check_constraint_query_is_mariadb_compatible() -> None:
+    """CHECK_CONSTRAINTS does not expose TABLE_NAME on MariaDB.
+
+    The table name must be resolved through TABLE_CONSTRAINTS instead of
+    selecting it directly from CHECK_CONSTRAINTS, which keeps catalog reads
+    compatible with both MySQL and MariaDB.
+    """
+    normalized_sql = " ".join(_CHECK_CONSTRAINT_SQL.split())
+
+    assert "JOIN information_schema.TABLE_CONSTRAINTS tc" in normalized_sql
+    assert "cc.CONSTRAINT_SCHEMA = :namespace" in normalized_sql
+    assert "tc.TABLE_NAME = :relation" in normalized_sql
+    assert "cc.TABLE_NAME" not in normalized_sql
 
 
 def _test_url() -> str:

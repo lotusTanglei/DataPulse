@@ -1,4 +1,5 @@
 import { apiRequest } from "../../lib/api";
+import type { QueryResult } from "../query/types";
 import type {
   Datasource,
   DatasourceCreatePayload,
@@ -93,6 +94,23 @@ export function describeRelation(
   parameters.set("relation", relation);
   return apiRequest<RelationSchema>(
     `${DATASOURCES_PATH}/${encodeURIComponent(datasourceId)}/relation?${parameters}`,
+    { signal },
+  );
+}
+
+export function previewRelation(
+  datasourceId: string,
+  namespace: string | null,
+  relation: string,
+  limit = 100,
+  signal?: AbortSignal,
+): Promise<QueryResult> {
+  const parameters = new URLSearchParams();
+  parameters.set("namespace", namespace ?? "");
+  parameters.set("relation", relation);
+  parameters.set("limit", String(limit));
+  return apiRequest<QueryResult>(
+    `${DATASOURCES_PATH}/${encodeURIComponent(datasourceId)}/relation/preview?${parameters}`,
     { signal },
   );
 }

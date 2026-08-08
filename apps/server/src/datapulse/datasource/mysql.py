@@ -26,6 +26,21 @@ class MySQLDatasourceInvalid(ValueError):
 
 _json_column_pattern = re.compile(r"json_valid\(`([^`]+)`\)", re.IGNORECASE)
 
+# MariaDB's information_schema.CHECK_CONSTRAINTS omits TABLE_NAME. Resolve
+# the relation through TABLE_CONSTRAINTS, which exposes the table for both
+# MariaDB and MySQL while retaining the constraint clause used to identify
+# JSON columns.
+_CHECK_CONSTRAINT_SQL = """
+SELECT cc.CHECK_CLAUSE
+FROM information_schema.CHECK_CONSTRAINTS cc
+JOIN information_schema.TABLE_CONSTRAINTS tc
+  ON tc.CONSTRAINT_SCHEMA = cc.CONSTRAINT_SCHEMA
+ AND tc.CONSTRAINT_NAME = cc.CONSTRAINT_NAME
+WHERE cc.CONSTRAINT_SCHEMA = :namespace
+  AND tc.TABLE_NAME = :relation
+  AND tc.CONSTRAINT_TYPE = 'CHECK'
+"""
+
 
 def _mysql_data_type(database_type: object, *, json_alias: bool = False) -> str:
     declared = str(database_type).upper()
@@ -167,10 +182,7 @@ class MySQLConnector:
                 if schema_name is None and isinstance(config, MySQLConfig):
                     schema_name = config.database
                 constraint_rows = await connection.execute(
-                    text(
-                        "SELECT CHECK_CLAUSE FROM information_schema.CHECK_CONSTRAINTS "
-                        "WHERE CONSTRAINT_SCHEMA = :namespace AND TABLE_NAME = :relation"
-                    ),
+                    text(_CHECK_CONSTRAINT_SQL),
                     {"namespace": schema_name, "relation": relation},
                 )
                 json_columns = {

@@ -109,6 +109,56 @@ test("switches between connector-specific fields and resets their defaults", asy
   ).toBe("preferred");
 });
 
+test("does not expose datasource credentials as login autofill targets on create", async () => {
+  const { wrapper } = await mountForm(
+    "/studio/datasources/new",
+    authenticatedFetch(),
+  );
+
+  await wrapper.get('select[name="connectorType"]').setValue("postgresql");
+
+  expect(wrapper.get("form").attributes("autocomplete")).toBe("off");
+  expect(wrapper.get('input[name="username"]').attributes("autocomplete")).toBe(
+    "new-password",
+  );
+  expect(wrapper.get('input[name="password"]').attributes("autocomplete")).toBe(
+    "new-password",
+  );
+  expect((wrapper.get('input[name="username"]').element as HTMLInputElement).value).toBe(
+    "",
+  );
+  expect((wrapper.get('input[name="password"]').element as HTMLInputElement).value).toBe(
+    "",
+  );
+});
+
+test("keeps datasource credentials out of login autofill targets while editing", async () => {
+  const fetchMock = authenticatedFetch(async (url, init) => {
+    if (
+      url === "/api/admin/datasources/mysql-operations" &&
+      init?.method === "GET"
+    ) {
+      return jsonResponse(mysqlDatasource);
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  });
+  const { wrapper } = await mountForm(
+    "/studio/datasources/mysql-operations/edit",
+    fetchMock,
+  );
+
+  expect(wrapper.get("form").attributes("autocomplete")).toBe("off");
+  expect(wrapper.get('input[name="username"]').attributes("autocomplete")).toBe(
+    "new-password",
+  );
+  expect(wrapper.get('input[name="password"]').attributes("autocomplete")).toBe(
+    "new-password",
+  );
+  expect((wrapper.get('input[name="password"]').element as HTMLInputElement).value).toBe(
+    "",
+  );
+});
+
 test("rejects unsafe SQLite paths and invalid remote ports before submit", async () => {
   const fetchMock = authenticatedFetch();
   const { wrapper } = await mountForm("/studio/datasources/new", fetchMock);

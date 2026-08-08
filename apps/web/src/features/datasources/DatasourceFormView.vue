@@ -287,7 +287,7 @@ onMounted(loadDatasource);
         <code v-if="requestId">{{ requestId }}</code>
       </InlineNotice>
 
-      <form class="datasource-form" @submit.prevent="submit">
+      <form class="datasource-form" autocomplete="off" @submit.prevent="submit">
         <div class="form-section">
           <div class="form-section__heading">
             <h2>基本信息</h2>
@@ -389,7 +389,7 @@ onMounted(loadDatasource);
                 id="username"
                 v-model="model.username"
                 name="username"
-                autocomplete="username"
+                autocomplete="new-password"
               />
             </FormField>
             <FormField
@@ -404,7 +404,7 @@ onMounted(loadDatasource);
                 v-model="model.password"
                 name="password"
                 type="password"
-                :autocomplete="isEdit ? 'new-password' : 'current-password'"
+                autocomplete="new-password"
               />
             </FormField>
             <FormField

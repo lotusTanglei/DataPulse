@@ -161,6 +161,26 @@ async def describe_relation(
         _raise_repository_error(error)
 
 
+@router.get("/{datasource_id}/relation/preview")
+async def preview_relation(
+    datasource_id: str,
+    request: Request,
+    relation: Annotated[str, Query(min_length=1)],
+    namespace: Annotated[str | None, Query()] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 100,
+) -> QueryResult:
+    try:
+        return await request.app.state.datasource_service.preview_relation(
+            datasource_id,
+            _namespace(namespace),
+            relation,
+            limit=limit,
+            request_id=request.state.request_id,
+        )
+    except DatasourceNotFound as error:
+        _raise_repository_error(error)
+
+
 @router.post(
     "/{datasource_id}/query",
     dependencies=[Depends(require_csrf)],

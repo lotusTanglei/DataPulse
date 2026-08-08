@@ -129,6 +129,14 @@ test("requires explicit confirmation before publishing the saved revision", asyn
         publishPayload = JSON.parse(String(init.body));
         return Promise.resolve(jsonResponse(published));
       }
+      if (
+        url === "/api/admin/screens/screen-1/display-key" &&
+        init?.method === "POST"
+      ) {
+        return Promise.resolve(
+          jsonResponse({ screen_id: "screen-1", key_version: 1, key: "display-key-1" }),
+        );
+      }
       throw new Error(`Unexpected request: ${url}`);
     }),
   );
@@ -164,4 +172,9 @@ test("requires explicit confirmation before publishing the saved revision", asyn
 
   expect(publishPayload).toEqual({ expected_revision: 3 });
   expect(wrapper.text()).toContain("发布成功");
+  expect(wrapper.text()).toContain("发布成功，接下来这样使用");
+
+  await wrapper.get('[data-action="generate-play-link"]').trigger("click");
+  await flushPromises();
+  expect(wrapper.text()).toContain("/play/screen-1?key=display-key-1");
 });

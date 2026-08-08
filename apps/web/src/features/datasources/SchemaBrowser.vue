@@ -3,13 +3,19 @@ import { ChevronDown, ChevronRight, RefreshCw } from "@lucide/vue";
 import { computed, onBeforeUnmount, watch, ref } from "vue";
 
 import { ApiError } from "../../lib/api";
-import { describeRelation, listNamespaces, listRelations } from "./api";
+import {
+  describeRelation,
+  listNamespaces,
+  listRelations,
+  previewRelation,
+} from "./api";
 import type {
   Datasource,
   NamespaceInfo,
   RelationInfo,
   RelationSchema,
 } from "./types";
+import type { QueryResult } from "../query/types";
 
 interface CollectionBranch<T> {
   items: T[];
@@ -26,10 +32,18 @@ interface SchemaBranch {
   requestId: string;
 }
 
+interface PreviewBranch {
+  result: QueryResult | null;
+  loading: boolean;
+  error: string;
+  requestId: string;
+}
+
 const props = defineProps<{ datasource: Datasource }>();
 const namespaces = ref<CollectionBranch<NamespaceInfo>>(emptyCollection());
 const relationBranches = ref<Record<string, CollectionBranch<RelationInfo>>>({});
 const schemaBranches = ref<Record<string, SchemaBranch>>({});
+const previewBranches = ref<Record<string, PreviewBranch>>({});
 const expandedNamespaces = ref<Set<string>>(new Set());
 const expandedRelations = ref<Set<string>>(new Set());
 const controllers = new Map<string, AbortController>();
@@ -66,6 +80,17 @@ function schemaBranch(namespace: string | null, relation: string): SchemaBranch 
   return (
     schemaBranches.value[relationKey(namespace, relation)] ?? {
       schema: null,
+      loading: false,
+      error: "",
+      requestId: "",
+    }
+  );
+}
+
+function previewBranch(namespace: string | null, relation: string): PreviewBranch {
+  return (
+    previewBranches.value[relationKey(namespace, relation)] ?? {
+      result: null,
       loading: false,
       error: "",
       requestId: "",
@@ -238,6 +263,51 @@ async function loadRelationSchema(relation: RelationInfo): Promise<void> {
   }
 }
 
+async function loadRelationPreview(relation: RelationInfo): Promise<void> {
+  const key = `${relationKey(relation.namespace, relation.name)}::preview`;
+  const branchKey = relationKey(relation.namespace, relation.name);
+  const controller = controllerFor(key);
+  previewBranches.value = {
+    ...previewBranches.value,
+    [branchKey]: {
+      result: previewBranch(relation.namespace, relation.name).result,
+      loading: true,
+      error: "",
+      requestId: "",
+    },
+  };
+  try {
+    const result = await previewRelation(
+      props.datasource.id,
+      relation.namespace,
+      relation.name,
+      100,
+      controller.signal,
+    );
+    if (!controller.signal.aborted) {
+      previewBranches.value = {
+        ...previewBranches.value,
+        [branchKey]: { result, loading: false, error: "", requestId: "" },
+      };
+    }
+  } catch (reason) {
+    if (!controller.signal.aborted) {
+      const error = branchError(reason);
+      previewBranches.value = {
+        ...previewBranches.value,
+        [branchKey]: {
+          result: null,
+          loading: false,
+          error: error.message,
+          requestId: error.requestId,
+        },
+      };
+    }
+  } finally {
+    releaseController(key, controller);
+  }
+}
+
 async function toggleNamespace(namespace: string): Promise<void> {
   const next = new Set(expandedNamespaces.value);
   if (next.has(namespace)) {
@@ -291,6 +361,7 @@ function reset(): void {
   namespaces.value = emptyCollection();
   relationBranches.value = {};
   schemaBranches.value = {};
+  previewBranches.value = {};
   expandedNamespaces.value = new Set();
   expandedRelations.value = new Set();
   if (isSQLite.value) {
@@ -441,6 +512,61 @@ onBeforeUnmount(abortAll);
                   <code>{{ field.data_type }}</code>
                   <small>{{ field.nullable ? "可空" : "必填" }}</small>
                 </div>
+                <button
+                  class="table-action"
+                  type="button"
+                  :data-preview-relation="relation.name"
+                  :disabled="previewBranch(relation.namespace, relation.name).loading"
+                  @click="loadRelationPreview(relation)"
+                >
+                  {{
+                    previewBranch(relation.namespace, relation.name).loading
+                      ? "正在读取数据…"
+                      : "预览数据（最多 100 行）"
+                  }}
+                </button>
+                <div
+                  v-if="previewBranch(relation.namespace, relation.name).error"
+                  class="catalog-error"
+                >
+                  <p>{{ previewBranch(relation.namespace, relation.name).error }}</p>
+                  <code
+                    v-if="previewBranch(relation.namespace, relation.name).requestId"
+                  >
+                    {{ previewBranch(relation.namespace, relation.name).requestId }}
+                  </code>
+                </div>
+                <div
+                  v-if="previewBranch(relation.namespace, relation.name).result"
+                  class="catalog-preview"
+                  :data-preview-table="relation.name"
+                >
+                  <table>
+                    <thead>
+                      <tr>
+                        <th
+                          v-for="column in previewBranch(relation.namespace, relation.name).result?.columns"
+                          :key="column.name"
+                        >
+                          {{ column.name }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(row, rowIndex) in previewBranch(relation.namespace, relation.name).result?.rows"
+                        :key="rowIndex"
+                      >
+                        <td v-for="(value, valueIndex) in row" :key="valueIndex">
+                          {{ value === null ? "—" : String(value) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <small v-if="previewBranch(relation.namespace, relation.name).result?.row_count === 0">
+                    暂无数据
+                  </small>
+                </div>
               </div>
             </div>
           </template>
@@ -505,6 +631,59 @@ onBeforeUnmount(abortAll);
             <span>{{ field.name }}</span>
             <code>{{ field.data_type }}</code>
             <small>{{ field.nullable ? "可空" : "必填" }}</small>
+          </div>
+          <button
+            class="table-action"
+            type="button"
+            :data-preview-relation="relation.name"
+            :disabled="previewBranch(null, relation.name).loading"
+            @click="loadRelationPreview(relation)"
+          >
+            {{
+              previewBranch(null, relation.name).loading
+                ? "正在读取数据…"
+                : "预览数据（最多 100 行）"
+            }}
+          </button>
+          <div
+            v-if="previewBranch(null, relation.name).error"
+            class="catalog-error"
+          >
+            <p>{{ previewBranch(null, relation.name).error }}</p>
+            <code v-if="previewBranch(null, relation.name).requestId">
+              {{ previewBranch(null, relation.name).requestId }}
+            </code>
+          </div>
+          <div
+            v-if="previewBranch(null, relation.name).result"
+            class="catalog-preview"
+            :data-preview-table="relation.name"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th
+                    v-for="column in previewBranch(null, relation.name).result?.columns"
+                    :key="column.name"
+                  >
+                    {{ column.name }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, rowIndex) in previewBranch(null, relation.name).result?.rows"
+                  :key="rowIndex"
+                >
+                  <td v-for="(value, valueIndex) in row" :key="valueIndex">
+                    {{ value === null ? "—" : String(value) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <small v-if="previewBranch(null, relation.name).result?.row_count === 0">
+              暂无数据
+            </small>
           </div>
         </div>
       </div>

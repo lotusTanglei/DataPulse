@@ -27,6 +27,7 @@ const zoom = ref(0.5);
 let clipboard: string[] = [];
 let selecto: Selecto | null = null;
 let moveable: Moveable | null = null;
+const interactionStartFrames = new Map<string, ComponentInstance["frame"]>();
 
 const visibleComponents = computed(() =>
   (store.document?.components ?? []).filter(
@@ -192,6 +193,10 @@ function removeSelection(): void {
 
 function setZoom(value: number): void {
   zoom.value = Math.min(2, Math.max(0.1, value));
+  if (moveable) {
+    moveable.zoom = zoom.value;
+    moveable.updateRect();
+  }
 }
 
 function fitToViewport(width: number, height: number): void {
@@ -271,6 +276,8 @@ onMounted(() => {
     });
     moveable = new Moveable(host.value, {
       target: [],
+      rootContainer: document.body,
+      zoom: zoom.value,
       draggable: true,
       resizable: true,
       origin: false,
@@ -278,18 +285,50 @@ onMounted(() => {
       snapGridWidth: 10,
       snapGridHeight: 10,
     });
+    moveable.on("dragStart", (event) => {
+      interactionStartFrames.clear();
+      for (const component of editable(store.selection)) {
+        interactionStartFrames.set(component.id, { ...component.frame });
+      }
+      event.datas.startFrames = new Map(interactionStartFrames);
+    });
+    moveable.on("drag", (event) => {
+      const target = event.target as HTMLElement;
+      target.style.left = `${event.left}px`;
+      target.style.top = `${event.top}px`;
+    });
     moveable.on("dragEnd", (event) => {
       const id = event.target.getAttribute("data-canvas-component");
-      const delta = event.lastEvent?.beforeTranslate;
-      if (id && delta) {
-        commitDrag([id], { dx: delta[0], dy: delta[1] });
+      const start = id ? interactionStartFrames.get(id) : undefined;
+      if (id && start) {
+        const target = event.target as HTMLElement;
+        const left = Number.parseFloat(target.style.left);
+        const top = Number.parseFloat(target.style.top);
+        if (Number.isFinite(left) && Number.isFinite(top)) {
+          commitDrag([id], { dx: left - start.x, dy: top - start.y });
+        }
+      }
+      interactionStartFrames.clear();
+      void updateMoveableTargets();
+    });
+    moveable.on("resize", (event) => {
+      const target = event.target as HTMLElement;
+      target.style.width = `${event.width}px`;
+      target.style.height = `${event.height}px`;
+      if (event.drag) {
+        target.style.left = `${event.drag.left}px`;
+        target.style.top = `${event.drag.top}px`;
       }
     });
     moveable.on("resizeEnd", (event) => {
       const id = event.target.getAttribute("data-canvas-component");
-      if (id && event.lastEvent) {
-        commitResize(id, event.lastEvent.width, event.lastEvent.height);
+      const target = event.target as HTMLElement;
+      const width = Number.parseFloat(target.style.width);
+      const height = Number.parseFloat(target.style.height);
+      if (id && Number.isFinite(width) && Number.isFinite(height)) {
+        commitResize(id, width, height);
       }
+      void updateMoveableTargets();
     });
     void updateMoveableTargets();
   }

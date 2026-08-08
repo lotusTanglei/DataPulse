@@ -168,6 +168,21 @@ def test_catalog_and_parameterized_query_use_real_sqlite(
         "region",
     ]
 
+    preview = datasource_app.client.get(
+        f"/api/admin/datasources/{datasource_id}/relation/preview",
+        params={"namespace": "", "relation": "sales", "limit": 2},
+    )
+    assert preview.status_code == 200
+    assert preview.json()["columns"] == [
+        {"name": "month", "data_type": "unknown"},
+        {"name": "amount", "data_type": "unknown"},
+        {"name": "region", "data_type": "unknown"},
+    ]
+    assert preview.json()["rows"] == [
+        ["2026-01", 100, "north"],
+        ["2026-01", 50, "south"],
+    ]
+
     query = datasource_app.client.post(
         f"/api/admin/datasources/{datasource_id}/query",
         json={

@@ -7,7 +7,7 @@ import InlineNotice from "../../ui/InlineNotice.vue";
 import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
 import type { JsonValue } from "../query/types";
 import { defaultComponentRegistry } from "../runtime/registry";
-import { publishScreen } from "./api";
+import { generateDisplayKey, publishScreen } from "./api";
 import { componentTypeToChartType } from "./editor/chartSuggestion";
 import ComponentLibrary from "./editor/ComponentLibrary.vue";
 import EditorToolbar from "./editor/EditorToolbar.vue";
@@ -24,6 +24,21 @@ const publishConfirmationOpen = ref(false);
 const publishing = ref(false);
 const publishError = ref<ApiError | null>(null);
 const publishMessage = ref("");
+const usagePanelOpen = ref(false);
+const usageLoading = ref(false);
+const usageError = ref("");
+const displayKey = ref("");
+const standaloneUrl = computed(() =>
+  displayKey.value
+    ? `${window.location.origin}/play/${encodeURIComponent(screenId.value)}?key=${encodeURIComponent(displayKey.value)}`
+    : "",
+);
+const embedUrl = computed(
+  () => `${window.location.origin}/embed/${encodeURIComponent(screenId.value)}?ticket=<短期 ticket>`,
+);
+const embedSnippet = computed(
+  () => `<iframe src="${embedUrl.value}" width="100%" height="600"></iframe>`,
+);
 const selectedComponent = computed(() => {
   if (store.selection.length !== 1) {
     return null;
@@ -106,6 +121,9 @@ async function confirmPublish(): Promise<void> {
     store.screen = published as never;
     publishConfirmationOpen.value = false;
     publishMessage.value = "发布成功";
+    usagePanelOpen.value = true;
+    displayKey.value = "";
+    usageError.value = "";
   } catch (reason) {
     publishError.value =
       reason instanceof ApiError
@@ -119,6 +137,23 @@ async function confirmPublish(): Promise<void> {
   } finally {
     publishing.value = false;
   }
+}
+
+async function createStandaloneLink(): Promise<void> {
+  usageLoading.value = true;
+  usageError.value = "";
+  try {
+    displayKey.value = (await generateDisplayKey(screenId.value)).key;
+  } catch (reason) {
+    usageError.value = reason instanceof ApiError ? reason.message : "暂时无法生成播放链接。";
+  } finally {
+    usageLoading.value = false;
+  }
+}
+
+async function copyText(value: string): Promise<void> {
+  if (!value) return;
+  await navigator.clipboard?.writeText(value);
 }
 </script>
 
@@ -147,6 +182,44 @@ async function confirmPublish(): Promise<void> {
       <InlineNotice v-if="publishMessage" class="editor-conflict" tone="info">
         <p>{{ publishMessage }}</p>
       </InlineNotice>
+      <section
+        v-if="usagePanelOpen"
+        class="publish-usage-panel"
+        aria-labelledby="publish-usage-title"
+      >
+        <div>
+          <h2 id="publish-usage-title">发布成功，接下来这样使用</h2>
+          <p>独立播放适合直接打开；嵌入第三方系统时请由宿主后端申请短期 ticket。</p>
+        </div>
+        <div class="publish-usage-block">
+          <h3>独立播放</h3>
+          <button
+            class="secondary-button"
+            data-action="generate-play-link"
+            type="button"
+            :disabled="usageLoading"
+            @click="createStandaloneLink"
+          >
+            {{ usageLoading ? "生成中…" : "生成播放链接" }}
+          </button>
+          <div v-if="standaloneUrl" class="publish-usage-link">
+            <code>{{ standaloneUrl }}</code>
+            <button class="table-action" type="button" @click="copyText(standaloneUrl)">
+              复制
+            </button>
+            <a :href="standaloneUrl" target="_blank" rel="noreferrer">打开</a>
+          </div>
+        </div>
+        <div class="publish-usage-block">
+          <h3>嵌入第三方系统</h3>
+          <p>宿主后端使用 embed API key 调用 <code>POST /api/embed/tickets</code>，再把短期 ticket 传给页面。</p>
+          <code class="publish-usage-code">&lt;iframe src="{{ embedUrl }}" width="100%" height="600" /&gt;</code>
+          <button class="table-action" type="button" @click="copyText(embedSnippet)">
+            复制嵌入示例
+          </button>
+        </div>
+        <p v-if="usageError" class="publish-usage-error">{{ usageError }}</p>
+      </section>
       <InlineNotice v-if="publishError" class="editor-conflict" tone="error">
         <p>{{ publishError.message }}</p>
         <code v-if="publishError.requestId">{{ publishError.requestId }}</code>
@@ -244,5 +317,45 @@ async function confirmPublish(): Promise<void> {
 .editor-panel__hint h2,
 .editor-panel__hint p {
   margin: 0;
+}
+
+.publish-usage-panel {
+  display: grid;
+  gap: 14px;
+  margin: 12px 0;
+  padding: 16px;
+  border: 1px solid rgb(99 102 241 / 28%);
+  border-radius: 14px;
+  background: rgb(99 102 241 / 8%);
+}
+
+.publish-usage-panel h2,
+.publish-usage-panel h3,
+.publish-usage-panel p {
+  margin: 0;
+}
+
+.publish-usage-block {
+  display: grid;
+  gap: 8px;
+}
+
+.publish-usage-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.publish-usage-link code,
+.publish-usage-code {
+  overflow-wrap: anywhere;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgb(15 23 42 / 65%);
+}
+
+.publish-usage-error {
+  color: #fca5a5;
 }
 </style>

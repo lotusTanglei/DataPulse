@@ -114,6 +114,22 @@ test("shows datasource properties and lazily expands a remote catalog", async ()
         ],
       });
     }
+    if (
+      url ===
+      "/api/admin/datasources/postgres-warehouse/relation/preview?namespace=public&relation=sales&limit=100"
+    ) {
+      return jsonResponse({
+        request_id: "preview-1",
+        columns: [
+          { name: "month", data_type: "string" },
+          { name: "amount", data_type: "number" },
+        ],
+        rows: [["2026-01", 100]],
+        row_count: 1,
+        truncated: false,
+        duration_ms: 3,
+      });
+    }
     throw new Error(`Unexpected request: ${url}`);
   });
   const wrapper = await mountDetail("postgres-warehouse", fetchMock);
@@ -156,6 +172,12 @@ test("shows datasource properties and lazily expands a remote catalog", async ()
   await flushPromises();
   expect(wrapper.get('[data-field-name="amount"]').text()).toContain("numeric");
   expect(wrapper.get('[data-field-name="region"]').text()).toContain("可空");
+
+  await wrapper
+    .get('[data-relation="public.sales"] [data-preview-relation="sales"]')
+    .trigger("click");
+  await flushPromises();
+  expect(wrapper.get('[data-preview-table="sales"]').text()).toContain("2026-01");
 });
 
 test("skips the namespace level for SQLite", async () => {

@@ -237,6 +237,48 @@ class DatasourceService:
         except Exception as error:
             raise translate_connector_error(error, request_id) from error
 
+    async def preview_relation(
+        self,
+        datasource_id: str,
+        namespace: str | None,
+        relation: str,
+        *,
+        limit: int,
+        request_id: str,
+    ) -> QueryResult:
+        """Return a bounded preview for a discovered relation."""
+        if limit < 1 or limit > 100:
+            raise DataPulseError(
+                code="DATASOURCE_PREVIEW_LIMIT_INVALID",
+                message="The preview limit must be between 1 and 100.",
+                status_code=422,
+            )
+        _, connector, _ = await self._connection_context(datasource_id)
+        schema = await self.describe_relation(
+            datasource_id,
+            namespace,
+            relation,
+            request_id=request_id,
+        )
+        quote = '`' if connector.dialect == "mysql" else '"'
+
+        def quoted(identifier: str) -> str:
+            return f"{quote}{identifier.replace(quote, quote + quote)}{quote}"
+
+        qualified = quoted(schema.name)
+        if schema.namespace:
+            qualified = f"{quoted(schema.namespace)}.{qualified}"
+        return await self.query(
+            datasource_id,
+            QueryRequest(
+                sql=f"SELECT * FROM {qualified} LIMIT {limit}",
+                max_rows=limit,
+                timeout_seconds=30,
+            ),
+            request_id=request_id,
+            trigger="relation-preview",
+        )
+
     async def query(
         self,
         datasource_id: str,
