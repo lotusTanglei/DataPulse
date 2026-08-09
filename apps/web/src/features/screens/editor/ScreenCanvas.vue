@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import Moveable from "moveable";
 import Selecto from "selecto";
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  toRaw,
+  watch,
+} from "vue";
 
 import ComponentHost from "../../runtime/ComponentHost.vue";
+import { createDataRuntime } from "../../runtime/dataRuntime";
 import { defaultComponentRegistry } from "../../runtime/registry";
+import { queryScreenDocument } from "../api";
 import type { ComponentInstance } from "./commands";
 import {
   alignFrames,
@@ -36,6 +46,18 @@ const snapEnabled = ref(true);
 const hoveredId = ref<string | null>(null);
 const activeGuides = ref<ReturnType<typeof snapFrame>["guides"]>([]);
 const activeOverlapIds = ref<string[]>([]);
+const dataRuntime = createDataRuntime((componentId, parameters, signal) => {
+  const document = store.document;
+  if (!document) {
+    return Promise.reject(new Error("The screen document is not loaded."));
+  }
+  return queryScreenDocument(
+    structuredClone(toRaw(document)),
+    componentId,
+    parameters,
+    signal,
+  );
+});
 let clipboard: string[] = [];
 let selecto: Selecto | null = null;
 let moveable: Moveable | null = null;
@@ -44,6 +66,22 @@ const interactionStartFrames = new Map<string, ComponentInstance["frame"]>();
 const visibleComponents = computed(() =>
   (store.document?.components ?? []).filter(
     (component) => !component.state?.hidden,
+  ),
+);
+const parameterDefaults = computed(() =>
+  Object.fromEntries(
+    (store.document?.parameters ?? []).map((parameter) => [
+      parameter.name,
+      parameter.default ?? null,
+    ]),
+  ),
+);
+const boundComponentSignature = computed(() =>
+  JSON.stringify(
+    (store.document?.components ?? []).map((component) => ({
+      id: component.id,
+      data_binding: component.data_binding,
+    })),
   ),
 );
 const selectedComponents = computed(() => {
@@ -92,6 +130,22 @@ const stageStyle = computed(() => ({
 
 function componentById(id: string): ComponentInstance | undefined {
   return store.document?.components?.find((component) => component.id === id);
+}
+
+async function refreshData(): Promise<void> {
+  if (!store.document) {
+    return;
+  }
+  dataRuntime.beginGeneration();
+  await Promise.all(
+    visibleComponents.value
+      .filter((component) => component.data_binding && Object.keys(component.data_binding).length > 0)
+      .map((component) =>
+        dataRuntime
+          .load(component.id, component.data_binding!, parameterDefaults.value)
+          .catch(() => undefined),
+      ),
+  );
 }
 
 function editable(ids: string[]): ComponentInstance[] {
@@ -468,10 +522,13 @@ watch(() => store.selection, () => void updateMoveableTargets(), {
   deep: true,
 });
 
+watch(boundComponentSignature, () => void refreshData(), { immediate: true });
+
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", keyboard);
   selecto?.destroy();
   moveable?.destroy();
+  dataRuntime.dispose();
 });
 
 async function loadAsset(assetId: string, signal?: AbortSignal): Promise<string> {
@@ -496,6 +553,7 @@ defineExpose({
   selectionBounds,
   setZoom,
   groupSelection,
+  refreshData,
   ungroupSelection,
   showGrid,
   snapEnabled,
@@ -559,7 +617,7 @@ defineExpose({
             :definition="defaultComponentRegistry.get(component.type)"
             :instance="component"
             :load-asset="loadAsset"
-            :query-state="{ status: 'idle', result: null, error: null }"
+            :query-state="dataRuntime.state(component.id)"
             :theme="store.document?.theme?.tokens ?? {}"
           />
         </button>

@@ -93,6 +93,47 @@ test("drag snaps unlocked selected components to the ten-pixel grid", () => {
   });
 });
 
+test("bound components show draft query results while editing", async () => {
+  const store = useScreenEditorStore();
+  store.document!.components!.find((component) => component.id === "kpi-1")!.data_binding = {
+    chart_spec: {
+      schema_version: 1,
+      dataset_id: "sales",
+      dimensions: ["region"],
+      measures: [{ field: "amount", aggregation: "sum" }],
+      filters: [],
+      sort: [],
+      limit: 100,
+      visual: { type: "kpi", title: "" },
+    },
+  };
+  const queryResult = {
+    request_id: "editor-query-1",
+    columns: [{ name: "amount", data_type: "number" }],
+    rows: [[12345]],
+    row_count: 1,
+    truncated: false,
+    duration_ms: 3,
+  };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL) =>
+      Promise.resolve(
+        jsonResponse(
+          String(input) === "/api/admin/screens/query-document"
+            ? queryResult
+            : screen,
+        ),
+      ),
+    ),
+  );
+
+  const wrapper = mount(ScreenCanvas);
+  await flushPromises();
+
+  expect(wrapper.get('[data-canvas-component="kpi-1"]').text()).toContain("12,345");
+});
+
 test("multi-selection exposes one bounding box and aligns in one undo step", () => {
   const store = useScreenEditorStore();
   store.selection = ["text-1", "kpi-1"];
