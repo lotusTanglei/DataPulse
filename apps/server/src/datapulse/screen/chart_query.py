@@ -141,6 +141,7 @@ class ChartQueryCompiler:
         spec: ChartSpec,
         dataset: DatasetDefinition,
         parameters: Mapping[str, JsonValue],
+        dialect: str | None = None,
     ) -> QueryRequest:
         if spec.dataset_id != dataset.id:
             raise ChartQueryInvalid("CHART_DATASET_MISMATCH")
@@ -196,7 +197,11 @@ class ChartQueryCompiler:
                 append=True,
             )
         query = query.limit(spec.limit)
-        outer_sql = query.sql()
+        # MySQL/MariaDB require backticks when ANSI_QUOTES is not enabled.
+        # Keep SQLAlchemy-style named placeholders for the other dialects;
+        # sqlglot's PostgreSQL renderer would otherwise rewrite them.
+        output_dialect = "mysql" if dialect == "mysql" else None
+        outer_sql = query.sql(dialect=output_dialect)
         source_marker = "FROM dataset_source"
         if source_marker not in outer_sql:
             raise ChartQueryInvalid("CHART_QUERY_BUILD_FAILED")

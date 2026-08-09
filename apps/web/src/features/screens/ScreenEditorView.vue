@@ -188,6 +188,7 @@ async function copyText(value: string): Promise<void> {
         @distribute="canvas?.distributeSelection($event)"
         @group="canvas?.groupSelection()"
         @publish="requestPublish"
+        @refresh="canvas?.refreshData()"
         @toggle-grid="canvas?.toggleGrid()"
         @toggle-snap="canvas?.toggleSnap()"
         @ungroup="canvas?.ungroupSelection()"

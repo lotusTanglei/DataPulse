@@ -22,6 +22,30 @@ const emit = defineEmits<{
   interaction: [interaction: RuntimeInteraction];
 }>();
 
+function stringStyle(name: string): string | undefined {
+  const value = props.instance.style?.[name];
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function numberStyle(name: string): number | undefined {
+  const value = props.instance.style?.[name];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+const hostStyle = computed(() => {
+  const borderWidth = Math.max(0, numberStyle("border_width") ?? 0);
+  const opacity = Math.min(1, Math.max(0, numberStyle("opacity") ?? 1));
+  return {
+    backgroundColor: stringStyle("background_color"),
+    color: stringStyle("text_color"),
+    border: borderWidth > 0
+      ? `${borderWidth}px solid ${stringStyle("border_color") ?? "currentColor"}`
+      : undefined,
+    borderRadius: `${Math.max(0, numberStyle("border_radius") ?? 0)}px`,
+    opacity,
+  };
+});
+
 const renderFailed = ref(false);
 const errorMessage = computed(() => {
   if (!props.definition) {
@@ -47,7 +71,7 @@ onErrorCaptured(() => {
 </script>
 
 <template>
-  <div class="component-host" :data-component-id="instance.id">
+  <div class="component-host" :data-component-id="instance.id" :style="hostStyle">
     <div v-if="errorMessage" class="component-host__fallback" role="status">
       {{ errorMessage }}
     </div>
@@ -72,6 +96,7 @@ onErrorCaptured(() => {
 
 <style scoped>
 .component-host {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   overflow: hidden;

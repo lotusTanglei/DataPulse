@@ -78,6 +78,36 @@ def test_compiler_wraps_dataset_and_binds_filter_values() -> None:
     assert ":chart_filter_0" in compiled.sql
 
 
+def test_compiler_uses_mysql_identifier_quotes_for_non_ascii_fields() -> None:
+    dataset = DatasetDefinition(
+        id="departments",
+        name="Departments",
+        data_source_id="source-1",
+        query=SqlQuery(sql="SELECT name AS '名称', code AS '编码' FROM departments"),
+        fields=(
+            DatasetField(name="名称", data_type=DataType.STRING),
+            DatasetField(name="编码", data_type=DataType.STRING),
+        ),
+    )
+    spec = ChartSpec(
+        dataset_id="departments",
+        dimensions=("名称",),
+        measures=(Measure(field="编码", aggregation=Aggregation.SUM),),
+        visual=VisualSpec(type=ChartType.TABLE),
+    )
+
+    compiled = ChartQueryCompiler().compile(
+        spec=spec,
+        dataset=dataset,
+        parameters={},
+        dialect="mysql",
+    )
+
+    assert "dataset_source.`名称`" in compiled.sql
+    assert "SUM(dataset_source.`编码`) AS `编码`" in compiled.sql
+    assert 'dataset_source."名称"' not in compiled.sql
+
+
 def test_compiler_merges_dataset_defaults_and_avoids_parameter_collisions() -> None:
     dataset = sql_dataset(
         "SELECT month, amount, region FROM sales WHERE tenant = :chart_filter_0"

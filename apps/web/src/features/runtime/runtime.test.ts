@@ -24,7 +24,7 @@ test("registers and resolves component definitions without silent duplicates", (
     defaultFrame: { width: 320, height: 120 },
     defaultProps: { text: "文本" },
     dataCapability: "none" as const,
-    component: StubComponent,
+    component: markRaw(StubComponent),
   };
 
   registry.register(definition);
@@ -173,6 +173,48 @@ test("contains a component render failure inside its own host", async () => {
   await flushPromises();
 
   expect(wrapper.get('[role="status"]').text()).toBe("组件渲染失败");
+});
+
+test("applies persisted component appearance to the runtime host", () => {
+  const definition: ComponentDefinition = {
+    type: "builtin.text",
+    label: "文本",
+    defaultFrame: { width: 320, height: 120 },
+    defaultProps: {},
+    dataCapability: "none",
+    component: markRaw(StubComponent),
+  };
+  const wrapper = mount(ComponentHost, {
+    props: {
+      definition,
+      instance: {
+        id: "styled-text",
+        type: "builtin.text",
+        frame: { x: 0, y: 0, width: 320, height: 120 },
+        style: {
+          background_color: "#111827",
+          text_color: "#f8fafc",
+          border_color: "#3b82f6",
+          border_width: 2,
+          border_radius: 8,
+          opacity: 0.8,
+        },
+      },
+      loadAsset: vi.fn(),
+      queryState: { status: "idle", result: null, error: null },
+      theme: {},
+    },
+  });
+
+  expect(wrapper.get(".component-host").attributes("style")).toContain(
+    "background-color: #111827",
+  );
+  expect(wrapper.get(".component-host").attributes("style")).toContain(
+    "border: 2px solid #3b82f6",
+  );
+  expect(wrapper.get(".component-host").attributes("style")).toContain(
+    "opacity: 0.8",
+  );
 });
 
 test("loads bound components through one unified screen runtime", async () => {

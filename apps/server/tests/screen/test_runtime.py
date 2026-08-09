@@ -96,6 +96,12 @@ class FakeDatasetRepository:
 class FakeDatasourceService:
     result: QueryResult
     requests: list[tuple[str, QueryRequest, str, str | None, str]] = field(default_factory=list)
+    connector_dialect: str = "sqlite"
+    dialect_requests: list[str] = field(default_factory=list)
+
+    async def dialect(self, datasource_id: str) -> str:
+        self.dialect_requests.append(datasource_id)
+        return self.connector_dialect
 
     async def query(
         self,
@@ -255,6 +261,57 @@ async def test_runtime_executes_component_query_from_unsaved_document(
     assert result == query_result()
     assert datasource_service.requests[0][2] == "request-preview-1"
     assert datasource_service.requests[0][4] == "screen-document-preview"
+
+
+async def test_runtime_compiles_component_query_for_datasource_dialect(
+    screen_repository: ScreenRepository,
+) -> None:
+    dataset = DatasetResponse(
+        id="departments",
+        name="Departments",
+        data_source_id="source-1",
+        definition=DatasetDefinition(
+            id="departments",
+            name="Departments",
+            data_source_id="source-1",
+            query=SqlQuery(sql="SELECT name AS '名称', code AS '编码' FROM departments"),
+            fields=(
+                DatasetField(name="名称", data_type=DataType.STRING),
+                DatasetField(name="编码", data_type=DataType.STRING),
+            ),
+        ),
+        created_at=datetime(2026, 7, 30, tzinfo=UTC),
+        updated_at=datetime(2026, 7, 30, tzinfo=UTC),
+    )
+    document = screen_document(
+        data_binding={
+            "chart_spec": ChartSpec(
+                dataset_id="departments",
+                dimensions=("名称",),
+                measures=(Measure(field="编码", aggregation=Aggregation.SUM),),
+                visual=VisualSpec(type=ChartType.LINE),
+            ).model_dump(mode="json")
+        }
+    )
+    datasource_service = FakeDatasourceService(
+        query_result(),
+        connector_dialect="mysql",
+    )
+    runtime = ScreenRuntimeService(
+        screen_repository=screen_repository,
+        dataset_repository=FakeDatasetRepository(dataset),
+        datasource_service=datasource_service,
+    )
+
+    await runtime.query_document_component(
+        ScreenDocumentQueryRequest(document=document, component_id="line-1"),
+        request_id="request-mysql-preview",
+    )
+
+    assert datasource_service.dialect_requests == ["source-1"]
+    request = datasource_service.requests[0][1]
+    assert "dataset_source.`名称`" in request.sql
+    assert "SUM(dataset_source.`编码`) AS `编码`" in request.sql
 
 
 @pytest.mark.parametrize(

@@ -94,6 +94,107 @@ test("drag snaps unlocked selected components to the ten-pixel grid", () => {
   });
 });
 
+test("resize persists position and size while keeping the component inside the canvas", () => {
+  const store = useScreenEditorStore();
+  const wrapper = mount(ScreenCanvas);
+
+  wrapper.vm.commitResize("text-1", {
+    x: -20,
+    y: 20,
+    width: 1_200,
+    height: 700,
+  });
+
+  expect(store.document?.components?.[0]?.frame).toMatchObject({
+    x: 0,
+    y: 0,
+    width: 1000,
+    height: 600,
+  });
+});
+
+test("group resize persists every frame in one undoable command", () => {
+  const store = useScreenEditorStore();
+  store.selection = ["text-1", "kpi-1"];
+  const wrapper = mount(ScreenCanvas);
+
+  wrapper.vm.commitResizeFrames({
+    "text-1": { x: 20, y: 20, width: 260, height: 140 },
+    "kpi-1": { x: 360, y: 120, width: 300, height: 180 },
+  });
+
+  expect(store.document?.components?.[0]?.frame).toMatchObject({
+    x: 20,
+    y: 20,
+    width: 260,
+    height: 140,
+  });
+  expect(store.document?.components?.[1]?.frame).toMatchObject({
+    x: 360,
+    y: 120,
+    width: 300,
+    height: 180,
+  });
+  store.undo();
+  expect(store.document?.components?.[0]?.frame).toMatchObject({
+    x: 40,
+    y: 40,
+    width: 200,
+    height: 100,
+  });
+  expect(store.document?.components?.[1]?.frame).toMatchObject({
+    x: 300,
+    y: 100,
+    width: 240,
+    height: 120,
+  });
+});
+
+test("editor shortcuts do not hijack copy and paste inside form fields", async () => {
+  const store = useScreenEditorStore();
+  store.selection = ["text-1"];
+  const wrapper = mount(ScreenCanvas, {
+    attachTo: document.body,
+    props: { idFactory: () => "should-not-be-created" },
+  });
+  wrapper.vm.copySelection();
+  const input = document.createElement("input");
+  document.body.append(input);
+
+  input.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "v", ctrlKey: true, bubbles: true }),
+  );
+  await flushPromises();
+
+  expect(store.document?.components).toHaveLength(4);
+  input.remove();
+  wrapper.unmount();
+});
+
+test("duplicate, escape, and redo shortcuts match the editor contract", async () => {
+  const store = useScreenEditorStore();
+  store.selection = ["text-1"];
+  const wrapper = mount(ScreenCanvas, {
+    attachTo: document.body,
+    props: { idFactory: () => "text-copy-shortcut" },
+  });
+
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "d", ctrlKey: true }),
+  );
+  expect(store.document?.components?.at(-1)?.id).toBe("text-copy-shortcut");
+
+  window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+  expect(store.selection).toEqual([]);
+
+  store.undo();
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "y", ctrlKey: true }),
+  );
+  expect(store.document?.components?.at(-1)?.id).toBe("text-copy-shortcut");
+  wrapper.unmount();
+});
+
 test("bound components show draft query results while editing", async () => {
   const store = useScreenEditorStore();
   store.document!.components!.find((component) => component.id === "kpi-1")!.data_binding = {
@@ -133,6 +234,61 @@ test("bound components show draft query results while editing", async () => {
   await flushPromises();
 
   expect(wrapper.get('[data-canvas-component="kpi-1"]').text()).toContain("12,345");
+});
+
+test("a failed draft query can be retried inside the affected component", async () => {
+  const store = useScreenEditorStore();
+  store.document!.components!.find((component) => component.id === "kpi-1")!.data_binding = {
+    chart_spec: {
+      schema_version: 1,
+      dataset_id: "sales",
+      dimensions: ["region"],
+      measures: [{ field: "amount", aggregation: "sum" }],
+      filters: [],
+      sort: [],
+      limit: 100,
+      visual: { type: "kpi", title: "" },
+    },
+  };
+  let queryCount = 0;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL) => {
+      if (String(input) !== "/api/admin/screens/query-document") {
+        return Promise.resolve(jsonResponse(screen));
+      }
+      queryCount += 1;
+      if (queryCount === 1) {
+        return Promise.resolve(new Response("failed", { status: 500 }));
+      }
+      return Promise.resolve(jsonResponse({
+        request_id: "editor-query-retry",
+        columns: [{ name: "amount", data_type: "number" }],
+        rows: [[678]],
+        row_count: 1,
+        truncated: false,
+        duration_ms: 3,
+      }));
+    }),
+  );
+
+  const wrapper = mount(ScreenCanvas);
+  await flushPromises();
+  expect(wrapper.get('[data-retry-component-data="kpi-1"]').text()).toContain("重试");
+
+  await wrapper.get('[data-retry-component-data="kpi-1"]').trigger("click");
+  await flushPromises();
+
+  expect(queryCount).toBe(2);
+  expect(wrapper.get('[data-canvas-component="kpi-1"]').text()).toContain("678");
+});
+
+test("canvas status makes the fixed coordinate system explicit", () => {
+  const wrapper = mount(ScreenCanvas);
+
+  expect(wrapper.get("[data-canvas-status]").text()).toContain("1000 × 600");
+  expect(wrapper.get("[data-canvas-status]").text()).toContain("网格 10px");
+  expect(wrapper.get("[data-canvas-status]").text()).toContain("吸附开启");
 });
 
 test("new components use distinct free positions instead of stacking at the top left", async () => {

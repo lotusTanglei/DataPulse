@@ -125,6 +125,10 @@ class DatasourceService:
     async def get(self, datasource_id: str) -> DatasourceResponse:
         return await self._repository.get(datasource_id)
 
+    async def dialect(self, datasource_id: str) -> str:
+        datasource = await self._repository.get(datasource_id)
+        return self._connector(datasource).dialect
+
     async def update(
         self,
         datasource_id: str,

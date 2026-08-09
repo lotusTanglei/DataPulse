@@ -177,3 +177,111 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
     .poll(() => queryCount, { timeout: 12_000 })
     .toBeGreaterThan(beforeTimer);
 });
+
+test("multi-selection drags as one group and persists the same canvas delta", async ({
+  page,
+}) => {
+  test.setTimeout(45_000);
+  await page.setViewportSize({ width: 1600, height: 1000 });
+  await authenticate(page);
+  await page.goto("/studio/screens");
+  await page.getByRole("button", { name: /新建大屏/ }).first().click();
+  await page.getByLabel("大屏名称").fill("E2E 多选拖拽");
+  await page.getByRole("button", { name: "创建并编辑" }).click();
+
+  const library = page.getByLabel("组件库");
+  await library.getByRole("button", { name: "＋ 文本" }).click();
+  await library.getByRole("button", { name: "＋ 指标" }).click();
+  const components = page.locator("[data-canvas-component]");
+  await expect(components).toHaveCount(2);
+  await components.nth(0).click();
+  await components.nth(1).click({ modifiers: ["Meta"] });
+  await expect(page.locator(".editor-canvas-component.is-selected")).toHaveCount(2);
+
+  const before = await components.evaluateAll((items) =>
+    items.map((item) => ({
+      x: Number.parseFloat((item as HTMLElement).style.left),
+      y: Number.parseFloat((item as HTMLElement).style.top),
+    })),
+  );
+  const firstBox = await components.nth(0).boundingBox();
+  expect(firstBox).not.toBeNull();
+  await page.mouse.move(
+    firstBox!.x + firstBox!.width / 2,
+    firstBox!.y + firstBox!.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    firstBox!.x + firstBox!.width / 2 + 50,
+    firstBox!.y + firstBox!.height / 2 + 30,
+    { steps: 6 },
+  );
+  await page.mouse.up();
+
+  const after = await components.evaluateAll((items) =>
+    items.map((item) => ({
+      x: Number.parseFloat((item as HTMLElement).style.left),
+      y: Number.parseFloat((item as HTMLElement).style.top),
+    })),
+  );
+  const deltas = after.map((position, index) => ({
+    x: position.x - before[index]!.x,
+    y: position.y - before[index]!.y,
+  }));
+  expect(deltas[0]!.x).toBeGreaterThan(20);
+  expect(deltas[0]!.y).toBeGreaterThan(10);
+  expect(Math.abs(deltas[0]!.x - deltas[1]!.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(deltas[0]!.y - deltas[1]!.y)).toBeLessThanOrEqual(1);
+
+  const beforeSizes = await components.evaluateAll((items) =>
+    items.map((item) => ({
+      width: Number.parseFloat((item as HTMLElement).style.width),
+      height: Number.parseFloat((item as HTMLElement).style.height),
+    })),
+  );
+  const groupResizeHandle = page.locator(".moveable-control-box .moveable-se");
+  await expect(groupResizeHandle).toBeVisible();
+  const resizeBox = await groupResizeHandle.boundingBox();
+  expect(resizeBox).not.toBeNull();
+  await page.mouse.move(
+    resizeBox!.x + resizeBox!.width / 2,
+    resizeBox!.y + resizeBox!.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    resizeBox!.x + resizeBox!.width / 2 + 40,
+    resizeBox!.y + resizeBox!.height / 2 + 30,
+    { steps: 6 },
+  );
+  await page.mouse.up();
+  const resized = await components.evaluateAll((items) =>
+    items.map((item) => ({
+      x: Number.parseFloat((item as HTMLElement).style.left),
+      y: Number.parseFloat((item as HTMLElement).style.top),
+      width: Number.parseFloat((item as HTMLElement).style.width),
+      height: Number.parseFloat((item as HTMLElement).style.height),
+    })),
+  );
+  expect(resized[0]!.width).toBeGreaterThan(beforeSizes[0]!.width);
+  expect(resized[0]!.height).toBeGreaterThan(beforeSizes[0]!.height);
+  expect(resized[1]!.width).toBeGreaterThan(beforeSizes[1]!.width);
+  expect(resized[1]!.height).toBeGreaterThan(beforeSizes[1]!.height);
+
+  await expect(
+    page.getByLabel("编辑器工具栏").getByText("未保存"),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("编辑器工具栏").getByText("已保存"),
+  ).toBeVisible({ timeout: 10_000 });
+  await page.reload();
+  await expect(components).toHaveCount(2);
+  const persisted = await page.locator("[data-canvas-component]").evaluateAll((items) =>
+    items.map((item) => ({
+      x: Number.parseFloat((item as HTMLElement).style.left),
+      y: Number.parseFloat((item as HTMLElement).style.top),
+    })),
+  );
+  expect(persisted).toEqual(
+    resized.map(({ x, y }) => ({ x, y })),
+  );
+});

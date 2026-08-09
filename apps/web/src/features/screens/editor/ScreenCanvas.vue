@@ -62,6 +62,8 @@ let clipboard: string[] = [];
 let selecto: Selecto | null = null;
 let moveable: Moveable | null = null;
 const interactionStartFrames = new Map<string, ComponentInstance["frame"]>();
+const interactionFinalPositions = new Map<string, { x: number; y: number }>();
+const interactionFinalFrames = new Map<string, ComponentInstance["frame"]>();
 
 const visibleComponents = computed(() =>
   (store.document?.components ?? []).filter(
@@ -148,6 +150,13 @@ async function refreshData(): Promise<void> {
   );
 }
 
+async function refreshComponentData(component: ComponentInstance): Promise<void> {
+  if (!component.data_binding || Object.keys(component.data_binding).length === 0) {
+    return;
+  }
+  await refreshData();
+}
+
 function editable(ids: string[]): ComponentInstance[] {
   const selected = new Set(ids);
   return (store.document?.components ?? []).filter(
@@ -187,20 +196,63 @@ function commitDrag(
   }
 }
 
-function commitResize(id: string, width: number, height: number): void {
+function normalizedResizeFrame(
+  frame: ComponentInstance["frame"],
+): ComponentInstance["frame"] {
+  if (!store.document) return frame;
+  const canvas = store.document.canvas;
+  const snap = (value: number) =>
+    snapEnabled.value ? snapToGrid(value) : value;
+  const width = Math.min(canvas.width, Math.max(40, snap(frame.width)));
+  const height = Math.min(canvas.height, Math.max(40, snap(frame.height)));
+  return {
+    ...frame,
+    x: Math.min(Math.max(0, snap(frame.x)), canvas.width - width),
+    y: Math.min(Math.max(0, snap(frame.y)), canvas.height - height),
+    width,
+    height,
+  };
+}
+
+function commitResize(id: string, frame: ComponentInstance["frame"]): void {
   const component = componentById(id);
-  if (!component || component.state?.locked) {
+  if (!component || component.state?.locked || !store.document) {
     return;
   }
+  const normalized = normalizedResizeFrame(frame);
   store.dispatch({
-    type: "update_frames",
-    patches: {
-      [id]: {
-        width: Math.max(40, snapToGrid(width)),
-        height: Math.max(40, snapToGrid(height)),
-      },
+    type: "update_frame",
+    component_ids: [id],
+    patch: {
+      x: normalized.x,
+      y: normalized.y,
+      width: normalized.width,
+      height: normalized.height,
     },
   });
+}
+
+function commitResizeFrames(
+  frames: Record<string, ComponentInstance["frame"]>,
+): void {
+  if (!store.document) return;
+  const patches = Object.fromEntries(
+    editable(Object.keys(frames)).map((component) => {
+      const normalized = normalizedResizeFrame(frames[component.id]!);
+      return [
+        component.id,
+        {
+          x: normalized.x,
+          y: normalized.y,
+          width: normalized.width,
+          height: normalized.height,
+        },
+      ];
+    }),
+  );
+  if (Object.keys(patches).length > 0) {
+    store.dispatch({ type: "update_frames", patches });
+  }
 }
 
 function alignSelection(alignment: Alignment): void {
@@ -285,6 +337,11 @@ function removeSelection(): void {
   }
 }
 
+function duplicateSelection(): void {
+  copySelection();
+  pasteSelection();
+}
+
 function setZoom(value: number): void {
   zoom.value = Math.min(2, Math.max(0.1, value));
   if (moveable) {
@@ -358,27 +415,35 @@ function toggleSnap(): void {
 }
 
 function keyboard(event: KeyboardEvent): void {
+  const target = event.target;
+  if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  ) {
+    return;
+  }
   const modifier = event.metaKey || event.ctrlKey;
   if (modifier && event.key.toLowerCase() === "z") {
     event.preventDefault();
     event.shiftKey ? store.redo() : store.undo();
+  } else if (modifier && event.key.toLowerCase() === "y") {
+    event.preventDefault();
+    store.redo();
   } else if (modifier && event.key.toLowerCase() === "c") {
     event.preventDefault();
     copySelection();
   } else if (modifier && event.key.toLowerCase() === "v") {
     event.preventDefault();
     pasteSelection();
+  } else if (modifier && event.key.toLowerCase() === "d") {
+    event.preventDefault();
+    duplicateSelection();
   } else if (modifier && event.key.toLowerCase() === "g") {
     event.preventDefault();
     event.shiftKey ? ungroupSelection() : groupSelection();
   } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
-    if (
-      event.target instanceof HTMLInputElement ||
-      event.target instanceof HTMLTextAreaElement ||
-      event.target instanceof HTMLSelectElement
-    ) {
-      return;
-    }
     const distance = event.shiftKey ? 10 : 1;
     const delta = {
       x: event.key === "ArrowLeft" ? -distance : event.key === "ArrowRight" ? distance : 0,
@@ -389,6 +454,9 @@ function keyboard(event: KeyboardEvent): void {
       event.preventDefault();
       commitDrag(ids, { dx: delta.x, dy: delta.y });
     }
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    store.selection = [];
   } else if (
     event.key === "Delete" ||
     (event.key === "Backspace" &&
@@ -406,6 +474,7 @@ async function updateMoveableTargets(): Promise<void> {
     return;
   }
   moveable.target = store.selection
+    .filter((id) => !componentById(id)?.state?.locked)
     .map((id) =>
       canvas.value?.querySelector<HTMLElement>(
         `[data-canvas-component="${CSS.escape(id)}"]`,
@@ -413,6 +482,24 @@ async function updateMoveableTargets(): Promise<void> {
     )
     .filter((element): element is HTMLElement => Boolean(element));
   moveable.updateRect();
+}
+
+function beginInteraction(): void {
+  interactionStartFrames.clear();
+  interactionFinalPositions.clear();
+  interactionFinalFrames.clear();
+  for (const component of editable(store.selection)) {
+    interactionStartFrames.set(component.id, { ...component.frame });
+  }
+}
+
+function finishInteraction(): void {
+  interactionStartFrames.clear();
+  interactionFinalPositions.clear();
+  interactionFinalFrames.clear();
+  activeGuides.value = [];
+  activeOverlapIds.value = [];
+  void updateMoveableTargets();
 }
 
 onMounted(() => {
@@ -426,7 +513,29 @@ onMounted(() => {
       selectFromInside: false,
       toggleContinueSelect: ["shift"],
     });
+    selecto.on("dragStart", (event) => {
+      const target = event.inputEvent.target;
+      const selectedTargets = store.selection
+        .map((id) =>
+          canvas.value?.querySelector<HTMLElement>(
+            `[data-canvas-component="${CSS.escape(id)}"]`,
+          ),
+        )
+        .filter((element): element is HTMLElement => Boolean(element));
+      if (
+        target instanceof Element &&
+        (moveable?.isMoveableElement(target) ||
+          selectedTargets.some(
+            (element) => element === target || element.contains(target),
+          ))
+      ) {
+        event.stop();
+      }
+    });
     selecto.on("selectEnd", (event) => {
+      if (event.isClick) {
+        return;
+      }
       store.selection = event.selected
         .map((element) => element.getAttribute("data-canvas-component"))
         .filter((id): id is string => Boolean(id));
@@ -441,10 +550,7 @@ onMounted(() => {
       snappable: false,
     });
     moveable.on("dragStart", (event) => {
-      interactionStartFrames.clear();
-      for (const component of editable(store.selection)) {
-        interactionStartFrames.set(component.id, { ...component.frame });
-      }
+      beginInteraction();
       event.datas.startFrames = new Map(interactionStartFrames);
     });
     moveable.on("drag", (event) => {
@@ -472,47 +578,157 @@ onMounted(() => {
       const target = event.target as HTMLElement;
       target.style.left = `${snapped.frame.x}px`;
       target.style.top = `${snapped.frame.y}px`;
+      interactionFinalPositions.set(id, {
+        x: snapped.frame.x,
+        y: snapped.frame.y,
+      });
     });
     moveable.on("dragEnd", (event) => {
       const id = event.target.getAttribute("data-canvas-component");
       const start = id ? interactionStartFrames.get(id) : undefined;
       if (id && start) {
-        const target = event.target as HTMLElement;
-        const left = Number.parseFloat(target.style.left);
-        const top = Number.parseFloat(target.style.top);
-        if (Number.isFinite(left) && Number.isFinite(top)) {
+        const finalPosition = interactionFinalPositions.get(id);
+        if (finalPosition) {
           commitDrag(
             [id],
-            { dx: left - start.x, dy: top - start.y },
-            { [id]: { x: left, y: top } },
+            {
+              dx: finalPosition.x - start.x,
+              dy: finalPosition.y - start.y,
+            },
+            { [id]: finalPosition },
           );
         }
       }
-      interactionStartFrames.clear();
-      activeGuides.value = [];
-      activeOverlapIds.value = [];
-      void updateMoveableTargets();
+      finishInteraction();
+    });
+    moveable.on("dragGroupStart", () => {
+      beginInteraction();
+    });
+    moveable.on("dragGroup", (event) => {
+      if (!store.document || interactionStartFrames.size < 2) {
+        return;
+      }
+      const firstEvent = event.events.find((item) => {
+        const id = item.target.getAttribute("data-canvas-component");
+        return id ? interactionStartFrames.has(id) : false;
+      });
+      const firstId = firstEvent?.target.getAttribute("data-canvas-component");
+      const firstStart = firstId ? interactionStartFrames.get(firstId) : undefined;
+      const frames = [...interactionStartFrames.entries()].map(([id, frame]) => ({
+        id,
+        frame,
+      }));
+      const bounds = getSelectionBounds(frames.map((item) => item.frame));
+      if (!firstEvent || !firstStart || !bounds) {
+        return;
+      }
+      const requestedDelta = {
+        x: firstEvent.left - firstStart.x,
+        y: firstEvent.top - firstStart.y,
+      };
+      const selected = new Set(interactionStartFrames.keys());
+      const siblings = visibleComponents.value
+        .filter((component) => !selected.has(component.id))
+        .map((component) => ({ id: component.id, frame: component.frame }));
+      const inputEvent = event.inputEvent as MouseEvent | TouchEvent | undefined;
+      const disableSnap = inputEvent instanceof MouseEvent && inputEvent.altKey;
+      const snapped = snapFrame(
+        {
+          id: "__selection__",
+          frame: {
+            x: bounds.x + requestedDelta.x,
+            y: bounds.y + requestedDelta.y,
+            width: bounds.width,
+            height: bounds.height,
+          },
+        },
+        { canvas: store.document.canvas, siblings },
+        { enabled: snapEnabled.value && !disableSnap },
+      );
+      const delta = {
+        x: snapped.frame.x - bounds.x,
+        y: snapped.frame.y - bounds.y,
+      };
+      activeGuides.value = snapped.guides;
+      activeOverlapIds.value = snapped.overlapIds;
+      for (const item of event.events) {
+        const id = item.target.getAttribute("data-canvas-component");
+        const start = id ? interactionStartFrames.get(id) : undefined;
+        if (!start) continue;
+        const target = item.target as HTMLElement;
+        target.style.left = `${start.x + delta.x}px`;
+        target.style.top = `${start.y + delta.y}px`;
+        interactionFinalPositions.set(id!, {
+          x: start.x + delta.x,
+          y: start.y + delta.y,
+        });
+      }
+    });
+    moveable.on("dragGroupEnd", () => {
+      const positions = Object.fromEntries(interactionFinalPositions);
+      const ids = Object.keys(positions);
+      if (ids.length > 0) {
+        commitDrag(ids, { dx: 0, dy: 0 }, positions);
+      }
+      finishInteraction();
+    });
+    moveable.on("resizeStart", () => {
+      beginInteraction();
     });
     moveable.on("resize", (event) => {
       const target = event.target as HTMLElement;
+      const id = target.getAttribute("data-canvas-component");
+      const start = id ? interactionStartFrames.get(id) : undefined;
+      if (!id || !start) return;
+      const frame = {
+        ...start,
+        x: event.drag?.left ?? start.x,
+        y: event.drag?.top ?? start.y,
+        width: event.width,
+        height: event.height,
+      };
       target.style.width = `${event.width}px`;
       target.style.height = `${event.height}px`;
       if (event.drag) {
         target.style.left = `${event.drag.left}px`;
         target.style.top = `${event.drag.top}px`;
       }
+      interactionFinalFrames.set(id, frame);
     });
     moveable.on("resizeEnd", (event) => {
       const id = event.target.getAttribute("data-canvas-component");
-      const target = event.target as HTMLElement;
-      const width = Number.parseFloat(target.style.width);
-      const height = Number.parseFloat(target.style.height);
-      if (id && Number.isFinite(width) && Number.isFinite(height)) {
-        commitResize(id, width, height);
+      const frame = id ? interactionFinalFrames.get(id) : undefined;
+      if (id && frame) {
+        commitResize(id, frame);
       }
-      activeGuides.value = [];
-      activeOverlapIds.value = [];
-      void updateMoveableTargets();
+      finishInteraction();
+    });
+    moveable.on("resizeGroupStart", () => {
+      beginInteraction();
+    });
+    moveable.on("resizeGroup", (event) => {
+      for (const item of event.events) {
+        const target = item.target as HTMLElement;
+        const id = target.getAttribute("data-canvas-component");
+        const start = id ? interactionStartFrames.get(id) : undefined;
+        if (!id || !start) continue;
+        const frame = {
+          ...start,
+          x: item.drag?.left ?? start.x,
+          y: item.drag?.top ?? start.y,
+          width: item.width,
+          height: item.height,
+        };
+        target.style.left = `${frame.x}px`;
+        target.style.top = `${frame.y}px`;
+        target.style.width = `${frame.width}px`;
+        target.style.height = `${frame.height}px`;
+        interactionFinalFrames.set(id, frame);
+      }
+    });
+    moveable.on("resizeGroupEnd", () => {
+      commitResizeFrames(Object.fromEntries(interactionFinalFrames));
+      finishInteraction();
     });
     void updateMoveableTargets();
   }
@@ -546,7 +762,9 @@ defineExpose({
   alignSelection,
   commitDrag,
   commitResize,
+  commitResizeFrames,
   copySelection,
+  duplicateSelection,
   distributeSelection,
   fitToViewport,
   pasteSelection,
@@ -584,7 +802,7 @@ defineExpose({
           "
           data-canvas-guide
         />
-        <button
+        <div
           v-for="component in visibleComponents"
           :key="component.id"
           class="editor-canvas-component"
@@ -594,7 +812,8 @@ defineExpose({
             'is-hovered': hoveredId === component.id,
             'is-overlapped': overlapIds.has(component.id),
           }"
-          type="button"
+          role="button"
+          tabindex="0"
           :data-canvas-component="component.id"
           :style="{
             left: `${component.frame.x}px`,
@@ -606,6 +825,7 @@ defineExpose({
           @mouseenter="hoveredId = component.id"
           @mouseleave="hoveredId = null"
           @click.stop="selectComponent(component.id, $event)"
+          @keydown.enter.stop="store.selection = [component.id]"
         >
           <span
             v-if="hoveredId === component.id || store.selection.includes(component.id) || overlapIds.has(component.id)"
@@ -620,8 +840,28 @@ defineExpose({
             :query-state="dataRuntime.state(component.id)"
             :theme="store.document?.theme?.tokens ?? {}"
           />
-        </button>
+          <div
+            v-if="dataRuntime.state(component.id).status === 'error'"
+            class="canvas-component-error"
+          >
+            <span>数据加载失败</span>
+            <button
+              type="button"
+              :data-retry-component-data="component.id"
+              @click.stop="refreshComponentData(component)"
+            >
+              重试
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+    <div class="canvas-status" data-canvas-status>
+      <span>{{ store.document?.canvas.width ?? 1920 }} × {{ store.document?.canvas.height ?? 1080 }}</span>
+      <span>{{ Math.round(zoom * 100) }}%</span>
+      <span>{{ showGrid ? "网格 10px" : "网格关闭" }}</span>
+      <span>{{ snapEnabled ? "吸附开启" : "吸附关闭" }}</span>
+      <span v-if="store.selection.length">已选 {{ store.selection.length }} 个组件</span>
     </div>
   </div>
 </template>

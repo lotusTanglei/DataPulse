@@ -192,11 +192,11 @@ test("inspector restores persisted data binding when selecting a component", asy
   expect(
     (wrapper.get('[data-inspector-aggregation]').element as HTMLSelectElement).value,
   ).toBe("avg");
-  expect((wrapper.find('input[type="color"]').element as HTMLInputElement).value).toBe(
+  expect((wrapper.get('[data-theme-accent]').element as HTMLInputElement).value).toBe(
     "#22c55e",
   );
   expect(
-    (wrapper.findAll('input[type="color"]')[1].element as HTMLInputElement).value,
+    (wrapper.get('[data-theme-background]').element as HTMLInputElement).value,
   ).toBe("#101827");
 });
 
@@ -218,4 +218,97 @@ test("non-data image components hide chart binding and click interaction", () =>
   expect(wrapper.text()).not.toContain("应用数据绑定");
   expect(wrapper.text()).not.toContain("应用点击联动");
   expect(wrapper.text()).toContain("图片资源 ID");
+});
+
+test("base tab edits the complete frame and component state", async () => {
+  const store = useScreenEditorStore();
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+  await wrapper.get('[data-inspector-tab="base"]').trigger("click");
+
+  await wrapper.get('[data-frame-field="width"]').setValue("720");
+  await wrapper.get('[data-frame-field="height"]').setValue("420");
+  await wrapper.get('[data-component-lock]').trigger("click");
+
+  expect(store.document?.components?.[0]?.frame).toMatchObject({
+    width: 720,
+    height: 420,
+  });
+  expect(store.document?.components?.[0]?.state?.locked).toBe(true);
+  expect(wrapper.get('[data-inspector-tab="base"]').classes()).toContain(
+    "is-active",
+  );
+});
+
+test("table binding selects raw fields without aggregating string values", async () => {
+  const store = useScreenEditorStore();
+  store.document!.components![0] = {
+    ...store.document!.components![0]!,
+    type: "builtin.table",
+    data_binding: {},
+  };
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  await wrapper.get('[data-inspector-dataset]').setValue("sales");
+  await wrapper.get('[data-table-field="region"]').setValue(true);
+  await wrapper.get('[data-table-field="amount"]').setValue(true);
+  await wrapper.get('[data-apply-binding]').trigger("click");
+
+  expect(store.document?.components?.[0]?.data_binding?.chart_spec).toMatchObject({
+    dimensions: ["region", "amount"],
+    measures: [],
+    visual: { type: "table" },
+  });
+});
+
+test("style and refresh settings round-trip through the inspector", async () => {
+  const store = useScreenEditorStore();
+  store.dispatch({
+    type: "update_style",
+    component_id: "bar-1",
+    patch: {
+      background_color: "#111827",
+      text_color: "#f8fafc",
+      border_color: "#3b82f6",
+      border_width: 2,
+      border_radius: 8,
+      opacity: 0.8,
+    },
+  });
+  store.dispatch({
+    type: "update_refresh",
+    refresh: { mode: "interval", interval_seconds: 30 },
+  });
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  await wrapper.get('[data-inspector-tab="style"]').trigger("click");
+  expect(wrapper.get('[data-style-field="background_color"]').element).toHaveProperty(
+    "value",
+    "#111827",
+  );
+  await wrapper.get('[data-style-field="border_radius"]').setValue("12");
+  await wrapper.get('[data-apply-component-style]').trigger("click");
+  expect(store.document?.components?.[0]?.style).toMatchObject({
+    background_color: "#111827",
+    border_radius: 12,
+    opacity: 0.8,
+  });
+
+  await wrapper.get('[data-inspector-tab="advanced"]').trigger("click");
+  expect(wrapper.get('[data-refresh-mode]').element).toHaveProperty(
+    "value",
+    "interval",
+  );
+  expect(wrapper.get('[data-refresh-interval]').element).toHaveProperty(
+    "value",
+    "30",
+  );
+  await wrapper.get('[data-refresh-interval]').setValue("60");
+  await wrapper.get('[data-apply-refresh]').trigger("click");
+  expect(store.document?.refresh).toEqual({
+    mode: "interval",
+    interval_seconds: 60,
+  });
 });

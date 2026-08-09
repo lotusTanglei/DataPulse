@@ -58,6 +58,8 @@ class _FileAssetRepository(Protocol):
 
 
 class _DatasourceService(Protocol):
+    async def dialect(self, datasource_id: str) -> str: ...
+
     async def query(
         self,
         datasource_id: str,
@@ -212,10 +214,12 @@ class ScreenRuntimeService:
                 timeout_seconds=dataset.definition.timeout_seconds,
                 request_id=request_id,
             )
+        dialect = await self._datasource_service.dialect(dataset.data_source_id)
         request = self._compiler.compile(
             spec=spec,
             dataset=dataset.definition,
             parameters=runtime_parameters,
+            dialect=dialect,
         )
         return await self._datasource_service.query(
             dataset.data_source_id,

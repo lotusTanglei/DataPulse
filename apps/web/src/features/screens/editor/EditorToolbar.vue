@@ -10,6 +10,7 @@ import {
   Grid3X3,
   Magnet,
   Redo2,
+  RefreshCw,
   Save,
   Send,
   Space,
@@ -41,6 +42,7 @@ const emit = defineEmits<{
   group: [];
   ungroup: [];
   publish: [];
+  refresh: [];
   zoom: [value: number];
 }>();
 const store = useScreenEditorStore();
@@ -56,13 +58,13 @@ const store = useScreenEditorStore();
       <span :data-state="store.saveState">{{ saveLabel }}</span>
     </div>
     <div class="editor-toolbar__spacer" />
-    <button class="editor-icon-button" type="button" aria-label="左对齐" @click="emit('align', 'left')">
+    <button class="editor-icon-button" type="button" aria-label="左对齐" :disabled="selectionCount < 2" @click="emit('align', 'left')">
       <AlignLeft :size="15" />
     </button>
-    <button class="editor-icon-button" type="button" aria-label="水平居中" @click="emit('align', 'center')">
+    <button class="editor-icon-button" type="button" aria-label="水平居中" :disabled="selectionCount < 2" @click="emit('align', 'center')">
       <AlignCenter :size="15" />
     </button>
-    <button class="editor-icon-button" type="button" aria-label="右对齐" @click="emit('align', 'right')">
+    <button class="editor-icon-button" type="button" aria-label="右对齐" :disabled="selectionCount < 2" @click="emit('align', 'right')">
       <AlignRight :size="15" />
     </button>
     <button
@@ -83,19 +85,20 @@ const store = useScreenEditorStore();
     >
       取消组合
     </button>
-    <button class="editor-icon-button" type="button" aria-label="顶部对齐" @click="emit('align', 'top')">
+    <button class="editor-icon-button" type="button" aria-label="顶部对齐" :disabled="selectionCount < 2" @click="emit('align', 'top')">
       <AlignCenterHorizontal :size="15" />
     </button>
-    <button class="editor-icon-button" type="button" aria-label="垂直居中" @click="emit('align', 'middle')">
+    <button class="editor-icon-button" type="button" aria-label="垂直居中" :disabled="selectionCount < 2" @click="emit('align', 'middle')">
       <AlignCenterVertical :size="15" />
     </button>
-    <button class="editor-icon-button" type="button" aria-label="底部对齐" @click="emit('align', 'bottom')">
+    <button class="editor-icon-button" type="button" aria-label="底部对齐" :disabled="selectionCount < 2" @click="emit('align', 'bottom')">
       <AlignCenterHorizontal :size="15" />
     </button>
     <button
       class="editor-icon-button"
       type="button"
       aria-label="水平等间距"
+      :disabled="selectionCount < 3"
       @click="emit('distribute', 'horizontal')"
     >
       <Space :size="15" />
@@ -104,6 +107,7 @@ const store = useScreenEditorStore();
       class="editor-icon-button"
       type="button"
       aria-label="垂直等间距"
+      :disabled="selectionCount < 3"
       @click="emit('distribute', 'vertical')"
     >
       <Space :size="15" />
@@ -138,6 +142,9 @@ const store = useScreenEditorStore();
     </button>
     <button class="editor-icon-button" type="button" aria-label="重做" :disabled="!store.canRedo" @click="store.redo">
       <Redo2 :size="16" />
+    </button>
+    <button class="editor-icon-button" type="button" aria-label="刷新数据" title="重新查询画布数据" @click="emit('refresh')">
+      <RefreshCw :size="16" />
     </button>
     <RouterLink
       class="secondary-button editor-save-button"
