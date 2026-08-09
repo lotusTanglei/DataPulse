@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import type { Screen } from "../types";
+import ComponentLibrary from "./ComponentLibrary.vue";
 import LayersPanel from "./LayersPanel.vue";
 import ScreenCanvas from "./ScreenCanvas.vue";
 import { useScreenEditorStore } from "./store";
@@ -132,6 +133,29 @@ test("bound components show draft query results while editing", async () => {
   await flushPromises();
 
   expect(wrapper.get('[data-canvas-component="kpi-1"]').text()).toContain("12,345");
+});
+
+test("new components use distinct free positions instead of stacking at the top left", async () => {
+  const store = useScreenEditorStore();
+  const wrapper = mount(ComponentLibrary);
+
+  await wrapper.findAll("button")[0]!.trigger("click");
+  await wrapper.findAll("button")[1]!.trigger("click");
+
+  const added = store.document!.components!.slice(-2);
+  expect(
+    new Set(added.map((component) => `${component.frame.x}:${component.frame.y}`)).size,
+  ).toBe(2);
+  for (const component of added) {
+    expect(component.frame.x).toBeGreaterThanOrEqual(0);
+    expect(component.frame.y).toBeGreaterThanOrEqual(0);
+    expect(component.frame.x + component.frame.width).toBeLessThanOrEqual(
+      store.document!.canvas.width,
+    );
+    expect(component.frame.y + component.frame.height).toBeLessThanOrEqual(
+      store.document!.canvas.height,
+    );
+  }
 });
 
 test("multi-selection exposes one bounding box and aligns in one undo step", () => {

@@ -61,6 +61,15 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
     { steps: 5 },
   );
   await page.mouse.up();
+  const movedFrame = await selected.evaluate((element) => {
+    const target = element as HTMLElement;
+    return {
+      x: Number.parseFloat(target.style.left),
+      y: Number.parseFloat(target.style.top),
+    };
+  });
+  expect(movedFrame.x).toBeGreaterThan(40);
+  expect(movedFrame.y).toBeGreaterThan(40);
 
   const resizeHandle = page.locator(".moveable-control-box .moveable-e");
   await expect(resizeHandle).toBeVisible();
