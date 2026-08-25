@@ -1,16 +1,14 @@
 import logging
 from pathlib import Path
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode
 
 from fastapi import Request
 from fastapi.responses import FileResponse
 
-from datapulse.embedding.tokens import (
-    EmbedTicketExpired,
-    EmbedTicketInvalid,
-    validate_embed_origin,
-)
+from datapulse.embedding.service import EmbedAddressDenied, EmbedOriginDenied
+from datapulse.embedding.tokens import EmbedTicketExpired, EmbedTicketInvalid
 from datapulse.errors import DataPulseError
+from datapulse.screen.access import request_origin_from_headers
 
 
 def redact_ticket_url(value: str) -> str:
@@ -56,16 +54,10 @@ def install_ticket_redaction_filter() -> None:
 
 
 def _request_origin(request: Request) -> str | None:
-    candidate = request.headers.get("origin")
-    if candidate is not None:
-        return validate_embed_origin(candidate)
-    referer = request.headers.get("referer")
-    if referer is None:
-        return None
-    parsed = urlsplit(referer)
-    if not parsed.scheme or not parsed.netloc:
-        return ""
-    return validate_embed_origin(urlunsplit((parsed.scheme, parsed.netloc, "", "", "")))
+    return request_origin_from_headers(
+        origin=request.headers.get("origin"),
+        referer=request.headers.get("referer"),
+    )
 
 
 async def embed_page_response(
@@ -79,8 +71,17 @@ async def embed_page_response(
         claims = await request.app.state.embed_service.authorize(
             ticket,
             screen_id=screen_id,
+            client_ip=request.client.host if request.client is not None else None,
+            request_origin=_request_origin(request),
+            enforce_request=True,
         )
         request_origin = _request_origin(request)
+    except (EmbedAddressDenied, EmbedOriginDenied) as error:
+        raise DataPulseError(
+            code=error.code,
+            message="The embedding address is not allowed.",
+            status_code=403,
+        ) from error
     except (EmbedTicketExpired, EmbedTicketInvalid, ValueError) as error:
         raise DataPulseError(
             code="EMBED_TICKET_INVALID",

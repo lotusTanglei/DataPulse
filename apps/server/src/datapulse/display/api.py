@@ -9,11 +9,13 @@ from datapulse.contracts.dashboard import DashboardDocument
 from datapulse.display.service import (
     DISPLAY_SESSION_LIFETIME,
     DisplayAccessDenied,
+    DisplayAddressDenied,
     DisplayScreenUnavailable,
     DisplaySigningUnavailable,
 )
 from datapulse.errors import DataPulseError
 from datapulse.query.models import QueryResult
+from datapulse.screen.access import request_origin_from_headers
 from datapulse.screen.assets import AssetNotFound, collect_asset_references
 from datapulse.screen.models import ScreenResponse
 from datapulse.screen.repository import ScreenNotFound
@@ -63,6 +65,12 @@ def _raise_display_error(error: Exception) -> NoReturn:
             message="The display key is invalid.",
             status_code=401,
         )
+    elif isinstance(error, DisplayAddressDenied):
+        translated = DataPulseError(
+            code=error.code,
+            message="The display address is not allowed.",
+            status_code=403,
+        )
     elif isinstance(error, DisplayScreenUnavailable):
         translated = DataPulseError(
             code=error.code,
@@ -103,10 +111,29 @@ async def _renew_session(
     request: Request,
     response: Response,
 ) -> str:
+    origin: str | None
+    try:
+        origin = request_origin_from_headers(
+            origin=request.headers.get("origin"),
+            referer=request.headers.get("referer"),
+        )
+        await request.app.state.display_access_service.authorize_request(
+            screen_id,
+            origin=origin,
+            client_ip=request.client.host if request.client is not None else None,
+        )
+    except (DisplayAddressDenied, DisplayScreenUnavailable, ScreenNotFound, ValueError) as error:
+        if isinstance(error, ValueError) and not isinstance(
+            error, (DisplayAddressDenied, DisplayScreenUnavailable)
+        ):
+            error = DisplayAddressDenied(screen_id)
+        _raise_display_error(error)
     token = request.cookies.get(DISPLAY_COOKIE, "")
     renewed = await request.app.state.display_access_service.authenticate(
         screen_id,
         token,
+        origin=origin,
+        client_ip=request.client.host if request.client is not None else None,
     )
     if renewed is False:
         raise DataPulseError(
@@ -149,13 +176,25 @@ async def exchange_display_key(
         token = await request.app.state.display_access_service.exchange(
             screen_id,
             payload.key,
+            origin=request_origin_from_headers(
+                origin=request.headers.get("origin"),
+                referer=request.headers.get("referer"),
+            ),
+            client_ip=request.client.host if request.client is not None else None,
         )
     except (
         DisplayAccessDenied,
+        DisplayAddressDenied,
         DisplayScreenUnavailable,
         DisplaySigningUnavailable,
         ScreenNotFound,
+        ValueError,
     ) as error:
+        if isinstance(error, ValueError) and not isinstance(
+            error,
+            (DisplayAccessDenied, DisplayAddressDenied),
+        ):
+            error = DisplayAddressDenied(screen_id)
         _raise_display_error(error)
     _set_display_cookie(request, response, token)
 

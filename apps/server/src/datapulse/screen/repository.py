@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from datapulse.contracts.dashboard import DashboardDocument
 from datapulse.metadata import ScreenRecord
 from datapulse.metadata.models import utc_now
+from datapulse.screen.access import ScreenAccessPolicy, ScreenAccessPolicyInvalid
 from datapulse.screen.models import ScreenResponse
 
 
@@ -49,7 +50,10 @@ class ScreenRepository:
                 if record.published_document is not None
                 else None
             )
+            access_policy = ScreenAccessPolicy.model_validate(record.access_policy_json or {})
         except (TypeError, ValueError, ValidationError) as error:
+            if isinstance(error, ScreenAccessPolicyInvalid):
+                raise error
             raise ScreenDocumentInvalid(record.id) from error
         return ScreenResponse(
             id=record.id,
@@ -58,6 +62,7 @@ class ScreenRepository:
             draft_document=draft_document,
             draft_revision=record.draft_revision,
             published_document=published_document,
+            access_policy=access_policy,
             published_at=record.published_at,
             created_at=record.created_at,
             updated_at=record.updated_at,
@@ -112,6 +117,7 @@ class ScreenRepository:
         *,
         name: str | None = None,
         description: str | None = None,
+        access_policy: ScreenAccessPolicy | None = None,
     ) -> ScreenResponse:
         try:
             async with self._session_factory.begin() as session:
@@ -122,6 +128,8 @@ class ScreenRepository:
                     record.name = name
                 if description is not None:
                     record.description = description
+                if access_policy is not None:
+                    record.access_policy_json = access_policy.model_dump(mode="json")
                 record.updated_at = utc_now()
                 await session.flush()
         except IntegrityError as error:
@@ -136,6 +144,7 @@ class ScreenRepository:
         expected_revision: int,
         name: str | None = None,
         description: str | None = None,
+        access_policy: ScreenAccessPolicy | None = None,
     ) -> ScreenResponse:
         values: dict[str, object] = {
             "draft_document": _canonical_document(document),
@@ -146,6 +155,8 @@ class ScreenRepository:
             values["name"] = name
         if description is not None:
             values["description"] = description
+        if access_policy is not None:
+            values["access_policy_json"] = access_policy.model_dump(mode="json")
         try:
             async with self._session_factory.begin() as session:
                 result = await session.execute(
@@ -168,6 +179,21 @@ class ScreenRepository:
             raise ScreenNameConflict(name or "") from error
         if record is None:
             raise ScreenNotFound(screen_id)
+        return self._to_response(record)
+
+    async def update_access_policy(
+        self,
+        screen_id: str,
+        *,
+        access_policy: ScreenAccessPolicy,
+    ) -> ScreenResponse:
+        async with self._session_factory.begin() as session:
+            record = await session.get(ScreenRecord, screen_id)
+            if record is None:
+                raise ScreenNotFound(screen_id)
+            record.access_policy_json = access_policy.model_dump(mode="json")
+            record.updated_at = utc_now()
+            await session.flush()
         return self._to_response(record)
 
     async def publish(

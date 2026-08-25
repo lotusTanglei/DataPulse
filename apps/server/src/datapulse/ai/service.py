@@ -6,6 +6,7 @@ from pathlib import Path
 from pydantic import Field, ValidationError
 
 from datapulse.ai.context import DatasetContextService
+from datapulse.ai.edit import apply_ai_edit_commands, validate_edit_document
 from datapulse.ai.gateway import AiGateway
 from datapulse.ai.models import AiAnalysisError, AiHealth
 from datapulse.ai.screen_generator import ScreenDraftGenerator
@@ -15,6 +16,9 @@ from datapulse.contracts.ai import (
     AiAnalysisResponse,
     AiChartRequest,
     AiChartResponse,
+    AiEditCommand,
+    AiEditRequest,
+    AiEditResponse,
     AiScreenRequest,
     AiScreenResponse,
 )
@@ -44,6 +48,12 @@ from datapulse.screen.chart_query import ChartQueryCompiler, ChartQueryInvalid
 
 class _AiChartDraftResponse(ContractModel):
     chart_spec: dict[str, JsonValue]
+    explanation: NonBlankStr
+    warnings: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class _AiEditDraftResponse(ContractModel):
+    commands: tuple[AiEditCommand, ...] = Field(min_length=1, max_length=8)
     explanation: NonBlankStr
     warnings: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -440,6 +450,114 @@ class AiService:
             FileQueryExecutionError,
         ) as error:
             raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.") from error
+
+    @staticmethod
+    def _document_dataset_ids(request: AiEditRequest) -> tuple[str, ...]:
+        ids: list[str] = list(request.dataset_ids)
+        for component in request.document.components:
+            binding = component.data_binding or {}
+            chart_spec = binding.get("chart_spec")
+            if isinstance(chart_spec, dict):
+                dataset_id = chart_spec.get("dataset_id")
+                if isinstance(dataset_id, str) and dataset_id.strip():
+                    ids.append(dataset_id)
+        return tuple(dict.fromkeys(ids))
+
+    @staticmethod
+    def _command_component_ids(command: AiEditCommand) -> tuple[str, ...]:
+        if hasattr(command, "component_id"):
+            return (command.component_id,)
+        return tuple(command.component_ids)
+
+    def _edit_prompt(
+        self,
+        *,
+        request: AiEditRequest,
+        dataset_ids: tuple[str, ...],
+        contexts: tuple[object, ...],
+        request_id: str,
+    ) -> tuple[str, str]:
+        document = request.document.model_dump(mode="json")
+        selected = set(request.selected_component_ids)
+        selected_components = [
+            component
+            for component in document["components"]
+            if isinstance(component, dict) and component.get("id") in selected
+        ]
+        serialized_contexts = json.dumps(
+            [item.model_dump(mode="json") for item in contexts],
+            ensure_ascii=False,
+        )
+        system = (
+            "You are a DataPulse editor assistant. Return only valid JSON for the "
+            "response model. Generate safe, minimal edit commands for the selected "
+            "components; never publish, execute code, emit SQL, or invent fields."
+        )
+        user = (
+            f"request_id: {request_id}\n"
+            f"question: {request.question}\n"
+            f"selected_component_ids: {', '.join(request.selected_component_ids)}\n"
+            f"dataset_ids: {', '.join(dataset_ids) or 'none'}\n"
+            "allowed_command_types: update_frame, update_props, update_style, "
+            "update_data_binding, set_component_state\n"
+            "rules: only target selected components; use one to eight minimal commands; "
+            "update_props only changes supported visible properties; update_data_binding "
+            "must contain a validated chart_spec; keep every frame inside the canvas; "
+            "never return publish, script, url, path, sql, or external assets.\n"
+            f"selected_components: {json.dumps(selected_components, ensure_ascii=False)}\n"
+            f"document: {json.dumps(document, ensure_ascii=False)}\n"
+            f"contexts: {serialized_contexts}"
+        )
+        return system, user
+
+    async def generate_edit(
+        self,
+        request: AiEditRequest,
+        *,
+        request_id: str,
+    ) -> AiEditResponse:
+        self._gateway.ensure_configured()
+        component_ids = {component.id for component in request.document.components}
+        if not set(request.selected_component_ids) <= component_ids:
+            raise AiAnalysisError("AI_EDIT_INVALID", "The selected component is invalid.")
+        selected_components = {
+            component.id: component for component in request.document.components
+        }
+        if any(
+            selected_components[component_id].state.locked
+            for component_id in request.selected_component_ids
+        ):
+            raise AiAnalysisError("AI_EDIT_INVALID", "The selected component is locked.")
+
+        dataset_ids = self._document_dataset_ids(request)
+        if len(dataset_ids) > 8:
+            raise AiAnalysisError("AI_DATASET_INVALID", "Too many datasets are referenced.")
+        datasets = tuple([await self._dataset(dataset_id) for dataset_id in dataset_ids])
+        contexts = await self._contexts(dataset_ids) if dataset_ids else ()
+        system, user = self._edit_prompt(
+            request=request,
+            dataset_ids=dataset_ids,
+            contexts=contexts,
+            request_id=request_id,
+        )
+        response = await self._gateway.complete_json(
+            system=system,
+            user=user,
+            response_model=_AiEditDraftResponse,
+        )
+        selected = set(request.selected_component_ids)
+        if any(
+            not set(self._command_component_ids(command)) <= selected
+            for command in response.commands
+        ):
+            raise AiAnalysisError("AI_EDIT_INVALID", "The AI edit targets another component.")
+        updated = apply_ai_edit_commands(request.document, response.commands)
+        validate_edit_document(updated, {dataset.id: dataset for dataset in datasets})
+        return AiEditResponse(
+            commands=response.commands,
+            explanation=response.explanation,
+            warnings=response.warnings,
+        )
 
 
 __all__ = ["AiService"]

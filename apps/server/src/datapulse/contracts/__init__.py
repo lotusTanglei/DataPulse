@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 
-from datapulse.contracts.ai import AnalysisPlan
+from datapulse.contracts.ai import AiEditResponse, AnalysisPlan
 from datapulse.contracts.chart import ChartSpec
 from datapulse.contracts.dashboard import DashboardDocument
 from datapulse.contracts.dataset import DatasetDefinition
@@ -11,6 +11,7 @@ from datapulse.contracts.plugin import PluginManifest
 
 CONTRACT_MODELS: dict[str, type[BaseModel]] = {
     "analysis-plan": AnalysisPlan,
+    "ai-edit-response": AiEditResponse,
     "chart-spec": ChartSpec,
     "dashboard-document": DashboardDocument,
     "dataset-definition": DatasetDefinition,

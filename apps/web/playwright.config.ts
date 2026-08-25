@@ -13,6 +13,7 @@ const backendEnvironment = {
   DATAPULSE_DATA_DIR: runtime.dataDir,
   DATAPULSE_BOOTSTRAP_CODE_OVERRIDE: runtime.setupCode,
   DATAPULSE_SIGNING_KEY: runtime.signingKey,
+  DATAPULSE_STATIC_DIR: runtime.staticDir,
 };
 
 export default defineConfig({

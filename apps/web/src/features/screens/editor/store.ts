@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { computed, onScopeDispose, ref, toRaw } from "vue";
 
 import { ApiError } from "../../../lib/api";
+import type { AiEditCommand } from "../../ai/types";
 import { getScreen, updateScreen } from "../api";
 import type { Screen } from "../types";
 import type { ChartSpec } from "../../../contracts";
@@ -135,6 +136,16 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
     });
   }
 
+  function applyAiEdit(commands: readonly AiEditCommand[]): void {
+    if (commands.length === 0) {
+      return;
+    }
+    dispatch({
+      type: "batch",
+      commands: commands as unknown as EditorCommand[],
+    });
+  }
+
   function undo(): void {
     if (history?.canUndo) {
       markChanged(history.undo());
@@ -216,6 +227,7 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
     dispatch,
     document,
     applyChartSuggestion,
+    applyAiEdit,
     load,
     loadError,
     loading,

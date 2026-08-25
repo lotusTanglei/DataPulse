@@ -21,6 +21,10 @@ class DisplayAccessDenied(ValueError):
     code = "DISPLAY_ACCESS_DENIED"
 
 
+class DisplayAddressDenied(ValueError):
+    code = "DISPLAY_ADDRESS_DENIED"
+
+
 class DisplayScreenUnavailable(LookupError):
     code = "DISPLAY_SCREEN_UNAVAILABLE"
 
@@ -62,12 +66,20 @@ class DisplayAccessService:
             plaintext=plaintext,
         )
 
-    async def exchange(self, screen_id: str, plaintext: str) -> str:
+    async def exchange(
+        self,
+        screen_id: str,
+        plaintext: str,
+        *,
+        origin: str | None = None,
+        client_ip: str | None = None,
+    ) -> str:
         if self._codec is None:
             raise DisplaySigningUnavailable
         screen = await self._screen_repository.get(screen_id)
         if screen.published_document is None:
             raise DisplayScreenUnavailable(screen_id)
+        self._ensure_request_allowed(screen, origin=origin, client_ip=client_ip)
         try:
             stored = await self._repository.get(screen_id)
         except DisplayKeyNotFound as error:
@@ -81,10 +93,35 @@ class DisplayAccessService:
             lifetime=DISPLAY_SESSION_LIFETIME,
         )
 
+    @staticmethod
+    def _ensure_request_allowed(
+        screen,
+        *,
+        origin: str | None,
+        client_ip: str | None,
+    ) -> None:
+        if not screen.access_policy.allows_request(origin=origin, client_ip=client_ip):
+            raise DisplayAddressDenied(screen.id)
+
+    async def authorize_request(
+        self,
+        screen_id: str,
+        *,
+        origin: str | None,
+        client_ip: str | None,
+    ) -> None:
+        screen = await self._screen_repository.get(screen_id)
+        if screen.published_document is None:
+            raise DisplayScreenUnavailable(screen_id)
+        self._ensure_request_allowed(screen, origin=origin, client_ip=client_ip)
+
     async def authenticate(
         self,
         screen_id: str,
         token: str,
+        *,
+        origin: str | None = None,
+        client_ip: str | None = None,
     ) -> str | Literal[False]:
         if self._codec is None:
             return False
@@ -98,6 +135,7 @@ class DisplayAccessService:
             screen = await self._screen_repository.get(screen_id)
             if screen.published_document is None:
                 return False
+            self._ensure_request_allowed(screen, origin=origin, client_ip=client_ip)
         except (
             DisplayKeyNotFound,
             DisplaySessionExpired,
@@ -115,6 +153,7 @@ class DisplayAccessService:
 __all__ = [
     "DISPLAY_SESSION_LIFETIME",
     "DisplayAccessDenied",
+    "DisplayAddressDenied",
     "DisplayAccessService",
     "DisplayKey",
     "DisplayScreenUnavailable",

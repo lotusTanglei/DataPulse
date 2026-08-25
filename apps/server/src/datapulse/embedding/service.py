@@ -8,7 +8,7 @@ from datetime import timedelta
 from datapulse.contracts.common import JsonValue
 from datapulse.contracts.embed import EmbedTicketClaims
 from datapulse.embedding.repository import EmbedAccessRepository, EmbedApiKeyNotFound
-from datapulse.embedding.tokens import EmbedTicketCodec
+from datapulse.embedding.tokens import EmbedTicketCodec, validate_embed_origin
 from datapulse.screen.repository import ScreenNotFound, ScreenRepository
 from datapulse.screen.runtime import ScreenParameterInvalid, resolve_parameters
 
@@ -19,6 +19,14 @@ class EmbedApiKeyDenied(ValueError):
 
 class EmbedParameterDenied(ValueError):
     code = "EMBED_PARAMETER_DENIED"
+
+
+class EmbedOriginDenied(ValueError):
+    code = "EMBED_ORIGIN_DENIED"
+
+
+class EmbedAddressDenied(ValueError):
+    code = "EMBED_ADDRESS_DENIED"
 
 
 class EmbedScreenUnavailable(LookupError):
@@ -81,6 +89,9 @@ class EmbedService:
         screen = await self._screen_repository.get(screen_id)
         if screen.published_document is None:
             raise EmbedScreenUnavailable(screen_id)
+        normalized_origin = validate_embed_origin(allowed_origin)
+        if not screen.access_policy.allows_origin(normalized_origin):
+            raise EmbedOriginDenied(screen_id)
         try:
             resolved = resolve_parameters(screen.published_document, parameters)
         except ScreenParameterInvalid as error:
@@ -96,7 +107,7 @@ class EmbedService:
             raise EmbedParameterDenied
         return self._codec.issue(
             screen_id=screen_id,
-            allowed_origin=allowed_origin,
+            allowed_origin=normalized_origin,
             parameters=resolved,
             mutable_parameters=mutable_parameters,
             lifetime=lifetime,
@@ -107,6 +118,9 @@ class EmbedService:
         ticket: str,
         *,
         screen_id: str,
+        client_ip: str | None = None,
+        request_origin: str | None = None,
+        enforce_request: bool = False,
     ) -> EmbedTicketClaims:
         if self._codec is None:
             raise EmbedSigningUnavailable
@@ -117,6 +131,19 @@ class EmbedService:
             raise EmbedScreenUnavailable(screen_id) from error
         if screen.published_document is None:
             raise EmbedScreenUnavailable(screen_id)
+        if not screen.access_policy.allows_origin(claims.allowed_origin):
+            raise EmbedOriginDenied(screen_id)
+        if enforce_request:
+            if not screen.access_policy.allows_request(
+                origin=request_origin,
+                client_ip=client_ip,
+            ):
+                raise EmbedAddressDenied(screen_id)
+        elif not screen.access_policy.allows_embed_client(
+            ticket_origin=claims.allowed_origin,
+            client_ip=client_ip,
+        ):
+            raise EmbedAddressDenied(screen_id)
         return claims
 
     @staticmethod
@@ -132,6 +159,8 @@ class EmbedService:
 __all__ = [
     "EmbedApiKey",
     "EmbedApiKeyDenied",
+    "EmbedAddressDenied",
+    "EmbedOriginDenied",
     "EmbedParameterDenied",
     "EmbedScreenUnavailable",
     "EmbedService",

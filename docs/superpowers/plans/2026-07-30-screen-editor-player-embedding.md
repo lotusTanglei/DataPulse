@@ -2,7 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the complete phase-two flow from datasets to a drag-and-drop screen editor, draft preview, overwrite publishing, standalone playback, and secure third-party embedding.
+**Goal:** Build the `E2` engineering flow from datasets to a drag-and-drop screen editor, draft preview, overwrite publishing, standalone playback, and secure third-party embedding.
+
+**工程里程碑：** `E2` 编辑与交付。它主要完成产品第一阶段的编辑、预览、发布和访问基础，不等同于产品路线中的第二阶段。
 
 **Architecture:** Keep the existing FastAPI modular monolith and Vue SPA. A versioned `DashboardDocument` is the only screen definition, and one Vue component runtime renders editor preview, standalone playback, and embedded playback. Backend screen, asset, query, publishing, display-access, and embedding services share repositories and authorization-neutral domain interfaces while exposing separate admin, display, and embed APIs.
 

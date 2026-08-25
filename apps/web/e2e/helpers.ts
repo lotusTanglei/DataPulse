@@ -433,6 +433,7 @@ export interface ScreenRecord {
   draft_revision: number;
   draft_document: DashboardDocument;
   published_document: DashboardDocument | null;
+  access_policy?: { allowed_origins: string[]; allowed_ips: string[] };
 }
 
 export async function createPublishedScreen(

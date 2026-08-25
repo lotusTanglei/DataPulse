@@ -1,4 +1,5 @@
 import type {
+  AiEditResponse as GeneratedAiEditResponse,
   AnalysisPlan,
   ChartSpec,
   DashboardDocument,
@@ -45,3 +46,14 @@ export interface AiScreenResponse {
   explanation: string;
   warnings: string[];
 }
+
+export type AiEditCommand = GeneratedAiEditResponse["commands"][number];
+
+export interface AiEditRequest {
+  question: string;
+  document: DashboardDocument;
+  selected_component_ids: string[];
+  dataset_ids?: string[];
+}
+
+export type AiEditResponse = GeneratedAiEditResponse;

@@ -2,6 +2,7 @@ from collections.abc import Callable
 from uuid import uuid4
 
 from datapulse.contracts.dashboard import DashboardDocument
+from datapulse.screen.access import ScreenAccessPolicy
 from datapulse.screen.models import (
     ScreenCreate,
     ScreenDraftUpdate,
@@ -37,7 +38,9 @@ class ScreenService:
         screens = await self._repository.list()
         return tuple(
             ScreenSummary.model_validate(
-                screen.model_dump(exclude={"draft_document", "published_document"})
+                screen.model_dump(
+                    exclude={"draft_document", "published_document", "access_policy"}
+                )
             )
             for screen in screens
         )
@@ -59,11 +62,23 @@ class ScreenService:
                 expected_revision=data.expected_revision,
                 name=data.name,
                 description=data.description,
+                access_policy=data.access_policy,
             )
         return await self._repository.update_metadata(
             screen_id,
             name=data.name,
             description=data.description,
+            access_policy=data.access_policy,
+        )
+
+    async def update_access_policy(
+        self,
+        screen_id: str,
+        access_policy: ScreenAccessPolicy,
+    ) -> ScreenResponse:
+        return await self._repository.update_access_policy(
+            screen_id,
+            access_policy=access_policy,
         )
 
     async def copy(self, screen_id: str) -> ScreenResponse:

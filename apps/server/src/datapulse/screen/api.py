@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Request, Response
 
 from datapulse.auth.dependencies import require_admin, require_csrf
 from datapulse.errors import DataPulseError
+from datapulse.screen.access import ScreenAccessPolicy, ScreenAccessPolicyInvalid
 from datapulse.screen.models import (
     ScreenCreate,
     ScreenDraftUpdate,
@@ -49,6 +50,12 @@ def _raise_screen_error(error: Exception) -> NoReturn:
         translated = DataPulseError(
             code=error.code,
             message="The screen document is invalid.",
+            status_code=422,
+        )
+    elif isinstance(error, ScreenAccessPolicyInvalid):
+        translated = DataPulseError(
+            code=error.code,
+            message="The screen access policy is invalid.",
             status_code=422,
         )
     elif isinstance(error, PublishValidationError):
@@ -99,7 +106,26 @@ async def update_screen(
         ScreenNameConflict,
         ScreenRevisionConflict,
         ScreenDocumentInvalid,
+        ScreenAccessPolicyInvalid,
     ) as error:
+        _raise_screen_error(error)
+
+
+@router.patch(
+    "/{screen_id}/access-policy",
+    dependencies=[Depends(require_csrf)],
+)
+async def update_screen_access_policy(
+    screen_id: str,
+    payload: ScreenAccessPolicy,
+    request: Request,
+) -> ScreenResponse:
+    try:
+        return await request.app.state.screen_service.update_access_policy(
+            screen_id,
+            payload,
+        )
+    except (ScreenNotFound, ScreenAccessPolicyInvalid) as error:
         _raise_screen_error(error)
 
 

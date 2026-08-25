@@ -143,6 +143,11 @@ class ScreenRecord(Base):
     draft_revision: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     published_document: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     published_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    access_policy_json: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        default=dict,
+        nullable=False,
+    )
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         UTCDateTime(), default=utc_now, onupdate=utc_now, nullable=False

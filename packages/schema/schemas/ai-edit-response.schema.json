@@ -1,0 +1,255 @@
+{
+  "$defs": {
+    "AiSetComponentStateCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "component_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Component Ids",
+          "type": "array"
+        },
+        "patch": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "maxProperties": 3,
+          "minProperties": 1,
+          "title": "Patch",
+          "type": "object"
+        },
+        "type": {
+          "const": "set_component_state",
+          "default": "set_component_state",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_ids",
+        "patch"
+      ],
+      "title": "AiSetComponentStateCommand",
+      "type": "object"
+    },
+    "AiUpdateDataBindingCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "data_binding": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Data Binding",
+          "type": "object"
+        },
+        "type": {
+          "const": "update_data_binding",
+          "default": "update_data_binding",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "data_binding"
+      ],
+      "title": "AiUpdateDataBindingCommand",
+      "type": "object"
+    },
+    "AiUpdateFrameCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "component_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Component Ids",
+          "type": "array"
+        },
+        "patch": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "maxProperties": 5,
+          "minProperties": 1,
+          "title": "Patch",
+          "type": "object"
+        },
+        "type": {
+          "const": "update_frame",
+          "default": "update_frame",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_ids",
+        "patch"
+      ],
+      "title": "AiUpdateFrameCommand",
+      "type": "object"
+    },
+    "AiUpdatePropsCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "patch": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "maxProperties": 8,
+          "minProperties": 1,
+          "title": "Patch",
+          "type": "object"
+        },
+        "type": {
+          "const": "update_props",
+          "default": "update_props",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "patch"
+      ],
+      "title": "AiUpdatePropsCommand",
+      "type": "object"
+    },
+    "AiUpdateStyleCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "patch": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "maxProperties": 8,
+          "minProperties": 1,
+          "title": "Patch",
+          "type": "object"
+        },
+        "type": {
+          "const": "update_style",
+          "default": "update_style",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "patch"
+      ],
+      "title": "AiUpdateStyleCommand",
+      "type": "object"
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/ai-edit-response.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "commands": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "set_component_state": "#/$defs/AiSetComponentStateCommand",
+            "update_data_binding": "#/$defs/AiUpdateDataBindingCommand",
+            "update_frame": "#/$defs/AiUpdateFrameCommand",
+            "update_props": "#/$defs/AiUpdatePropsCommand",
+            "update_style": "#/$defs/AiUpdateStyleCommand"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/AiUpdateFrameCommand"
+          },
+          {
+            "$ref": "#/$defs/AiUpdatePropsCommand"
+          },
+          {
+            "$ref": "#/$defs/AiUpdateStyleCommand"
+          },
+          {
+            "$ref": "#/$defs/AiUpdateDataBindingCommand"
+          },
+          {
+            "$ref": "#/$defs/AiSetComponentStateCommand"
+          }
+        ]
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Commands",
+      "type": "array"
+    },
+    "explanation": {
+      "minLength": 1,
+      "title": "Explanation",
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "commands",
+    "explanation"
+  ],
+  "title": "AiEditResponse",
+  "type": "object"
+}

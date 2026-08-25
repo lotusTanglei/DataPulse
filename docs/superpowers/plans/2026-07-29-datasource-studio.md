@@ -4,6 +4,8 @@
 
 **Goal:** Build the authenticated DataPulse Studio vertical slice in which one administrator can configure SQLite, PostgreSQL, and MySQL/MariaDB data sources, browse schemas, execute constrained read-only SQL, preview results, and save datasets.
 
+**工程里程碑：** `E1` 数据基础。它是产品第一阶段的基础能力，不等同于产品路线中的第一阶段完成。
+
 **Architecture:** Keep one FastAPI process and one Vue SPA, but isolate metadata, authentication, datasource, query, and dataset modules behind explicit interfaces. SQLAlchemy 2 manages the DataPulse SQLite metadata database and native async database engines; SQLGlot validates user SQL before connector execution. The browser uses server-side sessions and CSRF cookies, and the Studio follows the approved Notion-style design system.
 
 **Tech Stack:** Python 3.13/3.14, FastAPI, Pydantic 2, SQLAlchemy 2 async, Alembic, aiosqlite, asyncpg, asyncmy, SQLGlot, cryptography AES-GCM, pwdlib Argon2, pytest; Vue 3, TypeScript, Vue Router, Pinia, CodeMirror 6, TanStack Virtual, Vitest, Playwright; SQLite, PostgreSQL, MariaDB, Docker Compose.

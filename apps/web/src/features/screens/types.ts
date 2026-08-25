@@ -1,5 +1,10 @@
 import type { DashboardDocument } from "../../contracts";
 
+export interface ScreenAccessPolicy {
+  allowed_origins: string[];
+  allowed_ips: string[];
+}
+
 export interface ScreenSummary {
   id: string;
   name: string;
@@ -13,6 +18,7 @@ export interface ScreenSummary {
 export interface Screen extends ScreenSummary {
   draft_document: DashboardDocument;
   published_document: DashboardDocument | null;
+  access_policy?: ScreenAccessPolicy;
 }
 
 export interface ScreenCreatePayload {

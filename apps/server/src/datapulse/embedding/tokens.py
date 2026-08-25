@@ -1,13 +1,13 @@
 import secrets
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from urllib.parse import urlsplit
 
 import jwt
 from pydantic import ValidationError
 
 from datapulse.contracts.common import JsonValue
 from datapulse.contracts.embed import EmbedTicketClaims
+from datapulse.screen.access import ScreenAccessPolicyInvalid, normalize_origin
 
 EMBED_AUDIENCE = "datapulse-embed"
 MAX_EMBED_TICKET_LIFETIME = timedelta(hours=8)
@@ -31,30 +31,9 @@ class EmbedTicketOriginInvalid(EmbedTicketInvalid):
 
 def validate_embed_origin(origin: str) -> str:
     try:
-        parsed = urlsplit(origin)
-        port = parsed.port
-    except ValueError as error:
+        return normalize_origin(origin)
+    except ScreenAccessPolicyInvalid as error:
         raise EmbedTicketOriginInvalid("The embed Origin is invalid.") from error
-    hostname = parsed.hostname
-    local_http = parsed.scheme == "http" and hostname in {
-        "localhost",
-        "127.0.0.1",
-        "::1",
-    }
-    if (
-        not hostname
-        or (parsed.scheme != "https" and not local_http)
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.path
-        or parsed.query
-        or parsed.fragment
-    ):
-        raise EmbedTicketOriginInvalid("The embed Origin is invalid.")
-    default_port = 443 if parsed.scheme == "https" else 80
-    port_suffix = f":{port}" if port is not None and port != default_port else ""
-    host = f"[{hostname}]" if ":" in hostname else hostname
-    return f"{parsed.scheme}://{host}{port_suffix}"
 
 
 class EmbedTicketCodec:

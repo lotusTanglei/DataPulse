@@ -9,6 +9,8 @@ from datapulse.contracts.ai import (
     AiAnalysisResponse,
     AiChartRequest,
     AiChartResponse,
+    AiEditRequest,
+    AiEditResponse,
     AiScreenRequest,
     AiScreenResponse,
 )
@@ -83,6 +85,20 @@ async def screen(
 ) -> AiScreenResponse:
     try:
         return await request.app.state.ai_service.generate_screen(
+            payload,
+            request_id=request.state.request_id,
+        )
+    except (AiGatewayError, AiAnalysisError) as error:
+        _raise_ai_error(error)
+
+
+@router.post("/edit", dependencies=[Depends(require_csrf)])
+async def edit(
+    payload: AiEditRequest,
+    request: Request,
+) -> AiEditResponse:
+    try:
+        return await request.app.state.ai_service.generate_edit(
             payload,
             request_id=request.state.request_id,
         )

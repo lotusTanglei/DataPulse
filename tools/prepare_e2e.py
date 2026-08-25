@@ -69,6 +69,12 @@ def prepare(runtime_root: Path = E2E_ROOT) -> Path:
         sources_dir.mkdir()
         with sqlite3.connect(sources_dir / "sales.db") as connection:
             connection.executescript(FIXTURE_PATH.read_text(encoding="utf-8"))
+        static_dir = data_dir / "static"
+        static_dir.mkdir()
+        (static_dir / "index.html").write_text(
+            "<!doctype html><title>DataPulse E2E player</title>",
+            encoding="utf-8",
+        )
 
         runtime_root.mkdir(parents=True, exist_ok=True)
         config_path.write_text(
@@ -77,6 +83,7 @@ def prepare(runtime_root: Path = E2E_ROOT) -> Path:
                     "backendPort": backend_port,
                     "frontendPort": frontend_port,
                     "dataDir": str(data_dir),
+                    "staticDir": str(static_dir),
                     "setupCode": "e2e-setup-code",
                     "signingKey": signing_key,
                 },

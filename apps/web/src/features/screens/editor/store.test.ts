@@ -204,3 +204,38 @@ test("chart suggestions replace the target component and mark the draft dirty", 
     },
   });
 });
+
+test("applies an AI edit batch as one undoable history entry", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.resolve(jsonResponse(screen))),
+  );
+  const store = useScreenEditorStore();
+  await store.load("screen-1");
+
+  store.applyAiEdit([
+    {
+      type: "update_props",
+      component_id: "text-1",
+      patch: { text: "华东销售分析" },
+    },
+    {
+      type: "update_frame",
+      component_ids: ["text-1"],
+      patch: { x: 120, y: 80 },
+    },
+  ]);
+
+  expect(store.document?.components?.[0]).toMatchObject({
+    frame: { x: 120, y: 80 },
+    props: { text: "华东销售分析" },
+  });
+  store.undo();
+  expect(store.document?.components?.[0]).toMatchObject({
+    frame: { x: 40, y: 40 },
+    props: { text: "原始文本" },
+  });
+  expect(store.canRedo).toBe(true);
+  store.redo();
+  expect(store.document?.components?.[0]?.props?.text).toBe("华东销售分析");
+});

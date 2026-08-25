@@ -2,6 +2,7 @@
 import {
   Copy,
   LayoutDashboard,
+  LayoutTemplate,
   Plus,
   Trash2,
   X,
@@ -13,12 +14,14 @@ import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import AiScreenGeneratorDialog from "../ai/AiScreenGeneratorDialog.vue";
 import type { AiScreenResponse } from "../ai/types";
+import TemplatePickerDialog from "./TemplatePickerDialog.vue";
 import {
   copyScreen,
   createScreen,
   deleteScreen,
   listScreens,
 } from "./api";
+import { createTemplateDocument, type ScreenTemplate } from "./templates";
 import type { ScreenSummary } from "./types";
 
 const router = useRouter();
@@ -33,6 +36,8 @@ const createError = ref("");
 const creating = ref(false);
 const aiCreateOpen = ref(false);
 const aiCreating = ref(false);
+const templateOpen = ref(false);
+const templateCreating = ref(false);
 const controller = new AbortController();
 
 const updatedAtFormatter = new Intl.DateTimeFormat("zh-CN", {
@@ -95,6 +100,11 @@ function openAiCreate(): void {
   actionError.value = null;
 }
 
+function openTemplateCreate(): void {
+  templateOpen.value = true;
+  actionError.value = null;
+}
+
 async function submitCreate(): Promise<void> {
   const name = createName.value.trim();
   if (!name) {
@@ -141,6 +151,31 @@ async function submitAiCreate(payload: {
     );
   } finally {
     aiCreating.value = false;
+  }
+}
+
+async function submitTemplateCreate(payload: {
+  name: string;
+  template: ScreenTemplate;
+}): Promise<void> {
+  templateCreating.value = true;
+  actionError.value = null;
+  try {
+    const created = await createScreen({
+      name: payload.name,
+      description: payload.template.description,
+      draft_document: createTemplateDocument(payload.template.id),
+    });
+    templateOpen.value = false;
+    await router.push(`/studio/screens/${created.id}/edit`);
+  } catch (reason) {
+    actionError.value = fallbackError(
+      reason,
+      "SCREEN_TEMPLATE_CREATE_FAILED",
+      "暂时无法创建模板大屏。",
+    );
+  } finally {
+    templateCreating.value = false;
   }
 }
 
@@ -209,6 +244,15 @@ onBeforeUnmount(() => controller.abort());
         <button
           class="secondary-button"
           type="button"
+          data-action="open-template-screen"
+          @click="openTemplateCreate"
+        >
+          <LayoutTemplate :size="15" aria-hidden="true" />
+          从模板创建
+        </button>
+        <button
+          class="secondary-button"
+          type="button"
           data-action="open-ai-screen"
           @click="openAiCreate"
         >
@@ -245,6 +289,15 @@ onBeforeUnmount(() => controller.abort());
         <h2>还没有大屏</h2>
         <p>从一张空白的 1920 × 1080 画布开始搭建。</p>
         <div class="query-actions">
+          <button
+            class="secondary-button"
+            type="button"
+            data-action="open-template-screen"
+            @click="openTemplateCreate"
+          >
+            <LayoutTemplate :size="14" aria-hidden="true" />
+            从模板开始
+          </button>
           <button
             class="secondary-button"
             type="button"
@@ -382,6 +435,13 @@ onBeforeUnmount(() => controller.abort());
         </form>
       </section>
     </div>
+
+    <TemplatePickerDialog
+      :open="templateOpen"
+      :submitting="templateCreating"
+      @close="templateOpen = false"
+      @confirm="submitTemplateCreate"
+    />
 
     <AiScreenGeneratorDialog
       :open="aiCreateOpen"

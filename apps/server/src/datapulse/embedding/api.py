@@ -9,7 +9,9 @@ from datapulse.auth.dependencies import require_admin, require_csrf
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 from datapulse.contracts.dashboard import DashboardDocument
 from datapulse.embedding.service import (
+    EmbedAddressDenied,
     EmbedApiKeyDenied,
+    EmbedOriginDenied,
     EmbedParameterDenied,
     EmbedScreenUnavailable,
     EmbedSigningUnavailable,
@@ -89,6 +91,12 @@ def _raise_embed_error(error: Exception) -> NoReturn:
             message="The embed parameters are not allowed.",
             status_code=403,
         )
+    elif isinstance(error, (EmbedAddressDenied, EmbedOriginDenied)):
+        translated = DataPulseError(
+            code=error.code,
+            message="The embed address is not allowed for this screen.",
+            status_code=403,
+        )
     elif isinstance(error, (EmbedTicketLifetimeInvalid, EmbedTicketOriginInvalid)):
         translated = DataPulseError(
             code=error.code,
@@ -138,12 +146,15 @@ async def _authorize(request: Request, screen_id: str):
         return await request.app.state.embed_service.authorize(
             _bearer_token(request),
             screen_id=screen_id,
+            client_ip=request.client.host if request.client is not None else None,
         )
     except (
         EmbedTicketExpired,
         EmbedTicketInvalid,
         EmbedScreenUnavailable,
         EmbedSigningUnavailable,
+        EmbedAddressDenied,
+        EmbedOriginDenied,
     ) as error:
         _raise_embed_error(error)
 
@@ -187,6 +198,8 @@ async def issue_embed_ticket(
         EmbedTicketInvalid,
         EmbedTicketLifetimeInvalid,
         EmbedTicketOriginInvalid,
+        EmbedAddressDenied,
+        EmbedOriginDenied,
         ScreenNotFound,
     ) as error:
         _raise_embed_error(error)

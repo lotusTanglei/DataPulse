@@ -5,6 +5,7 @@ import type {
   Screen,
   ScreenCreatePayload,
   ScreenDraftUpdatePayload,
+  ScreenAccessPolicy,
   ScreenSummary,
 } from "./types";
 
@@ -91,6 +92,19 @@ export function generateDisplayKey(screenId: string): Promise<DisplayKeyResponse
   return apiRequest<DisplayKeyResponse>(
     `${SCREENS_PATH}/${encodeURIComponent(screenId)}/display-key`,
     { method: "POST" },
+  );
+}
+
+export function updateScreenAccessPolicy(
+  screenId: string,
+  policy: ScreenAccessPolicy,
+): Promise<Screen> {
+  return apiRequest<Screen>(
+    `${SCREENS_PATH}/${encodeURIComponent(screenId)}/access-policy`,
+    {
+      method: "PATCH",
+      json: policy,
+    },
   );
 }
 

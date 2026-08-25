@@ -5,6 +5,7 @@ export interface E2EConfig {
   backendPort: number;
   frontendPort: number;
   dataDir: string;
+  staticDir: string;
   setupCode: string;
   signingKey: string;
 }

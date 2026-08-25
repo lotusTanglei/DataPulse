@@ -7,6 +7,7 @@ from datapulse.display.service import (
     DISPLAY_SESSION_LIFETIME,
     DisplayAccessDenied,
     DisplayAccessService,
+    DisplayAddressDenied,
     DisplayKey,
     DisplayScreenUnavailable,
     DisplaySigningUnavailable,
@@ -21,6 +22,7 @@ from datapulse.display.tokens import (
 __all__ = [
     "DISPLAY_SESSION_LIFETIME",
     "DisplayAccessDenied",
+    "DisplayAddressDenied",
     "DisplayAccessRepository",
     "DisplayAccessService",
     "DisplayKey",

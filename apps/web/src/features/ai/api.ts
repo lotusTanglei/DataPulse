@@ -5,6 +5,8 @@ import type {
   AiAnalysisResponse,
   AiChartRequest,
   AiChartResponse,
+  AiEditRequest,
+  AiEditResponse,
   AiScreenRequest,
   AiScreenResponse,
 } from "./types";
@@ -38,6 +40,17 @@ export function generateScreen(
   signal?: AbortSignal,
 ): Promise<AiScreenResponse> {
   return apiRequest<AiScreenResponse>(`${AI_PATH}/screen`, {
+    method: "POST",
+    json: payload,
+    signal,
+  });
+}
+
+export function editAi(
+  payload: AiEditRequest,
+  signal?: AbortSignal,
+): Promise<AiEditResponse> {
+  return apiRequest<AiEditResponse>(`${AI_PATH}/edit`, {
     method: "POST",
     json: payload,
     signal,

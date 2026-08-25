@@ -16,6 +16,7 @@ type Theme = NonNullable<DashboardDocument["theme"]>;
 type Refresh = NonNullable<DashboardDocument["refresh"]>;
 
 export type EditorCommand =
+  | { type: "batch"; commands: EditorCommand[] }
   | { type: "add_component"; component: ComponentInstance }
   | {
       type: "group_components";
@@ -115,6 +116,13 @@ export function applyCommand(
 ): DashboardDocument {
   const next = structuredClone(document);
   switch (command.type) {
+    case "batch": {
+      let nextDocument = next;
+      for (const nested of command.commands) {
+        nextDocument = applyCommand(nextDocument, nested);
+      }
+      return nextDocument;
+    }
     case "add_component": {
       if (
         components(next).some(

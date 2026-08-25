@@ -139,6 +139,47 @@ test("creates a screen from the empty workspace and opens the editor", async () 
   );
 });
 
+test("creates a screen from a template through the normal draft flow", async () => {
+  const created = { ...copiedScreen, id: "screen-template", name: "华东经营分析" };
+  let submitted: Record<string, unknown> | undefined;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/admin/screens" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse([]));
+      }
+      if (url === "/api/admin/screens" && init?.method === "POST") {
+        submitted = JSON.parse(String(init.body)) as Record<string, unknown>;
+        return Promise.resolve(jsonResponse(created, 201));
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+  const router = testRouter();
+  await router.push("/");
+  await router.isReady();
+  const wrapper = mount(ScreenListView, {
+    global: { plugins: [router] },
+  });
+  await flushPromises();
+
+  await wrapper.get('[data-action="open-template-screen"]').trigger("click");
+  expect(wrapper.get('[role="dialog"]').text()).toContain("经营分析");
+  await wrapper.get('input[name="templateScreenName"]').setValue("华东经营分析");
+  await wrapper.get("button.template-option").trigger("click");
+  await wrapper.get('[role="dialog"] .primary-button').trigger("click");
+  await flushPromises();
+
+  expect(submitted?.name).toBe("华东经营分析");
+  expect(
+    (submitted?.draft_document as { components?: unknown[] }).components?.length,
+  ).toBeGreaterThanOrEqual(7);
+  expect(router.currentRoute.value.fullPath).toBe(
+    "/studio/screens/screen-template/edit",
+  );
+});
+
 test("creates an AI draft only after confirmation and does not publish it", async () => {
   const created = { ...copiedScreen, id: "screen-ai", name: "AI 经营总览" };
   const generatedDocument = {

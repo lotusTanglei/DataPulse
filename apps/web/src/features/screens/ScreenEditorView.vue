@@ -5,15 +5,18 @@ import { useRoute } from "vue-router";
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
+import AiEditPanel from "../ai/AiEditPanel.vue";
 import type { JsonValue } from "../query/types";
 import { defaultComponentRegistry } from "../runtime/registry";
-import { generateDisplayKey, publishScreen } from "./api";
+import { generateDisplayKey, publishScreen, updateScreenAccessPolicy } from "./api";
 import { componentTypeToChartType } from "./editor/chartSuggestion";
 import ComponentLibrary from "./editor/ComponentLibrary.vue";
 import EditorToolbar from "./editor/EditorToolbar.vue";
 import InspectorPanel from "./editor/InspectorPanel.vue";
 import LayersPanel from "./editor/LayersPanel.vue";
 import ScreenCanvas from "./editor/ScreenCanvas.vue";
+import ScreenAccessPolicyPanel from "./ScreenAccessPolicyPanel.vue";
+import type { ScreenAccessPolicy } from "./types";
 import { useScreenEditorStore } from "./editor/store";
 
 const route = useRoute();
@@ -25,8 +28,13 @@ const publishing = ref(false);
 const publishError = ref<ApiError | null>(null);
 const publishMessage = ref("");
 const usagePanelOpen = ref(false);
+const deliveryPanelVisible = computed(
+  () => usagePanelOpen.value || Boolean(store.screen?.published_at),
+);
 const usageLoading = ref(false);
 const usageError = ref("");
+const accessPolicySaving = ref(false);
+const accessPolicyError = ref<ApiError | null>(null);
 const displayKey = ref("");
 const standaloneUrl = computed(() =>
   displayKey.value
@@ -79,6 +87,21 @@ function datasetIdFromSelection(): string {
 
 const selectedDatasetId = computed(() => {
   return datasetIdFromSelection();
+});
+const documentDatasetIds = computed(() => {
+  const ids = new Set<string>();
+  for (const component of store.document?.components ?? []) {
+    const chartSpec = component.data_binding?.chart_spec;
+    if (
+      chartSpec &&
+      typeof chartSpec === "object" &&
+      !Array.isArray(chartSpec) &&
+      typeof chartSpec.dataset_id === "string"
+    ) {
+      ids.add(chartSpec.dataset_id);
+    }
+  }
+  return [...ids];
 });
 const selectedCurrentProps = computed(
   () => (selectedComponent.value?.props ?? {}) as Record<string, JsonValue>,
@@ -161,6 +184,29 @@ async function copyText(value: string): Promise<void> {
   if (!value) return;
   await navigator.clipboard?.writeText(value);
 }
+
+async function saveAccessPolicy(policy: ScreenAccessPolicy): Promise<void> {
+  if (!store.screen || accessPolicySaving.value) {
+    return;
+  }
+  accessPolicySaving.value = true;
+  accessPolicyError.value = null;
+  try {
+    store.screen = await updateScreenAccessPolicy(store.screen.id, policy);
+  } catch (reason) {
+    accessPolicyError.value =
+      reason instanceof ApiError
+        ? reason
+        : new ApiError({
+            code: "SCREEN_ACCESS_POLICY_FAILED",
+            message: "暂时无法保存访问限制。",
+            requestId: "",
+            status: 500,
+          });
+  } finally {
+    accessPolicySaving.value = false;
+  }
+}
 </script>
 
 <template>
@@ -199,7 +245,7 @@ async function copyText(value: string): Promise<void> {
         <p>{{ publishMessage }}</p>
       </InlineNotice>
       <section
-        v-if="usagePanelOpen"
+        v-if="deliveryPanelVisible"
         class="publish-usage-panel"
         aria-labelledby="publish-usage-title"
       >
@@ -236,6 +282,13 @@ async function copyText(value: string): Promise<void> {
         </div>
         <p v-if="usageError" class="publish-usage-error">{{ usageError }}</p>
       </section>
+      <ScreenAccessPolicyPanel
+        v-if="deliveryPanelVisible && store.screen"
+        :policy="store.screen.access_policy"
+        :saving="accessPolicySaving"
+        :error="accessPolicyError"
+        @save="saveAccessPolicy"
+      />
       <InlineNotice v-if="publishError" class="editor-conflict" tone="error">
         <p>{{ publishError.message }}</p>
         <code v-if="publishError.requestId">{{ publishError.requestId }}</code>
@@ -258,6 +311,14 @@ async function copyText(value: string): Promise<void> {
         </main>
         <aside class="editor-panel editor-panel--right" aria-label="属性面板">
           <InspectorPanel />
+          <AiEditPanel
+            v-if="store.selection.length > 0 && store.document"
+            :key="`edit-${store.selection.join('-')}`"
+            :document="store.document"
+            :selected-component-ids="store.selection"
+            :dataset-ids="documentDatasetIds"
+            @apply="store.applyAiEdit"
+          />
           <AiAnalysisPanel
             v-if="canUseAiPanel && selectedComponent"
             :key="selectedComponent.id"

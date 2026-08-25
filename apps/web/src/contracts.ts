@@ -1,4 +1,5 @@
 export type {
+  AiEditResponse,
   AnalysisPlan,
   ChartSpec,
   DashboardDocument,

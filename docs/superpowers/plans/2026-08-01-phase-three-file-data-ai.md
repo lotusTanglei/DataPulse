@@ -1,8 +1,10 @@
-# 第三阶段文件数据与 AI 分析实施计划
+# `E3` 文件数据与 AI 分析实施计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在不改变现有外部数据库连接器和九类组件的前提下，交付文件数据集、DuckDB 查询、AI 数据分析、自然语言生成 `ChartSpec` 和完整大屏草稿生成。
+
+**工程里程碑：** `E3` 文件数据与 AI。它同时支撑产品第一阶段的 AI 创建入口和第二阶段的数据理解基础，不等同于产品路线中的第三阶段。
 
 **Architecture:** 文件上传形成受控 `FileAssetRecord`，文件数据集使用现有 `DatasetDefinition.query` 的 `FileQuery` 分支；SQL 数据集继续走 SQLite/PostgreSQL/MySQL 原生连接器，文件数据集走只读 `FileDatasetQueryService`。AI 通过 OpenAI 兼容 HTTP 的 `AiGateway` 获取结构化 `AnalysisPlan`、`ChartSpec` 或受限 `DashboardDocument` 草稿，服务端重新校验后交给现有查询编译器、编辑器 Store 和发布流程。
 

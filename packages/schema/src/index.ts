@@ -1,3 +1,4 @@
+export type { AiEditResponse } from "./generated/ai-edit-response";
 export type { AnalysisPlan } from "./generated/analysis-plan";
 export type { ChartSpec } from "./generated/chart-spec";
 export type { DashboardDocument } from "./generated/dashboard-document";

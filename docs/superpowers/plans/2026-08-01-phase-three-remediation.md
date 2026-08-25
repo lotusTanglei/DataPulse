@@ -1,8 +1,10 @@
-# DataPulse Phase Three Remediation Implementation Plan
+# DataPulse `E3` Remediation Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 修复提交 `699b63f` 的质量门禁、AI 分析与整屏生成、文件数据集预览维护和阶段三发布验收问题。
+**Goal:** 修复提交 `699b63f` 的质量门禁、AI 分析与整屏生成、文件数据集预览维护和 `E3` 发布验收问题。
+
+**工程里程碑：** `E3` 文件数据与 AI 的修复验收。这里的“阶段三”是工程交付编号，产品层面仍属于第一阶段收口和第二阶段准备工作。
 
 **Architecture:** 在现有 FastAPI/Vue 单体边界内做向后兼容扩展：AI 分析一次返回结论、图表规范和预览；屏幕创建可携带初始文档并原子写入；未落库屏幕通过管理员文档查询接口复用运行时；文件资产通过独立预览接口提供 Sheet 和样例。所有行为先用失败测试固定，再做最小实现。
 

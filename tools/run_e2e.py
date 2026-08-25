@@ -17,6 +17,7 @@ from tools.prepare_e2e import REPOSITORY_ROOT, cleanup_run, prepare
 _FAKE_MODES = (
     "valid-analysis",
     "valid-screen",
+    "edit-title",
     "invalid-field",
     "malformed-json",
     "timeout",
@@ -108,6 +109,21 @@ def _screen_content(prompt: str, *, invalid_field: bool = False) -> dict[str, An
     }
 
 
+def _edit_content(prompt: str) -> dict[str, Any]:
+    component_id = _prompt_value(prompt, "selected_component_ids", "title-1").split(",", 1)[0]
+    return {
+        "commands": [
+            {
+                "type": "update_props",
+                "component_id": component_id,
+                "patch": {"text": "E2E AI 局部修改标题"},
+            }
+        ],
+        "explanation": "E2E AI 已修改选中标题。",
+        "warnings": [],
+    }
+
+
 def fake_ai_content(payload: dict[str, Any]) -> str:
     messages = payload.get("messages", [])
     system = str(messages[0].get("content", "")) if messages else ""
@@ -117,6 +133,8 @@ def fake_ai_content(payload: dict[str, Any]) -> str:
         time.sleep(2)
     if mode == "malformed-json":
         return "{"
+    if "editor assistant" in system or mode == "edit-title":
+        return json.dumps(_edit_content(prompt), ensure_ascii=False)
     is_screen = "screen design assistant" in system or mode == "valid-screen"
     content = (
         _screen_content(prompt, invalid_field=mode == "invalid-field")

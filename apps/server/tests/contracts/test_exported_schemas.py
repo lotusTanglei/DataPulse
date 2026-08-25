@@ -16,6 +16,17 @@ FIXTURES = {
         "dataset_ids": ["sales"],
         "recommended_chart": "line",
     },
+    "ai-edit-response": {
+        "commands": [
+            {
+                "type": "update_props",
+                "component_id": "title-1",
+                "patch": {"text": "新的标题"},
+            }
+        ],
+        "explanation": "更新选中标题。",
+        "warnings": [],
+    },
     "chart-spec": {
         "dataset_id": "sales",
         "visual": {"type": "line"},
