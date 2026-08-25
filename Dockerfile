@@ -6,10 +6,12 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY packages/schema/package.json packages/schema/package.json
+COPY packages/embed-sdk/package.json packages/embed-sdk/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY apps/web apps/web
 COPY packages/schema packages/schema
+COPY packages/embed-sdk packages/embed-sdk
 RUN pnpm build:web
 
 FROM python:3.13-slim AS runtime
