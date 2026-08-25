@@ -38,9 +38,7 @@ class ScreenService:
         screens = await self._repository.list()
         return tuple(
             ScreenSummary.model_validate(
-                screen.model_dump(
-                    exclude={"draft_document", "published_document", "access_policy"}
-                )
+                screen.model_dump(exclude={"draft_document", "published_document", "access_policy"})
             )
             for screen in screens
         )

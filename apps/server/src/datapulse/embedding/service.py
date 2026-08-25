@@ -59,9 +59,7 @@ class EmbedService:
 
     async def rotate_api_key(self) -> EmbedApiKey:
         plaintext = self._key_factory()
-        stored = await self._repository.rotate(
-            hashlib.sha256(plaintext.encode()).hexdigest()
-        )
+        stored = await self._repository.rotate(hashlib.sha256(plaintext.encode()).hexdigest())
         return EmbedApiKey(
             key_version=stored.key_version,
             plaintext=plaintext,
@@ -97,12 +95,10 @@ class EmbedService:
         except ScreenParameterInvalid as error:
             raise EmbedParameterDenied from error
         definitions = {
-            parameter.name: parameter
-            for parameter in screen.published_document.parameters
+            parameter.name: parameter for parameter in screen.published_document.parameters
         }
         if any(
-            name not in definitions or not definitions[name].mutable
-            for name in mutable_parameters
+            name not in definitions or not definitions[name].mutable for name in mutable_parameters
         ):
             raise EmbedParameterDenied
         return self._codec.issue(

@@ -94,10 +94,7 @@ def _assert_safe_json(value: object) -> None:
 
 
 def _component_map(document: DashboardDocument) -> dict[str, dict[str, object]]:
-    return {
-        component.id: component.model_dump(mode="python")
-        for component in document.components
-    }
+    return {component.id: component.model_dump(mode="python") for component in document.components}
 
 
 def _assert_known_components(
@@ -223,9 +220,7 @@ def validate_edit_document(
     document: DashboardDocument,
     datasets_by_id: Mapping[str, DatasetResponse],
 ) -> DashboardDocument:
-    parameter_defaults = {
-        parameter.name: parameter.default for parameter in document.parameters
-    }
+    parameter_defaults = {parameter.name: parameter.default for parameter in document.parameters}
     for component in document.components:
         binding = component.data_binding or {}
         if not binding:

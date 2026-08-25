@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from io import BytesIO
 from zipfile import ZIP_STORED, ZipFile, ZipInfo
@@ -44,9 +43,7 @@ def generate() -> None:
     detail.append(["order_id", "amount"])
     detail.append(["订单-001", 60])
     detail.append(["订单-002", 38])
-    (FIXTURE_DIR / "file-dataset.xlsx").write_bytes(
-        _reproducible_workbook_bytes(workbook)
-    )
+    (FIXTURE_DIR / "file-dataset.xlsx").write_bytes(_reproducible_workbook_bytes(workbook))
 
     table = pa.table(
         {

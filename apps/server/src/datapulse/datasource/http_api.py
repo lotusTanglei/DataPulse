@@ -209,9 +209,7 @@ class HttpApiConnector:
         request_id: str,
     ) -> QueryResult:
         started = perf_counter()
-        request_query = query.model_copy(
-            update={"query": {**query.query, **parameters}}
-        )
+        request_query = query.model_copy(update={"query": {**query.query, **parameters}})
         payload = await self._request_json(
             config=self._config(config),
             secret=secret,

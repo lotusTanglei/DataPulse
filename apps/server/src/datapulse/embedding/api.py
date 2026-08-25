@@ -135,9 +135,7 @@ def _raise_embed_error(error: Exception) -> NoReturn:
 def _set_runtime_headers(response: Response, allowed_origin: str) -> None:
     response.headers["Cache-Control"] = "no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
-    response.headers["Content-Security-Policy"] = (
-        f"frame-ancestors {allowed_origin}"
-    )
+    response.headers["Content-Security-Policy"] = f"frame-ancestors {allowed_origin}"
     response.headers["X-Content-Type-Options"] = "nosniff"
 
 
@@ -282,9 +280,7 @@ async def get_embed_asset(
         media_type=asset.mime_type,
         headers={
             "Cache-Control": "no-store",
-            "Content-Security-Policy": (
-                f"frame-ancestors {claims.allowed_origin}"
-            ),
+            "Content-Security-Policy": (f"frame-ancestors {claims.allowed_origin}"),
             "Referrer-Policy": "no-referrer",
             "X-Content-Type-Options": "nosniff",
         },

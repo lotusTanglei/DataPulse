@@ -129,9 +129,7 @@ def issue_ticket(
         json={
             "screen_id": screen_id,
             "allowed_origin": origin,
-            "parameters": (
-                {"region": "west"} if parameters is None else parameters
-            ),
+            "parameters": ({"region": "west"} if parameters is None else parameters),
             "mutable_parameters": (
                 ["region"] if mutable_parameters is None else mutable_parameters
             ),
@@ -170,9 +168,7 @@ def test_ticket_endpoint_requires_host_api_key_and_rotation_invalidates_old_key(
     assert loaded.json()["mutable_parameters"] == ["region"]
     assert loaded.headers["cache-control"] == "no-store"
     assert loaded.headers["referrer-policy"] == "no-referrer"
-    assert loaded.headers["content-security-policy"] == (
-        f"frame-ancestors {HOST_ORIGIN}"
-    )
+    assert loaded.headers["content-security-policy"] == (f"frame-ancestors {HOST_ORIGIN}")
 
     rotate_api_key(embed_app)
     denied = embed_app.client.post(
@@ -334,9 +330,7 @@ def test_embed_page_verifies_ticket_origin_and_sets_exact_csp(
     )
     assert allowed.status_code == 200
     assert "DataPulse player" in allowed.text
-    assert allowed.headers["content-security-policy"] == (
-        f"frame-ancestors {HOST_ORIGIN}"
-    )
+    assert allowed.headers["content-security-policy"] == (f"frame-ancestors {HOST_ORIGIN}")
     assert allowed.headers["cache-control"] == "no-store"
     assert allowed.headers["referrer-policy"] == "no-referrer"
 

@@ -116,8 +116,7 @@ def _parse_csv(path: Path, *, max_rows: int) -> ParsedFile:
         fields=fields,
         row_count=len(rows),
         sample_rows=tuple(
-            {key: _normalize_value(value) for key, value in row.items()}
-            for row in rows[:max_rows]
+            {key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]
         ),
         normalized_path=normalized_path,
     )
@@ -185,8 +184,7 @@ def _parse_json(path: Path, *, max_rows: int) -> ParsedFile:
         fields=_fields_from_rows(rows),
         row_count=len(rows),
         sample_rows=tuple(
-            {key: _normalize_value(value) for key, value in row.items()}
-            for row in rows[:max_rows]
+            {key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]
         ),
         normalized_path=normalized_path,
     )

@@ -94,8 +94,7 @@ class DatasetContextService:
             dataset.data_source_id,
             query,
             parameters={
-                parameter.name: parameter.default
-                for parameter in dataset.definition.parameters
+                parameter.name: parameter.default for parameter in dataset.definition.parameters
             },
             max_rows=min(max_rows, dataset.definition.max_rows),
             timeout_seconds=dataset.definition.timeout_seconds,

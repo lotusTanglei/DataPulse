@@ -61,9 +61,7 @@ def prepare(runtime_root: Path = E2E_ROOT) -> Path:
     backend_port, frontend_port = reserve_ports()
     data_dir = Path(tempfile.mkdtemp(prefix=TEMP_PREFIX)).resolve()
     config_path = runtime_root / f"{CONFIG_PREFIX}{uuid4().hex}.json"
-    signing_key = base64.urlsafe_b64encode(
-        b"e2e-signing-key-material-32-byte"
-    ).decode()
+    signing_key = base64.urlsafe_b64encode(b"e2e-signing-key-material-32-byte").decode()
     try:
         sources_dir = data_dir / "sources"
         sources_dir.mkdir()

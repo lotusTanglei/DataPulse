@@ -50,9 +50,7 @@ async def test_service_creates_screen_with_initial_document(
     service = ScreenService(repository=screen_repository)
     document = document_with_components()
 
-    created = await service.create(
-        ScreenCreate(name="Generated", draft_document=document)
-    )
+    created = await service.create(ScreenCreate(name="Generated", draft_document=document))
 
     assert created.draft_document == document
     assert created.draft_revision == 0

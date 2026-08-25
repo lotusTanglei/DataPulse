@@ -67,9 +67,7 @@ class FileQueryCompiler:
         selections = [_column(field) for field in spec.dimensions]
         selections.extend(_aggregate(measure).as_(measure.field) for measure in spec.measures)
         query = (
-            exp.select(*selections)
-            .from_("dataset_source")
-            .limit(min(spec.limit, dataset.max_rows))
+            exp.select(*selections).from_("dataset_source").limit(min(spec.limit, dataset.max_rows))
         )
         if spec.filters:
             conditions = [filter_compiler.compile(filter_) for filter_ in spec.filters]

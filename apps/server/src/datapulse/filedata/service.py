@@ -89,15 +89,11 @@ class FileAssetService:
             max_rows=100,
         )
         fields = parsed.fields
-        rows = tuple(
-            tuple(row.get(field.name) for field in fields)
-            for row in parsed.sample_rows
-        )
+        rows = tuple(tuple(row.get(field.name) for field in fields) for row in parsed.sample_rows)
         result = QueryResult(
             request_id=request_id,
             columns=tuple(
-                QueryColumn(name=field.name, data_type=field.data_type.value)
-                for field in fields
+                QueryColumn(name=field.name, data_type=field.data_type.value) for field in fields
             ),
             rows=rows,
             row_count=len(rows),

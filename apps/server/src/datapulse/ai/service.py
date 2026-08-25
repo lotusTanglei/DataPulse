@@ -275,8 +275,7 @@ class AiService:
             dataset.data_source_id,
             query,
             parameters={
-                parameter.name: parameter.default
-                for parameter in dataset.definition.parameters
+                parameter.name: parameter.default for parameter in dataset.definition.parameters
             },
             max_rows=self._default_limit(dataset),
             timeout_seconds=dataset.definition.timeout_seconds,
@@ -520,9 +519,7 @@ class AiService:
         component_ids = {component.id for component in request.document.components}
         if not set(request.selected_component_ids) <= component_ids:
             raise AiAnalysisError("AI_EDIT_INVALID", "The selected component is invalid.")
-        selected_components = {
-            component.id: component for component in request.document.components
-        }
+        selected_components = {component.id: component for component in request.document.components}
         if any(
             selected_components[component_id].state.locked
             for component_id in request.selected_component_ids

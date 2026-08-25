@@ -34,8 +34,7 @@ class TicketRedactionFilter(logging.Filter):
             record.msg = redact_ticket_url(record.msg)
         if isinstance(record.args, tuple):
             record.args = tuple(
-                redact_ticket_url(item) if isinstance(item, str) else item
-                for item in record.args
+                redact_ticket_url(item) if isinstance(item, str) else item for item in record.args
             )
         elif isinstance(record.args, dict):
             record.args = {
@@ -47,9 +46,7 @@ class TicketRedactionFilter(logging.Filter):
 
 def install_ticket_redaction_filter() -> None:
     access_logger = logging.getLogger("uvicorn.access")
-    if not any(
-        isinstance(item, TicketRedactionFilter) for item in access_logger.filters
-    ):
+    if not any(isinstance(item, TicketRedactionFilter) for item in access_logger.filters):
         access_logger.addFilter(TicketRedactionFilter())
 
 
@@ -105,9 +102,7 @@ async def embed_page_response(
         index,
         headers={
             "Cache-Control": "no-store",
-            "Content-Security-Policy": (
-                f"frame-ancestors {claims.allowed_origin}"
-            ),
+            "Content-Security-Policy": (f"frame-ancestors {claims.allowed_origin}"),
             "Referrer-Policy": "no-referrer",
             "X-Content-Type-Options": "nosniff",
         },

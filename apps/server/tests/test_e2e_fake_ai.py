@@ -13,10 +13,7 @@ def request_payload(mode: str, *, system: str = "analytics assistant") -> dict[s
             {"role": "system", "content": system},
             {
                 "role": "user",
-                "content": (
-                    f"question: E2E_MODE:{mode}\n"
-                    "dataset_ids: dataset-1\n"
-                ),
+                "content": (f"question: E2E_MODE:{mode}\ndataset_ids: dataset-1\n"),
             },
         ],
     }
@@ -44,12 +41,8 @@ def test_fake_ai_server_exposes_deterministic_modes() -> None:
             json=request_payload("malformed-json"),
         )
 
-        assert json.loads(valid.json()["choices"][0]["message"]["content"])[
-            "narrative"
-        ]
-        assert json.loads(screen.json()["choices"][0]["message"]["content"])[
-            "document"
-        ]
+        assert json.loads(valid.json()["choices"][0]["message"]["content"])["narrative"]
+        assert json.loads(screen.json()["choices"][0]["message"]["content"])["document"]
         assert "unknown_field" in invalid.json()["choices"][0]["message"]["content"]
         assert malformed.json()["choices"][0]["message"]["content"] == "{"
         with pytest.raises(httpx.TimeoutException):

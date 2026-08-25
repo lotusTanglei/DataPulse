@@ -203,9 +203,7 @@ async def test_invalid_source_unsafe_sql_and_preview_failure_do_not_persist(
     assert datasource_service.requests == []
     assert await repository.list() == ()
 
-    missing = payload.model_copy(
-        update={"data_source_id": "missing", "sql": "SELECT * FROM sales"}
-    )
+    missing = payload.model_copy(update={"data_source_id": "missing", "sql": "SELECT * FROM sales"})
     with pytest.raises(DatasourceNotFound):
         await service.create(missing, request_id="missing-1")
     assert await repository.list() == ()

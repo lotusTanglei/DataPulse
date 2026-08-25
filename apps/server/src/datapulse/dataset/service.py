@@ -117,7 +117,6 @@ class DatasetService:
         )
         return await self._repository.create(definition)
 
-
     async def create_file(
         self,
         data: FileDatasetCreate,
@@ -160,9 +159,7 @@ class DatasetService:
         definition = existing.definition
         if isinstance(definition.query, FileQuery):
             if data.sql is not None or data.parameters is not None:
-                raise DatasetUpdateInvalid(
-                    "SQL and parameters are not valid for file datasets."
-                )
+                raise DatasetUpdateInvalid("SQL and parameters are not valid for file datasets.")
             if self._file_asset_repository is None:
                 raise RuntimeError("file asset repository is not configured")
             max_rows = data.max_rows or definition.max_rows
@@ -192,8 +189,7 @@ class DatasetService:
                     existing.data_source_id,
                     query=query,
                     parameters={
-                        parameter.name: parameter.default
-                        for parameter in definition.parameters
+                        parameter.name: parameter.default for parameter in definition.parameters
                     },
                     max_rows=data.max_rows or definition.max_rows,
                     timeout_seconds=data.timeout_seconds or definition.timeout_seconds,

@@ -80,15 +80,12 @@ class DuckDBExecutor:
             connection.execute(f"SET threads = {self._settings.duckdb_threads}")
             connection.execute(f"SET memory_limit = '{self._settings.duckdb_memory_limit}'")
             source_sql = self._dataset_source_sql(source_path)
-            connection.execute(
-                f"CREATE VIEW dataset_source AS SELECT * FROM {source_sql}"
-            )
+            connection.execute(f"CREATE VIEW dataset_source AS SELECT * FROM {source_sql}")
             cursor = connection.execute(sql, parameters)
             fetched = cursor.fetchmany(max_rows + 1)
             truncated = len(fetched) > max_rows
             rows = tuple(
-                tuple(normalize_result_value(value) for value in row)
-                for row in fetched[:max_rows]
+                tuple(normalize_result_value(value) for value in row) for row in fetched[:max_rows]
             )
             description = cursor.description or []
             columns = tuple(

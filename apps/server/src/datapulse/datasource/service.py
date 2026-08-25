@@ -268,7 +268,7 @@ class DatasourceService:
             relation,
             request_id=request_id,
         )
-        quote = '`' if connector.dialect == "mysql" else '"'
+        quote = "`" if connector.dialect == "mysql" else '"'
 
         def quoted(identifier: str) -> str:
             return f"{quote}{identifier.replace(quote, quote + quote)}{quote}"
