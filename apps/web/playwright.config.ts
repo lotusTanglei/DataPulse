@@ -22,7 +22,7 @@ export default defineConfig({
   workers: 1,
   timeout: 45_000,
   expect: { timeout: 8_000 },
-  snapshotPathTemplate: "{testDir}/snapshots/{arg}{ext}",
+  snapshotPathTemplate: "{testDir}/snapshots/{platform}/{arg}{ext}",
   globalTeardown: "./e2e/global-teardown.ts",
   use: {
     baseURL: frontendUrl,
