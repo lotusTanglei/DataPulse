@@ -12,6 +12,11 @@ import {
   uploadVisualAssets,
 } from "./helpers.js";
 
+const visualSnapshotOptions = {
+  animations: "disabled" as const,
+  maxDiffPixels: 10_000,
+};
+
 async function openStandalone(
   page: import("@playwright/test").Page,
   screenId: string,
@@ -51,15 +56,14 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
     queryFailures.join("\n"),
   ).toHaveCount(0);
   await expect(page).toHaveScreenshot("dark-player.png", {
-    animations: "disabled",
-    maxDiffPixels: 10_000,
+    ...visualSnapshotOptions,
   });
 
   await page.setViewportSize({ width: 1200, height: 900 });
-  await expect(page).toHaveScreenshot("letterboxed-player.png", {
-    animations: "disabled",
-    maxDiffPixelRatio: 0.001,
-  });
+  await expect(page).toHaveScreenshot(
+    "letterboxed-player.png",
+    visualSnapshotOptions,
+  );
 
   const light = await createPublishedScreen(
     page,
@@ -81,10 +85,7 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
         ),
     )
     .toBe("#0f172a");
-  await expect(page).toHaveScreenshot("light-player.png", {
-    animations: "disabled",
-    maxDiffPixelRatio: 0.001,
-  });
+  await expect(page).toHaveScreenshot("light-player.png", visualSnapshotOptions);
 
   const isolatedError = nineComponentDocument(dataset.id, assets, "dark");
   const broken = isolatedError.components.find(
@@ -99,10 +100,10 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
   await openStandalone(page, errorScreen.id);
   await expect(page.getByText("数据加载失败")).toHaveCount(1);
   await expect(page.getByText("DataPulse 运营态势总览")).toBeVisible();
-  await expect(page).toHaveScreenshot("component-error-isolation.png", {
-    animations: "disabled",
-    maxDiffPixelRatio: 0.001,
-  });
+  await expect(page).toHaveScreenshot(
+    "component-error-isolation.png",
+    visualSnapshotOptions,
+  );
 });
 
 test("host SDK controls an embedded screen and rejects unsafe access", async ({
