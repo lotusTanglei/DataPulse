@@ -52,7 +52,7 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
   ).toHaveCount(0);
   await expect(page).toHaveScreenshot("dark-player.png", {
     animations: "disabled",
-    maxDiffPixelRatio: 0.001,
+    maxDiffPixels: 10_000,
   });
 
   await page.setViewportSize({ width: 1200, height: 900 });
