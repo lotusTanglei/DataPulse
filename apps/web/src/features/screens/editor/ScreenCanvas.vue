@@ -14,6 +14,7 @@ import {
 import ComponentHost from "../../runtime/ComponentHost.vue";
 import { createDataRuntime } from "../../runtime/dataRuntime";
 import { defaultComponentRegistry } from "../../runtime/registry";
+import { resolveThemeTokens } from "../../runtime/theme";
 import { queryScreenDocument } from "../api";
 import type { ComponentInstance } from "./commands";
 import {
@@ -38,6 +39,7 @@ const props = withDefaults(
 );
 
 const store = useScreenEditorStore();
+const themeTokens = computed(() => resolveThemeTokens(store.document?.theme));
 const host = ref<HTMLElement | null>(null);
 const canvas = ref<HTMLElement | null>(null);
 const zoom = ref(0.5);
@@ -122,7 +124,9 @@ const canvasStyle = computed(() => ({
   backgroundColor:
     typeof store.document?.canvas.background?.color === "string"
       ? store.document.canvas.background.color
-      : "#0b1020",
+      : typeof themeTokens.value.canvas_background === "string"
+        ? themeTokens.value.canvas_background
+        : "#071522",
   transform: `scale(${zoom.value})`,
 }));
 const stageStyle = computed(() => ({
@@ -144,7 +148,12 @@ async function refreshData(): Promise<void> {
       .filter((component) => component.data_binding && Object.keys(component.data_binding).length > 0)
       .map((component) =>
         dataRuntime
-          .load(component.id, component.data_binding!, parameterDefaults.value)
+          .load(
+            component.id,
+            component.data_binding!,
+            parameterDefaults.value,
+            component.type,
+          )
           .catch(() => undefined),
       ),
   );
@@ -838,7 +847,8 @@ defineExpose({
             :instance="component"
             :load-asset="loadAsset"
             :query-state="dataRuntime.state(component.id)"
-            :theme="store.document?.theme?.tokens ?? {}"
+            :theme="themeTokens"
+            mode="editor"
           />
           <div
             v-if="dataRuntime.state(component.id).status === 'error'"

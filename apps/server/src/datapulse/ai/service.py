@@ -61,12 +61,16 @@ class _AiEditDraftResponse(ContractModel):
 _VISUAL_CAPABILITIES: dict[ChartType, str] = {
     ChartType.AREA: "at least 1 dimension and at least 1 measure",
     ChartType.BAR: "at least 1 dimension and at least 1 measure",
+    ChartType.FUNNEL: "at least 1 dimension and at least 1 measure",
     ChartType.GAUGE: "0 or 1 dimension and exactly 1 measure",
+    ChartType.HEATMAP: "at least 1 dimension and at least 1 measure",
     ChartType.KPI: "0 or 1 dimension and exactly 1 measure",
     ChartType.LINE: "at least 1 dimension and at least 1 measure",
     ChartType.MAP: "exactly 1 dimension and at least 1 measure",
     ChartType.PIE: "exactly 1 dimension and at least 1 measure",
     ChartType.PROGRESS: "0 or 1 dimension and exactly 1 measure",
+    ChartType.RADAR: "at least 1 dimension and at least 1 measure",
+    ChartType.SCATTER: "at least 1 dimension and at least 1 measure",
     ChartType.TABLE: "at least 1 selected dimension or measure",
 }
 

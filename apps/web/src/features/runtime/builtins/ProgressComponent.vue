@@ -80,6 +80,7 @@ const formattedValue = computed(() => {
 
 <style scoped>
 .screen-progress {
+  position: relative;
   box-sizing: border-box;
   display: flex;
   width: 100%;
@@ -91,6 +92,17 @@ const formattedValue = computed(() => {
   border-radius: var(--screen-component-radius, 10px);
   background: var(--screen-component-surface, transparent);
   color: var(--screen-text-primary, #f8fafc);
+}
+
+.screen-progress::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 2px;
+  background: var(--screen-accent, #3b82f6);
+  content: "";
+  opacity: 0.7;
 }
 
 .screen-progress header {
@@ -121,6 +133,7 @@ const formattedValue = computed(() => {
   height: 100%;
   border-radius: inherit;
   background: var(--screen-accent, #3b82f6);
+  box-shadow: 0 0 14px rgb(59 130 246 / 38%);
   transition: width 180ms ease;
 }
 

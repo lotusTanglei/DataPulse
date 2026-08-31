@@ -1,6 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { toRaw } from "vue";
 
 import type { Dataset } from "../../datasets/types";
 import type { Screen } from "../types";
@@ -157,6 +158,58 @@ test("inspector updates theme, background, and click parameter mapping", () => {
   ]);
 });
 
+test("component properties are rendered from registry metadata", async () => {
+  const store = useScreenEditorStore();
+  const current = JSON.parse(JSON.stringify(toRaw(store.document!.components![0]!)));
+  store.dispatch({
+    type: "replace_component",
+    component_id: "bar-1",
+    component: {
+      ...current,
+      type: "builtin.panel",
+      props: { title: "原始标题", frame_variant: "plain", show_grid: true },
+      data_binding: {},
+    },
+  });
+  store.selection = ["bar-1"];
+  const wrapper = mount(InspectorPanel);
+
+  const title = wrapper.get('[data-property-name="title"] input');
+  expect((title.element as HTMLInputElement).value).toBe("原始标题");
+  await title.setValue("新的标题");
+  await wrapper
+    .get('[data-property-name="frame_variant"] select')
+    .setValue("corner");
+  await wrapper
+    .get('[data-property-name="show_grid"] input[type="checkbox"]')
+    .setValue(false);
+
+  expect(store.document?.components?.[0]?.props).toMatchObject({
+    title: "新的标题",
+    frame_variant: "corner",
+    show_grid: false,
+  });
+});
+
+test("theme inspector persists panel and chart tokens", async () => {
+  const store = useScreenEditorStore();
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+  await wrapper.get('[data-inspector-tab="style"]').trigger("click");
+  await wrapper
+    .get('[data-theme-panel-background]')
+    .setValue("#123456");
+  await wrapper.get('[data-theme-text-secondary]').setValue("#aabbcc");
+  await wrapper.get('[data-theme-chart-colors]').setValue("#123456, #abcdef");
+  await wrapper.get('[data-apply-theme]').trigger("click");
+
+  expect(store.document?.theme?.tokens).toMatchObject({
+    panel_background: "#123456",
+    text_secondary: "#aabbcc",
+    chart_colors: ["#123456", "#abcdef"],
+  });
+});
+
 test("visible data form applies selected dataset fields", async () => {
   const store = useScreenEditorStore();
   const wrapper = mount(InspectorPanel);
@@ -172,8 +225,46 @@ test("visible data form applies selected dataset fields", async () => {
       store.document?.components?.[0]?.data_binding?.chart_spec as {
         dataset_id?: string;
       }
-    ).dataset_id,
+  ).dataset_id,
   ).toBe("sales");
+});
+
+test("inspector binds demo data and materializes it as static data", async () => {
+  const store = useScreenEditorStore();
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  await wrapper.get('[data-data-source="mock"]').trigger("click");
+  expect(store.document?.components?.[0]?.data_binding).toMatchObject({
+    source: "mock",
+    mock_data: { seed: 42 },
+  });
+  await wrapper.get("[data-materialize-demo]").trigger("click");
+  expect(store.document?.components?.[0]?.data_binding?.source).toBe("static");
+  expect(store.document?.components?.[0]?.data_binding?.static_data).toMatchObject({
+    schema_version: 1,
+  });
+});
+
+test("inspector validates and saves one-level static object arrays", async () => {
+  const store = useScreenEditorStore();
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  await wrapper.get('[data-data-source="static"]').trigger("click");
+  await wrapper.get("[data-static-data-json]").setValue('[{"name":"A","value":12},{"name":"B","value":8}]');
+  await wrapper.get("[data-apply-static]").trigger("click");
+
+  expect(store.document?.components?.[0]?.data_binding).toMatchObject({
+    source: "static",
+    static_data: {
+      columns: [
+        { name: "name", data_type: "string" },
+        { name: "value", data_type: "number" },
+      ],
+      rows: [["A", 12], ["B", 8]],
+    },
+  });
 });
 
 test("inspector restores persisted data binding when selecting a component", async () => {

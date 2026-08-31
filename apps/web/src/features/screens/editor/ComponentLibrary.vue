@@ -1,10 +1,87 @@
 <script setup lang="ts">
+import {
+  Activity,
+  BellRing,
+  ChartLine,
+  ChartNoAxesColumn,
+  ChartPie,
+  ChartSpline,
+  Clock3,
+  Funnel,
+  Gauge,
+  Grid2x2,
+  Hash,
+  Image,
+  Map as MapIcon,
+  Minus,
+  PanelTop,
+  Radar,
+  Rows3,
+  Table2,
+  Trophy,
+  Type,
+} from "@lucide/vue";
 import { defaultComponentRegistry } from "../../runtime/registry";
+import { computed, type Component } from "vue";
 import type { ComponentFrame } from "./commands";
 import { snapToGrid } from "./geometry";
 import { useScreenEditorStore } from "./store";
 
 const store = useScreenEditorStore();
+const groups = computed(() => {
+  const grouped = new Map<string, ReturnType<typeof defaultComponentRegistry.list>>();
+  for (const definition of defaultComponentRegistry.list()) {
+    const category = definition.category ?? "其他";
+    const definitions = grouped.get(category) ?? [];
+    definitions.push(definition);
+    grouped.set(category, definitions);
+  }
+  return [...grouped.entries()];
+});
+
+const iconMap: Record<string, Component> = {
+  "builtin.text": Type,
+  "builtin.image": Image,
+  "builtin.panel": PanelTop,
+  "builtin.divider": Minus,
+  "builtin.digital_number": Hash,
+  "builtin.kpi": Activity,
+  "builtin.table": Table2,
+  "builtin.progress": Rows3,
+  "builtin.gauge": Gauge,
+  "builtin.status_matrix": Grid2x2,
+  "builtin.line": ChartLine,
+  "builtin.bar": ChartNoAxesColumn,
+  "builtin.pie": ChartPie,
+  "builtin.radar": Radar,
+  "builtin.heatmap": Grid2x2,
+  "builtin.scatter": ChartSpline,
+  "builtin.funnel": Funnel,
+  "builtin.ranking": Trophy,
+  "builtin.alert_list": BellRing,
+  "builtin.timeline": Clock3,
+  "builtin.geo_map": MapIcon,
+};
+
+function componentIcon(type: string): Component {
+  return iconMap[type] ?? Activity;
+}
+
+function previewKind(type: string): string {
+  if (["builtin.line"].includes(type)) return "line";
+  if (["builtin.bar", "builtin.ranking", "builtin.progress"].includes(type)) return "bars";
+  if (["builtin.pie"].includes(type)) return "pie";
+  if (["builtin.gauge"].includes(type)) return "gauge";
+  if (["builtin.table", "builtin.status_matrix"].includes(type)) return "table";
+  if (["builtin.alert_list", "builtin.timeline"].includes(type)) return "list";
+  if (["builtin.digital_number", "builtin.kpi"].includes(type)) return "number";
+  if (["builtin.panel", "builtin.image", "builtin.geo_map"].includes(type)) return "panel";
+  return "line";
+}
+
+function previewBars(type: string): number[] {
+  return type === "builtin.ranking" ? [40, 68, 52, 84] : [30, 58, 44, 76, 63];
+}
 
 function overlaps(
   candidate: Pick<ComponentFrame, "x" | "y" | "width" | "height">,
@@ -85,7 +162,7 @@ function add(type: string): void {
         z_index: store.document.components?.length ?? 0,
       },
       props: structuredClone(definition.defaultProps),
-      style: {},
+      style: structuredClone(definition.defaultStyle ?? {}),
       state: { locked: false, hidden: false },
       data_binding: {},
       interactions: [],
@@ -98,16 +175,39 @@ function add(type: string): void {
 <template>
   <section class="component-library" aria-label="组件库">
     <h2>组件</h2>
-    <div class="component-library__grid">
-      <button
-        v-for="definition in defaultComponentRegistry.list()"
-        :key="definition.type"
-        type="button"
-        @click="add(definition.type)"
-      >
-        <span>＋</span>
-        {{ definition.label }}
-      </button>
+    <div v-for="[category, definitions] in groups" :key="category" class="component-library__group">
+      <h3>{{ category }}</h3>
+      <div class="component-library__grid">
+        <button
+          v-for="definition in definitions"
+          :key="definition.type"
+          type="button"
+          :title="`${definition.label}${definition.dataCapability === 'none' ? '' : ' · 支持演示数据'}`"
+          @click="add(definition.type)"
+        >
+          <span
+            class="component-library__preview"
+            :data-preview="previewKind(definition.type)"
+            aria-hidden="true"
+          >
+            <component
+              :is="componentIcon(definition.type)"
+              class="component-library__icon"
+              :size="15"
+              :stroke-width="1.8"
+            />
+            <span class="component-library__mini-visual">
+              <i
+                v-for="height in previewBars(definition.type)"
+                :key="height"
+                :style="{ height: `${height}%` }"
+              />
+            </span>
+          </span>
+          <span class="component-library__label">{{ definition.label }}</span>
+          <small v-if="definition.dataCapability !== 'none'">数据</small>
+        </button>
+      </div>
     </div>
   </section>
 </template>

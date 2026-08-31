@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { BarChart, LineChart, PieChart } from "echarts/charts";
+import {
+  BarChart,
+  FunnelChart,
+  HeatmapChart,
+  LineChart,
+  PieChart,
+  RadarChart,
+  ScatterChart,
+} from "echarts/charts";
 import {
   GridComponent,
   LegendComponent,
@@ -24,10 +32,14 @@ import { stringProp } from "./format";
 use([
   BarChart,
   CanvasRenderer,
+  FunnelChart,
   GridComponent,
+  HeatmapChart,
   LegendComponent,
   LineChart,
   PieChart,
+  RadarChart,
+  ScatterChart,
   TitleComponent,
   TooltipComponent,
 ]);

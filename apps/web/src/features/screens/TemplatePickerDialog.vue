@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { Check, LayoutTemplate, X } from "@lucide/vue";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
-import { screenTemplates, type ScreenTemplate } from "./templates";
+import type { DashboardDocument } from "../../contracts";
+import type { QueryResult } from "../query/types";
+import ScreenRuntime from "../runtime/ScreenRuntime.vue";
+import type { QueryComponent } from "../runtime/types";
+import { createTemplateDocument, screenTemplates, type ScreenTemplate } from "./templates";
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +28,28 @@ const selected = computed(() =>
   screenTemplates.find((template) => template.id === selectedId.value) ??
   screenTemplates[0],
 );
+const previewDocument = computed<DashboardDocument | null>(() =>
+  selected.value ? createTemplateDocument(selected.value.id) : null,
+);
+const previewQuery: QueryComponent = async (): Promise<QueryResult> => ({
+  request_id: "template-preview",
+  columns: [],
+  rows: [],
+  row_count: 0,
+  truncated: false,
+  duration_ms: 0,
+});
+const previewAsset = async (): Promise<string> => "";
+const canRenderRuntimePreview = ref(false);
+
+onMounted(() => {
+  try {
+    const canvas = document.createElement("canvas");
+    canRenderRuntimePreview.value = Boolean(canvas.getContext("2d"));
+  } catch {
+    canRenderRuntimePreview.value = false;
+  }
+});
 
 watch(
   () => props.open,
@@ -114,10 +140,30 @@ function submit(): void {
           </button>
         </div>
         <div v-if="selected" class="template-picker__preview">
-          <p class="page-eyebrow">{{ selected.category }}</p>
-          <h3>{{ selected.name }}</h3>
-          <p>{{ selected.description }}</p>
-          <span>1920 × 1080 · 可编辑草稿</span>
+          <div class="template-picker__preview-canvas">
+            <ScreenRuntime
+              v-if="previewDocument && canRenderRuntimePreview"
+              :document="previewDocument"
+              mode="preview"
+              :load-asset="previewAsset"
+              :query-component="previewQuery"
+            />
+            <div v-else class="template-picker__fallback-preview" aria-hidden="true">
+              <i class="template-picker__fallback-title"></i>
+              <div class="template-picker__fallback-metrics">
+                <i v-for="index in 4" :key="index"></i>
+              </div>
+              <div class="template-picker__fallback-charts">
+                <i></i><i></i><i></i>
+              </div>
+            </div>
+          </div>
+          <div class="template-picker__preview-copy">
+            <p class="page-eyebrow">{{ selected.category }}</p>
+            <h3>{{ selected.name }}</h3>
+            <p>{{ selected.description }}</p>
+            <span>1920 × 1080 · 含演示数据</span>
+          </div>
         </div>
       </div>
 
@@ -203,20 +249,75 @@ function submit(): void {
 }
 
 .template-picker__preview {
+  display: grid;
+  gap: 12px;
   min-height: 230px;
-  padding: 20px;
   border: 1px solid rgb(148 163 184 / 20%);
   border-radius: 8px;
   background: #0f172a;
 }
 
-.template-picker__preview h3 {
-  margin: 30px 0 10px;
+.template-picker__preview-canvas {
+  position: relative;
+  height: 230px;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(148 163 184 / 16%);
+}
+
+.template-picker__fallback-preview {
+  display: grid;
+  gap: 8px;
+  height: 100%;
+  padding: 16px;
+  background:
+    linear-gradient(rgb(34 211 238 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(34 211 238 / 7%) 1px, transparent 1px),
+    #071522;
+  background-size: 16px 16px;
+}
+
+.template-picker__fallback-preview i {
+  display: block;
+  border: 1px solid rgb(45 212 191 / 32%);
+  background: rgb(15 57 77 / 72%);
+}
+
+.template-picker__fallback-title {
+  width: 42%;
+  height: 10px;
+  border: 0 !important;
+  background: rgb(226 232 240 / 72%) !important;
+}
+
+.template-picker__fallback-metrics,
+.template-picker__fallback-charts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.template-picker__fallback-metrics {
+  height: 46px;
+}
+
+.template-picker__fallback-charts {
+  grid-template-columns: 1.2fr 0.8fr 1fr;
+  height: 120px;
+}
+
+.template-picker__preview-copy {
+  display: grid;
+  gap: 6px;
+  padding: 0 16px 16px;
+}
+
+.template-picker__preview-copy h3 {
+  margin: 0;
   font-size: 24px;
 }
 
-.template-picker__preview p:not(.page-eyebrow) {
-  min-height: 52px;
+.template-picker__preview-copy p:not(.page-eyebrow) {
+  margin: 0;
   color: #b4c2d6;
   line-height: 1.6;
 }

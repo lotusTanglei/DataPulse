@@ -37,7 +37,20 @@ export type SortDirection = "asc" | "desc";
 export type Field2 = string;
 export type Sort = Sort1[];
 export type Title = string;
-export type ChartType = "area" | "bar" | "gauge" | "kpi" | "line" | "map" | "pie" | "progress" | "table";
+export type ChartType =
+  | "area"
+  | "bar"
+  | "funnel"
+  | "gauge"
+  | "heatmap"
+  | "kpi"
+  | "line"
+  | "map"
+  | "pie"
+  | "progress"
+  | "radar"
+  | "scatter"
+  | "table";
 
 export interface ChartSpec {
   dataset_id: DatasetId;

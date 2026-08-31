@@ -44,7 +44,15 @@ def _validate_visual(spec: ChartSpec) -> None:
     dimension_count = len(spec.dimensions)
     measure_count = len(spec.measures)
     valid = True
-    if visual_type in {ChartType.LINE, ChartType.AREA, ChartType.BAR}:
+    if visual_type in {
+        ChartType.LINE,
+        ChartType.AREA,
+        ChartType.BAR,
+        ChartType.RADAR,
+        ChartType.HEATMAP,
+        ChartType.SCATTER,
+        ChartType.FUNNEL,
+    }:
         valid = dimension_count >= 1 and measure_count >= 1
     elif visual_type in {ChartType.PIE, ChartType.MAP}:
         valid = dimension_count == 1 and measure_count >= 1

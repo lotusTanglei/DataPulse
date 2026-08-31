@@ -88,6 +88,12 @@ function datasetIdFromSelection(): string {
 const selectedDatasetId = computed(() => {
   return datasetIdFromSelection();
 });
+const demoDataCount = computed(
+  () =>
+    store.document?.components?.filter(
+      (component) => component.data_binding?.source === "mock",
+    ).length ?? 0,
+);
 const documentDatasetIds = computed(() => {
   const ids = new Set<string>();
   for (const component of store.document?.components ?? []) {
@@ -366,6 +372,9 @@ async function saveAccessPolicy(policy: ScreenAccessPolicy): Promise<void> {
             </div>
           </div>
           <p>如需备份，请先复制大屏。</p>
+          <p v-if="demoDataCount" class="publish-demo-notice">
+            此大屏包含 {{ demoDataCount }} 个演示数据组件。演示数据不会访问数据源，适合展示和联调。
+          </p>
           <div class="dialog-actions">
             <button
               class="secondary-button"
@@ -443,5 +452,12 @@ async function saveAccessPolicy(policy: ScreenAccessPolicy): Promise<void> {
 
 .publish-usage-error {
   color: #fca5a5;
+}
+
+.publish-demo-notice {
+  padding: 10px 12px;
+  border-left: 2px solid #2dd4bf;
+  color: #99f6e4;
+  background: rgb(45 212 191 / 8%);
 }
 </style>

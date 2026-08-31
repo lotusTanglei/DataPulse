@@ -7,6 +7,7 @@ import type {
   QueryComponent,
   RuntimeParameters,
 } from "./types";
+import { resolveLocalResult } from "./mockData";
 
 const IDLE_STATE: ComponentQueryState = {
   status: "idle",
@@ -42,6 +43,7 @@ export interface DataRuntime {
     componentId: string,
     binding: DataBinding,
     parameters: RuntimeParameters,
+    componentType?: string,
   ): Promise<QueryResult>;
   state(componentId: string): ComponentQueryState;
 }
@@ -69,6 +71,7 @@ export function createDataRuntime(queryComponent: QueryComponent): DataRuntime {
     componentId: string,
     binding: DataBinding,
     parameters: RuntimeParameters,
+    componentType?: string,
   ): Promise<QueryResult> {
     if (disposed) {
       throw new Error("The data runtime has been disposed.");
@@ -82,9 +85,22 @@ export function createDataRuntime(queryComponent: QueryComponent): DataRuntime {
       error: null,
     });
 
+    let localResult: QueryResult | null = null;
+    try {
+      localResult = resolveLocalResult(
+        { id: componentId, type: componentType ?? "builtin.table" },
+        binding,
+      );
+    } catch (error) {
+      states.set(componentId, { status: "error", result: null, error });
+      throw error;
+    }
+
     const key = queryKey(binding, parameters);
     let request = cycleRequests.get(key);
-    if (!request) {
+    if (localResult) {
+      request = Promise.resolve(localResult);
+    } else if (!request) {
       const controller = new AbortController();
       controllers.set(key, controller);
       request = Promise.resolve().then(() =>

@@ -3,11 +3,19 @@ import { afterEach, expect, test, vi } from "vitest";
 
 import type { QueryResult } from "../../query/types";
 import { defaultComponentRegistry } from "../registry";
+import AlertListComponent from "./AlertListComponent.vue";
+import DigitalNumberComponent from "./DigitalNumberComponent.vue";
+import DividerComponent from "./DividerComponent.vue";
+import GaugeComponent from "./GaugeComponent.vue";
 import ImageComponent from "./ImageComponent.vue";
 import KpiComponent from "./KpiComponent.vue";
+import PanelComponent from "./PanelComponent.vue";
 import ProgressComponent from "./ProgressComponent.vue";
+import RankingComponent from "./RankingComponent.vue";
+import StatusMatrixComponent from "./StatusMatrixComponent.vue";
 import TableComponent from "./TableComponent.vue";
 import TextComponent from "./TextComponent.vue";
+import TimelineComponent from "./TimelineComponent.vue";
 
 function result(
   rows: QueryResult["rows"],
@@ -189,4 +197,69 @@ test("registers all core component types in the shared registry", () => {
       "builtin.progress",
     ].map((type) => defaultComponentRegistry.get(type)?.label),
   ).toEqual(["文本", "图片", "指标", "表格", "进度"]);
+});
+
+test("new component definitions expose category, skin, and demo capability", () => {
+  const definitions = defaultComponentRegistry.list();
+  expect(definitions).toHaveLength(21);
+  for (const definition of definitions) {
+    expect(definition.category).toBeTruthy();
+    expect(definition.defaultStyle).toBeTruthy();
+    expect(definition.demoDataKind).toBeTruthy();
+    expect(definition.propertyGroups?.length).toBeGreaterThan(0);
+  }
+  expect(
+    definitions
+      .filter((definition) => definition.dataCapability !== "none")
+      .map((definition) => definition.type),
+  ).toContain("builtin.ranking");
+});
+
+test("new visual components render their success states", () => {
+  const loadAsset = vi.fn();
+  const shared = {
+    loading: false,
+    error: null,
+    loadAsset,
+  };
+  const wrappers = [
+    mount(PanelComponent, {
+      props: { instance: instance("builtin.panel", { title: "重点区域" }), result: null, ...shared },
+    }),
+    mount(DividerComponent, {
+      props: { instance: instance("builtin.divider", { label: "分组" }), result: null, ...shared },
+    }),
+    mount(DigitalNumberComponent, {
+      props: { instance: instance("builtin.digital_number", { label: "总量", unit: "项" }), result: result([[128]]), ...shared },
+    }),
+    mount(GaugeComponent, {
+      props: { instance: instance("builtin.gauge", { label: "完成率" }), result: result([[76]]), ...shared },
+    }),
+    mount(RankingComponent, {
+      props: { instance: instance("builtin.ranking"), result: result([["A", 12], ["B", 8]], [{ name: "名称", data_type: "text" }, { name: "值", data_type: "numeric" }]), ...shared },
+    }),
+    mount(AlertListComponent, {
+      props: { instance: instance("builtin.alert_list"), result: result([["high", "需要处理", "说明", "08:30"]], [{ name: "level", data_type: "text" }, { name: "title", data_type: "text" }, { name: "detail", data_type: "text" }, { name: "time", data_type: "text" }]), ...shared },
+    }),
+    mount(StatusMatrixComponent, {
+      props: { instance: instance("builtin.status_matrix"), result: result([["对象 A", "正常"]], [{ name: "name", data_type: "text" }, { name: "status", data_type: "text" }]), ...shared },
+    }),
+    mount(TimelineComponent, {
+      props: { instance: instance("builtin.timeline"), result: result([["08:30", "事件 A", "完成"]], [{ name: "time", data_type: "text" }, { name: "title", data_type: "text" }, { name: "status", data_type: "text" }]), ...shared },
+    }),
+  ];
+
+  expect(wrappers.map((wrapper) => wrapper.text())).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining("重点区域"),
+      expect.stringContaining("分组"),
+      expect.stringContaining("128"),
+      expect.stringContaining("76.0%"),
+      expect.stringContaining("A"),
+      expect.stringContaining("需要处理"),
+      expect.stringContaining("对象 A"),
+      expect.stringContaining("事件 A"),
+    ]),
+  );
+  for (const wrapper of wrappers) wrapper.unmount();
 });

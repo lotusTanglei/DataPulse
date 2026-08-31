@@ -6,7 +6,7 @@ import type { DashboardDocument } from "../../contracts";
 import type { QueryResult } from "../query/types";
 import ComponentHost from "./ComponentHost.vue";
 import { createParameterState, ParameterValidationError } from "./parameters";
-import { ComponentRegistry } from "./registry";
+import { ComponentRegistry, defaultComponentRegistry } from "./registry";
 import ScreenRuntime from "./ScreenRuntime.vue";
 import { resolveTheme } from "./theme";
 import type { ComponentDefinition } from "./types";
@@ -214,6 +214,29 @@ test("applies persisted component appearance to the runtime host", () => {
   );
   expect(wrapper.get(".component-host").attributes("style")).toContain(
     "opacity: 0.8",
+  );
+});
+
+test("resolves default component surfaces from the panel theme token", () => {
+  const definition = defaultComponentRegistry.get("builtin.kpi")!;
+  const wrapper = mount(ComponentHost, {
+    props: {
+      definition,
+      instance: {
+        id: "themed-kpi",
+        type: "builtin.kpi",
+        frame: { x: 0, y: 0, width: 280, height: 160 },
+      },
+      loadAsset: vi.fn(),
+      queryState: { status: "idle", result: null, error: null },
+      theme: { panel_background: "#112233" },
+    },
+  });
+
+  const style = wrapper.get(".component-host").attributes("style");
+  expect(style).toContain("--screen-panel-background: #112233");
+  expect(style).toContain(
+    "--screen-component-surface: var(--screen-panel-background, #0b1b2b)",
   );
 });
 

@@ -19,7 +19,7 @@ import {
   defaultComponentRegistry,
   type ComponentRegistry,
 } from "./registry";
-import { resolveTheme } from "./theme";
+import { resolveTheme, resolveThemeTokens } from "./theme";
 import type {
   LoadAsset,
   QueryComponent,
@@ -64,14 +64,18 @@ const components = computed(() =>
     (component) => !component.state?.hidden,
   ),
 );
-const themeStyle = computed(() => resolveTheme(props.document.theme));
-const themeTokens = computed(() => props.document.theme?.tokens ?? {});
+const themeTokens = computed(() => resolveThemeTokens(props.document.theme));
+const themeStyle = computed(() =>
+  resolveTheme({ tokens: themeTokens.value }),
+);
 const canvasStyle = computed(() => {
   const background = props.document.canvas.background;
   const color =
     background && typeof background.color === "string"
       ? background.color
-      : "transparent";
+      : typeof themeTokens.value.canvas_background === "string"
+        ? themeTokens.value.canvas_background
+        : "#071522";
   return {
     ...themeStyle.value,
     width: `${props.document.canvas.width}px`,
@@ -105,7 +109,7 @@ async function refresh(): Promise<void> {
     .filter((component) => hasBinding(component.data_binding))
     .map((component) =>
       dataRuntime
-        .load(component.id, component.data_binding!, parameters)
+        .load(component.id, component.data_binding!, parameters, component.type)
         .catch((error: unknown) => {
           if (!isAbortError(error)) {
             emit("error", error);
@@ -247,6 +251,7 @@ defineExpose({
           :load-asset="loadAsset"
           :query-state="dataRuntime.state(component.id)"
           :theme="themeTokens"
+          :mode="mode"
           @interaction="handleInteraction"
         />
       </div>

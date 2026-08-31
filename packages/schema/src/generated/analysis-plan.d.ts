@@ -36,7 +36,20 @@ export type Aggregation = "sum" | "avg" | "min" | "max" | "count";
 export type Field1 = string;
 export type Measures = Measure[];
 export type Question = string;
-export type ChartType = "area" | "bar" | "gauge" | "kpi" | "line" | "map" | "pie" | "progress" | "table";
+export type ChartType =
+  | "area"
+  | "bar"
+  | "funnel"
+  | "gauge"
+  | "heatmap"
+  | "kpi"
+  | "line"
+  | "map"
+  | "pie"
+  | "progress"
+  | "radar"
+  | "scatter"
+  | "table";
 export type RequiresConfirmation = boolean;
 export type SchemaVersion = 1;
 export type SortDirection = "asc" | "desc";

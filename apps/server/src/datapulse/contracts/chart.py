@@ -17,12 +17,16 @@ class Aggregation(StrEnum):
 class ChartType(StrEnum):
     AREA = "area"
     BAR = "bar"
+    FUNNEL = "funnel"
     GAUGE = "gauge"
+    HEATMAP = "heatmap"
     KPI = "kpi"
     LINE = "line"
     MAP = "map"
     PIE = "pie"
     PROGRESS = "progress"
+    RADAR = "radar"
+    SCATTER = "scatter"
     TABLE = "table"
 
 

@@ -83,13 +83,23 @@ class _DatasourceService(Protocol):
 
 
 _COMPONENT_VISUALS = {
+    "builtin.digital_number": {ChartType.KPI},
+    "builtin.gauge": {ChartType.GAUGE},
     "builtin.bar": {ChartType.BAR},
+    "builtin.funnel": {ChartType.FUNNEL},
     "builtin.geo_map": {ChartType.MAP},
+    "builtin.heatmap": {ChartType.HEATMAP},
     "builtin.kpi": {ChartType.KPI},
     "builtin.line": {ChartType.LINE, ChartType.AREA},
     "builtin.pie": {ChartType.PIE},
     "builtin.progress": {ChartType.PROGRESS, ChartType.GAUGE},
+    "builtin.radar": {ChartType.RADAR},
+    "builtin.ranking": {ChartType.TABLE},
+    "builtin.scatter": {ChartType.SCATTER},
+    "builtin.status_matrix": {ChartType.TABLE},
     "builtin.table": {ChartType.TABLE},
+    "builtin.alert_list": {ChartType.TABLE},
+    "builtin.timeline": {ChartType.TABLE},
 }
 
 

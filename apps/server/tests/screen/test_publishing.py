@@ -175,3 +175,102 @@ async def test_publish_rejects_missing_dataset_reference(
             created.id,
             expected_revision=0,
         )
+
+
+async def test_publish_accepts_new_components_with_demo_data(
+    screen_repository: ScreenRepository,
+) -> None:
+    created = await screen_repository.create(
+        "Operations",
+        document_with_component(
+            component_type="builtin.radar",
+            data_binding={
+                "source": "mock",
+                "mock_data": {"preset": "radar", "seed": 42, "row_count": 6},
+            },
+        ),
+    )
+
+    published = await publishing_service(screen_repository).publish(
+        created.id,
+        expected_revision=0,
+    )
+
+    assert published.published_document is not None
+    assert published.published_document.components[0].type == "builtin.radar"
+
+
+async def test_publish_rejects_malformed_static_data(
+    screen_repository: ScreenRepository,
+) -> None:
+    created = await screen_repository.create(
+        "Operations",
+        document_with_component(
+            component_type="builtin.table",
+            data_binding={
+                "source": "static",
+                "static_data": {
+                    "columns": [{"name": "value", "data_type": "number"}],
+                    "rows": [[1, 2]],
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PublishValidationError, match="static data"):
+        await publishing_service(screen_repository).publish(
+            created.id,
+            expected_revision=0,
+        )
+
+
+@pytest.mark.parametrize(
+    "mock_data",
+    [
+        {"preset": "unknown", "seed": 42},
+        {"preset": "radar", "series_count": 4},
+        {"preset": "radar", "trend": "sideways"},
+        {"preset": "radar", "value_min": 90, "value_max": 10},
+    ],
+)
+async def test_publish_rejects_invalid_demo_data_config(
+    screen_repository: ScreenRepository,
+    mock_data: dict[str, object],
+) -> None:
+    created = await screen_repository.create(
+        "Operations",
+        document_with_component(
+            component_type="builtin.radar",
+            data_binding={"source": "mock", "mock_data": mock_data},
+        ),
+    )
+
+    with pytest.raises(PublishValidationError, match="demo data"):
+        await publishing_service(screen_repository).publish(
+            created.id,
+            expected_revision=0,
+        )
+
+
+async def test_publish_rejects_nested_static_values(
+    screen_repository: ScreenRepository,
+) -> None:
+    created = await screen_repository.create(
+        "Operations",
+        document_with_component(
+            component_type="builtin.table",
+            data_binding={
+                "source": "static",
+                "static_data": {
+                    "columns": [{"name": "value", "data_type": "number"}],
+                    "rows": [[[1, 2]]],
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PublishValidationError, match="static data"):
+        await publishing_service(screen_repository).publish(
+            created.id,
+            expected_revision=0,
+        )

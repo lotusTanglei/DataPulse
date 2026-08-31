@@ -12,12 +12,16 @@ const COMPONENT_TYPE_BY_CHART: Record<
 > = {
   area: "builtin.line",
   bar: "builtin.bar",
+  funnel: "builtin.funnel",
   gauge: "builtin.progress",
+  heatmap: "builtin.heatmap",
   kpi: "builtin.kpi",
   line: "builtin.line",
   map: "builtin.geo_map",
   pie: "builtin.pie",
   progress: "builtin.progress",
+  radar: "builtin.radar",
+  scatter: "builtin.scatter",
   table: "builtin.table",
 };
 
@@ -25,12 +29,22 @@ const CHART_TYPE_BY_COMPONENT: Partial<
   Record<BuiltinComponentType, ChartSpec["visual"]["type"]>
 > = {
   "builtin.bar": "bar",
+  "builtin.funnel": "funnel",
   "builtin.geo_map": "map",
+  "builtin.heatmap": "heatmap",
   "builtin.kpi": "kpi",
   "builtin.line": "line",
   "builtin.pie": "pie",
   "builtin.progress": "progress",
+  "builtin.radar": "radar",
+  "builtin.scatter": "scatter",
   "builtin.table": "table",
+  "builtin.digital_number": "kpi",
+  "builtin.gauge": "gauge",
+  "builtin.ranking": "table",
+  "builtin.alert_list": "table",
+  "builtin.status_matrix": "table",
+  "builtin.timeline": "table",
 };
 
 function cloneJson<T>(value: T): T {
@@ -78,7 +92,12 @@ export function buildChartSuggestionProps(
     nextProps.empty_text = emptyText;
   }
 
-  if (componentType === "builtin.kpi" || componentType === "builtin.progress") {
+  if (
+    componentType === "builtin.kpi" ||
+    componentType === "builtin.progress" ||
+    componentType === "builtin.digital_number" ||
+    componentType === "builtin.gauge"
+  ) {
     nextProps.label = title || pickString(currentProps, "label") || definition?.label || "";
     const precision = pickNumber(currentProps, "precision");
     if (precision !== undefined) {
@@ -96,6 +115,14 @@ export function buildChartSuggestionProps(
     componentType === "builtin.line" ||
     componentType === "builtin.bar" ||
     componentType === "builtin.pie" ||
+    componentType === "builtin.radar" ||
+    componentType === "builtin.heatmap" ||
+    componentType === "builtin.scatter" ||
+    componentType === "builtin.funnel" ||
+    componentType === "builtin.ranking" ||
+    componentType === "builtin.alert_list" ||
+    componentType === "builtin.status_matrix" ||
+    componentType === "builtin.timeline" ||
     componentType === "builtin.geo_map"
   ) {
     if (title) {

@@ -1,4 +1,5 @@
 import type { DashboardDocument } from "../../contracts";
+import { createMockBinding } from "../runtime/mockData";
 
 type TemplateComponent = NonNullable<DashboardDocument["components"]>[number];
 
@@ -17,10 +18,10 @@ const darkCanvas = {
 };
 
 const surfaceStyle = {
-  background_color: "#101d31",
-  border_color: "#243653",
+  background_color: "var(--screen-panel-background, #0b1b2b)",
+  border_color: "var(--screen-panel-border, #1b4160)",
   border_width: 1,
-  border_radius: 10,
+  border_radius: 8,
 };
 
 function component(
@@ -29,7 +30,14 @@ function component(
   frame: TemplateComponent["frame"],
   props: Record<string, unknown>,
   style: Record<string, unknown> = surfaceStyle,
+  seed = 42,
 ): TemplateComponent {
+  const hasData = ![
+    "builtin.text",
+    "builtin.image",
+    "builtin.panel",
+    "builtin.divider",
+  ].includes(type);
   return {
     id,
     type,
@@ -37,7 +45,7 @@ function component(
     state: { locked: false, hidden: false },
     props,
     style,
-    data_binding: {},
+    data_binding: hasData ? createMockBinding(type, seed) : {},
     interactions: [],
   } as TemplateComponent;
 }
@@ -47,14 +55,14 @@ function title(text: string, subtitle: string): TemplateComponent[] {
     component(
       "title",
       "builtin.text",
-      { x: 40, y: 30, width: 1500, height: 56, z_index: 10 },
+      { x: 40, y: 28, width: 1500, height: 54, z_index: 10 },
       { text, align: "left", font_size: 34, font_weight: 700 },
       { text_color: "#f8fafc" },
     ),
     component(
       "subtitle",
       "builtin.text",
-      { x: 42, y: 90, width: 1200, height: 28, z_index: 10 },
+      { x: 42, y: 88, width: 1400, height: 28, z_index: 10 },
       { text: subtitle, align: "left", font_size: 15, font_weight: 500 },
       { text_color: "#8da2bf" },
     ),
@@ -66,13 +74,32 @@ function kpi(
   x: number,
   label: string,
   accent: string,
+  seed: number,
 ): TemplateComponent {
   return component(
     id,
     "builtin.kpi",
-    { x, y: 150, width: 260, height: 150, z_index: 2 },
-    { label, precision: 0, empty_text: "绑定数据后显示" },
+    { x, y: 146, width: 260, height: 150, z_index: 2 },
+    { label, precision: 0, empty_text: "暂无数据" },
     { ...surfaceStyle, border_color: accent },
+    seed,
+  );
+}
+
+function digital(
+  id: string,
+  x: number,
+  label: string,
+  unit: string,
+  seed: number,
+): TemplateComponent {
+  return component(
+    id,
+    "builtin.digital_number",
+    { x, y: 146, width: 300, height: 150, z_index: 2 },
+    { label, unit, precision: 0 },
+    { ...surfaceStyle, border_color: "var(--screen-accent, #26d9c1)" },
+    seed,
   );
 }
 
@@ -82,35 +109,48 @@ function chart(
     | "builtin.line"
     | "builtin.bar"
     | "builtin.pie"
+    | "builtin.radar"
+    | "builtin.heatmap"
+    | "builtin.scatter"
+    | "builtin.funnel"
     | "builtin.table"
-    | "builtin.geo_map",
+    | "builtin.ranking"
+    | "builtin.alert_list"
+    | "builtin.status_matrix"
+    | "builtin.timeline",
   frame: TemplateComponent["frame"],
+  titleText: string,
+  seed: number,
 ): TemplateComponent {
-  return component(id, type, frame, {
-    ...(type === "builtin.bar" ? { orientation: "vertical" } : {}),
-    ...(type === "builtin.pie" ? { variant: "pie" } : {}),
-    ...(type === "builtin.table" ? { max_rows: 100 } : {}),
-    ...(type === "builtin.geo_map"
-      ? {
-          asset_id: "",
-          region_code_property: "code",
-          region_name_property: "name",
-        }
-      : {}),
-    empty_text: "绑定数据后显示",
-  });
+  return component(
+    id,
+    type,
+    frame,
+    {
+      title: titleText,
+      ...(type === "builtin.bar" ? { orientation: "vertical" } : {}),
+      ...(type === "builtin.pie" ? { variant: "donut" } : {}),
+      ...(type === "builtin.table" ? { max_rows: 8 } : {}),
+      empty_text: "暂无数据",
+    },
+    surfaceStyle,
+    seed,
+  );
 }
 
 function progress(
   id: string,
   x: number,
   label: string,
+  seed: number,
 ): TemplateComponent {
   return component(
     id,
     "builtin.progress",
-    { x, y: 150, width: 260, height: 150, z_index: 2 },
-    { label, precision: 1, empty_text: "绑定数据后显示" },
+    { x, y: 146, width: 260, height: 150, z_index: 2 },
+    { label, precision: 1, empty_text: "暂无数据" },
+    surfaceStyle,
+    seed,
   );
 }
 
@@ -118,7 +158,10 @@ function documentOf(components: TemplateComponent[]): DashboardDocument {
   return {
     schema_version: 1,
     canvas: darkCanvas,
-    theme: { id: "datapulse-dark", tokens: { accent: "#4ade80" } },
+    theme: {
+      id: "datapulse-dark",
+      tokens: { screen_accent: "#26d9c1" },
+    },
     refresh: { mode: "disabled", interval_seconds: null },
     parameters: [],
     components,
@@ -127,187 +170,92 @@ function documentOf(components: TemplateComponent[]): DashboardDocument {
 
 const templates: ScreenTemplate[] = [
   {
-    id: "business-overview",
-    name: "经营分析",
-    category: "经营分析",
-    description: "指标总览、趋势和结构分析，适合作为通用经营驾驶舱起点。",
+    id: "overview-grid",
+    name: "总览网格",
+    category: "总览布局",
+    description: "标题、核心指标、趋势、排行和明细表的通用起始布局。",
     createDocument: () =>
       documentOf([
-        ...title("经营分析总览", "从核心指标到趋势变化，快速搭建经营驾驶舱"),
-        kpi("revenue", 40, "营业收入", "#4ade80"),
-        kpi("orders", 330, "订单数量", "#60a5fa"),
-        kpi("customers", 620, "活跃客户", "#fbbf24"),
-        kpi("growth", 910, "同比增长", "#f472b6"),
-        chart("trend", "builtin.line", {
-          x: 40,
-          y: 340,
-          width: 920,
-          height: 330,
-          z_index: 1,
-        }),
-        chart("structure", "builtin.bar", {
-          x: 990,
-          y: 340,
-          width: 890,
-          height: 330,
-          z_index: 1,
-        }),
-        chart("details", "builtin.table", {
-          x: 40,
-          y: 710,
-          width: 1840,
-          height: 320,
-          z_index: 1,
-        }),
+        ...title("数据总览", "用统一的视觉层级组织核心指标与明细信息"),
+        kpi("kpi-a", 40, "核心指标", "#26d9c1", 42),
+        kpi("kpi-b", 330, "完成数量", "#3b8df4", 43),
+        kpi("kpi-c", 620, "平均效率", "#f3b638", 44),
+        kpi("kpi-d", 910, "异常数量", "#f16d75", 45),
+        chart("trend", "builtin.line", { x: 40, y: 332, width: 920, height: 360, z_index: 1 }, "趋势变化", 50),
+        chart("ranking", "builtin.ranking", { x: 990, y: 332, width: 890, height: 360, z_index: 1 }, "分类排行", 51),
+        chart("details", "builtin.table", { x: 40, y: 732, width: 1840, height: 298, z_index: 1 }, "明细数据", 52),
       ]),
   },
   {
-    id: "operations-monitoring",
-    name: "运营监控",
-    category: "运营监控",
-    description: "实时指标、达成进度和异常趋势，适合运营值守场景。",
+    id: "trend-focus",
+    name: "趋势聚焦",
+    category: "趋势分析",
+    description: "大数字、进度、折线与雷达组合，适合观察变化和目标达成。",
     createDocument: () =>
       documentOf([
-        ...title("运营监控中心", "实时观察业务运行状态与关键目标达成情况"),
-        kpi("online", 40, "在线用户", "#22d3ee"),
-        kpi("requests", 330, "请求量", "#60a5fa"),
-        kpi("success", 620, "成功率", "#4ade80"),
-        progress("target", 910, "目标达成"),
-        progress("health", 1200, "系统健康度"),
-        chart("traffic", "builtin.line", {
-          x: 40,
-          y: 340,
-          width: 1120,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("alerts", "builtin.bar", {
-          x: 1190,
-          y: 340,
-          width: 690,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("events", "builtin.table", {
-          x: 40,
-          y: 740,
-          width: 1840,
-          height: 290,
-          z_index: 1,
-        }),
+        ...title("趋势聚焦", "通过趋势、目标和多维指标建立视觉焦点"),
+        digital("value", 40, "当前值", "单位", 60),
+        digital("target", 360, "目标值", "单位", 61),
+        progress("progress-a", 680, "目标达成", 62),
+        progress("progress-b", 970, "状态健康", 63),
+        chart("trend", "builtin.line", { x: 40, y: 332, width: 1120, height: 360, z_index: 1 }, "多序列趋势", 64),
+        chart("radar", "builtin.radar", { x: 1190, y: 332, width: 690, height: 360, z_index: 1 }, "多维对比", 65),
+        chart("events", "builtin.timeline", { x: 40, y: 732, width: 900, height: 298, z_index: 1 }, "最近事件", 66),
+        chart("alerts", "builtin.alert_list", { x: 970, y: 732, width: 910, height: 298, z_index: 1 }, "状态提醒", 67),
       ]),
   },
   {
-    id: "sales-analysis",
-    name: "销售分析",
-    category: "销售分析",
-    description: "销售额、区域结构和商品排行，适合销售复盘与目标管理。",
+    id: "comparison-board",
+    name: "对比分析",
+    category: "对比分析",
+    description: "柱状、环图、漏斗和表格组合，适合比较结构、阶段和明细。",
     createDocument: () =>
       documentOf([
-        ...title("销售分析驾驶舱", "从目标完成、区域结构和商品表现定位增长机会"),
-        kpi("sales", 40, "销售额", "#4ade80"),
-        kpi("profit", 330, "毛利额", "#fbbf24"),
-        kpi("conversion", 620, "转化率", "#60a5fa"),
-        kpi("returns", 910, "退货率", "#f87171"),
-        chart("regional", "builtin.bar", {
-          x: 40,
-          y: 340,
-          width: 860,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("mix", "builtin.pie", {
-          x: 930,
-          y: 340,
-          width: 450,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("ranking", "builtin.table", {
-          x: 1410,
-          y: 340,
-          width: 470,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("monthly", "builtin.line", {
-          x: 40,
-          y: 740,
-          width: 1840,
-          height: 290,
-          z_index: 1,
-        }),
+        ...title("对比分析", "在同一画布中同时呈现分类、结构和阶段转化"),
+        kpi("metric-a", 40, "总量", "#60a5fa", 70),
+        kpi("metric-b", 330, "平均值", "#26d9c1", 71),
+        kpi("metric-c", 620, "达成率", "#f3b638", 72),
+        kpi("metric-d", 910, "变化率", "#a5d85b", 73),
+        chart("bar", "builtin.bar", { x: 40, y: 332, width: 780, height: 360, z_index: 1 }, "分类对比", 74),
+        chart("mix", "builtin.pie", { x: 850, y: 332, width: 430, height: 360, z_index: 1 }, "结构占比", 75),
+        chart("funnel", "builtin.funnel", { x: 1310, y: 332, width: 570, height: 360, z_index: 1 }, "阶段转化", 76),
+        chart("details", "builtin.table", { x: 40, y: 732, width: 1840, height: 298, z_index: 1 }, "比较明细", 77),
       ]),
   },
   {
-    id: "device-monitoring",
-    name: "设备监控",
-    category: "设备监控",
-    description: "设备在线状态、告警趋势和区域分布，适合生产与物联网场景。",
+    id: "status-wall",
+    name: "状态墙",
+    category: "状态布局",
+    description: "仪表盘、状态矩阵、告警和时间线组合，突出状态与异常层级。",
     createDocument: () =>
       documentOf([
-        ...title("设备运行监控", "集中查看设备在线、告警和区域运行状态"),
-        kpi("devices", 40, "设备总数", "#60a5fa"),
-        kpi("online", 330, "在线设备", "#4ade80"),
-        kpi("alerts", 620, "待处理告警", "#f87171"),
-        progress("availability", 910, "在线率"),
-        progress("health", 1200, "健康度"),
-        chart("device-trend", "builtin.line", {
-          x: 40,
-          y: 340,
-          width: 930,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("device-map", "builtin.geo_map", {
-          x: 1000,
-          y: 340,
-          width: 880,
-          height: 360,
-          z_index: 1,
-        }),
-        chart("device-events", "builtin.table", {
-          x: 40,
-          y: 740,
-          width: 1840,
-          height: 290,
-          z_index: 1,
-        }),
+        ...title("状态墙", "用状态、告警和时间顺序保持信息持续可读"),
+        digital("online", 40, "在线总量", "项", 80),
+        digital("active", 360, "活跃数量", "项", 81),
+        progress("availability", 680, "可用率", 82),
+        component("gauge", "builtin.gauge", { x: 970, y: 132, width: 260, height: 178, z_index: 2 }, { label: "综合状态", precision: 1 }, surfaceStyle, 83),
+        component("matrix", "builtin.status_matrix", { x: 1270, y: 132, width: 610, height: 178, z_index: 2 }, { title: "对象状态" }, surfaceStyle, 84),
+        chart("alerts", "builtin.alert_list", { x: 40, y: 342, width: 620, height: 688, z_index: 1 }, "告警列表", 85),
+        chart("timeline", "builtin.timeline", { x: 690, y: 342, width: 590, height: 688, z_index: 1 }, "事件时间线", 86),
+        chart("status-trend", "builtin.line", { x: 1310, y: 342, width: 570, height: 688, z_index: 1 }, "状态趋势", 87),
       ]),
   },
   {
-    id: "regional-operations",
-    name: "区域运营",
-    category: "区域运营",
-    description: "区域指标、地图分布和排行组合，适合门店与区域经营管理。",
+    id: "analysis-lab",
+    name: "分析工作台",
+    category: "分析布局",
+    description: "热力、散点、排行和表格组合，适合搭建高密度分析工作台。",
     createDocument: () =>
       documentOf([
-        ...title("区域运营地图", "比较各区域经营表现，快速发现重点市场和异常区域"),
-        kpi("active-regions", 40, "活跃区域", "#60a5fa"),
-        kpi("top-region", 330, "领先区域", "#4ade80"),
-        kpi("regional-sales", 620, "区域销售额", "#fbbf24"),
-        kpi("regional-growth", 910, "区域增长", "#f472b6"),
-        chart("map", "builtin.geo_map", {
-          x: 40,
-          y: 340,
-          width: 1050,
-          height: 690,
-          z_index: 1,
-        }),
-        chart("regions", "builtin.bar", {
-          x: 1120,
-          y: 340,
-          width: 760,
-          height: 330,
-          z_index: 1,
-        }),
-        chart("region-details", "builtin.table", {
-          x: 1120,
-          y: 700,
-          width: 760,
-          height: 330,
-          z_index: 1,
-        }),
+        ...title("分析工作台", "把分布、关系、排行与明细放在同一套视觉系统中"),
+        kpi("signal-a", 40, "样本数量", "#3b8df4", 90),
+        kpi("signal-b", 330, "集中趋势", "#26d9c1", 91),
+        kpi("signal-c", 620, "关联强度", "#f3b638", 92),
+        kpi("signal-d", 910, "高风险项", "#f16d75", 93),
+        chart("heatmap", "builtin.heatmap", { x: 40, y: 332, width: 900, height: 360, z_index: 1 }, "分布热力", 94),
+        chart("scatter", "builtin.scatter", { x: 970, y: 332, width: 910, height: 360, z_index: 1 }, "关系分布", 95),
+        chart("ranking", "builtin.ranking", { x: 40, y: 732, width: 600, height: 298, z_index: 1 }, "重点排行", 96),
+        chart("details", "builtin.table", { x: 670, y: 732, width: 1210, height: 298, z_index: 1 }, "分析明细", 97),
       ]),
   },
 ];

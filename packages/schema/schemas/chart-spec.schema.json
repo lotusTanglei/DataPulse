@@ -15,12 +15,16 @@
       "enum": [
         "area",
         "bar",
+        "funnel",
         "gauge",
+        "heatmap",
         "kpi",
         "line",
         "map",
         "pie",
         "progress",
+        "radar",
+        "scatter",
         "table"
       ],
       "title": "ChartType",

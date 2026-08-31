@@ -58,7 +58,9 @@ const formattedValue = computed(() => {
 
 <style scoped>
 .screen-kpi {
+  position: relative;
   box-sizing: border-box;
+  container-type: inline-size;
   display: flex;
   width: 100%;
   height: 100%;
@@ -71,6 +73,17 @@ const formattedValue = computed(() => {
   color: var(--screen-text-primary, #f8fafc);
 }
 
+.screen-kpi::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--screen-accent, #26d9c1), transparent);
+  content: "";
+  opacity: 0.85;
+}
+
 .screen-kpi__label,
 .screen-component-state {
   margin: 0;
@@ -80,7 +93,7 @@ const formattedValue = computed(() => {
 
 .screen-kpi__value {
   margin-top: 10px;
-  font-size: clamp(24px, 3vw, 48px);
+  font-size: clamp(24px, 10cqw, 48px);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }

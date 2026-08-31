@@ -8,7 +8,9 @@ import type {
   ComponentQueryState,
   LoadAsset,
   RuntimeInteraction,
+  RuntimeMode,
 } from "./types";
+import { resolveTheme } from "./theme";
 
 const props = defineProps<{
   definition?: ComponentDefinition;
@@ -16,6 +18,7 @@ const props = defineProps<{
   loadAsset: LoadAsset;
   queryState: ComponentQueryState;
   theme: Record<string, JsonValue>;
+  mode?: RuntimeMode;
 }>();
 
 const emit = defineEmits<{
@@ -23,27 +26,42 @@ const emit = defineEmits<{
 }>();
 
 function stringStyle(name: string): string | undefined {
-  const value = props.instance.style?.[name];
+  const value = props.instance.style?.[name] ?? props.definition?.defaultStyle?.[name];
   return typeof value === "string" && value.trim() ? value : undefined;
 }
 
 function numberStyle(name: string): number | undefined {
-  const value = props.instance.style?.[name];
+  const value = props.instance.style?.[name] ?? props.definition?.defaultStyle?.[name];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 const hostStyle = computed(() => {
   const borderWidth = Math.max(0, numberStyle("border_width") ?? 0);
   const opacity = Math.min(1, Math.max(0, numberStyle("opacity") ?? 1));
+  const radius = Math.max(0, numberStyle("border_radius") ?? 0);
+  const surface = stringStyle("background_color");
+  const borderColor = stringStyle("border_color");
   return {
-    backgroundColor: stringStyle("background_color"),
+    ...resolveTheme({ tokens: props.theme }),
+    "--screen-component-surface": surface,
+    "--screen-component-border": borderColor,
+    "--screen-component-radius": `${radius}px`,
+    backgroundColor: surface,
     color: stringStyle("text_color"),
     border: borderWidth > 0
-      ? `${borderWidth}px solid ${stringStyle("border_color") ?? "currentColor"}`
+      ? `${borderWidth}px solid ${borderColor ?? "currentColor"}`
       : undefined,
-    borderRadius: `${Math.max(0, numberStyle("border_radius") ?? 0)}px`,
+    borderRadius: `${radius}px`,
     opacity,
   };
+});
+
+const sourceLabel = computed(() => {
+  if (props.mode !== "editor" && props.mode !== "preview") {
+    return "";
+  }
+  const source = props.instance.data_binding?.source;
+  return source === "mock" ? "演示数据" : source === "static" ? "固定数据" : "";
 });
 
 const renderFailed = ref(false);
@@ -72,6 +90,7 @@ onErrorCaptured(() => {
 
 <template>
   <div class="component-host" :data-component-id="instance.id" :style="hostStyle">
+    <span v-if="sourceLabel" class="component-host__source-badge">{{ sourceLabel }}</span>
     <div v-if="errorMessage" class="component-host__fallback" role="status">
       {{ errorMessage }}
     </div>
@@ -96,10 +115,26 @@ onErrorCaptured(() => {
 
 <style scoped>
 .component-host {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+.component-host__source-badge {
+  position: absolute;
+  z-index: 8;
+  top: 6px;
+  right: 6px;
+  padding: 2px 5px;
+  border: 1px solid color-mix(in srgb, var(--screen-accent, #26d9c1) 40%, transparent);
+  border-radius: 3px;
+  color: var(--screen-accent, #26d9c1);
+  background: color-mix(in srgb, var(--screen-panel-background-alt, #10253a) 88%, transparent);
+  font-size: 9px;
+  line-height: 1.2;
+  pointer-events: none;
 }
 
 .component-host__fallback {

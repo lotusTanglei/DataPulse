@@ -111,6 +111,18 @@ th {
   font-weight: 600;
 }
 
+tbody tr {
+  transition: background 120ms ease;
+}
+
+tbody tr:nth-child(even) {
+  background: rgb(148 163 184 / 4%);
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--screen-accent, #3b82f6) 8%, transparent);
+}
+
 .screen-component-state {
   margin: 0;
   color: var(--screen-text-secondary, #94a3b8);

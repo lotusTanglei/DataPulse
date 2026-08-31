@@ -165,13 +165,13 @@ test("creates a screen from a template through the normal draft flow", async () 
   await flushPromises();
 
   await wrapper.get('[data-action="open-template-screen"]').trigger("click");
-  expect(wrapper.get('[role="dialog"]').text()).toContain("经营分析");
-  await wrapper.get('input[name="templateScreenName"]').setValue("华东经营分析");
+  expect(wrapper.get('[role="dialog"]').text()).toContain("总览网格");
+  await wrapper.get('input[name="templateScreenName"]').setValue("通用数据总览");
   await wrapper.get("button.template-option").trigger("click");
   await wrapper.get('[role="dialog"] .primary-button').trigger("click");
   await flushPromises();
 
-  expect(submitted?.name).toBe("华东经营分析");
+  expect(submitted?.name).toBe("通用数据总览");
   expect(
     (submitted?.draft_document as { components?: unknown[] }).components?.length,
   ).toBeGreaterThanOrEqual(7);

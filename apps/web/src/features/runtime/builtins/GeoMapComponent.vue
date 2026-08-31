@@ -19,6 +19,7 @@ import {
   type GeoFeatureCollection,
 } from "./chartOptions";
 import { stringProp } from "./format";
+import { DEMO_GEOJSON, DEMO_GEOJSON_MAP_NAME } from "./geoDemo";
 
 use([
   CanvasRenderer,
@@ -46,7 +47,12 @@ let controller: AbortController | null = null;
 const assetId = computed(() =>
   stringProp(props.instance.props, "asset_id").trim(),
 );
-const mapName = computed(() => `datapulse-map-${assetId.value}`);
+const isDemoMap = computed(
+  () => !assetId.value && props.instance.data_binding?.source === "mock",
+);
+const mapName = computed(() =>
+  isDemoMap.value ? DEMO_GEOJSON_MAP_NAME : `datapulse-map-${assetId.value}`,
+);
 const emptyText = computed(() =>
   stringProp(props.instance.props, "empty_text", "暂无数据"),
 );
@@ -76,6 +82,10 @@ async function loadMap(): Promise<void> {
   geojson.value = null;
   assetError.value = false;
   if (!assetId.value) {
+    if (isDemoMap.value) {
+      registerMap(DEMO_GEOJSON_MAP_NAME, DEMO_GEOJSON as Parameters<typeof registerMap>[1]);
+      geojson.value = DEMO_GEOJSON;
+    }
     assetLoading.value = false;
     return;
   }
@@ -112,7 +122,7 @@ async function loadMap(): Promise<void> {
   }
 }
 
-watch([assetId, () => props.loadAsset], () => void loadMap(), {
+watch([assetId, () => props.loadAsset, () => props.instance.data_binding?.source], () => void loadMap(), {
   immediate: true,
 });
 

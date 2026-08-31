@@ -195,21 +195,33 @@ test("GeoJSON map joins query rows by configured region code", () => {
   ]);
 });
 
-test("registers all nine built-in component types", () => {
+test("registers the complete built-in component system", () => {
   expect(
     defaultComponentRegistry
       .list()
       .map((definition) => definition.type)
       .sort(),
   ).toEqual([
+    "builtin.alert_list",
     "builtin.bar",
+    "builtin.digital_number",
+    "builtin.divider",
+    "builtin.funnel",
+    "builtin.gauge",
     "builtin.geo_map",
+    "builtin.heatmap",
     "builtin.image",
     "builtin.kpi",
     "builtin.line",
+    "builtin.panel",
     "builtin.pie",
     "builtin.progress",
+    "builtin.radar",
+    "builtin.ranking",
+    "builtin.scatter",
+    "builtin.status_matrix",
     "builtin.table",
     "builtin.text",
+    "builtin.timeline",
   ]);
 });
