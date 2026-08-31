@@ -52,6 +52,19 @@ test("blank creation supports hand editing, AI preview, confirmation, undo, redo
   await expect(textInput).toHaveValue("手工修改后的标题");
 
   const aiPanel = page.getByLabel("AI 修改");
+  const editPanelStyles = await aiPanel.evaluate((element) => {
+    const panel = getComputedStyle(element);
+    const description = element.querySelector(".ai-edit-panel__header p");
+    const descriptionStyle = description ? getComputedStyle(description) : null;
+    return {
+      background: panel.backgroundColor,
+      descriptionColor: descriptionStyle?.color ?? "",
+    };
+  });
+  expect(editPanelStyles).toEqual({
+    background: "rgb(255, 255, 255)",
+    descriptionColor: "rgb(95, 94, 91)",
+  });
   await aiPanel
     .getByLabel("修改要求")
     .fill("E2E_MODE:edit-title 把选中的标题改成 AI 版本");
@@ -232,4 +245,28 @@ test("screen access policy controls direct and embed authorization", async ({
     },
   );
   expect(wrongEmbedPage.status()).toBe(403);
+});
+
+test("editor remains usable on a narrow viewport and publish dialog closes with Escape", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await authenticate(page);
+  await page.goto("/studio/screens");
+  await page.getByRole("button", { name: /新建大屏/ }).first().click();
+  await page.getByLabel("大屏名称").fill("E2E 窄视口编辑器");
+  await page.getByRole("button", { name: "创建并编辑" }).click();
+  await expect(page.getByLabel("大屏编辑器")).toBeVisible();
+
+  const dimensions = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+
+  await expect(page.getByRole("button", { name: "发布", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "发布", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "确认发布大屏" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("heading", { name: "确认发布大屏" })).toBeHidden();
 });

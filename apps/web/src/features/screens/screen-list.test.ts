@@ -218,6 +218,9 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
     vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       const method = init?.method ?? "GET";
+      if (url === "/api/admin/ai/status" && method === "GET") {
+        return Promise.resolve(jsonResponse({ status: "configured", model: "test" }));
+      }
       requests.push({
         url,
         method,

@@ -5,7 +5,12 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { ApiError } from "../../lib/api";
 import FormField from "../../ui/FormField.vue";
 import InlineNotice from "../../ui/InlineNotice.vue";
-import { createDatasource, getDatasource, updateDatasource } from "./api";
+import {
+  createDatasource,
+  getDatasource,
+  testDatasourceConfig,
+  updateDatasource,
+} from "./api";
 import type {
   ConnectorType,
   Datasource,
@@ -14,6 +19,7 @@ import type {
   PostgreSQLConfig,
   SQLiteConfig,
   HttpApiConfig,
+  DatasourceTestResponse,
 } from "./types";
 
 interface SQLiteForm {
@@ -65,6 +71,9 @@ const isEdit = computed(() => route.name === "datasource-edit");
 const datasourceId = computed(() => String(route.params.id ?? ""));
 const loading = ref(isEdit.value);
 const submitting = ref(false);
+const testing = ref(false);
+const testResult = ref<DatasourceTestResponse | null>(null);
+const testError = ref<ApiError | null>(null);
 const notice = ref("");
 const requestId = ref("");
 const clientFields = ref<Record<string, string>>({});
@@ -255,6 +264,40 @@ function configFromForm(current: DatasourceForm): DatasourceConfig {
   return config;
 }
 
+async function testConnection(): Promise<void> {
+  testResult.value = null;
+  testError.value = null;
+  if (!validate()) {
+    return;
+  }
+  testing.value = true;
+  const current = model.value;
+  try {
+    const payload = {
+      config: configFromForm(current),
+      ...(current.type !== "sqlite" && current.password !== ""
+        ? { password: current.password }
+        : {}),
+      ...(isEdit.value && current.type !== "sqlite" && !current.clear_password
+        ? { datasource_id: datasourceId.value }
+        : {}),
+    };
+    testResult.value = await testDatasourceConfig(payload);
+  } catch (reason) {
+    testError.value =
+      reason instanceof ApiError
+        ? reason
+        : new ApiError({
+            code: "DATASOURCE_CONNECTION_FAILED",
+            message: "连接测试失败，请稍后重试。",
+            requestId: "",
+            status: 500,
+          });
+  } finally {
+    testing.value = false;
+  }
+}
+
 function mapServerFields(error: ApiError): Record<string, string> {
   return Object.fromEntries(
     error.fieldErrors.map((item) => {
@@ -351,6 +394,17 @@ onMounted(loadDatasource);
       <InlineNotice v-if="notice" tone="error">
         <p>{{ notice }}</p>
         <code v-if="requestId">{{ requestId }}</code>
+      </InlineNotice>
+      <InlineNotice v-if="testError" tone="error">
+        <p>{{ testError.message }}</p>
+        <code v-if="testError.requestId">{{ testError.requestId }}</code>
+      </InlineNotice>
+      <InlineNotice v-if="testResult" tone="info">
+        <p>
+          {{ testResult.status === "available" ? "连接可用" : "连接不可用" }}
+          · {{ testResult.latency_ms }} ms
+          <span v-if="testResult.error_code">· {{ testResult.error_code }}</span>
+        </p>
       </InlineNotice>
 
       <form class="datasource-form" autocomplete="off" @submit.prevent="submit">
@@ -592,6 +646,14 @@ onMounted(loadDatasource);
 
         <div class="form-actions">
           <RouterLink class="secondary-button" to="/studio/datasources">取消</RouterLink>
+          <button
+            class="secondary-button"
+            type="button"
+            :disabled="submitting || testing"
+            @click="testConnection"
+          >
+            {{ testing ? "测试中…" : "测试连接" }}
+          </button>
           <button class="primary-button primary-button--compact" type="submit" :disabled="submitting">
             {{ submitting ? "正在保存…" : isEdit ? "保存修改" : "创建数据源" }}
           </button>

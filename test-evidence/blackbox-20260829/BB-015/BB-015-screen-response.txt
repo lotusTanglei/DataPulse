@@ -1,0 +1,4 @@
+POST /api/admin/ai/screen
+HTTP 503
+X-Request-ID: f338e611-dcdb-4a6e-afbd-3dfa39855d49
+{"error":{"code":"AI_NOT_CONFIGURED","message":"The AI request could not be completed.","request_id":"f338e611-dcdb-4a6e-afbd-3dfa39855d49","field_errors":[]}}

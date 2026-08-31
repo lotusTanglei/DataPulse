@@ -1,0 +1,17 @@
+BB-020 observation date: 2026-08-30 (Asia/Shanghai)
+
+Source: user-provided screenshot copied to BB-020-user-login-401.png.
+
+Observed UI:
+- URL shown by the ambient browser context: http://127.0.0.1:5173/studio/login
+- Username field displayed: admin
+- Password field: filled and visually masked; password value was not recorded.
+- Error notice: "The username or password is invalid."
+- The surrounding login page copy is Chinese.
+
+Known server-side comparison from the same test session:
+- HTTP status: 401
+- Error code: AUTH_INVALID_CREDENTIALS
+- The response means the submitted credentials were rejected; it does not identify the correct password and does not prove that the browser autofill value is current.
+
+No password, cookie, token, setup code, or signing key is stored in this file.

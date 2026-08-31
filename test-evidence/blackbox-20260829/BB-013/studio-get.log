@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+date: Sat, 29 Aug 2026 08:21:07 GMT
+server: uvicorn
+content-type: text/html; charset=utf-8
+accept-ranges: bytes
+content-length: 491
+last-modified: Sat, 29 Aug 2026 07:10:12 GMT
+etag: "22ac75b9f238e35e133f2e7ffa95b733"
+x-request-id: b66e2265-1edf-4c10-ae95-dd9d200586a7
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="DataPulse AI 原生数据分析与大屏创作平台" />
+    <title>DataPulse</title>
+    <script type="module" crossorigin src="/assets/index-BKsGvwBA.js"></script>

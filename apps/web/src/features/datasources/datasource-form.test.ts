@@ -208,6 +208,45 @@ test("keeps datasource credentials out of login autofill targets while editing",
   );
 });
 
+test("tests an unsaved datasource configuration without saving it", async () => {
+  let testedBody: unknown;
+  const fetchMock = authenticatedFetch(async (url, init) => {
+    if (url === "/api/admin/datasources/test" && init?.method === "POST") {
+      testedBody = JSON.parse(String(init.body));
+      return jsonResponse({ status: "available", latency_ms: 8, error_code: null });
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  });
+  const { wrapper } = await mountForm("/studio/datasources/new", fetchMock);
+
+  await wrapper.get('select[name="connectorType"]').setValue("postgresql");
+  await wrapper.get('input[name="name"]').setValue("销售库");
+  await wrapper.get('input[name="host"]').setValue("localhost");
+  await wrapper.get('input[name="database"]').setValue("sales");
+  await wrapper.get('input[name="username"]').setValue("analyst");
+  await wrapper.get('input[name="password"]').setValue("ephemeral-secret");
+  const testButton = wrapper
+    .findAll('button[type="button"]')
+    .find((button) => button.text() === "测试连接");
+  expect(testButton).toBeDefined();
+  await testButton!.trigger("click");
+  await flushPromises();
+
+  expect(testedBody).toEqual({
+    config: {
+      type: "postgresql",
+      host: "localhost",
+      port: 5432,
+      database: "sales",
+      username: "analyst",
+      ssl_mode: "prefer",
+    },
+    password: "ephemeral-secret",
+  });
+  expect(wrapper.text()).toContain("连接可用");
+  expect(wrapper.text()).not.toContain("正在保存");
+});
+
 test("rejects unsafe SQLite paths and invalid remote ports before submit", async () => {
   const fetchMock = authenticatedFetch();
   const { wrapper } = await mountForm("/studio/datasources/new", fetchMock);

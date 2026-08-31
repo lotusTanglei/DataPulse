@@ -63,7 +63,21 @@ test("AI analysis uses one request, applies a chart, and preserves the draft", a
   });
   await page.goto(`/studio/screens/${screen.id}/edit`);
   await page.getByLabel("图层").getByText("柱状图", { exact: true }).click();
-  await expect(page.getByLabel("AI 分析面板")).toBeVisible();
+  const aiPanel = page.getByLabel("AI 分析面板");
+  await expect(aiPanel).toBeVisible();
+  const panelStyles = await aiPanel.evaluate((element) => {
+    const panel = getComputedStyle(element);
+    const description = element.querySelector(".ai-panel__header p");
+    const descriptionStyle = description ? getComputedStyle(description) : null;
+    return {
+      background: panel.backgroundColor,
+      descriptionColor: descriptionStyle?.color ?? "",
+    };
+  });
+  expect(panelStyles).toEqual({
+    background: "rgb(255, 255, 255)",
+    descriptionColor: "rgb(95, 94, 91)",
+  });
   await page
     .getByLabel("分析问题")
     .fill("E2E_MODE:valid-analysis 请按区域分析销售额");

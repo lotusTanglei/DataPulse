@@ -12,6 +12,11 @@ export interface AiAnalysisRequest {
   mode?: "analysis" | "chart";
 }
 
+export interface AiHealth {
+  status: "configured" | "unconfigured";
+  model: string | null;
+}
+
 export interface AiAnalysisResponse {
   plan: AnalysisPlan;
   narrative: string;

@@ -1,0 +1,137 @@
+{
+  "login_status": 204,
+  "connectors": [
+    "SQLite",
+    "PostgreSQL",
+    "MySQL / MariaDB",
+    "HTTP API"
+  ],
+  "checks": [
+    {
+      "label": "postgresql-new",
+      "type": "postgresql",
+      "fields": [
+        {
+          "name": "name",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "host",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "port",
+          "type": "number",
+          "value": "5432",
+          "autocomplete": null
+        },
+        {
+          "name": "database",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "username",
+          "type": null,
+          "value": "",
+          "autocomplete": "new-password"
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "value": "",
+          "autocomplete": "new-password"
+        }
+      ]
+    },
+    {
+      "label": "mysql-new",
+      "type": "mysql",
+      "fields": [
+        {
+          "name": "name",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "host",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "port",
+          "type": "number",
+          "value": "3306",
+          "autocomplete": null
+        },
+        {
+          "name": "database",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "username",
+          "type": null,
+          "value": "",
+          "autocomplete": "new-password"
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "value": "",
+          "autocomplete": "new-password"
+        }
+      ]
+    },
+    {
+      "label": "http-none-new",
+      "type": "http_api",
+      "fields": [
+        {
+          "name": "name",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "base_url",
+          "type": "url",
+          "value": "",
+          "autocomplete": "off"
+        }
+      ]
+    },
+    {
+      "label": "http-bearer-new",
+      "type": "http_api",
+      "fields": [
+        {
+          "name": "name",
+          "type": null,
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "base_url",
+          "type": "url",
+          "value": "",
+          "autocomplete": "off"
+        },
+        {
+          "name": "password",
+          "type": "password",
+          "value": "",
+          "autocomplete": "new-password"
+        }
+      ]
+    }
+  ]
+}

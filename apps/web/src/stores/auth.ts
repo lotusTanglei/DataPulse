@@ -40,7 +40,16 @@ export const useAuthStore = defineStore("auth", () => {
       return resolving;
     }
     resolving = (async () => {
-      const status = await apiRequest<AuthStatusResponse>("/api/auth/status");
+      let status: AuthStatusResponse;
+      try {
+        status = await apiRequest<AuthStatusResponse>("/api/auth/status");
+      } catch (error) {
+        if (error instanceof ApiError && error.status >= 500) {
+          state.value = { status: "anonymous" };
+          return state.value;
+        }
+        throw error;
+      }
       if (!status.initialized) {
         state.value = { status: "setup-required" };
         return state.value;

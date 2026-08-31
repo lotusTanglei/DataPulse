@@ -1,0 +1,30 @@
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+INFO:     Started server process [13]
+INFO:     Waiting for application startup.
+DataPulse one-time setup code: [REDACTED]
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     192.168.215.1:54998 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.215.1:18346 - "GET /studio HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [13]
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO:     Started server process [12]
+INFO:     Waiting for application startup.
+DataPulse one-time setup code: [REDACTED]
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     192.168.215.1:27438 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.215.1:32249 - "HEAD /studio HTTP/1.1" 405 Method Not Allowed

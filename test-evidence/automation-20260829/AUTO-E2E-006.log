@@ -1,0 +1,74 @@
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/ai/AiEditPanel.test.ts (1 test) 19ms
+ ✓ src/features/ai/ai-panel.test.ts (2 tests) 61ms
+
+ Test Files  2 passed (2)
+      Tests  3 passed (3)
+   Start at  11:24:19
+   Duration  2.08s (transform 668ms, setup 0ms, collect 1.65s, tests 80ms, environment 774ms, prepare 191ms)
+
+
+> @datapulse/web@ build /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js (158:30): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 2556 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                            0.49 kB │ gzip:   0.35 kB
+dist/assets/DatasetDetailView-B9WHE_1g.css                                 0.05 kB │ gzip:   0.07 kB
+dist/assets/index-Cll_XVN8.css                                            47.25 kB │ gzip:   9.09 kB
+dist/assets/SqlDebugView-3I76quEf.js                                       5.85 kB │ gzip:   2.63 kB
+dist/assets/DatasetDetailView-DCf00Zge.js                                  8.48 kB │ gzip:   3.06 kB
+dist/assets/SqlEditor.vue_vue_type_script_setup_true_lang-C5Uwv8mA.js    438.01 kB │ gzip: 145.52 kB
+dist/assets/index-yBnxedGn.js                                          1,254.82 kB │ gzip: 420.67 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.87s
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e -- --grep 'AI analysis uses one request|blank creation supports hand editing'
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [40618]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: e2e-setup-code
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:57671 (Press CTRL+C to quit)
+[WebServer] (node:40622) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:40643) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:40663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/ai-analysis.spec.ts:12:1 › AI analysis uses one request, applies a chart, and preserves the draft (2.3s)
+  ✓  2 [chromium] › e2e/first-stage-creation.spec.ts:29:1 › blank creation supports hand editing, AI preview, confirmation, undo, redo, and playback (2.4s)
+
+  2 passed (9.6s)

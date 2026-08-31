@@ -168,7 +168,10 @@ async def excel_sheet_names(path: Path) -> tuple[str, ...]:
 
 
 def _parse_json(path: Path, *, max_rows: int) -> ParsedFile:
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise FileParseInvalid("The JSON document is invalid.") from error
     if not isinstance(payload, list) or not payload:
         raise FileParseInvalid("JSON must be a non-empty object array.")
     rows: list[dict[str, object]] = []

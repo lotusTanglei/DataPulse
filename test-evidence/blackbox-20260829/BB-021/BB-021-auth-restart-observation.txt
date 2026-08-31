@@ -1,0 +1,26 @@
+BB-021 execution date: 2026-08-31 (Asia/Shanghai)
+
+Environment:
+- Fresh isolated data directory: /tmp/datapulse-blackbox-20260831
+- Backend: http://127.0.0.1:8001
+- Frontend: http://127.0.0.1:5173 with VITE_API_PROXY_TARGET=http://127.0.0.1:8001
+- Initial database migration was required before application startup; `uv run --package datapulse-server alembic -c apps/server/alembic.ini upgrade head` completed all migrations through 0008.
+- Startup output exposed only the synthetic test username/password and one-time setup code to the tester; secrets, cookies, tokens, and keys were not recorded here.
+
+API observations:
+- GET /api/auth/status before setup: HTTP 200, {"initialized":false}
+- POST /api/auth/setup: HTTP 201, response keys only included username
+- POST /api/auth/login with synthetic test credentials: HTTP 204
+- GET /api/auth/session: HTTP 200, {"username":"admin"}
+
+Chromium observations:
+- Fresh context opened /studio/login and found one login form.
+- Deliberately invalid password produced POST /api/auth/login HTTP 401 and the page displayed `The username or password is invalid.` (known ISS-013 localization observation).
+- Replacing it with the startup synthetic test password produced HTTP 204 and navigated to /studio/datasources.
+- Data sources heading count: 1.
+
+Evidence screenshots:
+- BB-021-login-invalid.png
+- BB-021-login-success.png
+
+No business source, test source, or project configuration was modified for this execution.

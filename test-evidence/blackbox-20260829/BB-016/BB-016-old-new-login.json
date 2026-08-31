@@ -1,0 +1,11 @@
+{
+  "old_password_login": {
+    "status": 401,
+    "request_id": "c7339911-53e8-43b7-806c-1860c94ff9fe",
+    "error_code": "AUTH_INVALID_CREDENTIALS"
+  },
+  "new_password_login": {
+    "status": 204,
+    "request_id": "9b183167-3e77-4e8f-9f9d-10e25e2f7926"
+  }
+}

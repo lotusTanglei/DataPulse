@@ -1,0 +1,67 @@
+5ab5a2fa110f374fcb654823b44735d435f3fc3e6fe3bb308e05028d3c7fcd4f
+curl: (56) Recv failure: Connection reset by peer
+curl: (56) Recv failure: Connection reset by peer
+{"status":"ok","version":"0.1.0"}
+--- /api/health headers ---
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    33  100    33    0     0  11371      0 --:--:-- --:--:-- --:--:-- 16500
+HTTP/1.1 200 OK
+date: Sat, 29 Aug 2026 07:34:58 GMT
+server: uvicorn
+content-length: 33
+content-type: application/json
+x-request-id: 09c9fdb5-f8b2-4a0b-b840-39b8b339dff3
+
+{"status":"ok","version":"0.1.0"}
+--- /studio headers ---
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   491  100   491    0     0   6342      0 --:--:-- --:--:-- --:--:--  6376
+HTTP/1.1 200 OK
+date: Sat, 29 Aug 2026 07:34:58 GMT
+server: uvicorn
+content-type: text/html; charset=utf-8
+accept-ranges: bytes
+content-length: 491
+last-modified: Sat, 29 Aug 2026 07:10:12 GMT
+etag: "22ac75b9f238e35e133f2e7ffa95b733"
+x-request-id: 2e0bd53c-d8fc-434c-811d-1a4ca94217b5
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="DataPulse AI 原生数据分析与大屏创作平台" />
+    <title>DataPulse</title>
+    <script type="module" crossorigin src="/assets/index-BKsGvwBA.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BvH_rWpz.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
+
+--- container inspect ---
+status=running health=not-configured
+
+--- container logs ---
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+INFO:     Started server process [13]
+INFO:     Waiting for application startup.
+DataPulse one-time setup code: <redacted>
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     192.168.215.1:24648 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.215.1:44783 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.215.1:20407 - "GET /studio HTTP/1.1" 200 OK

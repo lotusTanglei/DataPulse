@@ -1,0 +1,14 @@
+BB-019 follow-up execution date: 2026-08-30 (Asia/Shanghai)
+
+Cause isolated: the test database admin password did not match the browser autofill value after the proxy was restored. This was a test-environment credential mismatch, not evidence of a production credential failure.
+
+Recovery action: backed up the isolated SQLite database to /tmp/datapulse-login-reset-backup-20260830.db, replaced only the isolated admin password hash with a synthetic test password, and revoked existing admin sessions. No application source, test source, or project configuration was changed.
+
+Validation through the browser proxy at http://127.0.0.1:5173:
+- POST /api/auth/login for username admin returned HTTP 204.
+- GET /api/auth/session in the resulting session returned HTTP 200 and {"username":"admin"}.
+- GET /api/health on backend port 8001 and GET /api/auth/status through port 5173 remained HTTP 200.
+- Independent Chromium form submission reached http://127.0.0.1:5173/studio/datasources; the datasources heading was present. Observed auth requests were GET /api/auth/status 200, GET /api/auth/session 401 before login, and POST /api/auth/login 204.
+- UI screenshot: BB-019-login-after-reset.png.
+
+The synthetic password, cookies, session tokens, setup code, signing key, and master key are intentionally not recorded.

@@ -6,9 +6,9 @@ import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import { listDatasets } from "../datasets/api";
 import type { Dataset } from "../datasets/types";
-import { generateScreen } from "./api";
+import { generateScreen, getAiStatus } from "./api";
 import ScreenDraftPreview from "./ScreenDraftPreview.vue";
-import type { AiScreenResponse } from "./types";
+import type { AiHealth, AiScreenResponse } from "./types";
 
 const props = withDefaults(
   defineProps<{
@@ -32,6 +32,7 @@ const screenName = ref("");
 const question = ref("");
 const selectedDatasetIds = ref<string[]>([]);
 const result = ref<AiScreenResponse | null>(null);
+const aiStatus = ref<AiHealth | null>(null);
 
 const canClose = computed(() => !generating.value && !props.submitting);
 
@@ -55,6 +56,14 @@ async function loadDatasets(): Promise<void> {
           });
   } finally {
     loadingDatasets.value = false;
+  }
+}
+
+async function loadAiStatus(): Promise<void> {
+  try {
+    aiStatus.value = await getAiStatus();
+  } catch {
+    aiStatus.value = null;
   }
 }
 
@@ -114,6 +123,7 @@ watch(
     if (open) {
       reset();
       void loadDatasets();
+      void loadAiStatus();
     }
   },
   { immediate: true },
@@ -156,6 +166,9 @@ watch(
       <InlineNotice v-if="generateError" tone="error">
         <p>{{ generateError.message }}</p>
         <code v-if="generateError.requestId">{{ generateError.requestId }}</code>
+      </InlineNotice>
+      <InlineNotice v-if="aiStatus?.status === 'unconfigured'" tone="info">
+        <p>AI 服务尚未配置，无法生成草稿。请先配置 AI 服务后再试。</p>
       </InlineNotice>
 
       <form class="dialog-form ai-screen-dialog__form" @submit.prevent="submit">
@@ -284,6 +297,11 @@ watch(
   width: min(760px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   overflow-y: auto;
+  color: var(--dp-text);
+}
+
+.ai-screen-dialog .dialog-heading p {
+  color: #5f5e5b;
 }
 
 .ai-screen-dialog__form,
@@ -296,13 +314,14 @@ watch(
   display: grid;
   gap: 10px;
   padding: 12px;
-  border: 1px solid rgb(148 163 184 / 18%);
+  border: 1px solid var(--dp-border);
   border-radius: 12px;
+  background: #fbfbfa;
 }
 
 .ai-screen-dialog__datasets legend {
   padding: 0 6px;
-  color: rgb(148 163 184);
+  color: var(--dp-text);
   font-size: 13px;
 }
 
@@ -324,6 +343,11 @@ watch(
   margin: 0;
 }
 
+.ai-screen-dialog__hint,
+.ai-screen-dialog__result p {
+  color: #5f5e5b;
+}
+
 .ai-screen-dialog__meta,
 .ai-screen-dialog__warnings {
   display: flex;
@@ -337,8 +361,8 @@ watch(
 .ai-screen-dialog__warnings li {
   padding: 4px 8px;
   border-radius: 999px;
-  background: rgb(30 41 59 / 75%);
-  color: rgb(148 163 184);
+  background: #f1f1ef;
+  color: #4b4a46;
   font-size: 12px;
 }
 </style>

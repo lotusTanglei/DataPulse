@@ -1,0 +1,20 @@
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/screens/templates.test.ts (2 tests) 14ms
+ ✓ src/features/screens/editor/commands.test.ts (6 tests) 4ms
+ ✓ src/features/screens/editor/store.test.ts (5 tests) 17ms
+ ✓ src/features/runtime/runtime.test.ts (8 tests) 55ms
+ ✓ src/features/player/standalone-player.test.ts (2 tests) 35ms
+ ✓ src/features/screens/editor/inspector.test.ts (8 tests) 130ms
+ ✓ src/features/player/embed-player.test.ts (3 tests) 86ms
+ ✓ src/features/screens/screen-list.test.ts (6 tests) 116ms
+ ✓ src/features/screens/editor/geometry.test.ts (3 tests) 3ms
+ ✓ src/features/player/player.test.ts (2 tests) 61ms
+ ✓ src/features/screens/editor/canvas.test.ts (14 tests) 216ms
+
+ Test Files  11 passed (11)
+      Tests  59 passed (59)
+   Start at  14:54:16
+   Duration  6.10s (transform 2.74s, setup 0ms, collect 27.98s, tests 738ms, environment 13.78s, prepare 3.25s)
+

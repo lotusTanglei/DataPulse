@@ -144,6 +144,7 @@ export function exchangeStandaloneKey(
       method: "POST",
       json: { key },
       signal,
+      suppressAuthExpiredEvent: true,
     },
   );
 }
@@ -154,7 +155,7 @@ export function getStandaloneDocument(
 ): Promise<PlayerDocument> {
   return apiRequest<PlayerDocument>(
     `${PLAYER_SCREENS_PATH}/${encodeURIComponent(screenId)}`,
-    { signal },
+    { signal, suppressAuthExpiredEvent: true },
   );
 }
 
@@ -170,6 +171,7 @@ export function queryStandaloneComponent(
       method: "POST",
       json: { component_id: componentId, parameters },
       signal,
+      suppressAuthExpiredEvent: true,
     },
   );
 }

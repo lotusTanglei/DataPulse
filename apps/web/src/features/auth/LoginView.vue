@@ -15,6 +15,21 @@ const submitting = ref(false);
 const notice = ref("");
 const serverFields = ref<Record<string, string>>({});
 
+function loginErrorMessage(error: ApiError): string {
+  switch (error.code) {
+    case "AUTH_INVALID_CREDENTIALS":
+      return "用户名或密码错误。";
+    case "AUTH_RATE_LIMITED":
+      return "登录尝试过于频繁，请稍后再试。";
+    case "HTTP_ERROR":
+      return error.status >= 500
+        ? "无法连接服务器，请检查后端服务或代理配置。"
+        : error.message;
+    default:
+      return error.message;
+  }
+}
+
 async function submit(): Promise<void> {
   notice.value = "";
   serverFields.value = {};
@@ -27,12 +42,12 @@ async function submit(): Promise<void> {
     await router.replace("/studio/datasources");
   } catch (error) {
     if (error instanceof ApiError) {
-      notice.value = error.message;
+      notice.value = loginErrorMessage(error);
       serverFields.value = Object.fromEntries(
         error.fieldErrors.map((item) => [item.field, item.message]),
       );
     } else {
-      notice.value = "登录失败，请稍后重试。";
+      notice.value = "无法连接服务器，请检查后端服务或代理配置。";
     }
   } finally {
     submitting.value = false;

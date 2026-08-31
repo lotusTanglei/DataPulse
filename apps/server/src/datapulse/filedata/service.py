@@ -36,23 +36,32 @@ class FileAssetService:
     async def ingest(self, upload, *, request_id: str) -> FileAssetResponse:
         del request_id
         stored = await self._storage.save(upload)
-        parsed = await parse_file(
-            Path(stored.storage_path),
-            stored.format,
-            sheet_name=None,
-            max_rows=5000,
-        )
-        asset = await self._repository.create(
-            asset_id=stored.asset_id,
-            original_name=stored.original_name,
-            format=stored.format,
-            mime_type=stored.mime_type,
-            sha256=stored.sha256,
-            size_bytes=stored.size_bytes,
-            storage_path=stored.storage_path,
-            row_count=parsed.row_count,
-            fields_json=[field.model_dump(mode="json") for field in parsed.fields],
-        )
+        try:
+            parsed = await parse_file(
+                Path(stored.storage_path),
+                stored.format,
+                sheet_name=None,
+                max_rows=5000,
+            )
+            asset = await self._repository.create(
+                asset_id=stored.asset_id,
+                original_name=stored.original_name,
+                format=stored.format,
+                mime_type=stored.mime_type,
+                sha256=stored.sha256,
+                size_bytes=stored.size_bytes,
+                storage_path=stored.storage_path,
+                row_count=parsed.row_count,
+                fields_json=[field.model_dump(mode="json") for field in parsed.fields],
+            )
+        except Exception:
+            # Parsing and metadata creation are one ingest transaction from the
+            # user's perspective; do not leave files that cannot be addressed.
+            try:
+                self._storage.delete(stored.asset_id)
+            except Exception:
+                pass
+            raise
         return self._response(asset)
 
     async def list(self) -> tuple[FileAssetResponse, ...]:

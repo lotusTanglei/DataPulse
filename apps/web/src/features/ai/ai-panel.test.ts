@@ -29,6 +29,9 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
   let analysisRequests = 0;
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
+    if (url === "/api/admin/ai/status") {
+      return Promise.resolve(jsonResponse({ status: "configured", model: "test" }));
+    }
     if (url === "/api/admin/ai/analyze" && init?.method === "POST") {
       analysisRequests += 1;
       if (analysisRequests === 2) {
@@ -99,7 +102,7 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
     "/api/admin/ai/analyze",
     expect.objectContaining({ method: "POST" }),
   );
-  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
   expect(
     fetchMock.mock.calls.some(([input]) => String(input).endsWith("/chart")),
   ).toBe(false);
@@ -126,4 +129,22 @@ test("generates AI analysis and emits the selected chart suggestion", async () =
   expect(wrapper.text()).toContain("AI 返回结果无法使用");
   expect(wrapper.text()).not.toContain("建议先按区域汇总销售额");
   expect(wrapper.find("article button").exists()).toBe(false);
+});
+
+test("explains the unconfigured AI state and points to manual SQL", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL) => {
+      if (String(input) === "/api/admin/ai/status") {
+        return Promise.resolve(jsonResponse({ status: "unconfigured", model: null }));
+      }
+      throw new Error(`Unexpected request: ${String(input)}`);
+    }),
+  );
+
+  const wrapper = mount(AiAnalysisPanel, { props: { fixedDatasetId: "sales" } });
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("AI 服务尚未配置");
+  expect(wrapper.get('a[href="#dataset-sql-editor"]').text()).toContain("SQL");
 });

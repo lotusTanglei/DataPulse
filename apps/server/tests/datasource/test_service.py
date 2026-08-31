@@ -7,6 +7,7 @@ from datapulse.datasource.connector import ConnectionTestResult
 from datapulse.datasource.models import (
     DatasourceCreate,
     DatasourceStatus,
+    DatasourceTestRequest,
     DatasourceUpdate,
     SQLiteConfig,
 )
@@ -155,6 +156,22 @@ async def test_failed_connection_updates_safe_status(
     assert tested.status is DatasourceStatus.UNAVAILABLE
     assert tested.last_latency_ms == 7
     assert tested.last_error_code == "DATASOURCE_CONNECTION_FAILED"
+
+
+async def test_unsaved_connection_test_uses_ephemeral_config(
+    datasource_repository: DatasourceRepository,
+) -> None:
+    service, connector, _ = build_service(datasource_repository)
+
+    result = await service.test_connection_config(
+        DatasourceTestRequest(config=SQLiteConfig(path="sales.db"))
+    )
+
+    assert result.status is DatasourceStatus.AVAILABLE
+    assert result.latency_ms == 12
+    assert result.error_code is None
+    assert connector.received_password is None
+    assert await datasource_repository.list() == ()
 
 
 async def test_delete_disposes_engine_after_repository_delete(

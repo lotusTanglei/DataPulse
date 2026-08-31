@@ -217,7 +217,9 @@ test("links an empty datasource workspace to the creation flow", async () => {
   const wrapper = await mountList(baseFetch(jsonResponse([])));
 
   const link = wrapper.get('a[href="/studio/datasources/new"]');
-  expect(link.text()).toContain("新建数据源");
+  expect(link.attributes("aria-label")).toBe("新建数据源");
+  expect(wrapper.findAll('a[href="/studio/datasources/new"]')).toHaveLength(1);
+  expect(wrapper.text()).not.toContain("新建数据源");
   expect(wrapper.text()).toContain("还没有数据源");
 });
 

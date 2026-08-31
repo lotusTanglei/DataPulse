@@ -1,0 +1,4 @@
+GET /api/admin/ai/status
+HTTP 200
+X-Request-ID: a032e0b7-b572-4993-b138-7cb3b22448c4
+{"status":"unconfigured","model":null}

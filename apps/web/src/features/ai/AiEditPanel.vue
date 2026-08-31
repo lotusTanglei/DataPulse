@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
-import { editAi } from "./api";
+import { editAi, getAiStatus } from "./api";
 import type { AiEditCommand, AiEditResponse } from "./types";
+import type { AiHealth } from "./types";
 import type { DashboardDocument } from "../../contracts";
 
 const props = defineProps<{
@@ -22,12 +23,21 @@ const result = ref<AiEditResponse | null>(null);
 const error = ref<ApiError | null>(null);
 const formError = ref("");
 const generating = ref(false);
+const aiStatus = ref<AiHealth | null>(null);
 
 const selectionLabel = computed(() =>
   props.selectedComponentIds.length === 1
     ? "当前选中组件"
     : `当前选中 ${props.selectedComponentIds.length} 个组件`,
 );
+
+async function loadAiStatus(): Promise<void> {
+  try {
+    aiStatus.value = await getAiStatus();
+  } catch {
+    aiStatus.value = null;
+  }
+}
 
 watch(
   () => [props.document, props.selectedComponentIds.join(",")],
@@ -95,6 +105,8 @@ function apply(): void {
     result.value = null;
   }
 }
+
+onMounted(() => void loadAiStatus());
 </script>
 
 <template>
@@ -109,6 +121,9 @@ function apply(): void {
     <InlineNotice v-if="error" tone="error">
       <p>{{ error.message }}</p>
       <code v-if="error.requestId">{{ error.requestId }}</code>
+    </InlineNotice>
+    <InlineNotice v-if="aiStatus?.status === 'unconfigured'" tone="info">
+      <p>AI 服务尚未配置，请使用右侧属性面板或 SQL 编辑器手动调整数据。</p>
     </InlineNotice>
 
     <form class="ai-edit-panel__form" @submit.prevent="submit">
@@ -159,9 +174,9 @@ function apply(): void {
   display: grid;
   gap: 12px;
   padding: 16px;
-  border: 1px solid rgb(96 165 250 / 28%);
+  border: 1px solid var(--dp-border-strong);
   border-radius: 8px;
-  background: rgb(15 23 42 / 42%);
+  background: #fff;
 }
 
 .ai-edit-panel__header h2,
@@ -173,9 +188,40 @@ function apply(): void {
 .ai-edit-panel__header p,
 .ai-edit-panel__result p {
   margin: 6px 0 0;
-  color: #94a3b8;
+  color: #5f5e5b;
   font-size: 12px;
   line-height: 1.5;
+}
+
+.ai-edit-panel h2,
+.ai-edit-panel h3 {
+  color: var(--dp-text);
+}
+
+.ai-edit-panel .ai-panel__field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.ai-edit-panel .ai-panel__field > span {
+  color: var(--dp-text);
+  font-size: 13px;
+}
+
+.ai-edit-panel .ai-panel__field textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.ai-edit-panel .ai-panel__field textarea::placeholder {
+  color: #6b6a67;
+}
+
+.ai-edit-panel .ai-panel__error {
+  margin: 0;
+  color: #b42318;
+  font-size: 13px;
 }
 
 .ai-edit-panel__form,
@@ -189,7 +235,7 @@ function apply(): void {
   gap: 5px;
   margin: 0;
   padding-left: 18px;
-  color: #cbd5e1;
+  color: var(--dp-text);
   font-size: 12px;
 }
 </style>

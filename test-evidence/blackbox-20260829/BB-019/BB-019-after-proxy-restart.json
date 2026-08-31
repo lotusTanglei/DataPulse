@@ -1,0 +1,11 @@
+{
+  "url": "http://127.0.0.1:5173/studio/login",
+  "inputs": 2,
+  "auth_status_requests": [
+    {
+      "status": 200,
+      "request_id": "3c1ef7b3-b673-44cb-8f7b-f8b70c0b676c"
+    }
+  ],
+  "body": "D\nDataPulse\n\n管理员登录\n\n欢迎回来\n\n登录后继续配置数据源、数据集和可视化大屏。\n\n用户名\n*\n密码\n*\n登录\n\n编辑端仅允许管理员访问；发布页面的权限由宿主系统控制。"
+}

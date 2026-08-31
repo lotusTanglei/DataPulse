@@ -1,0 +1,118 @@
+{
+  "login_status": 204,
+  "csrf_present": true,
+  "cases": [
+    {
+      "label": "dataset max_rows=0",
+      "method": "POST",
+      "path": "/api/admin/datasets",
+      "status": 422,
+      "request_id": "a84bb21c-20f5-4f02-8fdd-83072f3c4cc2",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"a84bb21c-20f5-4f02-8fdd-83072f3c4cc2\",\"field_errors\":[{\"field\":\"max_rows\",\"message\":\"Input should be greater than or equal to 1\"}]}}"
+    },
+    {
+      "label": "dataset max_rows=5001",
+      "method": "POST",
+      "path": "/api/admin/datasets",
+      "status": 422,
+      "request_id": "17f0a3f8-685e-45b2-aba9-3971aeae4da8",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"17f0a3f8-685e-45b2-aba9-3971aeae4da8\",\"field_errors\":[{\"field\":\"max_rows\",\"message\":\"Input should be less than or equal to 5000\"}]}}"
+    },
+    {
+      "label": "dataset timeout=0",
+      "method": "POST",
+      "path": "/api/admin/datasets",
+      "status": 422,
+      "request_id": "196c686e-552c-47b4-a7ca-06c031412109",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"196c686e-552c-47b4-a7ca-06c031412109\",\"field_errors\":[{\"field\":\"timeout_seconds\",\"message\":\"Input should be greater than or equal to 1\"}]}}"
+    },
+    {
+      "label": "dataset timeout=301",
+      "method": "POST",
+      "path": "/api/admin/datasets",
+      "status": 422,
+      "request_id": "137c81f3-1fcb-47ec-a1e4-84ecc4410e6e",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"137c81f3-1fcb-47ec-a1e4-84ecc4410e6e\",\"field_errors\":[{\"field\":\"timeout_seconds\",\"message\":\"Input should be less than or equal to 300\"}]}}"
+    },
+    {
+      "label": "dataset sql and query both",
+      "method": "POST",
+      "path": "/api/admin/datasets",
+      "status": 422,
+      "request_id": "fb43a7c6-72f9-4b03-ac2e-959c57c86a01",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"fb43a7c6-72f9-4b03-ac2e-959c57c86a01\",\"field_errors\":[{\"field\":\"\",\"message\":\"Value error, Exactly one of sql or query must be provided.\"}]}}"
+    },
+    {
+      "label": "query max_rows=0",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 422,
+      "request_id": "6baab171-50d4-4cb9-adcb-31db2fee9809",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"6baab171-50d4-4cb9-adcb-31db2fee9809\",\"field_errors\":[{\"field\":\"max_rows\",\"message\":\"Input should be greater than or equal to 1\"}]}}"
+    },
+    {
+      "label": "query max_rows=5001",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 422,
+      "request_id": "3778d3f9-dcb4-4924-a236-aa4d7a6823e7",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"3778d3f9-dcb4-4924-a236-aa4d7a6823e7\",\"field_errors\":[{\"field\":\"max_rows\",\"message\":\"Input should be less than or equal to 5000\"}]}}"
+    },
+    {
+      "label": "query timeout=0",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 422,
+      "request_id": "63a16b50-75bd-4e75-8b9a-a8f4535ebc19",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"63a16b50-75bd-4e75-8b9a-a8f4535ebc19\",\"field_errors\":[{\"field\":\"timeout_seconds\",\"message\":\"Input should be greater than or equal to 1\"}]}}"
+    },
+    {
+      "label": "query timeout=301",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 422,
+      "request_id": "b15aeca2-c86e-40ab-b07c-d058b2556318",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"b15aeca2-c86e-40ab-b07c-d058b2556318\",\"field_errors\":[{\"field\":\"timeout_seconds\",\"message\":\"Input should be less than or equal to 300\"}]}}"
+    },
+    {
+      "label": "query row cap 2",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 200,
+      "request_id": "e1680594-f247-436d-beb1-bab2f79df44d",
+      "body": "{\"request_id\":\"e1680594-f247-436d-beb1-bab2f79df44d\",\"columns\":[{\"name\":\"id\",\"data_type\":\"unknown\"},{\"name\":\"month\",\"data_type\":\"unknown\"},{\"name\":\"region\",\"data_type\":\"unknown\"},{\"name\":\"amount\",\"data_type\":\"unknown\"},{\"name\":\"target\",\"data_type\":\"unknown\"},{\"name\":\"area_code\",\"data_type\":\"unknown\"}],\"rows\":[[1,\"2026-01\",\"华东\",120.5,150.0,\"east\"],[2,\"2026-02\",\"华南\",80.0,100.0,\"south\"]],\"row_count\":2,\"truncated\":true,\"duration_ms\":5}"
+    },
+    {
+      "label": "query missing parameter",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 422,
+      "request_id": "4c222cac-52c0-4dd8-a5fd-5cc8a9c375c6",
+      "body": "{\"error\":{\"code\":\"QUERY_PARAMETERS_MISSING\",\"message\":\"The query parameters are invalid.\",\"request_id\":\"4c222cac-52c0-4dd8-a5fd-5cc8a9c375c6\",\"field_errors\":[{\"field\":\"region\",\"message\":\"The query parameter is invalid.\"}]}}"
+    },
+    {
+      "label": "query extra parameter",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 422,
+      "request_id": "e22ab1ba-610c-4716-bd91-0c62692ab035",
+      "body": "{\"error\":{\"code\":\"QUERY_PARAMETERS_EXTRA\",\"message\":\"The query parameters are invalid.\",\"request_id\":\"e22ab1ba-610c-4716-bd91-0c62692ab035\",\"field_errors\":[{\"field\":\"extra\",\"message\":\"The query parameter is invalid.\"}]}}"
+    },
+    {
+      "label": "valid parameter query",
+      "method": "POST",
+      "path": "/api/admin/datasources/a56b15fd-5011-4462-9cef-952469e212e0/query",
+      "status": 200,
+      "request_id": "bde943ca-cda6-4f98-b287-374266cc7391",
+      "body": "{\"request_id\":\"bde943ca-cda6-4f98-b287-374266cc7391\",\"columns\":[{\"name\":\"id\",\"data_type\":\"unknown\"},{\"name\":\"month\",\"data_type\":\"unknown\"},{\"name\":\"region\",\"data_type\":\"unknown\"},{\"name\":\"amount\",\"data_type\":\"unknown\"},{\"name\":\"target\",\"data_type\":\"unknown\"},{\"name\":\"area_code\",\"data_type\":\"unknown\"}],\"rows\":[[1,\"2026-01\",\"华东\",120.5,150.0,\"east\"],[3,\"2026-03\",\"华东\",200.0,180.0,\"east\"]],\"row_count\":2,\"truncated\":false,\"duration_ms\":5}"
+    },
+    {
+      "label": "dataset update empty",
+      "method": "PATCH",
+      "path": "/api/admin/datasets/973ad4bd-25a4-4414-9e51-147bf605a64e",
+      "status": 422,
+      "request_id": "1729eaa4-a3df-4a7f-8f96-2e5981309f18",
+      "body": "{\"error\":{\"code\":\"REQUEST_VALIDATION_ERROR\",\"message\":\"The request is invalid.\",\"request_id\":\"1729eaa4-a3df-4a7f-8f96-2e5981309f18\",\"field_errors\":[{\"field\":\"\",\"message\":\"Value error, At least one dataset field must be updated.\"}]}}"
+    }
+  ]
+}

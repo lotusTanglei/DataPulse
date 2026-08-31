@@ -1,0 +1,304 @@
+
+> datapulse@ verify /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build
+
+
+> datapulse@ check:contracts /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python tools/check_generated.py
+
+
+> datapulse@ test /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/embed-sdk test && pnpm test:web && uv run --package datapulse-server pytest -m "not integration"
+
+
+> @datapulse/embed-sdk@0.1.0 test /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+> vitest run --environment happy-dom
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+
+stderr | src/index.test.ts > DataPulseEmbed > supports independent embeds and removes listeners on destroy
+Error: Failed to execute 'startTask()' on 'AsyncTaskManager': The asynchrounous task manager has been aborted.
+    at AsyncTaskManager.startTask (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:168:10)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:517:71
+    at new Promise (<anonymous>)
+    at Fetch.sendRequest (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:516:10)
+    at Fetch.send (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:231:21)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at BrowserWindow.fetch (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/window/BrowserWindow.ts:1595:10)
+    at Function.navigate (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameNavigator.ts:202:15)
+
+stderr | src/index.test.ts
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+
+stderr | src/index.test.ts
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=b57fc19b-e6c9-4605-8176-eeeac7f0ef59": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=87cc10dd-e9d5-4466-bf92-2e7ab095602f": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=e4fd1277-d610-4852-a42b-f15d36984ac4": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=3c4d6676-6625-4b6a-85bc-c5137ab0df29": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=7556f3e8-341c-4be9-9d73-383d012048fb": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+ ✓ src/index.test.ts (5 tests) 50ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  14:32:37
+   Duration  717ms (transform 45ms, setup 0ms, collect 45ms, tests 50ms, environment 268ms, prepare 101ms)
+
+
+> datapulse@ test:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web test
+
+
+> @datapulse/web@ test /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vitest run
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/runtime/runtime.test.ts (8 tests) 52ms
+ ✓ src/features/player/embed-player.test.ts (3 tests) 84ms
+ ✓ src/features/screens/editor/inspector.test.ts (8 tests) 105ms
+ ✓ src/features/screens/screen-list.test.ts (6 tests) 126ms
+ ✓ src/features/datasets/datasets.test.ts (6 tests) 112ms
+ ✓ src/features/screens/editor/canvas.test.ts (14 tests) 199ms
+ ✓ src/features/datasources/datasource-list.test.ts (4 tests) 87ms
+ ✓ src/features/datasources/schema-browser.test.ts (4 tests) 105ms
+ ✓ src/features/datasources/datasource-form.test.ts (8 tests) 157ms
+ ✓ src/features/screens/editor/commands.test.ts (6 tests) 4ms
+ ✓ src/features/query/sql-debug.test.ts (3 tests) 117ms
+ ✓ src/lib/api.test.ts (6 tests) 6ms
+ ✓ src/features/screens/editor/store.test.ts (5 tests) 15ms
+ ✓ src/features/runtime/builtins/basic-components.test.ts (6 tests) 43ms
+ ✓ src/features/runtime/builtins/chart-components.test.ts (5 tests) 19ms
+ ✓ src/features/runtime/data-runtime.test.ts (3 tests) 13ms
+ ✓ src/features/auth/auth.test.ts (9 tests) 60ms
+ ✓ src/features/player/standalone-player.test.ts (2 tests) 28ms
+ ✓ src/features/ai/ai-panel.test.ts (1 test) 45ms
+ ✓ src/features/player/player.test.ts (2 tests) 53ms
+ ✓ src/features/ai/AiEditPanel.test.ts (1 test) 19ms
+ ✓ src/features/screens/editor/geometry.test.ts (3 tests) 3ms
+ ✓ src/features/screens/templates.test.ts (2 tests) 6ms
+ ✓ src/features/query/query-result-table.test.ts (2 tests) 60ms
+ ✓ src/ui/studio-shell.test.ts (1 test) 36ms
+ ✓ src/lib/dev-proxy.test.ts (1 test) 2ms
+ ✓ src/App.test.ts (2 tests) 35ms
+ ✓ src/features/screens/editor/editor-toolbar.test.ts (1 test) 23ms
+
+ Test Files  28 passed (28)
+      Tests  122 passed (122)
+   Start at  14:32:39
+   Duration  10.06s (transform 3.04s, setup 0ms, collect 43.97s, tests 1.61s, environment 22.13s, prepare 5.87s)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/dundundebaba/sync/code/open/DataPulse
+configfile: pyproject.toml
+testpaths: apps/server/tests
+plugins: cov-7.1.0, anyio-4.14.2
+collected 450 items / 13 deselected / 437 selected
+
+apps/server/tests/ai/test_api.py .                                       [  0%]
+apps/server/tests/ai/test_chart_generation.py ......                     [  1%]
+apps/server/tests/ai/test_context.py .                                   [  1%]
+apps/server/tests/ai/test_edit.py .....                                  [  2%]
+apps/server/tests/ai/test_gateway.py ......                              [  4%]
+apps/server/tests/ai/test_screen_generator.py ........                   [  6%]
+apps/server/tests/ai/test_service.py .......                             [  7%]
+apps/server/tests/auth/test_api.py ......                                [  9%]
+apps/server/tests/auth/test_bootstrap.py ......                          [ 10%]
+apps/server/tests/auth/test_limiter.py ...                               [ 11%]
+apps/server/tests/auth/test_password.py ..                               [ 11%]
+apps/server/tests/auth/test_session.py ....                              [ 12%]
+apps/server/tests/connectors/test_sqlite.py ............                 [ 15%]
+apps/server/tests/contracts/test_ai.py .................                 [ 19%]
+apps/server/tests/contracts/test_chart.py .......                        [ 20%]
+apps/server/tests/contracts/test_dashboard.py ..........                 [ 23%]
+apps/server/tests/contracts/test_dataset.py ...                          [ 23%]
+apps/server/tests/contracts/test_embed.py ...................            [ 28%]
+apps/server/tests/contracts/test_exported_schemas.py .........           [ 30%]
+apps/server/tests/contracts/test_filedata.py ...................         [ 34%]
+apps/server/tests/contracts/test_plugin.py ...........                   [ 37%]
+apps/server/tests/dataset/test_api.py ...                                [ 37%]
+apps/server/tests/dataset/test_repository.py ...                         [ 38%]
+apps/server/tests/dataset/test_service.py ....                           [ 39%]
+apps/server/tests/datasource/test_api.py ....                            [ 40%]
+apps/server/tests/datasource/test_http_api.py ....                       [ 41%]
+apps/server/tests/datasource/test_models.py ............                 [ 43%]
+apps/server/tests/datasource/test_registry.py ....                       [ 44%]
+apps/server/tests/datasource/test_repository.py ......                   [ 46%]
+apps/server/tests/datasource/test_secrets.py ........                    [ 48%]
+apps/server/tests/datasource/test_service.py ....                        [ 48%]
+apps/server/tests/display/test_api.py ...                                [ 49%]
+apps/server/tests/display/test_service.py ..                             [ 50%]
+apps/server/tests/display/test_tokens.py ..                              [ 50%]
+apps/server/tests/embedding/test_api.py .....                            [ 51%]
+apps/server/tests/embedding/test_service.py ..                           [ 52%]
+apps/server/tests/embedding/test_tokens.py ...............               [ 55%]
+apps/server/tests/filedata/test_api.py ...                               [ 56%]
+apps/server/tests/filedata/test_duckdb_executor.py ......                [ 57%]
+apps/server/tests/filedata/test_parsers.py ......                        [ 59%]
+apps/server/tests/filedata/test_repository.py ..                         [ 59%]
+apps/server/tests/filedata/test_storage.py ........                      [ 61%]
+apps/server/tests/metadata/test_database.py ..                           [ 61%]
+apps/server/tests/metadata/test_migrations.py ..                         [ 62%]
+apps/server/tests/query/test_execution.py ....                           [ 63%]
+apps/server/tests/query/test_limits.py ....                              [ 64%]
+apps/server/tests/query/test_normalization.py ..................         [ 68%]
+apps/server/tests/query/test_parameters.py ......                        [ 69%]
+apps/server/tests/query/test_safety.py ................................. [ 77%]
+......................                                                   [ 82%]
+apps/server/tests/screen/test_access_policy.py ...                       [ 82%]
+apps/server/tests/screen/test_access_policy_api.py ..                    [ 83%]
+apps/server/tests/screen/test_api.py ....                                [ 84%]
+apps/server/tests/screen/test_assets.py ...........                      [ 86%]
+apps/server/tests/screen/test_chart_query.py ..............              [ 89%]
+apps/server/tests/screen/test_publishing.py .....                        [ 91%]
+apps/server/tests/screen/test_repository.py ....                         [ 91%]
+apps/server/tests/screen/test_runtime.py .........                       [ 94%]
+apps/server/tests/screen/test_runtime_api.py ...                         [ 94%]
+apps/server/tests/screen/test_service.py .....                           [ 95%]
+apps/server/tests/test_app.py .                                          [ 96%]
+apps/server/tests/test_e2e_fake_ai.py .                                  [ 96%]
+apps/server/tests/test_e2e_file_fixtures.py .                            [ 96%]
+apps/server/tests/test_errors.py ....                                    [ 97%]
+apps/server/tests/test_lifespan.py ....                                  [ 98%]
+apps/server/tests/test_prepare_e2e.py .                                  [ 98%]
+apps/server/tests/test_static.py ......                                  [100%]
+
+===================== 437 passed, 13 deselected in 18.00s ======================
+
+> datapulse@ typecheck /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck
+
+
+> datapulse@ typecheck:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web typecheck
+
+
+> @datapulse/web@ typecheck /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && tsc -p tsconfig.e2e.json
+
+
+> @datapulse/embed-sdk@0.1.0 typecheck /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+> tsc -p tsconfig.json
+
+
+> datapulse@ build /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm build:web
+
+
+> datapulse@ build:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web build
+
+
+> @datapulse/web@ build /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js (158:30): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 2556 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                            0.49 kB │ gzip:   0.35 kB
+dist/assets/DatasetDetailView-bUMJwP1F.css                                 0.05 kB │ gzip:   0.07 kB
+dist/assets/index-BvH_rWpz.css                                            45.75 kB │ gzip:   8.87 kB
+dist/assets/SqlDebugView-BSiz_2hC.js                                       5.85 kB │ gzip:   2.63 kB
+dist/assets/DatasetDetailView-BqkxO6fF.js                                  8.46 kB │ gzip:   3.06 kB
+dist/assets/SqlEditor.vue_vue_type_script_setup_true_lang-Ceyqlx6e.js    438.01 kB │ gzip: 145.52 kB
+dist/assets/index-BKsGvwBA.js                                          1,251.84 kB │ gzip: 419.80 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.56s

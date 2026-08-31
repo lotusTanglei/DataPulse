@@ -1,0 +1,15 @@
+BB-019 service availability observation (2026-08-29)
+
+Initial check associated with the user-provided screenshot:
+- Frontend URL: http://127.0.0.1:5173/studio/login (HTML shell was reachable).
+- At the first probe, the expected backend port `8001` was not listening.
+- After the backend was restarted on `8001`, the existing Vite process still returned HTTP 500 for `/api/auth/status` while direct `8001` returned HTTP 200. Inspection of `apps/web/vite.config.ts` showed the unset `VITE_API_PROXY_TARGET` defaulted to `http://127.0.0.1:8000`; port `8000` was not listening.
+- The screenshot's failed login therefore cannot be classified as invalid credentials; the frontend initialization/login API path was unavailable through the stale proxy, and no corresponding `POST /api/auth/login` reached the backend.
+
+Recovery check after restarting the test backend with the existing temporary test data directory:
+- GET /api/health -> HTTP 200, {"status":"ok","version":"0.1.0"}
+- GET /api/auth/status -> HTTP 200, {"initialized":true}
+- Frontend GET /studio/login -> HTTP 200.
+- Restarted Vite with `VITE_API_PROXY_TARGET=http://127.0.0.1:8001`; frontend `/api/auth/status` then returned HTTP 200 through the proxy.
+
+No password, setup code, signing key, or master key is stored in this evidence file.

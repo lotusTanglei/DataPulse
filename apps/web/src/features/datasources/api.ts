@@ -3,6 +3,8 @@ import type { QueryResult } from "../query/types";
 import type {
   Datasource,
   DatasourceCreatePayload,
+  DatasourceTestPayload,
+  DatasourceTestResponse,
   DatasourceUpdatePayload,
   NamespaceInfo,
   RelationInfo,
@@ -58,6 +60,17 @@ export function testDatasource(
       signal,
     },
   );
+}
+
+export function testDatasourceConfig(
+  payload: DatasourceTestPayload,
+  signal?: AbortSignal,
+): Promise<DatasourceTestResponse> {
+  return apiRequest<DatasourceTestResponse>(`${DATASOURCES_PATH}/test`, {
+    method: "POST",
+    json: payload,
+    signal,
+  });
 }
 
 export function listNamespaces(

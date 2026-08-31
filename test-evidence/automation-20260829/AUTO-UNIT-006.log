@@ -1,0 +1,41 @@
+
+> @datapulse/web@ test /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vitest run -- src/features/screens/screen-list.test.ts src/features/screens/templates.test.ts src/features/screens/editor/geometry.test.ts src/features/screens/editor/commands.test.ts src/features/screens/editor/canvas.test.ts src/features/screens/editor/store.test.ts src/features/screens/editor/inspector.test.ts src/features/runtime/runtime.test.ts src/features/player/standalone-player.test.ts src/features/player/embed-player.test.ts src/features/player/player.test.ts
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/query/query-result-table.test.ts (2 tests) 71ms
+ ✓ src/features/screens/editor/inspector.test.ts (8 tests) 124ms
+ ✓ src/features/screens/screen-list.test.ts (6 tests) 112ms
+ ✓ src/features/screens/editor/canvas.test.ts (14 tests) 196ms
+ ✓ src/features/datasets/datasets.test.ts (6 tests) 117ms
+ ✓ src/features/auth/auth.test.ts (9 tests) 77ms
+ ✓ src/features/datasources/datasource-list.test.ts (4 tests) 148ms
+ ✓ src/features/datasources/schema-browser.test.ts (4 tests) 160ms
+ ✓ src/features/datasources/datasource-form.test.ts (8 tests) 192ms
+ ✓ src/features/player/player.test.ts (2 tests) 47ms
+ ✓ src/ui/studio-shell.test.ts (1 test) 33ms
+ ✓ src/features/query/sql-debug.test.ts (3 tests) 37ms
+ ✓ src/features/runtime/runtime.test.ts (8 tests) 48ms
+ ✓ src/features/ai/ai-panel.test.ts (1 test) 43ms
+ ✓ src/features/player/embed-player.test.ts (3 tests) 47ms
+ ✓ src/features/runtime/builtins/basic-components.test.ts (6 tests) 38ms
+ ✓ src/features/player/standalone-player.test.ts (2 tests) 28ms
+ ✓ src/App.test.ts (2 tests) 35ms
+ ✓ src/features/ai/AiEditPanel.test.ts (1 test) 19ms
+ ✓ src/lib/api.test.ts (6 tests) 6ms
+ ✓ src/features/runtime/data-runtime.test.ts (3 tests) 11ms
+ ✓ src/features/screens/editor/editor-toolbar.test.ts (1 test) 24ms
+ ✓ src/features/screens/templates.test.ts (2 tests) 5ms
+ ✓ src/features/screens/editor/commands.test.ts (6 tests) 5ms
+ ✓ src/features/screens/editor/geometry.test.ts (3 tests) 3ms
+ ✓ src/features/runtime/builtins/chart-components.test.ts (5 tests) 18ms
+ ✓ src/lib/dev-proxy.test.ts (1 test) 2ms
+ ✓ src/features/screens/editor/store.test.ts (5 tests) 13ms
+
+ Test Files  28 passed (28)
+      Tests  122 passed (122)
+   Start at  14:29:46
+   Duration  16.88s (transform 2.79s, setup 0ms, collect 74.74s, tests 1.66s, environment 44.35s, prepare 10.53s)
+

@@ -1640,6 +1640,39 @@ textarea::placeholder {
   .dataset-file-layout {
     grid-template-columns: 1fr;
   }
+
+  .studio-frame.studio-frame--editor {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+  }
+
+  .studio-frame--editor .studio-sidebar {
+    display: none;
+  }
+
+  .studio-frame--editor .studio-content {
+    min-width: 0;
+  }
+
+  .studio-frame--editor .editor-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+  }
+
+  .studio-frame--editor .editor-panel {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .studio-frame--editor .editor-canvas-region {
+    min-height: min(70vh, 620px);
+  }
+
+  .studio-frame--editor .screen-canvas-host {
+    min-height: min(70vh, 620px);
+    padding: 16px;
+  }
 }
 
 .empty-state {

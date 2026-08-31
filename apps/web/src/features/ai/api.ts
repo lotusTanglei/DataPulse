@@ -9,9 +9,14 @@ import type {
   AiEditResponse,
   AiScreenRequest,
   AiScreenResponse,
+  AiHealth,
 } from "./types";
 
 const AI_PATH = "/api/admin/ai";
+
+export function getAiStatus(signal?: AbortSignal): Promise<AiHealth> {
+  return apiRequest<AiHealth>(`${AI_PATH}/status`, { signal });
+}
 
 export function analyzeAi(
   payload: AiAnalysisRequest,

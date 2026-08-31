@@ -114,6 +114,33 @@ class DatasourceUpdate(ContractModel):
         return self
 
 
+class DatasourceTestRequest(ContractModel):
+    """Ephemeral connection settings used by the form test action."""
+
+    config: DatasourceConfig
+    password: SecretStr | None = None
+    datasource_id: str | None = None
+
+    @model_validator(mode="after")
+    def validate_http_api_credentials(self) -> "DatasourceTestRequest":
+        if isinstance(self.config, HttpApiConfig):
+            if self.config.auth_type == "basic" and not self.config.username:
+                raise ValueError("username is required for basic HTTP API authentication")
+            if (
+                self.config.auth_type != "none"
+                and self.password is None
+                and self.datasource_id is None
+            ):
+                raise ValueError("password is required for authenticated HTTP API datasources")
+        return self
+
+
+class DatasourceTestResponse(ContractModel):
+    status: DatasourceStatus
+    latency_ms: int = Field(ge=0)
+    error_code: str | None = None
+
+
 class DatasourceResponse(ContractModel):
     id: str
     name: NonBlankStr

@@ -130,7 +130,11 @@ onMounted(load);
         <h1 id="datasource-title">数据源</h1>
         <p class="page-description">连接并管理用于分析的数据库。</p>
       </div>
-      <RouterLink class="primary-button primary-button--compact" to="/studio/datasources/new">
+      <RouterLink
+        v-if="datasources.length > 0"
+        class="primary-button primary-button--compact"
+        to="/studio/datasources/new"
+      >
         <Plus :size="14" aria-hidden="true" />
         新建数据源
       </RouterLink>
@@ -154,14 +158,15 @@ onMounted(load);
     </InlineNotice>
 
     <div v-else-if="datasources.length === 0" class="empty-panel datasource-empty">
-      <div class="empty-panel__icon" aria-hidden="true">
-        <Plus :size="20" />
-      </div>
+      <RouterLink
+        class="empty-panel__icon"
+        to="/studio/datasources/new"
+        aria-label="新建数据源"
+      >
+        <Plus :size="20" aria-hidden="true" />
+      </RouterLink>
       <h2>还没有数据源</h2>
       <p>添加 SQLite、PostgreSQL、MySQL / MariaDB 或 HTTP API 连接。</p>
-      <RouterLink class="secondary-button" to="/studio/datasources/new">
-        新建数据源
-      </RouterLink>
     </div>
 
     <div v-else class="notion-table-wrap">

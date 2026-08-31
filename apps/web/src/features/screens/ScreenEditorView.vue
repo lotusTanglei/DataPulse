@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
@@ -126,6 +126,15 @@ const saveLabel = computed(() => {
 });
 
 onMounted(() => store.load(screenId.value));
+
+function handlePublishKeydown(event: KeyboardEvent): void {
+  if (event.key === "Escape" && publishConfirmationOpen.value && !publishing.value) {
+    publishConfirmationOpen.value = false;
+  }
+}
+
+onMounted(() => window.addEventListener("keydown", handlePublishKeydown));
+onBeforeUnmount(() => window.removeEventListener("keydown", handlePublishKeydown));
 
 async function requestPublish(): Promise<void> {
   publishError.value = null;

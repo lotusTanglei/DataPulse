@@ -117,4 +117,33 @@ describe("apiRequest", () => {
 
     window.removeEventListener(AUTH_EXPIRED_EVENT, listener);
   });
+
+  test("can keep public player 401 responses out of Studio auth handling", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        response(
+          {
+            error: {
+              code: "DISPLAY_ACCESS_DENIED",
+              message: "Access denied.",
+              request_id: "player-401",
+              field_errors: [],
+            },
+          },
+          401,
+        ),
+      ),
+    );
+    const listener = vi.fn();
+    window.addEventListener(AUTH_EXPIRED_EVENT, listener);
+
+    const error = await apiRequest("/api/player/screens/screen-1", {
+      suppressAuthExpiredEvent: true,
+    }).catch((reason: unknown) => reason);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect(listener).not.toHaveBeenCalled();
+    window.removeEventListener(AUTH_EXPIRED_EVENT, listener);
+  });
 });

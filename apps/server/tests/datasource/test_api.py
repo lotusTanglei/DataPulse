@@ -251,3 +251,22 @@ def test_query_execution_errors_keep_stable_status(
     assert response.status_code == status_code
     assert response.json()["error"]["code"] == code
     assert response.json()["error"]["request_id"] == response.headers["x-request-id"]
+
+
+def test_unsaved_datasource_connection_test_does_not_persist_config(
+    datasource_app: AppClient,
+) -> None:
+    setup_admin(datasource_app)
+
+    tested = datasource_app.client.post(
+        "/api/admin/datasources/test",
+        json={"config": {"type": "sqlite", "path": "sales.db"}},
+        headers=mutation_headers(datasource_app),
+    )
+
+    assert tested.status_code == 200
+    body = tested.json()
+    assert body["status"] == "available"
+    assert isinstance(body["latency_ms"], int)
+    assert body["error_code"] is None
+    assert datasource_app.client.get("/api/admin/datasources").json() == []

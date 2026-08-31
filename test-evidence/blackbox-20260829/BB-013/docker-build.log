@@ -1,0 +1,91 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.39kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.13-slim
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:22-slim
+#3 DONE 1.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 225B 0.0s done
+#4 DONE 0.0s
+
+#5 [runtime  1/10] FROM docker.io/library/python:3.13-slim
+#5 DONE 0.0s
+
+#6 [web  1/12] FROM docker.io/library/node:22-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 25.65kB 0.1s done
+#7 DONE 0.1s
+
+#8 [web  4/12] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+#8 CACHED
+
+#9 [web  5/12] COPY apps/web/package.json apps/web/package.json
+#9 CACHED
+
+#10 [runtime  9/10] COPY --chown=datapulse:datapulse apps/server/docker-entrypoint.sh /app/docker-entrypoint.sh
+#10 CACHED
+
+#11 [web 11/12] COPY packages/embed-sdk packages/embed-sdk
+#11 CACHED
+
+#12 [web  6/12] COPY packages/schema/package.json packages/schema/package.json
+#12 CACHED
+
+#13 [runtime  2/10] WORKDIR /app
+#13 CACHED
+
+#14 [web 12/12] RUN pnpm build:web
+#14 CACHED
+
+#15 [web  3/12] RUN corepack enable
+#15 CACHED
+
+#16 [runtime  4/10] COPY pyproject.toml uv.lock ./
+#16 CACHED
+
+#17 [web  2/12] WORKDIR /src
+#17 CACHED
+
+#18 [runtime  5/10] COPY apps/server apps/server
+#18 CACHED
+
+#19 [web  9/12] COPY apps/web apps/web
+#19 CACHED
+
+#20 [runtime  7/10] COPY --from=web /src/apps/web/dist /app/static
+#20 CACHED
+
+#21 [web  7/12] COPY packages/embed-sdk/package.json packages/embed-sdk/package.json
+#21 CACHED
+
+#22 [web 10/12] COPY packages/schema packages/schema
+#22 CACHED
+
+#23 [runtime  3/10] RUN pip install --no-cache-dir uv
+#23 CACHED
+
+#24 [runtime  6/10] RUN apt-get update     && apt-get install --yes --no-install-recommends build-essential     && uv sync --frozen --no-dev --package datapulse-server     && apt-get purge --yes --auto-remove build-essential     && rm -rf /var/lib/apt/lists/*
+#24 CACHED
+
+#25 [web  8/12] RUN pnpm install --frozen-lockfile
+#25 CACHED
+
+#26 [runtime  8/10] RUN useradd --create-home --uid 10001 datapulse     && mkdir -p /data/sources     && chown -R datapulse:datapulse /data
+#26 CACHED
+
+#27 [runtime 10/10] RUN chmod 0555 /app/docker-entrypoint.sh
+#27 CACHED
+
+#28 exporting to image
+#28 exporting layers done
+#28 writing image sha256:109992e744434c8ff53a526fff53d289d6e1a75ce86220dd9225ae18167c8195 done
+#28 naming to docker.io/library/datapulse-test:20260829 done
+#28 DONE 0.0s

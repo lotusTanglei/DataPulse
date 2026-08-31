@@ -6,6 +6,8 @@ from datapulse.auth.dependencies import require_admin, require_csrf
 from datapulse.datasource.models import (
     DatasourceCreate,
     DatasourceResponse,
+    DatasourceTestRequest,
+    DatasourceTestResponse,
     DatasourceUpdate,
 )
 from datapulse.datasource.repository import (
@@ -67,6 +69,17 @@ async def create_datasource(
     try:
         return await request.app.state.datasource_service.create(payload)
     except (DatasourceNameConflict, DatasourceNotFound, DatasourceInUse) as error:
+        _raise_repository_error(error)
+
+
+@router.post("/test", dependencies=[Depends(require_csrf)])
+async def test_datasource_config(
+    payload: DatasourceTestRequest,
+    request: Request,
+) -> DatasourceTestResponse:
+    try:
+        return await request.app.state.datasource_service.test_connection_config(payload)
+    except DatasourceNotFound as error:
         _raise_repository_error(error)
 
 

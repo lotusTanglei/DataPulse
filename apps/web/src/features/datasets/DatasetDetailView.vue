@@ -329,7 +329,7 @@ onBeforeUnmount(() => {
           </label>
         </div>
 
-        <div class="sql-editor-frame dataset-sql-editor">
+        <div id="dataset-sql-editor" class="sql-editor-frame dataset-sql-editor">
           <SqlEditor v-model="sql" :dialect="datasourceDialect" />
         </div>
 

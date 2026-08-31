@@ -20,6 +20,8 @@ export interface HealthResponse {
 export interface ApiRequestInit extends Omit<RequestInit, "body"> {
   body?: BodyInit | null;
   json?: unknown;
+  /** Prevent public player requests from changing the Studio auth state. */
+  suppressAuthExpiredEvent?: boolean;
 }
 
 export const AUTH_EXPIRED_EVENT = "datapulse:auth-expired";
@@ -107,7 +109,7 @@ export async function apiRequest<T>(
   input: RequestInfo | URL,
   options: ApiRequestInit = {},
 ): Promise<T> {
-  const { json, ...requestOptions } = options;
+  const { json, suppressAuthExpiredEvent = false, ...requestOptions } = options;
   const method = (requestOptions.method ?? "GET").toUpperCase();
   const headers = new Headers(requestOptions.headers);
   if (["POST", "PATCH", "DELETE"].includes(method)) {
@@ -130,7 +132,7 @@ export async function apiRequest<T>(
   });
   if (!response.ok) {
     const error = await errorFromResponse(response);
-    if (response.status === 401) {
+    if (response.status === 401 && !suppressAuthExpiredEvent) {
       window.dispatchEvent(
         new CustomEvent<ApiError>(AUTH_EXPIRED_EVENT, { detail: error }),
       );

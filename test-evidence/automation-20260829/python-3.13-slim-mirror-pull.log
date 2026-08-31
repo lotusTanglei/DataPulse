@@ -1,0 +1,21 @@
+3.13-slim: Pulling from library/python
+bf7af0229701: Pulling fs layer
+ff24b3e2fe87: Pulling fs layer
+7321df493884: Pulling fs layer
+426005deab04: Pulling fs layer
+426005deab04: Waiting
+ff24b3e2fe87: Verifying Checksum
+ff24b3e2fe87: Download complete
+426005deab04: Verifying Checksum
+426005deab04: Download complete
+7321df493884: Verifying Checksum
+7321df493884: Download complete
+bf7af0229701: Verifying Checksum
+bf7af0229701: Download complete
+bf7af0229701: Pull complete
+ff24b3e2fe87: Pull complete
+7321df493884: Pull complete
+426005deab04: Pull complete
+Digest: sha256:7ce4b6dfe35e55397b7cda544f8a13f191b7ae28dc5aad71fe664dbc9bc2623f
+Status: Downloaded newer image for docker.m.daocloud.io/library/python:3.13-slim
+docker.m.daocloud.io/library/python:3.13-slim

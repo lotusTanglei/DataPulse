@@ -19,6 +19,8 @@ from datapulse.datasource.models import (
     DatasourceCreate,
     DatasourceResponse,
     DatasourceStatus,
+    DatasourceTestRequest,
+    DatasourceTestResponse,
     DatasourceUpdate,
 )
 from datapulse.datasource.registry import ConnectorNotFound, ConnectorRegistry
@@ -174,8 +176,51 @@ class DatasourceService:
         datasource = await self._repository.get(datasource_id)
         connector = self._connector(datasource)
         secret = await self._secret(datasource_id)
+        result_status, latency_ms, error_code = await self._run_connection_test(
+            connector, datasource.config, secret
+        )
+        return await self._repository.update_connection_status(
+            datasource_id,
+            status=result_status,
+            checked_at=self._clock(),
+            latency_ms=latency_ms,
+            error_code=error_code,
+        )
+
+    async def test_connection_config(
+        self, payload: DatasourceTestRequest
+    ) -> DatasourceTestResponse:
+        if payload.datasource_id is not None and payload.password is None:
+            secret = await self._secret(payload.datasource_id)
+        elif payload.password is not None:
+            secret = ConnectorSecret(password=payload.password)
+        else:
+            secret = None
         try:
-            result = await connector.test_connection(datasource.config, secret)
+            connector = self._registry.get(payload.config.type)
+        except ConnectorNotFound as error:
+            raise DataPulseError(
+                code="DATASOURCE_CONNECTOR_UNAVAILABLE",
+                message="The datasource connector is unavailable.",
+                status_code=422,
+            ) from error
+        status, latency_ms, error_code = await self._run_connection_test(
+            connector, payload.config, secret
+        )
+        return DatasourceTestResponse(
+            status=status,
+            latency_ms=latency_ms,
+            error_code=error_code,
+        )
+
+    @staticmethod
+    async def _run_connection_test(
+        connector: Connector,
+        config: object,
+        secret: ConnectorSecret | None,
+    ) -> tuple[DatasourceStatus, int, str | None]:
+        try:
+            result = await connector.test_connection(config, secret)
         except Exception:
             result_status = DatasourceStatus.UNAVAILABLE
             latency_ms = 0
@@ -186,13 +231,7 @@ class DatasourceService:
             )
             latency_ms = result.latency_ms
             error_code = None if result.ok else result.error_code or "DATASOURCE_CONNECTION_FAILED"
-        return await self._repository.update_connection_status(
-            datasource_id,
-            status=result_status,
-            checked_at=self._clock(),
-            latency_ms=latency_ms,
-            error_code=error_code,
-        )
+        return result_status, latency_ms, error_code
 
     async def _connection_context(
         self,

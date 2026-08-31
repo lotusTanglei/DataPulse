@@ -38,7 +38,7 @@ async function logout(): Promise<void> {
 </script>
 
 <template>
-  <div class="studio-frame">
+  <div class="studio-frame" :class="{ 'studio-frame--editor': route.name === 'screen-edit' }">
     <aside class="studio-sidebar">
       <div class="workspace-switcher" aria-label="工作区导航">
         <span class="workspace-mark" aria-hidden="true">D</span>

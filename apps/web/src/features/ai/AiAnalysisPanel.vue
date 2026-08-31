@@ -7,8 +7,8 @@ import { listDatasets } from "../datasets/api";
 import type { Dataset } from "../datasets/types";
 import type { JsonValue } from "../query/types";
 import ChartSuggestionCard from "./ChartSuggestionCard.vue";
-import { analyzeAi } from "./api";
-import type { AiAnalysisResponse, AiChartResponse } from "./types";
+import { analyzeAi, getAiStatus } from "./api";
+import type { AiAnalysisResponse, AiChartResponse, AiHealth } from "./types";
 
 const props = withDefaults(
   defineProps<{
@@ -43,6 +43,7 @@ const question = ref("");
 const datasetId = ref(props.fixedDatasetId ?? props.initialDatasetId);
 const analysis = ref<AiAnalysisResponse | null>(null);
 const chart = ref<AiChartResponse | null>(null);
+const aiStatus = ref<AiHealth | null>(null);
 
 const effectiveDatasetId = computed(() => props.fixedDatasetId ?? datasetId.value);
 const selectedDataset = computed(() =>
@@ -138,6 +139,13 @@ async function submit(): Promise<void> {
 }
 
 onMounted(() => void loadDatasetOptions());
+onMounted(async () => {
+  try {
+    aiStatus.value = await getAiStatus();
+  } catch {
+    aiStatus.value = null;
+  }
+});
 </script>
 
 <template>
@@ -159,6 +167,10 @@ onMounted(() => void loadDatasetOptions());
     <InlineNotice v-if="generateError" tone="error">
       <p>{{ generateError.message }}</p>
       <code v-if="generateError.requestId">{{ generateError.requestId }}</code>
+    </InlineNotice>
+    <InlineNotice v-if="aiStatus?.status === 'unconfigured'" tone="info">
+      <p>AI 服务尚未配置，可使用下方 SQL 编辑器手动查询和分析。</p>
+      <a v-if="fixedDatasetId" href="#dataset-sql-editor">前往 SQL 编辑器</a>
     </InlineNotice>
 
     <form class="ai-panel__form" @submit.prevent="submit">
@@ -246,9 +258,9 @@ onMounted(() => void loadDatasetOptions());
   display: grid;
   gap: 14px;
   padding: 16px;
-  border: 1px solid rgb(148 163 184 / 18%);
+  border: 1px solid var(--dp-border-strong);
   border-radius: 16px;
-  background: rgb(15 23 42 / 40%);
+  background: #fff;
 }
 
 .ai-panel__header {
@@ -266,6 +278,16 @@ onMounted(() => void loadDatasetOptions());
   margin: 0;
 }
 
+.ai-panel h2,
+.ai-panel h3 {
+  color: var(--dp-text);
+}
+
+.ai-panel__header p,
+.ai-panel__copy p {
+  color: #5f5e5b;
+}
+
 .ai-panel__form {
   display: grid;
   gap: 12px;
@@ -278,13 +300,18 @@ onMounted(() => void loadDatasetOptions());
 
 .ai-panel__field span,
 .ai-panel__dataset-name {
-  color: rgb(148 163 184);
+  color: var(--dp-text);
   font-size: 13px;
 }
 
 .ai-panel__field textarea,
 .ai-panel__field select {
+  box-sizing: border-box;
   width: 100%;
+}
+
+.ai-panel__field textarea::placeholder {
+  color: #6b6a67;
 }
 
 .ai-panel__actions {
@@ -296,7 +323,7 @@ onMounted(() => void loadDatasetOptions());
 
 .ai-panel__error {
   margin: 0;
-  color: rgb(248 113 113);
+  color: #b42318;
   font-size: 13px;
 }
 
@@ -318,8 +345,8 @@ onMounted(() => void loadDatasetOptions());
 .ai-panel__warnings li {
   padding: 4px 8px;
   border-radius: 999px;
-  background: rgb(30 41 59 / 75%);
-  color: rgb(148 163 184);
+  background: #f1f1ef;
+  color: #4b4a46;
   font-size: 12px;
 }
 </style>

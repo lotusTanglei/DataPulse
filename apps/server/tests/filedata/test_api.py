@@ -184,3 +184,22 @@ def test_file_preview_supports_csv_and_excel_sheets(file_app: AppClient) -> None
     missing_asset = file_app.client.get("/api/admin/files/missing/preview")
     assert missing_asset.status_code == 404
     assert missing_asset.json()["error"]["code"] == "FILE_NOT_FOUND"
+
+
+def test_malformed_json_upload_returns_stable_error_and_cleans_storage(
+    file_app: AppClient,
+) -> None:
+    setup_admin(file_app)
+
+    response = file_app.client.post(
+        "/api/admin/files",
+        files={"file": ("broken.json", b"[{\"region\":", "application/json")},
+        headers={**mutation_headers(file_app), "X-Request-ID": "bad-json-1"},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "FILE_PARSE_INVALID"
+    assert response.json()["error"]["request_id"] == "bad-json-1"
+    assert response.headers["x-request-id"] == "bad-json-1"
+    assert list((file_app.database_path.parent / "files").glob("*")) == []
+    assert file_app.client.get("/api/admin/files").json() == []

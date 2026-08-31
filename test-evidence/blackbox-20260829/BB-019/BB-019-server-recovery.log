@@ -1,0 +1,9 @@
+BB-019 recovery log summary (secrets redacted)
+
+INFO: Started server process
+INFO: Application startup complete.
+INFO: Uvicorn running on http://127.0.0.1:8001
+INFO: GET /api/health HTTP/1.1 - 200 OK
+INFO: GET /api/auth/status HTTP/1.1 - 200 OK
+
+The initial failed health probe occurred before this server process was started.

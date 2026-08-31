@@ -1,0 +1,9 @@
+BB-006 bad JSON upload observation (secrets omitted)
+
+- Request: POST /api/admin/files (multipart, malformed JSON fixture)
+- HTTP status: 500 Internal Server Error
+- X-Request-ID: absent
+- UI message: 请求失败，请稍后重试。
+- Backend log: unhandled JSONDecodeError in filedata/parsers.py::_parse_json
+- File asset list after request: no malformed asset entry
+- Storage check: an unreferenced source.json remained; see orphan-check.txt

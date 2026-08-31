@@ -1,0 +1,5 @@
+BB-009 evidence note (secrets omitted)
+
+- The original UI screenshot containing the one-time display key was removed from the repository evidence set because it exposed a credential.
+- Non-secret evidence retained: BB-009-player-valid-isolated.png, BB-009-player-no-key.png, BB-009-player-wrong-key.png, and BB-009-player-bad-screen.png.
+- The generated key was used only in the isolated browser context and was not written to this file.

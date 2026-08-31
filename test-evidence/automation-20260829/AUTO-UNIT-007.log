@@ -1,0 +1,119 @@
+
+> @datapulse/embed-sdk@0.1.0 test /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+> vitest run --environment happy-dom
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+
+stderr | src/index.test.ts > DataPulseEmbed > supports independent embeds and removes listeners on destroy
+Error: Failed to execute 'startTask()' on 'AsyncTaskManager': The asynchrounous task manager has been aborted.
+    at AsyncTaskManager.startTask (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:168:10)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:517:71
+    at new Promise (<anonymous>)
+    at Fetch.sendRequest (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:516:10)
+    at Fetch.send (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:231:21)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at BrowserWindow.fetch (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/window/BrowserWindow.ts:1595:10)
+    at Function.navigate (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameNavigator.ts:202:15)
+
+stderr | src/index.test.ts
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+
+stderr | src/index.test.ts
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=35cb545a-8329-42e7-b20c-7a8e589db806": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=86f1d24a-9b70-44bf-a6f4-122b893bddf8": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=815d56c9-62ea-4ea8-80e8-79471a26e1a7": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=d4633891-9c21-4ed4-a451-c97afc686da6": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=short-ticket&instance_id=e13cec13-6543-4dc6-9f03-dd99632a4ff3": The operation was aborted.
+    at Fetch.onError (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+ ✓ src/index.test.ts (5 tests) 112ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  14:29:46
+   Duration  2.32s (transform 170ms, setup 0ms, collect 228ms, tests 112ms, environment 1.50s, prepare 133ms)
+

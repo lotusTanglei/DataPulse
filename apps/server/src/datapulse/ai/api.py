@@ -31,9 +31,15 @@ def _raise_ai_error(error: Exception) -> NoReturn:
             "AI_TIMEOUT": 504,
             "AI_INVALID_OUTPUT": 422,
         }
+        messages = {
+            "AI_NOT_CONFIGURED": "AI 服务尚未配置，请先完成 AI 配置。",
+            "AI_UNAVAILABLE": "AI 服务暂时不可用，请稍后重试。",
+            "AI_TIMEOUT": "AI 服务响应超时，请稍后重试。",
+            "AI_INVALID_OUTPUT": "AI 返回结果无法使用。",
+        }
         raise DataPulseError(
             code=error.code,
-            message="The AI request could not be completed.",
+            message=messages.get(error.code, "AI 请求无法完成。"),
             status_code=statuses[error.code],
         ) from error
     if isinstance(error, AiAnalysisError):

@@ -70,6 +70,18 @@ export interface DatasourceUpdatePayload {
   clear_password?: boolean;
 }
 
+export interface DatasourceTestPayload {
+  config: DatasourceConfig;
+  password?: string;
+  datasource_id?: string;
+}
+
+export interface DatasourceTestResponse {
+  status: DatasourceStatus;
+  latency_ms: number;
+  error_code: string | null;
+}
+
 export interface NamespaceInfo {
   name: string | null;
 }
