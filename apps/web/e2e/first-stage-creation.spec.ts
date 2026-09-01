@@ -22,8 +22,9 @@ test("template creation enters the shared screen editor", async ({ page }) => {
   await dialog.getByRole("button", { name: "使用此模板" }).click();
 
   await expect(page.getByLabel("大屏编辑器")).toBeVisible();
-  await expect(page.getByLabel("图层").locator("[data-layer-id]")).toHaveCount(9);
-  await expect(page.getByText("经营分析总览")).toBeVisible();
+  const layersPanel = page.locator('section.layers-panel[aria-label="图层"]');
+  await expect(layersPanel.locator("[data-layer-id]")).toHaveCount(9);
+  await expect(page.getByText("数据总览")).toBeVisible();
 });
 
 test("blank creation supports hand editing, AI preview, confirmation, undo, redo, and playback", async ({
@@ -44,8 +45,17 @@ test("blank creation supports hand editing, AI preview, confirmation, undo, redo
   await page.getByRole("button", { name: "创建并编辑" }).click();
   await expect(page.getByLabel("大屏编辑器")).toBeVisible();
 
-  await page.getByLabel("组件库").getByRole("button", { name: "＋ 文本" }).click();
-  await page.getByLabel("图层").getByText("文本", { exact: true }).click();
+  await page
+    .getByLabel("组件库")
+    .getByRole("button", { name: "文本", exact: true })
+    .click();
+  const layersPanel = page.locator('section.layers-panel[aria-label="图层"]');
+  const textLayer = layersPanel
+    .locator("[data-layer-id]")
+    .filter({ hasText: "文本" });
+  await expect(textLayer).toHaveCount(1);
+  await textLayer.locator("span").first().click();
+  await expect(textLayer).toHaveClass(/is-selected/);
   const textInput = page.getByLabel("文本内容");
   await textInput.fill("手工修改后的标题");
   await textInput.blur();

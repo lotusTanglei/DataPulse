@@ -106,6 +106,37 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
   );
 });
 
+test("direct iframe embeds load without an instance_id query parameter", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await authenticate(page);
+  const dataset = await ensureAnalyticsDataset(page);
+  const assets = await uploadVisualAssets(page);
+  const screen = await createPublishedScreen(
+    page,
+    "E2E 直连嵌入",
+    nineComponentDocument(dataset.id, assets, "dark"),
+  );
+  const apiKey = await rotateEmbedApiKey(page);
+  const ticket = await issueEmbedTicket(page, {
+    apiKey,
+    screenId: screen.id,
+  });
+
+  await page.goto(
+    `/embed/${encodeURIComponent(screen.id)}?ticket=${encodeURIComponent(ticket)}`,
+  );
+  await expect(page.getByText("DataPulse 运营态势总览")).toBeVisible({
+    timeout: 12_000,
+  });
+  await expect(page).toHaveURL(new RegExp(`/embed/${screen.id}$`));
+  await expect(page.getByText("无法播放此大屏")).toHaveCount(0);
+  await expect(page.getByText("正在加载…")).toHaveCount(0, {
+    timeout: 12_000,
+  });
+});
+
 test("host SDK controls an embedded screen and rejects unsafe access", async ({
   page,
 }) => {

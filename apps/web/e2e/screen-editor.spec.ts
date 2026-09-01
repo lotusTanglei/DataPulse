@@ -38,12 +38,17 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
     "饼图",
     "地图",
   ]) {
-    await library.getByRole("button", { name: `＋ ${label}` }).click();
+    await library
+      .getByRole("button", { name: new RegExp(`^${label}(?:\\s+数据)?$`) })
+      .click();
   }
-  const layers = page.getByLabel("图层").locator("[data-layer-id]");
+  const layersPanel = page.locator('section.layers-panel[aria-label="图层"]');
+  const layers = layersPanel.locator("[data-layer-id]");
   await expect(layers).toHaveCount(9);
 
-  await page.getByLabel("图层").getByText("文本", { exact: true }).click();
+  const textLayer = layers.filter({ hasText: "文本" }).first();
+  await textLayer.locator("span").first().click();
+  await expect(textLayer).toHaveClass(/is-selected/);
   await page.getByLabel("文本内容").fill("编辑器自动保存验证");
   await page.getByLabel("文本内容").blur();
 
@@ -94,10 +99,13 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
   ).toBeVisible({ timeout: 10_000 });
 
   await page.reload();
-  await expect(page.getByLabel("图层").locator("[data-layer-id]")).toHaveCount(
-    9,
-  );
-  await page.getByLabel("图层").getByText("文本", { exact: true }).click();
+  await expect(layersPanel.locator("[data-layer-id]")).toHaveCount(9);
+  const reloadedTextLayer = layersPanel
+    .locator("[data-layer-id]")
+    .filter({ hasText: "文本" })
+    .first();
+  await reloadedTextLayer.locator("span").first().click();
+  await expect(reloadedTextLayer).toHaveClass(/is-selected/);
   await expect(page.getByLabel("文本内容")).toHaveValue(
     "编辑器自动保存验证",
   );
@@ -190,8 +198,8 @@ test("multi-selection drags as one group and persists the same canvas delta", as
   await page.getByRole("button", { name: "创建并编辑" }).click();
 
   const library = page.getByLabel("组件库");
-  await library.getByRole("button", { name: "＋ 文本" }).click();
-  await library.getByRole("button", { name: "＋ 指标" }).click();
+  await library.getByRole("button", { name: "文本", exact: true }).click();
+  await library.getByRole("button", { name: /^指标\s+数据$/ }).click();
   const components = page.locator("[data-canvas-component]");
   await expect(components).toHaveCount(2);
   await components.nth(0).click();

@@ -62,7 +62,11 @@ test("AI analysis uses one request, applies a chart, and preserves the draft", a
     }
   });
   await page.goto(`/studio/screens/${screen.id}/edit`);
-  await page.getByLabel("图层").getByText("柱状图", { exact: true }).click();
+  const layersPanel = page.locator('section.layers-panel[aria-label="图层"]');
+  const barLayer = layersPanel.locator('[data-layer-id="bar-1"]');
+  await expect(barLayer).toBeVisible();
+  await barLayer.locator("span").first().click();
+  await expect(barLayer).toHaveClass(/is-selected/);
   const aiPanel = page.getByLabel("AI 分析面板");
   await expect(aiPanel).toBeVisible();
   const panelStyles = await aiPanel.evaluate((element) => {

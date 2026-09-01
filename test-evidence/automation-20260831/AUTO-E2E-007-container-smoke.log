@@ -1,0 +1,8 @@
+first_health=
+{"status":"ok","version":"0.1.0"}
+studio_status=
+200
+restart_health=
+{"status":"ok","version":"0.1.0"}
+runtime_identity=
+user=datapulse volume=datapulse-plan-20260831-smoke-data:/data

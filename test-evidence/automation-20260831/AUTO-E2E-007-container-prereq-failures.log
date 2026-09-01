@@ -1,0 +1,6 @@
+Attempt 1: the temporary smoke command used a non-32-byte master key. Container migrations completed, then application startup failed with:
+datapulse.datasource.secrets.SecretKeyInvalid: The configured master key must decode to 32 bytes.
+
+Attempt 2: the host shell had no `python` executable, so both generated key variables were empty. The container again failed with the same SecretKeyInvalid error. Both named containers and volumes were cleaned by the command's failure path.
+
+Retry: `python3` generated Base64 values that decode to 32 bytes; AUTO-E2E-007 then passed health, SPA, restart, non-root and no-secret-log checks.

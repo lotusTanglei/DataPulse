@@ -76,9 +76,19 @@ const embedTicket = ref(
     ? route.query.ticket
     : "",
 );
+
+function createEmbedInstanceId(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `datapulse-embed-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+}
+
 const embedInstanceId =
-  props.mode === "embed" && typeof route.query.instance_id === "string"
-    ? route.query.instance_id
+  props.mode === "embed"
+    ? (typeof route.query.instance_id === "string" &&
+      route.query.instance_id.trim()) ||
+      createEmbedInstanceId()
     : "";
 if (
   (props.mode === "standalone" && route.query.key !== undefined) ||
@@ -178,7 +188,7 @@ async function load(): Promise<void> {
         nextController.signal,
       );
     } else if (props.mode === "embed") {
-      if (!embedTicket.value || !embedInstanceId) {
+      if (!embedTicket.value) {
         throw new ApiError({
           code: "EMBED_TICKET_REQUIRED",
           message: "嵌入票据缺失。",

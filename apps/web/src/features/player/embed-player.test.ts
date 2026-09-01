@@ -299,6 +299,95 @@ test("embed player scrubs the ticket and uses Bearer-only runtime APIs", async (
   wrapper.unmount();
 });
 
+test("direct iframe embeds work without an instance_id query parameter", async () => {
+  const fetchMock = vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/embed/screens/screen-1") {
+        expect(new Headers(init?.headers).get("Authorization")).toBe(
+          "Bearer short-ticket",
+        );
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              id: "screen-1",
+              name: "运营总览",
+              document: embedDocument,
+              allowed_origin: HOST_ORIGIN,
+              parameters: { region: "west", year: 2026 },
+              mutable_parameters: ["region"],
+              expires_at: "2026-07-30T18:00:00Z",
+            }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+        );
+      }
+      if (url === "/api/embed/screens/screen-1/query") {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              request_id: "embed-query",
+              columns: [{ name: "amount", data_type: "number" }],
+              rows: [[500]],
+              row_count: 1,
+              truncated: false,
+              duration_ms: 1,
+            }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          ),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    },
+  );
+  vi.stubGlobal("fetch", fetchMock);
+  const replaceState = vi.spyOn(window.history, "replaceState");
+  const postMessage = vi
+    .spyOn(window.parent, "postMessage")
+    .mockImplementation(() => undefined);
+  const router = embedRouter();
+  await router.push("/embed/screen-1?ticket=short-ticket");
+  await router.isReady();
+
+  const wrapper = mount(PlayerView, {
+    props: { mode: "embed", screenId: "screen-1" },
+    global: { plugins: [router] },
+  });
+  await flushPromises();
+
+  expect(replaceState).toHaveBeenCalledWith(
+    window.history.state,
+    "",
+    "/embed/screen-1",
+  );
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(wrapper.get(".screen-runtime").attributes("data-mode")).toBe(
+    "embed",
+  );
+  const readyMessage = postMessage.mock.calls.find(
+    ([message]) =>
+      typeof message === "object" &&
+      message !== null &&
+      "type" in message &&
+      message.type === "ready",
+  )?.[0];
+  expect(readyMessage).toEqual(
+    expect.objectContaining({
+      type: "ready",
+      protocol_version: 1,
+      instance_id: expect.any(String),
+    }),
+  );
+  expect((readyMessage as { instance_id: string }).instance_id).not.toBe("");
+  wrapper.unmount();
+});
+
 test("bridge reports ticket expiry as a stable host error", () => {
   const postMessage = vi
     .spyOn(window.parent, "postMessage")
