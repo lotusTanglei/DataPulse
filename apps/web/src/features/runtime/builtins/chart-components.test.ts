@@ -90,6 +90,26 @@ test("line, area, and theme colors are declarative options", () => {
   ]);
 });
 
+test("interactive line charts expose transparent data-point hit targets", () => {
+  const interactive = chartInstance("builtin.line", "line");
+  interactive.interactions = [
+    {
+      event: "click",
+      action: "set_parameter",
+      field: "region",
+      parameter: "selected_region",
+    },
+  ];
+
+  const option = buildChartOption(interactive, result(), {});
+
+  expect(Array.isArray(option.series) ? option.series[0] : null).toMatchObject({
+    showSymbol: true,
+    symbolSize: 14,
+    itemStyle: { opacity: 0 },
+  });
+});
+
 test("bar orientation and donut radius are explicit variants", () => {
   const horizontal = buildChartOption(
     chartInstance("builtin.bar", "bar", { orientation: "horizontal" }),

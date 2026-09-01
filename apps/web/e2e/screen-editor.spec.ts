@@ -168,9 +168,9 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
   const chart = page.locator(".screen-chart canvas").first();
   await expect(chart).toBeVisible();
   for (const position of [
-    { x: 130, y: 59 },
-    { x: 292, y: 185 },
-    { x: 453, y: 248 },
+    { x: 156, y: 82 },
+    { x: 290, y: 176 },
+    { x: 460, y: 238 },
   ]) {
     await chart.click({ position });
     await page.waitForTimeout(250);

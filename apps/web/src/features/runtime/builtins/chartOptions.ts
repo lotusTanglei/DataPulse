@@ -311,12 +311,16 @@ export function buildChartOption(
     splitLine: { show: false },
   };
   const isArea = visualType === "area";
+  const interactive = (instance.interactions?.length ?? 0) > 0;
   const series = measures.map((column, measureIndex) => ({
     type: instance.type === "builtin.bar" ? ("bar" as const) : ("line" as const),
     name: column.name,
     data: measureData(result, measureIndex + 1),
     smooth: instance.type === "builtin.line",
-    showSymbol: false,
+    showSymbol: instance.type === "builtin.line" && interactive,
+    ...(instance.type === "builtin.line" && interactive
+      ? { symbolSize: 14, itemStyle: { opacity: 0 } }
+      : {}),
     lineStyle: { width: 2 },
     ...(instance.type === "builtin.bar"
       ? { barMaxWidth: 28, itemStyle: { borderRadius: [4, 4, 0, 0] } }
