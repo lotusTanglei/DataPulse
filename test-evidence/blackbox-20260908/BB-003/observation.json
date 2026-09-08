@@ -1,0 +1,9 @@
+{
+  "failed_component": "component-6",
+  "injected_code": "QUERY_EXECUTION_FAILED",
+  "injected_request_id": "bb003-failure-request",
+  "healthy_components_completed": true,
+  "recovered": true,
+  "loading_states_after_recovery": 0,
+  "secrets_exposed": false
+}

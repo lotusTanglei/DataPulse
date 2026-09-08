@@ -131,6 +131,20 @@
 
 ## 本轮执行结果
 
+### 2026-09-08 产品第二阶段收尾
+
+- 基线：`main` / `34a704e` 加本次未提交收尾改动；完整差距矩阵见 `docs/PHASE_TWO_CLOSEOUT.md`。
+- 功能开发：路线定义的 8 组第二阶段功能均已有实现，确认未开发功能点为 0；这不等于阶段门禁已经全部通过。
+- 基础门禁：`pnpm check:contracts`、`pnpm test`、`pnpm typecheck`、`pnpm build` 均通过；全量单元为 Embed SDK 5/5、Web 140/140、Server 447/447，13 个 integration deselect 未计入通过。
+- E2E：Chromium 16/16；Firefox 15/16；WebKit 15/16。后两者均在 `editor-shell.png` 视觉断言失败，actual/diff/expected 与脱敏错误上下文已保存，未更新跨浏览器快照，不能判定跨浏览器通过；原始 trace 可能含临时会话值，未保留。
+- 数据库集成：PostgreSQL/MariaDB 13/13 通过，12 个非 integration 项 deselect；测试容器、卷和网络已清理。
+- AI：只使用本地 deterministic fake AI；Web 8/8、Server 26/26、Chromium 5/5，覆盖成功、未配置、非法 JSON/字段、超时、越权数据集、预览取消/确认、撤销/重做，并确认不会自动发布。
+- BB-001～BB-006：6/6 等价可审计验证通过；截图、脱敏 JSON 和命令日志位于 `test-evidence/blackbox-20260908/` 与 `test-evidence/automation-20260908/`。
+- 视觉评审：人工发现浅色 E2E fixture 使用已废弃主题令牌，导致历史基线中文字低对比度。修复令牌和显式对比断言后先生成 actual/diff，人工核对并记录原因，只更新 `darwin/light-player.png`，普通模式复跑通过。
+- 未关闭门禁：Firefox/WebKit 编辑器视觉失败；真实密码管理器、生产反向代理/CSP、4K/高 DPI、长期播放为环境阻塞。第二阶段不能标记完成。
+
+### 2026-08-28 历史会话
+
 - 执行时间：2026-08-28 11:19 起
 - 服务：DataPulse 后端 `8001`、前端 `5173` 已启动；健康检查和 `/studio` 入口通过
 - `pnpm test:e2e`：14/14 通过，另复测窄视口与 Escape 用例 4/4 通过，覆盖 AI、数据源、SQL、文件数据集、编辑器、发布、播放和嵌入
@@ -148,6 +162,8 @@
 | ISS-004 | 2026-08-29 | 数据源表单 | 真实密码管理器 autofill 尚未完成安全抽样 | 使用专用 Chromium 凭据执行 BB-004 | 仍有浏览器策略覆盖缺口 | 部分关闭 | 代码和自动化已验证；不得使用真实凭据 |
 | ISS-016 | 2026-08-31 | ERP 数据源 | 中文字段疑似双重编码 | 按 BB-022 核对 `HEX(product_name)` 与连接字符集 | 外部数据质量可能影响预览 | 待数据源所有者确认 | 暂不修改 DataPulse 代码或测试数据 |
 | ISS-017 | 2026-08-31 | AI 分析/修改面板 | 辅助文字与背景对比度不足 | 查看用户截图对应面板 | 文案难以阅读 | 已解决 | 已改为高对比度浅色主题，AI 定向测试和 Web 构建通过 |
+| ISS-018 | 2026-09-08 | Firefox/WebKit 编辑器视觉 | 两个浏览器完整 E2E 均在 `editor-shell.png` 与 Chromium Darwin 基线比较时失败 | 分别执行完整 Firefox/WebKit E2E | 跨浏览器门禁不能通过，失败测试内后续交互子步骤不能计入通过 | 待处理 | 15/16；actual/diff/expected 与脱敏错误上下文已固化，未更新基线 |
+| ISS-019 | 2026-09-08 | 浅色播放测试夹具 | 使用已废弃的 `component_surface/component_border`，实际浅色画面保留深色面板和深色文字 | 查看旧 `light-player.png` 并检查运行时主题令牌 | 浅色视觉快照曾错误接受低对比度结果 | 已解决 | 改用 `panel_background/panel_border`，新增背景/文字断言；评审 actual/diff 后只更新一张基线并复跑通过 |
 
 ## 测试启动记录
 

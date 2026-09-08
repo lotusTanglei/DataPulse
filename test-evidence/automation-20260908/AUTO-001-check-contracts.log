@@ -1,0 +1,3 @@
+
+> datapulse@ check:contracts /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python tools/check_generated.py

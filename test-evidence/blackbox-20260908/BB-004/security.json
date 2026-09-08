@@ -1,0 +1,170 @@
+{
+  "standalone": {
+    "url_after_scrub": "http://127.0.0.1:54868/play/c6f91201-1a48-4e46-89db-9b160a1ce8a4",
+    "storage": {
+      "local": [],
+      "session": [],
+      "visible_cookie": ""
+    },
+    "display_cookie": {
+      "http_only": true,
+      "same_site": "Lax",
+      "path": "/api/player",
+      "secure_in_test": false
+    }
+  },
+  "display_key_rotation": {
+    "old_key_status": 401,
+    "code": "DISPLAY_ACCESS_DENIED",
+    "request_id_present": true,
+    "plaintext_logged": false
+  },
+  "embed": {
+    "url_after_scrub": "http://127.0.0.1:54868/embed/c6f91201-1a48-4e46-89db-9b160a1ce8a4",
+    "storage": {
+      "local": [],
+      "session": [],
+      "visible_cookie": ""
+    },
+    "requests": [
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/assets/67112995-3f7f-4e47-ab73-8bfe4ca510b8",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/assets/514c1420-0783-4cbc-a377-42a85041ed01",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "authorization": true,
+        "cookie": false
+      }
+    ],
+    "responses": [
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "0637e002-651f-4b7a-b9d0-de83d0ba6c96"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/assets/67112995-3f7f-4e47-ab73-8bfe4ca510b8",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "a553e3c4-f9a7-49fc-ae81-3555c336d551"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/assets/514c1420-0783-4cbc-a377-42a85041ed01",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "d06af196-f67c-4088-95af-b1fc450e0ed8"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "86ab9cfe-2262-40b0-b3dc-28fb22285b9a"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "5f3e10c4-5651-423a-8789-46263a34b404"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "fc5fdc8a-7dc0-4796-8a8c-a7a11bececc2"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "48a1a185-7588-4ddf-b5b9-fa9ffb53c0c0"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "8ca2e614-cf41-48b2-92de-6de04b769002"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "de0cc252-9800-4e6d-941d-0c93af7ead22"
+      },
+      {
+        "path": "/api/embed/screens/c6f91201-1a48-4e46-89db-9b160a1ce8a4/query",
+        "status": 200,
+        "cache_control": "no-store",
+        "csp": "frame-ancestors http://127.0.0.1:54868",
+        "nosniff": "nosniff",
+        "request_id": "45984d7e-0fc4-46fd-819c-c49b78125035"
+      }
+    ]
+  },
+  "expired_ticket": {
+    "status": 401,
+    "code": "EMBED_TICKET_EXPIRED",
+    "request_id_present": true,
+    "plaintext_logged": false
+  }
+}

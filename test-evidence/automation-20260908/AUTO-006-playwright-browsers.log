@@ -1,0 +1,8 @@
+
+Playwright version: 1.61.1
+  Browsers:
+    /Users/dundundebaba/Library/Caches/ms-playwright/chromium-1228
+    /Users/dundundebaba/Library/Caches/ms-playwright/chromium_headless_shell-1228
+    /Users/dundundebaba/Library/Caches/ms-playwright/ffmpeg-1011
+  References:
+    /Users/dundundebaba/.npm/_npx/e41f203b7505f1fb/node_modules/playwright-core

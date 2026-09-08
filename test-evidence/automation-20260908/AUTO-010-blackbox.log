@@ -1,0 +1,460 @@
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [15661]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: e2e-setup-code
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:51709 (Press CTRL+C to quit)
+[WebServer] (node:15685) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15702) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:15713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/blackbox-20260908.spec.ts:38:1 › BB-001 line interaction and interval refresh (45.7s)
+(node:16053) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › e2e/blackbox-20260908.spec.ts:69:1 › BB-002 themes and narrow viewport (1.7s)
+  ✓  3 [chromium] › e2e/blackbox-20260908.spec.ts:95:1 › BB-003 component failure isolation and recovery (765ms)
+  ✓  4 [chromium] › e2e/blackbox-20260908.spec.ts:125:1 › BB-004 display key, ticket, Origin, Cookie, Storage, CSP (771ms)
+  ✘  5 [chromium] › e2e/blackbox-20260908.spec.ts:147:1 › BB-005 query failure then recovery (12.5s)
+(node:16232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 [chromium] › e2e/blackbox-20260908.spec.ts:169:1 › BB-006 draft and published snapshot consistency (843ms)
+
+
+  1) [chromium] › e2e/blackbox-20260908.spec.ts:38:1 › BB-001 line interaction and interval refresh
+
+    Test timeout of 45000ms exceeded.
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+      - waiting for locator('.screen-chart canvas').first()
+        - locator resolved to <canvas width="558" height="348" data-zr-dom-id="zr_0.0"></canvas>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+        - element was detached from the DOM, retrying
+          - locator resolved to <canvas width="558" height="348" data-zr-dom-id="zr_0.0"></canvas>
+        - attempting click action
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 20ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+        - element was detached from the DOM, retrying
+          - locator resolved to <canvas width="558" height="348" data-zr-dom-id="zr_0.0"></canvas>
+        - attempting click action
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 20ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+        7 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div data-v-e5f59957="" class="screen-runtime__canvas">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 500ms
+
+
+      55 |   await expect(chart).toBeVisible();
+      56 |   for (const position of [{ x: 156, y: 82 }, { x: 290, y: 176 }, { x: 460, y: 238 }]) {
+    > 57 |     await chart.click({ position });
+         |                 ^
+      58 |     await page.waitForTimeout(250);
+      59 |     if (requests.length > before) break;
+      60 |   }
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/blackbox-20260908.spec.ts:57:17
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/blackbox-20260908.spec.ts:147:1 › BB-005 query failure then recovery ─────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('数据加载失败')
+    Expected: 7
+    Received: 6
+    Timeout:  12000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 12000ms
+      - waiting for getByText('数据加载失败')
+        - locator resolved to 0 elements
+        - unexpected value "0"
+        27 × locator resolved to 6 elements
+           - unexpected value "6"
+
+
+      156 |   });
+      157 |   await page.goto(`/play/${screen.id}?key=${encodeURIComponent(key)}`);
+    > 158 |   await expect(page.getByText("数据加载失败")).toHaveCount(7, { timeout: 12_000 });
+          |                                          ^
+      159 |   await page.screenshot({ path: `${root}/BB-005/offline.png`, fullPage: true });
+      160 |   blocked = false;
+      161 |   await page.unroute(`**/api/player/screens/${screen.id}/query`);
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/blackbox-20260908.spec.ts:158:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/blackbox-20260908-BB-005-query-failure-then-recovery-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/blackbox-20260908-BB-005-query-failure-then-recovery-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/blackbox-20260908-BB-005-query-failure-then-recovery-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/blackbox-20260908-BB-005-query-failure-then-recovery-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › e2e/blackbox-20260908.spec.ts:38:1 › BB-001 line interaction and interval refresh ─
+    [chromium] › e2e/blackbox-20260908.spec.ts:147:1 › BB-005 query failure then recovery ──────────
+  4 passed (1.1m)
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=chromium blackbox-20260908.spec.ts

@@ -1,0 +1,10 @@
+{
+  "failure_count": 6,
+  "failure_code": "QUERY_EXECUTION_FAILED",
+  "request_id_present": true,
+  "healthy_title_during_failure": true,
+  "recovery": "reload after local route restore",
+  "recovered": true,
+  "loading_states_after_recovery": 0,
+  "old_error_remaining": false
+}

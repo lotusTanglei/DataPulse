@@ -1,0 +1,72 @@
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [20833]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: e2e-setup-code
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:57161 (Press CTRL+C to quit)
+[WebServer] (node:20847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:20871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/rendered-evidence-20260908.spec.ts:37:1 › rendered BB-002 evidence (13.0s)
+(node:20992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › e2e/rendered-evidence-20260908.spec.ts:70:1 › rendered BB-003 evidence (1.7s)
+  ✓  3 [chromium] › e2e/rendered-evidence-20260908.spec.ts:95:1 › rendered BB-005 evidence (1.2s)
+  ✓  4 [chromium] › e2e/rendered-evidence-20260908.spec.ts:113:1 › rendered BB-006 evidence (1.6s)
+
+
+  1) [chromium] › e2e/rendered-evidence-20260908.spec.ts:37:1 › rendered BB-002 evidence ───────────
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 7
+    Received:    0
+
+    Call Log:
+    - Timeout 12000ms exceeded while waiting on the predicate
+
+      25 |
+      26 | async function waitQueries(read: () => number): Promise<void> {
+    > 27 |   await expect.poll(read, { timeout: 12_000 }).toBeGreaterThanOrEqual(7);
+         |                                                ^
+      28 | }
+      29 |
+      30 | async function resources(page: Parameters<typeof authenticate>[0]) {
+        at waitQueries (/Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/rendered-evidence-20260908.spec.ts:27:48)
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/rendered-evidence-20260908.spec.ts:44:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/rendered-evidence-20260908-rendered-BB-002-evidence-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/rendered-evidence-20260908-rendered-BB-002-evidence-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rendered-evidence-20260908-rendered-BB-002-evidence-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/rendered-evidence-20260908-rendered-BB-002-evidence-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/rendered-evidence-20260908.spec.ts:37:1 › rendered BB-002 evidence ────────────
+  3 passed (22.9s)
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=chromium rendered-evidence-20260908.spec.ts

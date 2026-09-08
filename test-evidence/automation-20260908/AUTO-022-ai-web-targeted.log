@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/ai/AiEditPanel.test.ts (1 test) 21ms
+ ✓ src/features/screens/editor/store.test.ts (5 tests) 13ms
+ ✓ src/features/ai/ai-panel.test.ts (2 tests) 73ms
+
+ Test Files  3 passed (3)
+      Tests  8 passed (8)
+   Start at  18:32:45
+   Duration  3.05s (transform 827ms, setup 0ms, collect 4.27s, tests 108ms, environment 1.65s, prepare 544ms)

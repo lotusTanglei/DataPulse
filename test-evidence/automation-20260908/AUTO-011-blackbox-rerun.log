@@ -1,0 +1,66 @@
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [17163]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: e2e-setup-code
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:53358 (Press CTRL+C to quit)
+[WebServer] (node:17178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:17207) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/blackbox-20260908.spec.ts:38:1 › BB-001 line interaction and interval refresh (2.2s)
+(node:17242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › e2e/blackbox-20260908.spec.ts:147:1 › BB-005 query failure then recovery (805ms)
+
+
+  1) [chromium] › e2e/blackbox-20260908.spec.ts:38:1 › BB-001 line interaction and interval refresh
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 7
+    Received:   7
+
+      59 |     if (requests.length > before) break;
+      60 |   }
+    > 61 |   expect(requests.length).toBeGreaterThan(before);
+         |                           ^
+      62 |   const afterClick = requests.length;
+      63 |   await expect.poll(() => requests.length, { timeout: 12_000 }).toBeGreaterThan(afterClick);
+      64 |   await page.screenshot({ path: `${root}/BB-001/after-click-refresh.png`, fullPage: true });
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/blackbox-20260908.spec.ts:61:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/blackbox-20260908-BB-001-l-4a232-action-and-interval-refresh-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/blackbox-20260908.spec.ts:38:1 › BB-001 line interaction and interval refresh ─
+  1 passed (8.3s)
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=chromium blackbox-20260908.spec.ts --grep BB-001|BB-005

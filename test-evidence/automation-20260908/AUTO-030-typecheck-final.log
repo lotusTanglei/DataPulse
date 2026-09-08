@@ -1,0 +1,15 @@
+
+> datapulse@ typecheck /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck
+
+
+> datapulse@ typecheck:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web typecheck
+
+
+> @datapulse/web@ typecheck /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && tsc -p tsconfig.e2e.json
+
+
+> @datapulse/embed-sdk@0.1.0 typecheck /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+> tsc -p tsconfig.json

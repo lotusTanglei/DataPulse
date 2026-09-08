@@ -1,0 +1,25 @@
+{
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "editor": {
+    "client_width": 1280,
+    "scroll_width": 1280
+  },
+  "dark_canvas": {
+    "x": 0,
+    "y": 40,
+    "width": 1280,
+    "height": 720
+  },
+  "light_canvas": {
+    "x": 0,
+    "y": 40,
+    "width": 1280,
+    "height": 720
+  },
+  "light_text_token": "#0f172a",
+  "loading_states": 0,
+  "visual_review": "reviewed 2026-09-08: editor and narrow player layouts do not overlap or stretch; the original light-player capture exposed stale E2E theme tokens and was superseded by light-theme-review/actual.png"
+}
