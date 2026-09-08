@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在不改变现有外部数据库连接器和九类组件的前提下，交付文件数据集、DuckDB 查询、AI 数据分析、自然语言生成 `ChartSpec` 和完整大屏草稿生成。
+**Goal:** 在不改变外部数据库连接器和设计时已有九类组件协议的前提下，交付文件数据集、DuckDB 查询、AI 数据分析、自然语言生成 `ChartSpec` 和完整大屏草稿生成。组件注册表后续已在产品第二阶段扩展为当前 21 类。
 
-**工程里程碑：** `E3` 文件数据与 AI。它同时支撑产品第一阶段的 AI 创建入口和第二阶段的数据理解基础，不等同于产品路线中的第三阶段。
+**工程里程碑：** `E3` 文件数据与 AI。它支撑产品第一阶段的 AI 创建入口和第二阶段的数据理解基础；产品第三阶段现定义为完整数字人播报，因此本计划不属于产品第三阶段。
 
 **Architecture:** 文件上传形成受控 `FileAssetRecord`，文件数据集使用现有 `DatasetDefinition.query` 的 `FileQuery` 分支；SQL 数据集继续走 SQLite/PostgreSQL/MySQL 原生连接器，文件数据集走只读 `FileDatasetQueryService`。AI 通过 OpenAI 兼容 HTTP 的 `AiGateway` 获取结构化 `AnalysisPlan`、`ChartSpec` 或受限 `DashboardDocument` 草稿，服务端重新校验后交给现有查询编译器、编辑器 Store 和发布流程。
 
@@ -18,7 +18,7 @@
 - DuckDB 查询必须使用服务端受控绝对路径、只读连接、最多 2 线程、512 MB 内存和 30 秒超时。
 - AI 不得执行任意 SQL/Python/JavaScript，不得返回数据库密码、文件绝对路径或完整表数据。
 - AI 生成结果必须先通过 `AnalysisPlan` / `ChartSpec` / `DashboardDocument` Pydantic 校验和字段白名单校验，用户确认后才能创建或修改草稿，不能自动发布。
-- 第三阶段不新增大屏组件、不实现设备管理、播放列表、插件 SDK、模板市场、查询缓存和后台调度。
+- 本 `E3` 工程里程碑不新增大屏组件、不实现设备管理、播放列表、插件 SDK、模板市场、查询缓存和后台调度；完整数字人播报属于后续产品第三阶段。
 - 每个任务都先写失败测试，再写最小实现，任务结束提交一个可独立回滚的 commit。
 
 ## 文件结构与边界
@@ -33,7 +33,7 @@
 
 ---
 
-### Task 1: 固化第三阶段契约与运行参数
+### Task 1: 固化 E3 契约与运行参数
 
 **Files:**
 - Modify: `apps/server/src/datapulse/contracts/dataset.py`
@@ -376,7 +376,7 @@
 
 - [ ] **Step 2: 实现 ChartSpec 生成和重校验**
 
-  在提示词中只列出允许字段、聚合、过滤器和九类组件能力；模型结果先解析为 `ChartSpec`，再补齐 dataset ID、限制 limit、校验字段和组件能力，最后执行预览查询。
+  在提示词中只列出允许字段、聚合、过滤器和受注册表约束的组件能力；原始 E3 实现以九类组件为白名单，当前实现使用 21 类注册表。模型结果先解析为 `ChartSpec`，再补齐 dataset ID、限制 limit、校验字段和组件能力，最后执行预览查询。
 
 - [ ] **Step 3: 运行测试并提交**
 
@@ -513,7 +513,7 @@
 
 - [ ] **Step 4: 编写 AI 大屏生成 E2E**
 
-  使用 fake model 返回包含九类现有组件的确定性草稿；覆盖输入问题、数据集选择、深色/浅色主题、生成预览、取消不创建、确认创建后进入编辑器、刷新后草稿保留；监听发布 API，确认生成流程始终没有调用发布接口。再用非法组件和越权数据集响应验证前端展示错误且不落库。
+  使用 fake model 返回包含当前注册组件的确定性草稿；覆盖输入问题、数据集选择、深色/浅色主题、生成预览、取消不创建、确认创建后进入编辑器、刷新后草稿保留；监听发布 API，确认生成流程始终没有调用发布接口。再用非法组件和越权数据集响应验证前端展示错误且不落库。
 
 - [ ] **Step 5: 更新文档和环境样例**
 
@@ -542,7 +542,7 @@
 ## 验收清单
 
 - [ ] 四种文件格式上传、解析、预览和删除受控可用。
-- [ ] 文件数据集与 SQL 数据集都能被九类现有组件使用。
+- [ ] 文件数据集与 SQL 数据集都能被当前 21 类组件中具备对应数据能力的组件使用。
 - [ ] DuckDB 只读、路径隔离、资源限制和稳定错误码有测试。
 - [ ] AI 配置可选，未配置时核心功能不降级。
 - [ ] AI 分析上下文有字段、行数、敏感信息和数据集范围限制。
