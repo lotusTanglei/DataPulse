@@ -85,6 +85,20 @@ test("published screens retain stable dark, light, isolated-error, and letterbox
         ),
     )
     .toBe("#0f172a");
+  await expect
+    .poll(() =>
+      page
+        .locator(".screen-kpi")
+        .evaluate((element) => getComputedStyle(element).backgroundColor),
+    )
+    .toBe("rgb(255, 255, 255)");
+  await expect
+    .poll(() =>
+      page
+        .locator(".screen-kpi__value")
+        .evaluate((element) => getComputedStyle(element).color),
+    )
+    .toBe("rgb(15, 23, 42)");
   await expect(page).toHaveScreenshot("light-player.png", visualSnapshotOptions);
 
   const isolatedError = nineComponentDocument(dataset.id, assets, "dark");

@@ -331,17 +331,22 @@ export function configureNineComponentDocument(
       id: light ? "datapulse-light" : "datapulse-dark",
       tokens: light
         ? {
+            panel_background: "#ffffff",
+            panel_background_alt: "#f8fafc",
+            panel_border: "#cbd5e1",
             text_primary: "#0f172a",
             text_secondary: "#475569",
-            component_surface: "#ffffff",
-            component_border: "#cbd5e1",
+            progress_track: "#e2e8f0",
+            chart_grid: "rgba(71, 85, 105, 0.16)",
+            chart_axis: "#cbd5e1",
             chart_colors: ["#2563eb", "#16a34a", "#d97706"],
           }
         : {
+            panel_background: "#0b1b2b",
+            panel_background_alt: "#10253a",
+            panel_border: "#1b4160",
             text_primary: "#f8fafc",
             text_secondary: "#94a3b8",
-            component_surface: "#111827",
-            component_border: "#334155",
             chart_colors: ["#60a5fa", "#34d399", "#fbbf24"],
           },
     },
