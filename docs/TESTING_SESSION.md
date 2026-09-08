@@ -133,7 +133,7 @@
 
 ### 2026-09-08 产品第二阶段收尾
 
-- 基线：任务开始时 `HEAD == origin/main == 34a704e`；收尾结果已形成 4 个本地提交并按要求未推送。完整差距矩阵见 `docs/PHASE_TWO_CLOSEOUT.md`。
+- 基线：任务开始时 `HEAD == origin/main == 34a704e`；收尾结果已形成 5 个本地提交并按要求未推送。完整差距矩阵见 `docs/PHASE_TWO_CLOSEOUT.md`。
 - 功能开发：路线定义的 8 组第二阶段功能均已有实现，确认未开发功能点为 0；这不等于阶段门禁已经全部通过。
 - 基础门禁：`pnpm check:contracts`、`pnpm test`、`pnpm typecheck`、`pnpm build` 均通过；全量单元为 Embed SDK 5/5、Web 140/140、Server 447/447，13 个 integration deselect 未计入通过。
 - E2E：Chromium 16/16；Firefox 15/16；WebKit 15/16。后两者均在 `editor-shell.png` 视觉断言失败，actual/diff/expected 与脱敏错误上下文已保存，未更新跨浏览器快照，不能判定跨浏览器通过；原始 trace 可能含临时会话值，未保留。
