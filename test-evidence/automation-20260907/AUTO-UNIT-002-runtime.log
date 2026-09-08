@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/runtime/data-runtime.test.ts (3 tests) 12ms
+ ✓ src/features/runtime/runtime.test.ts (9 tests) 137ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  11:16:51
+   Duration  6.63s (transform 958ms, setup 0ms, collect 3.89s, tests 149ms, environment 1.57s, prepare 533ms)
+

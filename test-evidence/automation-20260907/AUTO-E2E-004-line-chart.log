@@ -1,0 +1,113 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e -- --project=chromium --grep 'administrator builds, previews, publishes, and plays a complete screen'
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [12711]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: e2e-setup-code
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:49236 (Press CTRL+C to quit)
+[WebServer] (node:12743) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:12788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen (6.7s)
+
+
+  1) [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen 
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      30192 pixels (ratio 0.02 of all image pixels) are different.
+
+      Snapshot: editor-shell.png
+
+    Call log:
+      - Expect "toHaveScreenshot(editor-shell.png)" with timeout 8000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 58626 pixels (ratio 0.03 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 21442 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 250ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 10445 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 500ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 273 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 1000ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 30192 pixels (ratio 0.02 of all image pixels) are different.
+
+
+      132 |   await page.reload();
+      133 |   await expect(page.getByText("DataPulse 运营态势总览")).toBeVisible();
+    > 134 |   await expect(page).toHaveScreenshot("editor-shell.png", {
+          |                      ^
+      135 |     animations: "disabled",
+      136 |   });
+      137 |
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/screen-editor.spec.ts:134:22
+
+    attachment #1: editor-shell (image/png) ────────────────────────────────────────────────────────
+    Expected: e2e/snapshots/darwin/editor-shell.png
+    Received: test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/editor-shell-actual.png
+    Diff:     test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/editor-shell-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen 
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=chromium --grep administrator builds, previews, publishes, and plays a complete screen
+ ELIFECYCLE  Command failed with exit code 1.

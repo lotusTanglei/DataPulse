@@ -1,0 +1,55 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e -- --project=chromium --update-snapshots
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [57327]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: e2e-setup-code
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:63840 (Press CTRL+C to quit)
+[WebServer] (node:57345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:57358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:57366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/ai-analysis.spec.ts:12:1 › AI analysis uses one request, applies a chart, and preserves the draft (2.8s)
+  ✓   2 [chromium] › e2e/ai-analysis.spec.ts:113:1 › AI analysis maps malformed, invalid-field, and timeout responses (2.2s)
+  ✓   3 [chromium] › e2e/ai-screen-generation.spec.ts:10:1 › AI screen preview cancels cleanly and confirms with one atomic create (1.0s)
+  ✓   4 [chromium] › e2e/ai-screen-generation.spec.ts:81:1 › invalid AI screens never create a draft (653ms)
+  ✓   5 [chromium] › e2e/datasource-studio.spec.ts:5:1 › administrator can configure and analyze a SQLite datasource (1.3s)
+  ✓   6 [chromium] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset (1.3s)
+  ✓   7 [chromium] › e2e/file-dataset.spec.ts:59:1 › administrator previews Excel sheets, JSON, and Parquet files (816ms)
+  ✓   8 [chromium] › e2e/first-stage-creation.spec.ts:14:1 › template creation enters the shared screen editor (632ms)
+  ✓   9 [chromium] › e2e/first-stage-creation.spec.ts:30:1 › blank creation supports hand editing, AI preview, confirmation, undo, redo, and playback (2.0s)
+  ✓  10 [chromium] › e2e/first-stage-creation.spec.ts:136:1 › screen access policy controls direct and embed authorization (1.1s)
+  ✓  11 [chromium] › e2e/first-stage-creation.spec.ts:260:1 › editor remains usable on a narrow viewport and publish dialog closes with Escape (559ms)
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/snapshots/darwin/editor-shell.png is re-generated, writing actual.
+  ✓  12 [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen (17.3s)
+  ✓  13 [chromium] › e2e/screen-editor.spec.ts:189:1 › multi-selection drags as one group and persists the same canvas delta (1.9s)
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/snapshots/darwin/dark-player.png is re-generated, writing actual.
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/snapshots/darwin/letterboxed-player.png is re-generated, writing actual.
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/snapshots/darwin/light-player.png is re-generated, writing actual.
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/snapshots/darwin/component-error-isolation.png is re-generated, writing actual.
+  ✓  14 [chromium] › e2e/screen-playback.spec.ts:33:1 › published screens retain stable dark, light, isolated-error, and letterbox visuals (7.6s)
+  ✓  15 [chromium] › e2e/screen-playback.spec.ts:109:1 › direct iframe embeds load without an instance_id query parameter (581ms)
+  ✓  16 [chromium] › e2e/screen-playback.spec.ts:140:1 › host SDK controls an embedded screen and rejects unsafe access (3.1s)
+
+  16 passed (49.8s)

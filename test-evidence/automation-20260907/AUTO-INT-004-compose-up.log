@@ -1,0 +1,2 @@
+unable to get image 'postgres:17-alpine': failed to connect to the docker API at unix:///Users/dundundebaba/.orbstack/run/docker.sock; check if the path is correct and if the daemon is running: dial unix /Users/dundundebaba/.orbstack/run/docker.sock: connect: no such file or directory
+compose up exit=1
