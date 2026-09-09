@@ -1,0 +1,22 @@
+{
+  "durationSeconds": 60,
+  "queryStarted": 49,
+  "queryFinished": 49,
+  "maxInFlight": 7,
+  "failedRequests": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "initialHeap": 23508699,
+  "finalHeap": 23141036,
+  "heapGrowth": -367663,
+  "heapSamples": [
+    {
+      "elapsedSeconds": 0,
+      "usedJSHeapSize": 23508699
+    },
+    {
+      "elapsedSeconds": 60,
+      "usedJSHeapSize": 23141036
+    }
+  ]
+}

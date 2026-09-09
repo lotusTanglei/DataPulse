@@ -1,0 +1,16 @@
+{
+  "devicePixelRatio": 2,
+  "inner": {
+    "width": 3840,
+    "height": 2160
+  },
+  "runtimeViewport": {
+    "width": 3840,
+    "height": 2160
+  },
+  "reducedMotion": true,
+  "documentOverflow": {
+    "horizontal": false,
+    "vertical": false
+  }
+}

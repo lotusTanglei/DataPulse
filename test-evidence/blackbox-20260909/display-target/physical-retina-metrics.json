@@ -1,0 +1,45 @@
+{
+  "devicePixelRatio": 2,
+  "screenCss": {
+    "width": 1512,
+    "height": 982
+  },
+  "screenPhysical": {
+    "width": 3024,
+    "height": 1964
+  },
+  "viewportCss": {
+    "width": 1200,
+    "height": 818
+  },
+  "runtimeViewport": {
+    "width": 1200,
+    "height": 675
+  },
+  "documentOverflow": {
+    "horizontal": false,
+    "vertical": false
+  },
+  "canvasBackingRatios": [
+    {
+      "backingWidth": 1116,
+      "cssWidth": 348.75,
+      "ratio": 3.2
+    },
+    {
+      "backingWidth": 1176,
+      "cssWidth": 367.5,
+      "ratio": 3.2
+    },
+    {
+      "backingWidth": 996,
+      "cssWidth": 311.25,
+      "ratio": 3.2
+    },
+    {
+      "backingWidth": 1296,
+      "cssWidth": 405,
+      "ratio": 3.2
+    }
+  ]
+}

@@ -131,6 +131,16 @@
 
 ## 本轮执行结果
 
+### 2026-09-09 第二阶段目标环境收尾
+
+- 跨浏览器：修正 Firefox reload 后保留面板滚动状态，并在人工核对 actual/diff 后为 Firefox/WebKit 建立独立 Darwin 编辑器基线；Firefox、WebKit、Chromium 最终完整复跑均为 16/16。其他播放快照继续共用原基线，没有无评审批量更新。
+- 生产等价代理：发现容器未显式配置可信代理时，TLS 终止后的 HTTPS `Origin` 会与后端 HTTP scheme 不一致。新增 `DATAPULSE_FORWARDED_ALLOW_IPS`、安全 Nginx 参考配置和一次性容器审计工具；HTTPS 同源写请求、伪造转发头拒绝、客户端 IP、Secure 播放 Cookie、CSP/no-store/nosniff 及日志脱敏全部通过。
+- 显示：在在线 3024×1964 Retina 屏和系统 Chrome 中完成 DPR 2 抽样；3840×2160、DPR 2 仿真无溢出且保持 16:9。人工查看首张仿真图时发现减少动效未禁用 ECharts 入场动画，修复后图表首帧完整，2 个单元测试和 2 个显示目标用例通过，未更新视觉基线。
+- 长期播放：首次 600 秒预检因 `/favicon.ico` 404 被严格 console 断言拦截；补充本地 favicon 和脱敏错误 URL 后，60 秒回归及最终 600 秒预检通过。最终 427/427 次查询完成、最大并发 7、无请求/console/page error，JS 堆每分钟采样并最终增长 1.27 MB。完整 8 小时仍是目标环境门禁，10 分钟结果不计为长期播放通过。
+- 最终隔离门禁：在 detached `08adadb` 临时 worktree 中执行，`check:contracts`、`pnpm test`、`typecheck`、`build`、Chromium/Firefox/WebKit 16/16 和 PostgreSQL/MariaDB 13/13 全部通过。`pnpm test` 的 13 个 integration deselect、integration 命令的 12 个非 integration deselect 均未计入通过。
+- 隔离说明：执行期间工作区并发出现未提交的第三阶段数字人代码；第二阶段生产镜像、显示和浸泡验证均从当前已提交第二阶段基线导出到独立 `/tmp` 目录，只叠加本任务文件。没有修改、暂存或删除数字人改动。
+- 当前结论：第二阶段未开发功能点仍为 0；跨浏览器失败已经关闭，但真实密码管理器、目标生产代理链、物理 4K 和完整 8 小时播放仍阻塞，因此第二阶段不能标记完成。执行步骤见 `docs/PHASE_TWO_TARGET_ENVIRONMENT.md`。
+
 ### 2026-09-08 产品第二阶段收尾
 
 - 基线：任务开始时 `HEAD == origin/main == 34a704e`；收尾结果已形成 5 个本地提交并按要求未推送。完整差距矩阵见 `docs/PHASE_TWO_CLOSEOUT.md`。
@@ -162,8 +172,13 @@
 | ISS-004 | 2026-08-29 | 数据源表单 | 真实密码管理器 autofill 尚未完成安全抽样 | 使用专用 Chromium 凭据执行 BB-004 | 仍有浏览器策略覆盖缺口 | 部分关闭 | 代码和自动化已验证；不得使用真实凭据 |
 | ISS-016 | 2026-08-31 | ERP 数据源 | 中文字段疑似双重编码 | 按 BB-022 核对 `HEX(product_name)` 与连接字符集 | 外部数据质量可能影响预览 | 待数据源所有者确认 | 暂不修改 DataPulse 代码或测试数据 |
 | ISS-017 | 2026-08-31 | AI 分析/修改面板 | 辅助文字与背景对比度不足 | 查看用户截图对应面板 | 文案难以阅读 | 已解决 | 已改为高对比度浅色主题，AI 定向测试和 Web 构建通过 |
-| ISS-018 | 2026-09-08 | Firefox/WebKit 编辑器视觉 | 两个浏览器完整 E2E 均在 `editor-shell.png` 与 Chromium Darwin 基线比较时失败 | 分别执行完整 Firefox/WebKit E2E | 跨浏览器门禁不能通过，失败测试内后续交互子步骤不能计入通过 | 待处理 | 15/16；actual/diff/expected 与脱敏错误上下文已固化，未更新基线 |
+| ISS-018 | 2026-09-08 | Firefox/WebKit 编辑器视觉 | 两个浏览器完整 E2E 均在共享 Chromium 编辑器基线失败 | 分别执行完整 Firefox/WebKit E2E | 跨浏览器门禁不能通过 | 已解决 | 归一化加载/滚动/焦点，评审后建立独立基线；Firefox/WebKit/Chromium 均 16/16 |
 | ISS-019 | 2026-09-08 | 浅色播放测试夹具 | 使用已废弃的 `component_surface/component_border`，实际浅色画面保留深色面板和深色文字 | 查看旧 `light-player.png` 并检查运行时主题令牌 | 浅色视觉快照曾错误接受低对比度结果 | 已解决 | 改用 `panel_background/panel_border`，新增背景/文字断言；评审 actual/diff 后只更新一张基线并复跑通过 |
+| ISS-020 | 2026-09-09 | 容器反向代理 | 未显式信任 TLS 终止代理时，HTTPS Origin 与后端 HTTP scheme 不一致；盲目信任全部代理又会允许伪造客户端 IP | 在生产镜像前放置 HTTPS Nginx 并执行管理写请求/IP 策略 | 生产代理后的管理写请求或 IP 安全边界可能错误 | 已解决 | 显式可信代理地址，Nginx 覆盖转发头且不记录 query；生产等价审计通过 |
+| ISS-021 | 2026-09-09 | 播放图表 | 系统减少动效已开启，但 ECharts 仍播放初始/更新动画 | 查看 4K 仿真首张证据 | 截图可能捕获半成品图表，辅助功能偏好未生效 | 已解决 | 统一禁用 ECharts 动画；单元和显示目标测试通过，人工确认首帧完整 |
+| ISS-022 | 2026-09-09 | 第二阶段环境门禁 | 真实密码管理器、目标代理链、物理 4K 和连续 8 小时播放无目标证据 | 按目标环境执行手册复核 | 第二阶段不能标记完成 | 阻塞 | 本地等价预检已尽可能补齐；等待目标环境执行 |
+| ISS-023 | 2026-09-09 | 播放静态资源 | 10 分钟浸泡末尾发现浏览器请求 `/favicon.ico` 返回 404 | 查看 trace 中已去 query 的 console location | 严格 console 门禁失败，页面产生无意义 404 | 已解决 | 增加本地 SVG favicon；60 秒和 10 分钟复跑均无 console error |
+| ISS-024 | 2026-09-09 | 显示证据采集 | Retina 首图在 Canvas 入场动画结束前截图，折线、柱状和饼图不完整 | 人工查看 `physical-retina-premature-canvas.png` | 该次自动化 2/2 不能作为视觉通过 | 已解决 | 等待 Canvas 动画稳定后重跑 2/2，并人工查看最终 Retina/4K 图；未更新视觉基线 |
 
 ## 测试启动记录
 

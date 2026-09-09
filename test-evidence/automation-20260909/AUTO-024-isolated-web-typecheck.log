@@ -1,0 +1,3 @@
+
+> @datapulse/web@ typecheck [TARGET_WORKTREE]/apps/web
+> vue-tsc --noEmit && tsc -p tsconfig.e2e.json

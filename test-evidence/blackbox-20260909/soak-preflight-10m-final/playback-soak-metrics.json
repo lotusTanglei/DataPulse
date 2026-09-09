@@ -1,0 +1,58 @@
+{
+  "durationSeconds": 600,
+  "queryStarted": 427,
+  "queryFinished": 427,
+  "maxInFlight": 7,
+  "failedRequests": [],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "initialHeap": 23444526,
+  "finalHeap": 24714218,
+  "heapGrowth": 1269692,
+  "heapSamples": [
+    {
+      "elapsedSeconds": 0,
+      "usedJSHeapSize": 23444526
+    },
+    {
+      "elapsedSeconds": 60,
+      "usedJSHeapSize": 23884038
+    },
+    {
+      "elapsedSeconds": 120,
+      "usedJSHeapSize": 24699163
+    },
+    {
+      "elapsedSeconds": 180,
+      "usedJSHeapSize": 23876799
+    },
+    {
+      "elapsedSeconds": 240,
+      "usedJSHeapSize": 24650332
+    },
+    {
+      "elapsedSeconds": 300,
+      "usedJSHeapSize": 25161248
+    },
+    {
+      "elapsedSeconds": 360,
+      "usedJSHeapSize": 24886531
+    },
+    {
+      "elapsedSeconds": 420,
+      "usedJSHeapSize": 24021242
+    },
+    {
+      "elapsedSeconds": 480,
+      "usedJSHeapSize": 23983174
+    },
+    {
+      "elapsedSeconds": 540,
+      "usedJSHeapSize": 24010237
+    },
+    {
+      "elapsedSeconds": 600,
+      "usedJSHeapSize": 24714218
+    }
+  ]
+}

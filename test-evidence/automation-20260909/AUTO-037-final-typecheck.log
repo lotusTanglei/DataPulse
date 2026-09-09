@@ -1,0 +1,15 @@
+
+> datapulse@ typecheck [ISOLATED_WORKTREE]
+> pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck
+
+
+> datapulse@ typecheck:web [ISOLATED_WORKTREE]
+> pnpm --filter @datapulse/web typecheck
+
+
+> @datapulse/web@ typecheck [ISOLATED_WORKTREE]/apps/web
+> vue-tsc --noEmit && tsc -p tsconfig.e2e.json
+
+
+> @datapulse/embed-sdk@0.1.0 typecheck [ISOLATED_WORKTREE]/packages/embed-sdk
+> tsc -p tsconfig.json

@@ -1,0 +1,30 @@
+INFO:     127.0.0.1:48362 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.147.1:0 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     192.168.147.1:0 - "POST /api/auth/setup HTTP/1.1" 201 Created
+INFO:     192.168.147.1:0 - "POST /api/admin/screens HTTP/1.1" 201 Created
+INFO:     192.168.147.1:0 - "POST /api/admin/screens/59c92d7d-f883-41c5-a54b-5a766d05839b/publish HTTP/1.1" 200 OK
+INFO:     192.168.147.1:0 - "POST /api/admin/screens/59c92d7d-f883-41c5-a54b-5a766d05839b/display-key HTTP/1.1" 201 Created
+INFO:     192.168.147.1:0 - "PATCH /api/admin/screens/59c92d7d-f883-41c5-a54b-5a766d05839b/access-policy HTTP/1.1" 200 OK
+INFO:     192.168.147.1:0 - "POST /api/player/screens/59c92d7d-f883-41c5-a54b-5a766d05839b/session HTTP/1.1" 403 Forbidden
+INFO:     192.168.147.1:0 - "PATCH /api/admin/screens/59c92d7d-f883-41c5-a54b-5a766d05839b/access-policy HTTP/1.1" 200 OK
+INFO:     192.168.147.1:0 - "POST /api/player/screens/59c92d7d-f883-41c5-a54b-5a766d05839b/session HTTP/1.1" 204 No Content
+INFO:     192.168.147.1:0 - "POST /api/admin/embed/api-key HTTP/1.1" 201 Created
+INFO:     192.168.147.1:0 - "POST /api/embed/tickets HTTP/1.1" 201 Created
+INFO:     192.168.147.1:0 - "GET /embed/59c92d7d-f883-41c5-a54b-5a766d05839b?ticket=[REDACTED] HTTP/1.1" 200 OK
+INFO:     192.168.147.1:0 - "GET /embed/59c92d7d-f883-41c5-a54b-5a766d05839b?ticket=[REDACTED] HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:48374 - "GET /api/health HTTP/1.1" 200 OK
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+INFO:     Started server process [20]
+INFO:     Waiting for application startup.
+DataPulse one-time setup code: [REDACTED]
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

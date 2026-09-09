@@ -1,0 +1,30 @@
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [2044]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:53568 (Press CTRL+C to quit)
+[WebServer] (node:2048) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:2060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:2067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DISPLAY_METRICS {"devicePixelRatio":2,"screenCss":{"width":1512,"height":982},"screenPhysical":{"width":3024,"height":1964},"viewportCss":{"width":1200,"height":818},"runtimeViewport":{"width":1200,"height":675},"documentOverflow":{"horizontal":false,"vertical":false},"canvasBackingRatios":[{"backingWidth":1116,"cssWidth":348.75,"ratio":3.2},{"backingWidth":1176,"cssWidth":367.5,"ratio":3.2},{"backingWidth":996,"cssWidth":311.25,"ratio":3.2},{"backingWidth":1296,"cssWidth":405,"ratio":3.2}]}
+  ✓  1 [chromium] › e2e/playback.target.spec.ts:51:1 › @display physical Retina playback remains readable (1.2s)
+DISPLAY_METRICS {"devicePixelRatio":2,"inner":{"width":3840,"height":2160},"runtimeViewport":{"width":3840,"height":2160},"reducedMotion":true,"documentOverflow":{"horizontal":false,"vertical":false}}
+  ✓  2 [chromium] › e2e/playback.target.spec.ts:99:1 › @display emulated 4K high-DPI playback preserves 16:9 layout (1.4s)
+
+  2 passed (6.5s)

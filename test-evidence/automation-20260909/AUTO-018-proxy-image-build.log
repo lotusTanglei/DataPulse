@@ -1,0 +1,94 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.39kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.13-slim
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:22-slim
+#3 DONE 0.5s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 256B done
+#4 DONE 0.0s
+
+#5 [web  1/12] FROM docker.io/library/node:22-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5
+#5 DONE 0.0s
+
+#6 [runtime  1/10] FROM docker.io/library/python:3.13-slim
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 31.83kB 0.0s done
+#7 DONE 0.1s
+
+#8 [web  2/12] WORKDIR /src
+#8 CACHED
+
+#9 [web  4/12] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+#9 CACHED
+
+#10 [web  5/12] COPY apps/web/package.json apps/web/package.json
+#10 CACHED
+
+#11 [web  7/12] COPY packages/embed-sdk/package.json packages/embed-sdk/package.json
+#11 CACHED
+
+#12 [web  3/12] RUN corepack enable
+#12 CACHED
+
+#13 [web  6/12] COPY packages/schema/package.json packages/schema/package.json
+#13 CACHED
+
+#14 [web  8/12] RUN pnpm install --frozen-lockfile
+#14 CACHED
+
+#15 [web  9/12] COPY apps/web apps/web
+#15 DONE 0.1s
+
+#16 [web 10/12] COPY packages/schema packages/schema
+#16 DONE 0.1s
+
+#17 [web 11/12] COPY packages/embed-sdk packages/embed-sdk
+#17 DONE 0.1s
+
+#18 [web 12/12] RUN pnpm build:web
+#18 0.347
+#18 0.347 > datapulse@ build:web /src
+#18 0.347 > pnpm --filter @datapulse/web build
+#18 0.347
+#18 0.550
+#18 0.550 > @datapulse/web@ build /src/apps/web
+#18 0.550 > vue-tsc --noEmit && vite build
+#18 0.550
+#18 10.52 src/features/runtime/builtins/DigitalHumanComponent.vue(52,75): error TS2322: Type '"loading"' is not assignable to type 'DigitalHumanStatus'.
+#18 10.52 src/features/runtime/builtins/DigitalHumanComponent.vue(105,56): error TS2322: Type '"loading"' is not assignable to type 'DigitalHumanStatus'.
+#18 10.55 /src/apps/web:
+#18 10.55  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @datapulse/web@ build: `vue-tsc --noEmit && vite build`
+#18 10.55 Exit status 2
+#18 10.58  ELIFECYCLE  Command failed with exit code 2.
+#18 ERROR: process "/bin/sh -c pnpm build:web" did not complete successfully: exit code: 2
+------
+ > [web 12/12] RUN pnpm build:web:
+0.550
+0.550 > @datapulse/web@ build /src/apps/web
+0.550 > vue-tsc --noEmit && vite build
+0.550
+10.52 src/features/runtime/builtins/DigitalHumanComponent.vue(52,75): error TS2322: Type '"loading"' is not assignable to type 'DigitalHumanStatus'.
+10.52 src/features/runtime/builtins/DigitalHumanComponent.vue(105,56): error TS2322: Type '"loading"' is not assignable to type 'DigitalHumanStatus'.
+10.55 /src/apps/web:
+10.55  ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @datapulse/web@ build: `vue-tsc --noEmit && vite build`
+10.55 Exit status 2
+10.58  ELIFECYCLE  Command failed with exit code 2.
+------
+Dockerfile:15
+--------------------
+  13 |     COPY packages/schema packages/schema
+  14 |     COPY packages/embed-sdk packages/embed-sdk
+  15 | >>> RUN pnpm build:web
+  16 |
+  17 |     FROM python:3.13-slim AS runtime
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c pnpm build:web" did not complete successfully: exit code: 2

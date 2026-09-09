@@ -1,0 +1,111 @@
+
+> datapulse@ test:e2e [WORKSPACE]
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e -- --project=webkit screen-editor.spec.ts
+
+
+> datapulse@ generate:e2e-fixtures [WORKSPACE]
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [65282]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:57706 (Press CTRL+C to quit)
+[WebServer] (node:65300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:65329) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen (7.7s)
+(node:65425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [webkit] › e2e/screen-editor.spec.ts:208:1 › multi-selection drags as one group and persists the same canvas delta (2.9s)
+
+
+  1) [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      18400 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: editor-shell.png
+
+    Call log:
+      - Expect "toHaveScreenshot(editor-shell.png)" with timeout 8000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 32264 pixels (ratio 0.02 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 11356 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 250ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 4404 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 500ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 18400 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      151 |     }
+      152 |   });
+    > 153 |   await expect(page).toHaveScreenshot("editor-shell.png", {
+          |                      ^
+      154 |     animations: "disabled",
+      155 |   });
+      156 |
+        at [WORKSPACE]/apps/web/e2e/screen-editor.spec.ts:153:22
+
+    attachment #1: editor-shell (image/png) ────────────────────────────────────────────────────────
+    Expected: e2e/snapshots/darwin/editor-shell.png
+    Received: test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/editor-shell-actual.png
+    Diff:     test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/editor-shell-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen
+  1 passed (22.7s)
+undefined
+[WORKSPACE]/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=webkit screen-editor.spec.ts
+ ELIFECYCLE  Command failed with exit code 1.

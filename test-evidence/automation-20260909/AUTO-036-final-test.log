@@ -1,0 +1,248 @@
+
+> datapulse@ test [ISOLATED_WORKTREE]
+> pnpm --filter @datapulse/embed-sdk test && pnpm test:web && uv run --package datapulse-server pytest -m "not integration"
+
+
+> @datapulse/embed-sdk@0.1.0 test [ISOLATED_WORKTREE]/packages/embed-sdk
+> vitest run --environment happy-dom
+
+
+ RUN  v3.2.7 [ISOLATED_WORKTREE]/packages/embed-sdk
+
+stderr | src/index.test.ts > DataPulseEmbed > supports independent embeds and removes listeners on destroy
+Error: Failed to execute 'startTask()' on 'AsyncTaskManager': The asynchrounous task manager has been aborted.
+    at AsyncTaskManager.startTask (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:168:10)
+    at file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:517:71
+    at new Promise (<anonymous>)
+    at Fetch.sendRequest (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:516:10)
+    at Fetch.send (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:231:21)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at BrowserWindow.fetch (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/window/BrowserWindow.ts:1595:10)
+    at Function.navigate (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameNavigator.ts:202:15)
+
+stderr | src/index.test.ts
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.destroy (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:74:15)
+    at file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:54:7
+    at new Promise (<anonymous>)
+    at Function.destroyFrame (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/utilities/BrowserFrameFactory.ts:39:10)
+    at HTMLIFrameElement.#unloadPage (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:454:24)
+    at HTMLIFrameElement.[disconnectedFromDocument] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/html-iframe-element/HTMLIFrameElement.ts:282:19)
+    at HTMLIFrameElement.[connectedToNode] (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/nodes/node/Node.ts:994:49)
+
+stderr | src/index.test.ts
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=[REDACTED]&instance_id=6e99df61-9c77-4437-9b67-350600cab1d9": The operation was aborted.
+    at Fetch.onError (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=[REDACTED]&instance_id=3ef0d600-53f9-4c55-8d54-011b45615107": The operation was aborted.
+    at Fetch.onError (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=[REDACTED]&instance_id=f02b63cc-2b48-4023-a956-f488a0fca4f7": The operation was aborted.
+    at Fetch.onError (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=[REDACTED]&instance_id=77c957bb-a014-4a00-90c6-46869227ede9": The operation was aborted.
+    at Fetch.onError (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+DOMException [NetworkError]: Failed to execute "fetch()" on "Window" with URL "https://data.example.com/embed/screen-1?ticket=[REDACTED]&instance_id=5b7adc62-70ec-4a35-bd5d-0ff64c7a7b11": The operation was aborted.
+    at Fetch.onError (file://[ISOLATED_WORKTREE]/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:673:4)
+    at ClientRequest.emit (node:events:519:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at _destroy (node:_http_client:967:9)
+    at onSocketNT (node:_http_client:987:5)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+
+ ✓ src/index.test.ts (5 tests) 52ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  12:36:23
+   Duration  1.20s (transform 429ms, setup 0ms, collect 435ms, tests 52ms, environment 239ms, prepare 101ms)
+
+
+> datapulse@ test:web [ISOLATED_WORKTREE]
+> pnpm --filter @datapulse/web test
+
+
+> @datapulse/web@ test [ISOLATED_WORKTREE]/apps/web
+> vitest run
+
+
+ RUN  v3.2.7 [ISOLATED_WORKTREE]/apps/web
+
+ ✓ src/features/runtime/builtins/basic-components.test.ts (8 tests) 50ms
+ ✓ src/features/player/embed-player.test.ts (4 tests) 84ms
+ ✓ src/features/runtime/runtime.test.ts (9 tests) 86ms
+ ✓ src/features/screens/editor/inspector.test.ts (12 tests) 137ms
+ ✓ src/features/screens/screen-list.test.ts (6 tests) 114ms
+ ✓ src/features/datasets/datasets.test.ts (6 tests) 116ms
+ ✓ src/features/datasources/schema-browser.test.ts (4 tests) 108ms
+ ✓ src/features/screens/editor/canvas.test.ts (14 tests) 300ms
+ ✓ src/features/datasources/datasource-form.test.ts (9 tests) 181ms
+ ✓ src/features/screens/editor/commands.test.ts (6 tests) 4ms
+ ✓ src/lib/api.test.ts (7 tests) 6ms
+ ✓ src/features/query/sql-debug.test.ts (3 tests) 36ms
+ ✓ src/features/runtime/builtins/chart-components.test.ts (6 tests) 19ms
+ ✓ src/features/screens/editor/store.test.ts (5 tests) 14ms
+ ✓ src/features/auth/auth.test.ts (9 tests) 58ms
+ ✓ src/features/datasources/datasource-list.test.ts (4 tests) 80ms
+ ✓ src/features/runtime/mock-data.test.ts (5 tests) 13ms
+ ✓ src/features/runtime/data-runtime.test.ts (3 tests) 12ms
+ ✓ src/features/ai/ai-panel.test.ts (2 tests) 47ms
+ ✓ src/features/player/player.test.ts (2 tests) 56ms
+ ✓ src/features/player/standalone-player.test.ts (2 tests) 30ms
+ ✓ src/features/ai/AiEditPanel.test.ts (1 test) 19ms
+ ✓ src/features/screens/editor/geometry.test.ts (3 tests) 4ms
+ ✓ src/features/screens/templates.test.ts (2 tests) 5ms
+ ✓ src/features/query/query-result-table.test.ts (2 tests) 56ms
+ ✓ src/ui/studio-shell.test.ts (1 test) 28ms
+ ✓ src/features/runtime/builtins/chart-motion.test.ts (2 tests) 2ms
+ ✓ src/lib/dev-proxy.test.ts (1 test) 2ms
+ ✓ src/App.test.ts (2 tests) 34ms
+ ✓ src/features/screens/editor/component-library.test.ts (1 test) 29ms
+ ✓ src/features/screens/editor/editor-toolbar.test.ts (1 test) 22ms
+
+ Test Files  31 passed (31)
+      Tests  142 passed (142)
+   Start at  12:36:26
+   Duration  6.90s (transform 2.34s, setup 0ms, collect 30.66s, tests 1.75s, environment 13.74s, prepare 3.93s)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-8.4.2, pluggy-1.6.0
+rootdir: [ISOLATED_WORKTREE]
+configfile: pyproject.toml
+testpaths: apps/server/tests
+plugins: cov-7.1.0, anyio-4.14.2
+collected 461 items / 13 deselected / 448 selected
+
+apps/server/tests/ai/test_api.py .                                       [  0%]
+apps/server/tests/ai/test_chart_generation.py ......                     [  1%]
+apps/server/tests/ai/test_context.py .                                   [  1%]
+apps/server/tests/ai/test_edit.py .....                                  [  2%]
+apps/server/tests/ai/test_gateway.py ......                              [  4%]
+apps/server/tests/ai/test_screen_generator.py ........                   [  6%]
+apps/server/tests/ai/test_service.py .......                             [  7%]
+apps/server/tests/auth/test_api.py ......                                [  8%]
+apps/server/tests/auth/test_bootstrap.py ......                          [ 10%]
+apps/server/tests/auth/test_limiter.py ...                               [ 10%]
+apps/server/tests/auth/test_password.py ..                               [ 11%]
+apps/server/tests/auth/test_session.py ....                              [ 12%]
+apps/server/tests/connectors/test_sqlite.py ............                 [ 14%]
+apps/server/tests/contracts/test_ai.py .................                 [ 18%]
+apps/server/tests/contracts/test_chart.py .......                        [ 20%]
+apps/server/tests/contracts/test_dashboard.py ..........                 [ 22%]
+apps/server/tests/contracts/test_dataset.py ...                          [ 23%]
+apps/server/tests/contracts/test_embed.py ...................            [ 27%]
+apps/server/tests/contracts/test_exported_schemas.py .........           [ 29%]
+apps/server/tests/contracts/test_filedata.py ...................         [ 33%]
+apps/server/tests/contracts/test_plugin.py ...........                   [ 36%]
+apps/server/tests/dataset/test_api.py ...                                [ 36%]
+apps/server/tests/dataset/test_repository.py ...                         [ 37%]
+apps/server/tests/dataset/test_service.py ....                           [ 38%]
+apps/server/tests/datasource/test_api.py .....                           [ 39%]
+apps/server/tests/datasource/test_http_api.py ....                       [ 40%]
+apps/server/tests/datasource/test_models.py ............                 [ 43%]
+apps/server/tests/datasource/test_registry.py ....                       [ 43%]
+apps/server/tests/datasource/test_repository.py ......                   [ 45%]
+apps/server/tests/datasource/test_secrets.py ........                    [ 47%]
+apps/server/tests/datasource/test_service.py .....                       [ 48%]
+apps/server/tests/display/test_api.py ...                                [ 48%]
+apps/server/tests/display/test_service.py ..                             [ 49%]
+apps/server/tests/display/test_tokens.py ..                              [ 49%]
+apps/server/tests/embedding/test_api.py .....                            [ 50%]
+apps/server/tests/embedding/test_service.py ..                           [ 51%]
+apps/server/tests/embedding/test_tokens.py ...............               [ 54%]
+apps/server/tests/filedata/test_api.py ....                              [ 55%]
+apps/server/tests/filedata/test_duckdb_executor.py ......                [ 56%]
+apps/server/tests/filedata/test_parsers.py ......                        [ 58%]
+apps/server/tests/filedata/test_repository.py ..                         [ 58%]
+apps/server/tests/filedata/test_storage.py ........                      [ 60%]
+apps/server/tests/metadata/test_database.py ..                           [ 60%]
+apps/server/tests/metadata/test_migrations.py ..                         [ 61%]
+apps/server/tests/query/test_execution.py ....                           [ 62%]
+apps/server/tests/query/test_limits.py ....                              [ 63%]
+apps/server/tests/query/test_normalization.py ..................         [ 67%]
+apps/server/tests/query/test_parameters.py ......                        [ 68%]
+apps/server/tests/query/test_safety.py ................................. [ 75%]
+......................                                                   [ 80%]
+apps/server/tests/screen/test_access_policy.py ...                       [ 81%]
+apps/server/tests/screen/test_access_policy_api.py ..                    [ 81%]
+apps/server/tests/screen/test_api.py ....                                [ 82%]
+apps/server/tests/screen/test_assets.py ...........                      [ 85%]
+apps/server/tests/screen/test_chart_query.py ..............              [ 88%]
+apps/server/tests/screen/test_publishing.py ............                 [ 91%]
+apps/server/tests/screen/test_repository.py ....                         [ 91%]
+apps/server/tests/screen/test_runtime.py .........                       [ 93%]
+apps/server/tests/screen/test_runtime_api.py ...                         [ 94%]
+apps/server/tests/screen/test_service.py .....                           [ 95%]
+apps/server/tests/test_app.py .                                          [ 95%]
+apps/server/tests/test_e2e_fake_ai.py ..                                 [ 96%]
+apps/server/tests/test_e2e_file_fixtures.py .                            [ 96%]
+apps/server/tests/test_errors.py ....                                    [ 97%]
+apps/server/tests/test_lifespan.py ....                                  [ 98%]
+apps/server/tests/test_prepare_e2e.py .                                  [ 98%]
+apps/server/tests/test_static.py ......                                  [100%]
+
+===================== 448 passed, 13 deselected in 14.81s ======================

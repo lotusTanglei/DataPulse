@@ -1,0 +1,35 @@
+
+> datapulse@ build [ISOLATED_WORKTREE]
+> pnpm build:web
+
+
+> datapulse@ build:web [ISOLATED_WORKTREE]
+> pnpm --filter @datapulse/web build
+
+
+> @datapulse/web@ build [ISOLATED_WORKTREE]/apps/web
+> vue-tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js (158:30): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 2583 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                            0.56 kB │ gzip:   0.38 kB
+dist/assets/DatasetDetailView-B9WHE_1g.css                                 0.05 kB │ gzip:   0.07 kB
+dist/assets/index-B2LV3b92.css                                            69.42 kB │ gzip:  12.53 kB
+dist/assets/SqlDebugView-BxqYsluH.js                                       5.85 kB │ gzip:   2.63 kB
+dist/assets/DatasetDetailView-D_72kKxK.js                                  8.48 kB │ gzip:   3.06 kB
+dist/assets/SqlEditor.vue_vue_type_script_setup_true_lang-CC3xI9au.js    438.01 kB │ gzip: 145.52 kB
+dist/assets/index-JkyIv1Zn.js                                          1,335.58 kB │ gzip: 445.67 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.45s

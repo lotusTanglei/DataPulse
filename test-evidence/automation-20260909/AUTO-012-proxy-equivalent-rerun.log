@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 445, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 363, in main
+    wait_for_healthy(app_container)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 73, in wait_for_healthy
+    raise RuntimeError(f"Container {container} became unhealthy.")
+RuntimeError: Container datapulse-proxy-app-c364a7c917 became unhealthy.

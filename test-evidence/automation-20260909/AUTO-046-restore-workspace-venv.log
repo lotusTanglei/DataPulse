@@ -1,0 +1,7 @@
+Resolved 1 package in 2ms
+   Building datapulse-server @ file://[WORKSPACE]/apps/server
+      Built datapulse-server @ file://[WORKSPACE]/apps/server
+Prepared 1 package in 811ms
+Uninstalled 1 package in 3ms
+Installed 1 package in 4ms
+ ~ datapulse-server==0.1.0 (from file://[WORKSPACE]/apps/server)

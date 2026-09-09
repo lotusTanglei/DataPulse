@@ -1,0 +1,16 @@
+Error: DATAPULSE_E2E_CONFIG is missing; run E2E through `pnpm test:e2e`.
+    at runtimeConfigPath (file://[WORKSPACE]/apps/web/e2e/runtime-config.ts:18:11)
+    at loadRuntimeConfig (file://[WORKSPACE]/apps/web/e2e/runtime-config.ts:36:18)
+    at file://[WORKSPACE]/apps/web/playwright.config.ts:8:17
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at requireOrImport ([WORKSPACE]/node_modules/.pnpm/playwright@1.62.0/node_modules/playwright/lib/common/index.js:1139:12)
+    at loadUserConfig ([WORKSPACE]/node_modules/.pnpm/playwright@1.62.0/node_modules/playwright/lib/common/index.js:1326:46)
+    at loadConfig ([WORKSPACE]/node_modules/.pnpm/playwright@1.62.0/node_modules/playwright/lib/common/index.js:1333:22)
+    at Object.loadConfigFromFile ([WORKSPACE]/node_modules/.pnpm/playwright@1.62.0/node_modules/playwright/lib/common/index.js:1549:10)
+    at runTests ([WORKSPACE]/node_modules/.pnpm/playwright@1.62.0/node_modules/playwright/lib/cli/testActions.js:46:18)
+    at _Command.<anonymous> ([WORKSPACE]/node_modules/.pnpm/playwright@1.62.0/node_modules/playwright/lib/program.js:55:7)
+undefined
+[WORKSPACE]/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --project=webkit

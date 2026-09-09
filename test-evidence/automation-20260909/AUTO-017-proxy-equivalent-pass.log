@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 480, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 327, in main
+    built = command("docker", "build", "-t", image, ".", capture=True)
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 27, in command
+    return subprocess.run(
+           ~~~~~~~~~~~~~~^
+        arguments,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        text=True,
+        ^^^^^^^^^^
+    )
+    ^
+  File "[LOCAL_UV]/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '('docker', 'build', '-t', 'datapulse-proxy-check:2051c3dc69', '.')' returned non-zero exit status 1.

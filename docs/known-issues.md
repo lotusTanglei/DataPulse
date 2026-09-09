@@ -4,17 +4,52 @@
 
 ## 待修复
 
+### DP-005 产品第二阶段目标环境门禁未关闭
+
+- **发现日期：** 2026-09-08
+- **状态：** 阻塞（不是未开发功能）
+- **影响范围：** 第二阶段完成判定
+- **现象：** 真实密码管理器、将要上线的完整代理链、物理 4K 设备和连续 8 小时播放没有目标环境证据。生产等价 Nginx、真实 Retina、4K 仿真和 10 分钟浸泡只能作为预检。
+- **已有证据：** `test-evidence/blackbox-20260909/proxy-equivalent/`、`display-target/`、`soak-preflight-10m-final/`。
+- **后续动作：** 严格按 `docs/PHASE_TWO_TARGET_ENVIRONMENT.md` 执行；在四项全部通过前不得标记第二阶段完成。
+
+## 已解决
+
+### DP-007 播放页缺少 favicon 产生控制台 404
+
+- **发现日期：** 2026-09-09
+- **状态：** 已解决（60 秒和 10 分钟浸泡复跑完成）
+- **影响范围：** Studio、独立播放和嵌入共用的 Web 入口
+- **现象：** 首次 10 分钟浸泡的业务查询和页面状态均正常，但浏览器自动请求 `/favicon.ico` 返回 404，严格 console 门禁失败。
+- **修复：** Web 入口声明仓库内 `/favicon.svg`；浸泡错误记录只保存去除 query/hash 的 URL，防止凭据进入证据。
+- **证据：** `AUTO-026` 保留首次失败；`AUTO-029` 60 秒 49/49、`AUTO-030` 10 分钟 427/427 均通过且 console error 为空。
+
+### DP-006 Retina 视觉证据截取早于 Canvas 动画终态
+
+- **发现日期：** 2026-09-09
+- **状态：** 已解决（采证修正并人工复核）
+- **影响范围：** 目标显示预检证据，不改变普通播放动画时长
+- **现象：** 首张 Retina 截图中折线、柱状和饼图仍在入场动画，虽然自动断言 2/2，通过截图也不能判定视觉通过。
+- **修复：** 截图前额外等待 Canvas 动画稳定；旧图另存为 `physical-retina-premature-canvas.png`，最终图不通过更新快照生成。
+- **证据：** `AUTO-032-display-target-stable-canvas-final.log`；`test-evidence/blackbox-20260909/display-target/review.md`。
+
+### DP-004 减少动效模式仍播放 ECharts 入场动画
+
+- **发现日期：** 2026-09-09
+- **状态：** 已解决（代码、单元测试、4K 仿真和人工视觉复核完成）
+- **影响范围：** 折线、柱状、饼、雷达、热力、散点、漏斗和地图组件
+- **现象：** 4K 仿真已报告 `prefers-reduced-motion: reduce`，但首张证据中的折线和饼图仍停在入场动画中，不能判定减少动效生效。
+- **修复：** 运行时在媒体查询命中时把 ECharts 初始和更新动画禁用；不改变普通模式和组件级 `animation` 配置。
+- **证据：** `chart-motion.test.ts` 2/2；修复后 `AUTO-025-display-target-reduced-motion.log` 2/2；`test-evidence/blackbox-20260909/display-target/emulated-4k.png` 已人工核对全部图表首帧完整。未更新视觉快照。
+
 ### DP-003 Firefox/WebKit 编辑器视觉门禁未建立独立可评审基线
 
 - **发现日期：** 2026-09-08
-- **状态：** 待处理（第二阶段门禁失败）
+- **状态：** 已解决（状态归一化、人工评审和完整复跑完成）
 - **影响范围：** Firefox 153、WebKit 26.5 的完整 E2E 编辑器视觉回归
-- **现象：** 两个浏览器均为 15/16；`screen-editor.spec.ts` 把浏览器实际图与 Chromium Darwin `editor-shell.png` 比较，Firefox 差 16,472 像素（约 1%），WebKit 差 18,400 像素（约 1%）。失败发生在视觉断言处，因此该测试后续点击联动和刷新步骤不能计入跨浏览器通过。
-- **人工核对：** 两张 actual 均非空，主要结构和数据可见；Firefox 组件列表滚动位置与 Chromium 基线明显不同，文字和图表也存在引擎渲染差异。尚不能证明全部差异只是抗锯齿，不应直接接受基线。
-- **证据：** 首次结果为 `test-evidence/automation-20260908/AUTO-018-firefox-e2e.log`、`AUTO-019-webkit-e2e.log`；修改后最终复跑为 `AUTO-032-firefox-e2e-final.log`、`AUTO-033-webkit-e2e-final.log`；actual/diff/expected 与脱敏错误上下文位于 `test-evidence/blackbox-20260908/cross-browser/`。原始 trace 可能含临时会话值，未保留。
-- **后续动作：** 由产品/设计评审 actual/diff，区分真实布局问题和浏览器渲染差异；修复后或建立独立浏览器基线后完整复跑。未经评审不得更新快照。
-
-## 已解决
+- **根因：** Firefox reload 后保留组件面板滚动位置；两个引擎与 Chromium 存在字体、Canvas 和细线栅格化差异，共用严格编辑器基线会产生稳定误报。
+- **修复：** 截图前等待查询结束，将左右面板滚动到顶部并清理焦点；保留 Chromium 基线，评审 actual/diff 后只为 Firefox/WebKit 增加独立 Darwin 编辑器基线。
+- **证据：** 评审记录位于 `test-evidence/blackbox-20260909/cross-browser/review.md`；Firefox `AUTO-007`、WebKit `AUTO-009` 和 Chromium `AUTO-010` 均为完整 16/16。未经评审未批量更新其他快照。
 
 ### DP-002 浅色播放视觉夹具使用过期主题令牌
 

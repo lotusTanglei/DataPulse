@@ -1,0 +1,52 @@
+
+> datapulse@ test:e2e [ISOLATED_WORKTREE]
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e -- --project=webkit
+
+
+> datapulse@ generate:e2e-fixtures [ISOLATED_WORKTREE]
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+Uninstalled 1 package in 1ms
+Installed 1 package in 9ms
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO:     Started server process [22668]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:58825 (Press CTRL+C to quit)
+[WebServer] (node:22670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:22686) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 1 worker
+
+(node:22695) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [webkit] › e2e/ai-analysis.spec.ts:12:1 › AI analysis uses one request, applies a chart, and preserves the draft (3.2s)
+  ✓   2 [webkit] › e2e/ai-analysis.spec.ts:113:1 › AI analysis maps malformed, invalid-field, and timeout responses (2.4s)
+  ✓   3 [webkit] › e2e/ai-screen-generation.spec.ts:10:1 › AI screen preview cancels cleanly and confirms with one atomic create (1.6s)
+  ✓   4 [webkit] › e2e/ai-screen-generation.spec.ts:81:1 › invalid AI screens never create a draft (983ms)
+  ✓   5 [webkit] › e2e/datasource-studio.spec.ts:5:1 › administrator can configure and analyze a SQLite datasource (1.9s)
+  ✓   6 [webkit] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset (1.7s)
+  ✓   7 [webkit] › e2e/file-dataset.spec.ts:59:1 › administrator previews Excel sheets, JSON, and Parquet files (927ms)
+  ✓   8 [webkit] › e2e/first-stage-creation.spec.ts:14:1 › template creation enters the shared screen editor (1.1s)
+  ✓   9 [webkit] › e2e/first-stage-creation.spec.ts:30:1 › blank creation supports hand editing, AI preview, confirmation, undo, redo, and playback (2.5s)
+  ✓  10 [webkit] › e2e/first-stage-creation.spec.ts:136:1 › screen access policy controls direct and embed authorization (1.6s)
+  ✓  11 [webkit] › e2e/first-stage-creation.spec.ts:260:1 › editor remains usable on a narrow viewport and publish dialog closes with Escape (888ms)
+  ✓  12 [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen (17.2s)
+  ✓  13 [webkit] › e2e/screen-editor.spec.ts:211:1 › multi-selection drags as one group and persists the same canvas delta (2.5s)
+  ✓  14 [webkit] › e2e/screen-playback.spec.ts:33:1 › published screens retain stable dark, light, isolated-error, and letterbox visuals (7.7s)
+  ✓  15 [webkit] › e2e/screen-playback.spec.ts:123:1 › direct iframe embeds load without an instance_id query parameter (957ms)
+  ✓  16 [webkit] › e2e/screen-playback.spec.ts:154:1 › host SDK controls an embedded screen and rejects unsafe access (3.5s)
+
+  16 passed (54.9s)

@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 437, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 355, in main
+    wait_for_healthy(app_container)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 69, in wait_for_healthy
+    status = docker("inspect", "--format", "{{.State.Health.Status}}", container)
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 38, in docker
+    return command("docker", *arguments, check=check).stdout.strip()
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 28, in command
+    return subprocess.run(
+           ~~~~~~~~~~~~~~^
+        arguments,
+        ^^^^^^^^^^
+    ...<3 lines>...
+        text=True,
+        ^^^^^^^^^^
+    )
+    ^
+  File "[LOCAL_UV]/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '('docker', 'inspect', '--format', '{{.State.Health.Status}}', 'datapulse-proxy-app-670baf9f7e')' returned non-zero exit status 1.

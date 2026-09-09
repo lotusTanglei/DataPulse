@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 476, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 427, in main
+    result, logs = verify_boundary(
+                   ~~~~~~~~~~~~~~~^
+        base_url=base_url,
+        ^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        setup_code=setup_code,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "[WORKSPACE]/tools/verify_proxy_boundary.py", line 261, in verify_boundary
+    raise RuntimeError("A temporary credential appeared in container logs.")
+RuntimeError: A temporary credential appeared in container logs.

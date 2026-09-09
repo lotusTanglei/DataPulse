@@ -1,0 +1,8 @@
+
+> datapulse@ check:contracts [ISOLATED_WORKTREE]
+> uv run --package datapulse-server python tools/check_generated.py
+
+   Building datapulse-server @ file://[ISOLATED_WORKTREE]/apps/server
+      Built datapulse-server @ file://[ISOLATED_WORKTREE]/apps/server
+Uninstalled 1 package in 2ms
+Installed 1 package in 6ms

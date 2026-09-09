@@ -1,0 +1,23 @@
+{
+  "tls_proxy_health": "passed",
+  "same_origin_mutation_through_tls_termination": "passed",
+  "spoofed_forwarded_headers_rejected": true,
+  "trusted_proxy_client_ip_allowed": true,
+  "display_cookie": {
+    "http_only": true,
+    "secure": true,
+    "same_site_lax": true,
+    "player_path": true
+  },
+  "embed_security_headers": {
+    "cache_control": "no-store",
+    "content_security_policy": "frame-ancestors https://host.example.test",
+    "referrer_policy": "no-referrer",
+    "x_content_type_options": "nosniff"
+  },
+  "cross_origin_embed_rejected": true,
+  "setup_code_app_log_occurrences": 1,
+  "setup_code_in_proxy_log": false,
+  "temporary_credentials_in_logs": false,
+  "proxy_query_strings_logged": false
+}
