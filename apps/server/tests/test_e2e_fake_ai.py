@@ -6,6 +6,30 @@ import httpx
 import pytest
 
 
+def test_playwright_arguments_default_to_chromium_and_allow_overrides() -> None:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+    from tools.run_e2e import playwright_arguments
+
+    assert playwright_arguments([]) == [
+        "--config",
+        "playwright.config.ts",
+        "--project=chromium",
+    ]
+    assert playwright_arguments(["--", "--project=webkit"]) == [
+        "--config",
+        "playwright.config.ts",
+        "--project=webkit",
+    ]
+    assert playwright_arguments(
+        ["--config=playwright.target.config.ts", "--grep", "@soak"],
+    ) == [
+        "--project=chromium",
+        "--config=playwright.target.config.ts",
+        "--grep",
+        "@soak",
+    ]
+
+
 def request_payload(mode: str, *, system: str = "analytics assistant") -> dict[str, object]:
     return {
         "model": "e2e-fake-model",

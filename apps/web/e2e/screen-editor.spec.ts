@@ -13,7 +13,7 @@ import {
 
 test("administrator builds, previews, publishes, and plays a complete screen", async ({
   page,
-}) => {
+}, testInfo) => {
   test.setTimeout(75_000);
   await page.setViewportSize({ width: 1920, height: 1080 });
   await authenticate(page);
@@ -131,7 +131,29 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
   );
   await page.reload();
   await expect(page.getByText("DataPulse 运营态势总览")).toBeVisible();
-  await expect(page).toHaveScreenshot("editor-shell.png", {
+  await expect(page.getByText("正在加载…")).toHaveCount(0, {
+    timeout: 12_000,
+  });
+  for (const panel of [
+    page.locator("aside.editor-panel--left"),
+    page.locator("aside.editor-panel--right"),
+  ]) {
+    await panel.evaluate((element) => {
+      element.scrollTop = 0;
+    });
+    await expect.poll(() => panel.evaluate((element) => element.scrollTop)).toBe(0);
+  }
+  await page.locator(":focus").evaluateAll((elements) => {
+    for (const element of elements) {
+      if (element instanceof HTMLElement) {
+        element.blur();
+      }
+    }
+  });
+  const editorSnapshot = testInfo.project.name === "chromium"
+    ? "editor-shell.png"
+    : `editor-shell-${testInfo.project.name}.png`;
+  await expect(page).toHaveScreenshot(editorSnapshot, {
     animations: "disabled",
   });
 

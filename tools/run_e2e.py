@@ -24,6 +24,23 @@ _FAKE_MODES = (
 )
 
 
+def playwright_arguments(arguments: list[str]) -> list[str]:
+    normalized = arguments[1:] if arguments[:1] == ["--"] else list(arguments)
+    has_config = any(
+        argument == "--config" or argument.startswith("--config=")
+        for argument in normalized
+    )
+    has_project = any(
+        argument == "--project" or argument.startswith("--project=")
+        for argument in normalized
+    )
+    return [
+        *([] if has_config else ["--config", "playwright.config.ts"]),
+        *([] if has_project else ["--project=chromium"]),
+        *normalized,
+    ]
+
+
 def _prompt_value(prompt: str, name: str, fallback: str) -> str:
     match = re.search(rf"^{re.escape(name)}:\s*(.+)$", prompt, re.MULTILINE)
     return match.group(1).strip() if match else fallback
@@ -188,9 +205,7 @@ def fake_ai_server() -> Iterator[str]:
 
 def main() -> int:
     config_path = prepare()
-    arguments = sys.argv[1:]
-    if arguments[:1] == ["--"]:
-        arguments = arguments[1:]
+    arguments = playwright_arguments(sys.argv[1:])
     try:
         with fake_ai_server() as ai_base_url:
             environment = {
@@ -210,8 +225,6 @@ def main() -> int:
                     "exec",
                     "playwright",
                     "test",
-                    "--config",
-                    "playwright.config.ts",
                     *arguments,
                 ],
                 cwd=REPOSITORY_ROOT,

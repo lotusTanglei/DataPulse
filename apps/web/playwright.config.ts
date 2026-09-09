@@ -18,6 +18,7 @@ const backendEnvironment = {
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: "**/*.target.spec.ts",
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,
@@ -33,6 +34,14 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
     },
   ],
   webServer: [
