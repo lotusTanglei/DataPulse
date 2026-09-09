@@ -13,6 +13,7 @@ import VChart from "vue-echarts";
 
 import type { QueryResult } from "../../query/types";
 import type { ComponentInstance, LoadAsset } from "../types";
+import { applyChartMotionPreference } from "./chartMotion";
 import {
   buildGeoMapOption,
   type ChartTheme,
@@ -58,12 +59,14 @@ const emptyText = computed(() =>
 );
 const option = computed(() =>
   props.result && geojson.value
-    ? buildGeoMapOption(
-        props.instance,
-        props.result,
-        mapName.value,
-        geojson.value,
-        props.theme ?? {},
+    ? applyChartMotionPreference(
+        buildGeoMapOption(
+          props.instance,
+          props.result,
+          mapName.value,
+          geojson.value,
+          props.theme ?? {},
+        ),
       )
     : {},
 );

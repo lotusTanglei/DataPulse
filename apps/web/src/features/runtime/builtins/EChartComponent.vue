@@ -26,6 +26,7 @@ import type {
   LoadAsset,
   RuntimeInteraction,
 } from "../types";
+import { applyChartMotionPreference } from "./chartMotion";
 import { buildChartOption, type ChartTheme } from "./chartOptions";
 import { stringProp } from "./format";
 
@@ -62,7 +63,9 @@ const emptyText = computed(() =>
 );
 const option = computed(() =>
   props.result
-    ? buildChartOption(props.instance, props.result, props.theme ?? {})
+    ? applyChartMotionPreference(
+        buildChartOption(props.instance, props.result, props.theme ?? {}),
+      )
     : {},
 );
 
