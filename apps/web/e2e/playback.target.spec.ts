@@ -34,12 +34,23 @@ async function openStandalone(page: Page, screenId: string): Promise<void> {
   });
 }
 
+function redactUrl(value: string): string {
+  try {
+    const parsed = new URL(value);
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return "unknown URL";
+  }
+}
+
 async function attachPageEvidence(
   page: Page,
   testInfo: TestInfo,
   name: string,
   metrics: object,
 ): Promise<void> {
+  // Playwright cannot disable animation already being painted into a canvas.
+  await page.waitForTimeout(1_200);
   const screenshot = await page.screenshot({ animations: "disabled", scale: "css" });
   const serialized = Buffer.from(`${JSON.stringify(metrics, null, 2)}\n`);
   await testInfo.attach(`${name}-metrics.json`, {
@@ -187,13 +198,17 @@ test("@soak published playback refreshes without overlap or stale errors", async
     if (request.url().includes("/api/player/screens/") && request.url().endsWith("/query")) {
       queryFinished += 1;
       inFlight -= 1;
-      failedRequests.push(request.failure()?.errorText ?? "request failed");
+      failedRequests.push(
+        `${request.failure()?.errorText ?? "request failed"} [${redactUrl(request.url())}]`,
+      );
     }
   });
   page.on("pageerror", (error) => pageErrors.push(error.message));
   page.on("console", (message) => {
     if (message.type() === "error") {
-      consoleErrors.push(message.text());
+      consoleErrors.push(
+        `${message.text()} [${redactUrl(message.location().url)}]`,
+      );
     }
   });
 
@@ -250,6 +265,8 @@ test("@soak published playback refreshes without overlap or stale errors", async
     heapSamples,
   };
 
+  console.log(`SOAK_METRICS ${JSON.stringify(metrics)}`);
+  await attachPageEvidence(page, testInfo, "playback-soak", metrics);
   expect(queryStarted).toBeGreaterThanOrEqual(7 * (1 + minimumRefreshCycles));
   expect(queryFinished).toBe(queryStarted);
   expect(inFlight).toBe(0);
@@ -260,6 +277,4 @@ test("@soak published playback refreshes without overlap or stale errors", async
   if (metrics.heapGrowth !== null) {
     expect(metrics.heapGrowth).toBeLessThan(128 * 1024 * 1024);
   }
-  console.log(`SOAK_METRICS ${JSON.stringify(metrics)}`);
-  await attachPageEvidence(page, testInfo, "playback-soak", metrics);
 });
