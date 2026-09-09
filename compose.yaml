@@ -4,6 +4,7 @@ services:
     environment:
       DATAPULSE_MASTER_KEY: ${DATAPULSE_MASTER_KEY:?Generate DATAPULSE_MASTER_KEY before starting DataPulse}
       DATAPULSE_SIGNING_KEY: ${DATAPULSE_SIGNING_KEY:?Generate DATAPULSE_SIGNING_KEY before starting DataPulse}
+      DATAPULSE_FORWARDED_ALLOW_IPS: ${DATAPULSE_FORWARDED_ALLOW_IPS:-127.0.0.1}
     ports:
       - "8000:8000"
     volumes:

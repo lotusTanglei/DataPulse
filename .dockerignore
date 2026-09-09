@@ -1,6 +1,8 @@
 .git
 .github
+.codegraph
 .e2e
+.idea
 .worktrees
 .venv
 **/__pycache__
@@ -13,3 +15,4 @@ apps/web/test-results
 data
 coverage
 htmlcov
+test-evidence
