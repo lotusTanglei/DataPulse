@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from datapulse.ai.models import AiAnalysisError, AiHealth
+from datapulse.ai.models import AiAnalysisError, AiGatewayError, AiHealth
 from datapulse.contracts.ai import AiAnalysisResponse, AiChartResponse, AiScreenResponse
 from tests.support.app import AppClient, build_test_app
 
@@ -221,3 +221,60 @@ def test_ai_status_and_analyze_require_admin_and_map_errors(ai_app: AppClient) -
     )
     assert screen_success.status_code == 200
     assert screen_success.json()["document"]["components"][0]["type"] == "builtin.text"
+
+
+def test_ai_screen_errors_expose_actionable_component_and_field_details(
+    ai_app: AppClient,
+) -> None:
+    setup_admin(ai_app)
+    ai_app.client.app.state.ai_service = FakeAiService(
+        error=AiAnalysisError(
+            "AI_FIELD_UNKNOWN",
+            "The screen draft contains an unknown field.",
+            issues=(
+                {
+                    "component_id": "sales-chart",
+                    "field": "data_binding.chart_spec.dimensions[0]",
+                    "reason": "字段不存在于数据集",
+                    "expected": "已声明的数据集字段",
+                },
+            ),
+        )
+    )
+
+    response = ai_app.client.post(
+        "/api/admin/ai/screen",
+        json={"question": "生成大屏", "dataset_ids": ["sales"]},
+        headers=mutation_headers(ai_app),
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"] == {
+        "code": "AI_FIELD_UNKNOWN",
+        "message": "AI 使用了未知字段，请检查组件和字段绑定。",
+        "request_id": response.headers["x-request-id"],
+        "field_errors": [
+            {
+                "component_id": "sales-chart",
+                "field": "data_binding.chart_spec.dimensions[0]",
+                "reason": "字段不存在于数据集",
+                "expected": "已声明的数据集字段",
+            }
+        ],
+    }
+
+
+def test_ai_rate_limit_error_keeps_429_status(ai_app: AppClient) -> None:
+    setup_admin(ai_app)
+    ai_app.client.app.state.ai_service = FakeAiService(
+        error=AiGatewayError("AI_RATE_LIMITED", "provider rate limit")
+    )
+
+    response = ai_app.client.post(
+        "/api/admin/ai/analyze",
+        json={"question": "分析趋势", "dataset_ids": ["sales"]},
+        headers=mutation_headers(ai_app),
+    )
+
+    assert response.status_code == 429
+    assert response.json()["error"]["code"] == "AI_RATE_LIMITED"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, field
 
 import pytest
@@ -123,8 +124,9 @@ class FakeContextService:
         dataset_ids: tuple[str, ...],
         *,
         max_rows: int,
+        question: str | None = None,
     ) -> tuple[DatasetContext, ...]:
-        self.calls.append({"dataset_ids": dataset_ids, "max_rows": max_rows})
+        self.calls.append({"dataset_ids": dataset_ids, "max_rows": max_rows, "question": question})
         if self.error is not None:
             raise self.error
         return self.contexts
@@ -232,7 +234,13 @@ async def test_service_builds_context_prompt_validates_chart_and_previews() -> N
     assert isinstance(response.chart_spec, ChartSpec)
     assert response.chart_spec.visual.type.value == "line"
     assert response.preview.rows == (("2026-01", 100),)
-    assert context_service.calls == [{"dataset_ids": ("sales",), "max_rows": 100}]
+    assert context_service.calls == [
+        {
+            "dataset_ids": ("sales",),
+            "max_rows": 100,
+            "question": "分析最近几个月的销售趋势",
+        }
+    ]
     assert len(gateway.calls) == 1
     assert "contexts:" in str(gateway.calls[0]["user"])
     assert datasource_service.calls[0]["trigger"] == "ai-analyze"
@@ -420,3 +428,31 @@ async def test_service_generates_validated_screen_draft() -> None:
     assert response.document.components[0].type == "builtin.text"
     assert response.document.components[1].data_binding["chart_spec"]["dataset_id"] == "sales"
     assert "allowed_component_types:" in str(gateway.calls[0]["user"])
+
+
+async def test_service_applies_independent_screen_timeout() -> None:
+    class SlowContextService(FakeContextService):
+        async def build(
+            self,
+            dataset_ids: tuple[str, ...],
+            *,
+            max_rows: int,
+            question: str | None = None,
+        ) -> tuple[DatasetContext, ...]:
+            await asyncio.sleep(0.05)
+            return await super().build(dataset_ids, max_rows=max_rows, question=question)
+
+    service = AiService(
+        gateway=FakeGateway(response=ai_response()),
+        context_service=SlowContextService(contexts=contexts()),
+        dataset_repository=FakeDatasetRepository({"sales": sql_dataset_response()}),
+        screen_timeout_seconds=0.01,
+    )
+
+    with pytest.raises(AiGatewayError) as error:
+        await service.generate_screen(
+            AiScreenRequest(question="生成销售大屏", dataset_ids=("sales",)),
+            request_id="screen-timeout",
+        )
+
+    assert error.value.code == "AI_TIMEOUT"

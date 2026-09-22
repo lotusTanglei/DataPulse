@@ -1,6 +1,9 @@
 export interface FieldError {
   field: string;
   message: string;
+  component_id?: string;
+  reason?: string;
+  expected?: string;
 }
 
 interface ErrorEnvelope {
@@ -93,7 +96,11 @@ async function errorFromResponse(response: Response): Promise<ApiError> {
       code: payload.error.code,
       message: payload.error.message,
       requestId: payload.error.request_id,
-      fieldErrors: payload.error.field_errors,
+      fieldErrors: payload.error.field_errors.map((item) => ({
+        ...item,
+        field: item.field || "",
+        message: item.message || item.reason || "字段校验失败",
+      })),
       status: response.status,
     });
   }
@@ -112,7 +119,7 @@ export async function apiRequest<T>(
   const { json, suppressAuthExpiredEvent = false, ...requestOptions } = options;
   const method = (requestOptions.method ?? "GET").toUpperCase();
   const headers = new Headers(requestOptions.headers);
-  if (["POST", "PATCH", "DELETE"].includes(method)) {
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
     const csrfToken = cookie("datapulse_csrf");
     if (csrfToken !== null) {
       headers.set("X-CSRF-Token", csrfToken);

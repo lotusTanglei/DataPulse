@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from pydantic import Field, ValidationError
 from datapulse.ai.context import DatasetContextService
 from datapulse.ai.edit import apply_ai_edit_commands, validate_edit_document
 from datapulse.ai.gateway import AiGateway
-from datapulse.ai.models import AiAnalysisError, AiHealth
+from datapulse.ai.models import AiAnalysisError, AiGatewayError, AiHealth
 from datapulse.ai.screen_generator import ScreenDraftGenerator
 from datapulse.contracts.ai import (
     AiAnalysisDraft,
@@ -87,6 +88,7 @@ class AiService:
         file_asset_repository: FileAssetRepository | None = None,
         file_query_service: FileDatasetQueryService | None = None,
         max_context_rows: int = 100,
+        screen_timeout_seconds: int = 120,
     ) -> None:
         self._gateway = gateway
         self._context_service = context_service
@@ -97,6 +99,7 @@ class AiService:
         self._file_query_service = file_query_service
         self._compiler = ChartQueryCompiler()
         self._max_context_rows = max_context_rows
+        self._screen_timeout_seconds = screen_timeout_seconds
 
     def health(self) -> AiHealth:
         return self._gateway.health()
@@ -112,13 +115,19 @@ class AiService:
     def _default_limit(self, dataset: DatasetResponse) -> int:
         return min(1000, dataset.definition.max_rows)
 
-    async def _contexts(self, dataset_ids: tuple[str, ...]) -> tuple[object, ...]:
+    async def _contexts(
+        self,
+        dataset_ids: tuple[str, ...],
+        *,
+        question: str | None = None,
+    ) -> tuple[object, ...]:
         if self._context_service is None:
             raise RuntimeError("context service is not configured")
         try:
             return await self._context_service.build(
                 dataset_ids,
                 max_rows=self._max_context_rows,
+                question=question,
             )
         except (
             DatasetNotFound,
@@ -343,7 +352,7 @@ class AiService:
             raise RuntimeError("context service is not configured")
         self._gateway.ensure_configured()
         datasets = tuple([await self._dataset(dataset_id) for dataset_id in request.dataset_ids])
-        contexts = await self._contexts(request.dataset_ids)
+        contexts = await self._contexts(request.dataset_ids, question=request.question)
         system = (
             "You are a DataPulse analytics assistant. "
             "Return only valid JSON that matches the requested response model."
@@ -396,7 +405,7 @@ class AiService:
             raise RuntimeError("context service is not configured")
         self._gateway.ensure_configured()
         dataset = await self._dataset(request.dataset_id)
-        contexts = await self._contexts((request.dataset_id,))
+        contexts = await self._contexts((request.dataset_id,), question=request.question)
         system, user = self._chart_generation_prompt(
             request=request,
             dataset=dataset,
@@ -440,7 +449,10 @@ class AiService:
             max_context_rows=self._max_context_rows,
         )
         try:
-            return await generator.generate(request, request_id=request_id)
+            async with asyncio.timeout(self._screen_timeout_seconds):
+                return await generator.generate(request, request_id=request_id)
+        except TimeoutError as error:
+            raise AiGatewayError("AI_TIMEOUT", "AI screen generation timed out.") from error
         except (
             DatasetNotFound,
             DatasetDefinitionInvalid,

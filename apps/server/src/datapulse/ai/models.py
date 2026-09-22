@@ -15,14 +15,24 @@ class AiGatewayError(RuntimeError):
 
 
 class AiAnalysisError(RuntimeError):
-    def __init__(self, code: str, message: str) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        issues: tuple[dict[str, str], ...] = (),
+    ) -> None:
         super().__init__(message)
         self.code = code
+        self.issues = issues
 
 
 class DatasetContextField(ContractModel):
     name: str
     data_type: str
+    role: str = "unknown"
+    cardinality: int | None = None
+    null_rate: float | None = None
 
 
 class DatasetContext(ContractModel):
@@ -31,6 +41,7 @@ class DatasetContext(ContractModel):
     fields: tuple[DatasetContextField, ...]
     sample_rows: tuple[dict[str, JsonValue], ...]
     summary: str
+    profile_summary: str = ""
 
 
 __all__ = [

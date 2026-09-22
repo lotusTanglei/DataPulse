@@ -199,9 +199,28 @@ class FakeContextService:
         dataset_ids: tuple[str, ...],
         *,
         max_rows: int,
+        question: str | None = None,
     ) -> tuple[DatasetContext, ...]:
-        self.calls.append({"dataset_ids": dataset_ids, "max_rows": max_rows})
+        self.calls.append({"dataset_ids": dataset_ids, "max_rows": max_rows, "question": question})
         return self.contexts
+
+
+@dataclass
+class SequenceGateway(FakeGateway):
+    payloads: list[dict[str, object]] = field(default_factory=list)
+
+    async def complete_json(
+        self,
+        *,
+        system: str,
+        user: str,
+        response_model,  # noqa: ANN001
+        **kwargs: object,
+    ):
+        del kwargs
+        self.calls.append({"system": system, "user": user, "response_model": response_model})
+        payload = self.payloads.pop(0) if self.payloads else self.payload
+        return response_model.model_validate(payload)
 
 
 @dataclass
@@ -251,6 +270,8 @@ async def test_screen_generator_builds_validated_dashboard_document() -> None:
     }
     assert all(component.id for component in response.document.components)
     assert "allowed_component_types:" in str(gateway.calls[0]["user"])
+    assert "sections:" in str(gateway.calls[0]["user"])
+    assert "overview" in str(gateway.calls[0]["user"])
 
 
 @pytest.mark.parametrize(
@@ -264,7 +285,7 @@ async def test_screen_generator_builds_validated_dashboard_document() -> None:
                     "frame": {"x": 40, "y": 24, "width": 720, "height": 80},
                 },
             ),
-            "AI_SCREEN_INVALID",
+            "AI_COMPONENT_UNKNOWN",
         ),
         (
             lambda payload: payload["components"][1]["data_binding"]["chart_spec"].__setitem__(
@@ -278,14 +299,14 @@ async def test_screen_generator_builds_validated_dashboard_document() -> None:
                 "dimensions",
                 ["missing"],
             ),
-            "AI_SCREEN_INVALID",
+            "AI_FIELD_UNKNOWN",
         ),
         (
             lambda payload: payload["components"][3].__setitem__(
                 "frame",
                 {"x": 1600, "y": 128, "width": 640, "height": 320},
             ),
-            "AI_SCREEN_INVALID",
+            "AI_FRAME_OUT_OF_BOUNDS",
         ),
         (
             lambda payload: payload["components"][0]["props"].__setitem__(
@@ -304,7 +325,7 @@ async def test_screen_generator_builds_validated_dashboard_document() -> None:
                         "frame": {"x": 0, "y": index * 10, "width": 100, "height": 20},
                         "props": {"text": f"组件 {index}"},
                     }
-                    for index in range(13)
+                    for index in range(41)
                 ],
             ),
             "AI_SCREEN_INVALID",
@@ -332,3 +353,145 @@ def test_validate_ai_document_rejects_invalid_payloads(
         )
 
     assert error.value.code == error_code
+
+
+def test_validation_error_contains_component_field_reason_and_expected() -> None:
+    payload = screen_payload()["document"]
+    payload["components"][1]["data_binding"]["chart_spec"]["dimensions"] = ["missing"]
+
+    with pytest.raises(AiAnalysisError) as error:
+        validate_ai_document(
+            payload,
+            allowed_dataset_ids={"sales": sales_dataset_response()},
+            canvas_width=1920,
+            canvas_height=1080,
+            requested_theme="dark",
+        )
+
+    assert error.value.code == "AI_FIELD_UNKNOWN"
+    assert error.value.issues == (
+        {
+            "component_id": "ai-component-3",
+            "field": "dimensions[0]",
+            "reason": "字段不存在于数据集",
+            "expected": "已声明的数据集字段",
+        },
+    )
+
+
+async def test_screen_generator_repairs_invalid_components_for_at_most_two_rounds() -> None:
+    invalid = screen_payload()
+    invalid["document"]["components"].append(
+        {
+            "id": "broken-card",
+            "type": "builtin.unknown",
+            "frame": {"x": 1100, "y": 472, "width": 500, "height": 300},
+        }
+    )
+    repaired = screen_payload()
+    repaired["document"]["components"].append(
+        {
+            "id": "fixed-card",
+            "type": "builtin.text",
+            "frame": {"x": 1100, "y": 472, "width": 500, "height": 300},
+            "props": {"text": "已修复"},
+        }
+    )
+    gateway = SequenceGateway(payload=invalid, payloads=[invalid, repaired])
+    generator = ScreenDraftGenerator(
+        gateway=gateway,
+        context_service=FakeContextService(contexts=contexts()),
+        dataset_repository=FakeDatasetRepository({"sales": sales_dataset_response()}),
+        max_context_rows=100,
+    )
+
+    response = await generator.generate(
+        AiScreenRequest(question="生成销售运营大屏", dataset_ids=("sales",)),
+        request_id="repair-req",
+    )
+
+    assert len(gateway.calls) == 2
+    assert "fixed-card" in {component.id for component in response.document.components}
+    assert all("broken-card" not in warning for warning in response.warnings)
+    assert "validation_issues" in gateway.calls[1]["user"]
+
+
+async def test_screen_generator_returns_editable_partial_draft_after_two_failed_repairs() -> None:
+    payload = screen_payload()
+    payload["document"]["components"].append(
+        {
+            "id": "broken-card",
+            "type": "builtin.unknown",
+            "frame": {"x": 1100, "y": 472, "width": 500, "height": 300},
+        }
+    )
+    gateway = SequenceGateway(payload=payload, payloads=[payload, payload, payload])
+    generator = ScreenDraftGenerator(
+        gateway=gateway,
+        context_service=FakeContextService(contexts=contexts()),
+        dataset_repository=FakeDatasetRepository({"sales": sales_dataset_response()}),
+        max_context_rows=100,
+    )
+
+    response = await generator.generate(
+        AiScreenRequest(question="生成销售运营大屏", dataset_ids=("sales",)),
+        request_id="partial-req",
+    )
+
+    assert len(gateway.calls) == 3
+    assert len(response.document.components) == 5
+    assert any("broken-card" in warning for warning in response.warnings)
+
+
+async def test_screen_generator_allows_at_least_25_components() -> None:
+    payload = screen_payload()
+    payload["document"]["components"] = [
+        {
+            "id": f"tile-{index}",
+            "type": "builtin.text",
+            "frame": {
+                "x": (index % 5) * 360,
+                "y": (index // 5) * 180,
+                "width": 320,
+                "height": 120,
+            },
+            "props": {"text": f"区域 {index}"},
+        }
+        for index in range(25)
+    ]
+    generator, _ = build_generator(payload)
+
+    response = await generator.generate(
+        AiScreenRequest(question="生成 25 个区域卡片", dataset_ids=("sales",)),
+        request_id="many-components",
+    )
+
+    assert len(response.document.components) == 25
+
+
+@pytest.mark.parametrize(
+    "mutator",
+    [
+        lambda payload: payload["components"][1]["frame"].update(
+            {"x": 300, "y": 150, "width": 800, "height": 400}
+        ),
+        lambda payload: payload["components"][2]["frame"].update(
+            {"x": 320, "y": 150, "width": 40, "height": 20}
+        ),
+    ],
+)
+def test_validation_rejects_overlapping_or_unreadable_components(mutator) -> None:
+    payload = screen_payload()["document"]
+    mutator(payload)
+
+    with pytest.raises(AiAnalysisError) as error:
+        validate_ai_document(
+            payload,
+            allowed_dataset_ids={"sales": sales_dataset_response()},
+            canvas_width=1920,
+            canvas_height=1080,
+            requested_theme="dark",
+        )
+
+    assert error.value.code == "AI_SCREEN_INVALID"
+    assert error.value.issues[0]["component_id"]

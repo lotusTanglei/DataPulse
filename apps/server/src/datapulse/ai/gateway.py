@@ -11,6 +11,8 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class AiGateway:
+    _schema_capability_cache: dict[tuple[str, str], bool] = {}
+
     def __init__(
         self,
         *,
@@ -56,15 +58,53 @@ class AiGateway:
             "Content-Type": "application/json",
         }
 
-    def _payload(self, *, system: str, user: str) -> dict[str, object]:
+    @classmethod
+    def clear_capability_cache(cls) -> None:
+        cls._schema_capability_cache.clear()
+
+    def _capability_key(self, model: str | None) -> tuple[str, str]:
+        return (self._base_url or "", model or self._model or "")
+
+    def _payload(
+        self,
+        *,
+        system: str,
+        user: str,
+        response_model: type[T],
+        model: str | None = None,
+        strict_schema: bool = True,
+    ) -> dict[str, object]:
+        response_format: dict[str, object]
+        if strict_schema:
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": response_model.__name__.lower(),
+                    "strict": True,
+                    "schema": response_model.model_json_schema(),
+                },
+            }
+        else:
+            response_format = {"type": "json_object"}
         return {
-            "model": self._model,
+            "model": model or self._model,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            "response_format": {"type": "json_object"},
+            "response_format": response_format,
         }
+
+    @staticmethod
+    def _strict_schema_unsupported(response: httpx.Response) -> bool:
+        if response.status_code != 400:
+            return False
+        try:
+            body = response.json()
+        except ValueError:
+            body = response.text
+        text = str(body).lower()
+        return "response_format" in text or "json_schema" in text or "structured output" in text
 
     def _extract_content(self, payload: object) -> str:
         if not isinstance(payload, dict):
@@ -102,35 +142,59 @@ class AiGateway:
         system: str,
         user: str,
         response_model: type[T],
+        model: str | None = None,
+        timeout_seconds: int | float | None = None,
     ) -> T:
         self.ensure_configured()
         assert self._client is not None
 
-        last_timeout: httpx.TimeoutException | None = None
-        last_http_error: httpx.HTTPError | None = None
-        for attempt in range(2):
+        selected_model = model or self._model
+        capability_key = self._capability_key(selected_model)
+        strict_schema = self._schema_capability_cache.get(capability_key, True)
+        retry_count = 0
+        while True:
             try:
                 response = await self._client.post(
                     "chat/completions",
                     headers=self._headers(),
-                    json=self._payload(system=system, user=user),
-                    timeout=self._timeout_seconds,
+                    json=self._payload(
+                        system=system,
+                        user=user,
+                        response_model=response_model,
+                        model=model,
+                        strict_schema=strict_schema,
+                    ),
+                    timeout=timeout_seconds or self._timeout_seconds,
                 )
             except httpx.TimeoutException as error:
-                last_timeout = error
-                if attempt == 0:
+                if retry_count == 0:
+                    retry_count += 1
                     continue
                 raise AiGatewayError("AI_TIMEOUT", "AI request timed out.") from error
             except httpx.HTTPError as error:
-                last_http_error = error
-                if attempt == 0:
+                if retry_count == 0:
+                    retry_count += 1
                     continue
                 raise AiGatewayError("AI_UNAVAILABLE", "AI service is unavailable.") from error
 
-            if response.status_code >= 500 and attempt == 0:
+            if strict_schema and self._strict_schema_unsupported(response):
+                self._schema_capability_cache[capability_key] = False
+                strict_schema = False
+                continue
+            if response.status_code >= 500 and retry_count == 0:
+                retry_count += 1
+                continue
+            if response.status_code == 429 and retry_count == 0:
+                retry_count += 1
                 continue
             if response.status_code >= 400:
-                raise AiGatewayError("AI_UNAVAILABLE", "AI service is unavailable.")
+                code = "AI_RATE_LIMITED" if response.status_code == 429 else "AI_PROVIDER_4XX"
+                if response.status_code >= 500:
+                    code = "AI_UNAVAILABLE"
+                raise AiGatewayError(code, "AI provider request failed.")
+
+            if capability_key not in self._schema_capability_cache:
+                self._schema_capability_cache[capability_key] = strict_schema
 
             try:
                 payload = response.json()
@@ -141,14 +205,6 @@ class AiGateway:
                 return response_model.model_validate_json(content)
             except (ValidationError, ValueError) as error:
                 raise AiGatewayError("AI_INVALID_OUTPUT", "AI response is invalid.") from error
-
-        if last_timeout is not None:
-            raise AiGatewayError("AI_TIMEOUT", "AI request timed out.") from last_timeout
-        if last_http_error is not None:
-            raise AiGatewayError(
-                "AI_UNAVAILABLE", "AI service is unavailable."
-            ) from last_http_error
-        raise AiGatewayError("AI_UNAVAILABLE", "AI service is unavailable.")
 
 
 __all__ = ["AiGateway"]

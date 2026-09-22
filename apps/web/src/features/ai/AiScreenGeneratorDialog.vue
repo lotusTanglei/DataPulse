@@ -166,6 +166,18 @@ watch(
       <InlineNotice v-if="generateError" tone="error">
         <p>{{ generateError.message }}</p>
         <code v-if="generateError.requestId">{{ generateError.requestId }}</code>
+        <ul
+          v-if="generateError.fieldErrors.length > 0"
+          class="ai-screen-dialog__field-errors"
+          aria-label="AI 生成错误详情"
+        >
+          <li v-for="(issue, index) in generateError.fieldErrors" :key="`${issue.component_id ?? 'screen'}-${issue.field}-${index}`">
+            <strong v-if="issue.component_id">组件 {{ issue.component_id }}</strong>
+            <code v-if="issue.field">{{ issue.field }}</code>
+            <span>{{ issue.reason ?? issue.message }}</span>
+            <small v-if="issue.expected">期望：{{ issue.expected }}</small>
+          </li>
+        </ul>
       </InlineNotice>
       <InlineNotice v-if="aiStatus?.status === 'unconfigured'" tone="info">
         <p>AI 服务尚未配置，无法生成草稿。请先配置 AI 服务后再试。</p>
@@ -341,6 +353,18 @@ watch(
 .ai-screen-dialog__result p,
 .ai-screen-dialog__warnings {
   margin: 0;
+}
+
+.ai-screen-dialog__field-errors {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.ai-screen-dialog__field-errors li {
+  display: grid;
+  gap: 2px;
 }
 
 .ai-screen-dialog__hint,
