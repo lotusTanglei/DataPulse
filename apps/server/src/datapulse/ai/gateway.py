@@ -184,9 +184,6 @@ class AiGateway:
             if response.status_code >= 500 and retry_count == 0:
                 retry_count += 1
                 continue
-            if response.status_code == 429 and retry_count == 0:
-                retry_count += 1
-                continue
             if response.status_code >= 400:
                 code = "AI_RATE_LIMITED" if response.status_code == 429 else "AI_PROVIDER_4XX"
                 if response.status_code >= 500:
