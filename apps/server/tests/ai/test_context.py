@@ -14,6 +14,7 @@ from datapulse.contracts.dataset import (
     SqlQuery,
 )
 from datapulse.dataset.models import DatasetResponse
+from datapulse.dataset.profile import DatasetFieldProfile, DatasetProfile, FieldRole
 from datapulse.query.models import QueryColumn, QueryRequest, QueryResult
 
 pytestmark = pytest.mark.anyio
@@ -101,6 +102,55 @@ class FakeDatasourceService:
         )
 
 
+@dataclass
+class FakeProfileService:
+    async def profile(self, dataset_id: str, *, max_rows: int = 5000) -> DatasetProfile:
+        assert dataset_id == "sales"
+        return DatasetProfile(
+            dataset_id="sales",
+            name="销售数据集",
+            row_count=1000,
+            sampled=True,
+            fields=(
+                DatasetFieldProfile(
+                    name="region",
+                    data_type="string",
+                    role=FieldRole.DIMENSION,
+                    nullable=False,
+                    cardinality=5,
+                    unique_count=5,
+                    uniqueness_ratio=0.5,
+                    sample_values=("华东",),
+                ),
+                DatasetFieldProfile(
+                    name="amount",
+                    data_type="number",
+                    role=FieldRole.MEASURE,
+                    nullable=False,
+                    cardinality=100,
+                    unique_count=100,
+                    uniqueness_ratio=0.1,
+                    sample_values=(10,),
+                ),
+                DatasetFieldProfile(
+                    name="notes",
+                    data_type="string",
+                    role=FieldRole.TEXT,
+                    nullable=True,
+                    cardinality=1000,
+                    unique_count=1000,
+                    uniqueness_ratio=1,
+                    sample_values=("内部备注",),
+                ),
+            ),
+            candidate_time_fields=(),
+            measure_candidates=("amount",),
+            geographic_fields=(),
+            suspected_primary_key=None,
+            time_coverage=None,
+        )
+
+
 async def test_context_service_limits_fields_rows_and_truncates_strings() -> None:
     datasource_service = FakeDatasourceService()
     service = DatasetContextService(
@@ -119,3 +169,59 @@ async def test_context_service_limits_fields_rows_and_truncates_strings() -> Non
     assert str(context.sample_rows[0]["field_0"]).endswith("...")
     assert datasource_service.calls[0].max_rows == 2
     assert context.summary == "50 fields; 2 sample rows; 0 parameters."
+
+
+async def test_context_service_enforces_serialized_character_budget() -> None:
+    datasource_service = FakeDatasourceService()
+    service = DatasetContextService(
+        dataset_repository=FakeDatasetRepository(dataset_response()),
+        datasource_service=datasource_service,
+        registry=type("Registry", (), {"get": lambda self, _name: FakeConnector()})(),
+        max_context_chars=600,
+    )
+
+    context = (await service.build(("sales",), max_rows=10))[0]
+
+    assert len(context.fields) < 50
+    assert len(context.sample_rows) <= 2
+    assert "budget" in context.summary
+
+
+async def test_context_defaults_to_profile_summary_and_filters_by_question() -> None:
+    datasource_service = FakeDatasourceService()
+    service = DatasetContextService(
+        dataset_repository=FakeDatasetRepository(dataset_response()),
+        datasource_service=datasource_service,
+        registry=type("Registry", (), {"get": lambda self, _name: FakeConnector()})(),
+        profile_service=FakeProfileService(),
+    )
+
+    context = (await service.build(("sales",), max_rows=10, question="amount"))[0]
+
+    assert [field.name for field in context.fields] == ["amount"]
+    assert context.fields[0].role == "measure"
+    assert context.sample_rows == ()
+    assert "1000 rows" in context.profile_summary
+    assert datasource_service.calls == []
+
+
+async def test_context_can_request_samples_after_profile_selection() -> None:
+    datasource_service = FakeDatasourceService()
+    service = DatasetContextService(
+        dataset_repository=FakeDatasetRepository(dataset_response()),
+        datasource_service=datasource_service,
+        registry=type("Registry", (), {"get": lambda self, _name: FakeConnector()})(),
+        profile_service=FakeProfileService(),
+    )
+
+    context = (
+        await service.build(
+            ("sales",),
+            max_rows=2,
+            question="amount",
+            include_samples=True,
+        )
+    )[0]
+
+    assert len(context.sample_rows) == 2
+    assert datasource_service.calls[0].max_rows == 2

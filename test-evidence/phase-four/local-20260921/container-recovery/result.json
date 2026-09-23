@@ -1,0 +1,12 @@
+{
+  "started_at": "2026-09-21T03:57:30.360294+00:00",
+  "image": "datapulse:phase-four-local",
+  "cpu_limit": 2,
+  "memory_limit_bytes": 4294967296,
+  "status": "failed",
+  "image_id": "sha256:dd0beebb16441f52fd1368ddcfe2cc276d9a0f9b9e4dd82f60ff83906b26fc0a",
+  "failed_stage": "seed",
+  "error_type": "RuntimeError",
+  "error": "HTTP 401; expected 201; code AUTH_REQUIRED",
+  "finished_at": "2026-09-21T03:57:36.598642+00:00"
+}

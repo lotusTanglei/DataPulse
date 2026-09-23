@@ -1,0 +1,269 @@
+{
+  "$defs": {
+    "AssetMediaMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "audio_codec": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Audio Codec"
+        },
+        "channels": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channels"
+        },
+        "cues": {
+          "items": {
+            "$ref": "#/$defs/SubtitleCue"
+          },
+          "maxItems": 500,
+          "title": "Cues",
+          "type": "array"
+        },
+        "duration_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Seconds"
+        },
+        "frame_rate": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frame Rate"
+        },
+        "has_alpha": {
+          "default": false,
+          "title": "Has Alpha",
+          "type": "boolean"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "sample_rate": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Rate"
+        },
+        "thumbnail_size_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Thumbnail Size Bytes",
+          "type": "integer"
+        },
+        "validated": {
+          "default": false,
+          "title": "Validated",
+          "type": "boolean"
+        },
+        "video_codec": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Video Codec"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        }
+      },
+      "title": "AssetMediaMetadata",
+      "type": "object"
+    },
+    "SubtitleCue": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "number"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "text"
+      ],
+      "title": "SubtitleCue",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/screen-asset.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "asset_type": {
+      "enum": [
+        "image",
+        "geojson",
+        "audio",
+        "video",
+        "subtitle"
+      ],
+      "title": "Asset Type",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "family_id": {
+      "minLength": 1,
+      "title": "Family Id",
+      "type": "string"
+    },
+    "has_thumbnail": {
+      "default": false,
+      "title": "Has Thumbnail",
+      "type": "boolean"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "license_expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "License Expires At"
+    },
+    "license_note": {
+      "default": "",
+      "title": "License Note",
+      "type": "string"
+    },
+    "media": {
+      "$ref": "#/$defs/AssetMediaMetadata"
+    },
+    "mime_type": {
+      "minLength": 1,
+      "title": "Mime Type",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "original_name": {
+      "minLength": 1,
+      "title": "Original Name",
+      "type": "string"
+    },
+    "sha256": {
+      "title": "Sha256",
+      "type": "string"
+    },
+    "size_bytes": {
+      "minimum": 0,
+      "title": "Size Bytes",
+      "type": "integer"
+    },
+    "uploaded_by": {
+      "default": "",
+      "title": "Uploaded By",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "original_name",
+    "asset_type",
+    "mime_type",
+    "sha256",
+    "size_bytes",
+    "family_id",
+    "version",
+    "created_at"
+  ],
+  "title": "ScreenAssetResponse",
+  "type": "object"
+}

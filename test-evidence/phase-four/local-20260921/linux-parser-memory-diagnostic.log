@@ -1,0 +1,13 @@
+Runtime: Linux Python 3.13.15 (main, Aug 25 2026, 01:20:37) [GCC 14.2.0]
+Image: datapulse-phase3-compose-smoke-datapulse; current apps/server and root pyproject mounted read-only
+Both cases use CPU limit 30 seconds, RLIMIT_AS 1024 MiB and Arrow system pool.
+TWO GLIBC ARENAS: False RETURN: 0 STDOUT: VmSize:	  956200 kB
+VmRSS:	  180256 kB
+Threads:	10
+{"ok": true, "parsed": {"fields": [{"name": "day", "data_type": "date"}, {"name": "amount", "data_type": "number"}, {"name": "count", "data_type": "integer"}], "row_count": 2, "sample_rows": [{"day": "2026-01-01", "amount": 10.5, "count": 1}, {"day": "2026-01-02", "amount": 12.0, "count": 2}], "normalized_path": "/tmp/tmpf3aqzxg6/sales.parquet"}}
+ STDERR: 
+TWO GLIBC ARENAS: True RETURN: 0 STDOUT: VmSize:	  431912 kB
+VmRSS:	  180320 kB
+Threads:	10
+{"ok": true, "parsed": {"fields": [{"name": "day", "data_type": "date"}, {"name": "amount", "data_type": "number"}, {"name": "count", "data_type": "integer"}], "row_count": 2, "sample_rows": [{"day": "2026-01-01", "amount": 10.5, "count": 1}, {"day": "2026-01-02", "amount": 12.0, "count": 2}], "normalized_path": "/tmp/tmpf3aqzxg6/sales.parquet"}}
+ STDERR: 

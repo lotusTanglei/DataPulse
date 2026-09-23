@@ -1,0 +1,34 @@
+{
+  "started_at": "2026-09-21T04:18:17.367222+00:00",
+  "image": "datapulse:phase-four-local",
+  "cpu_limit": 2,
+  "memory_limit_bytes": 4294967296,
+  "pids_limit": 256,
+  "application_environment": "test",
+  "transport": "loopback HTTP",
+  "status": "passed",
+  "image_id": "sha256:31a7e97e411e89d35f7cb36d96ca6f7606b1d504e80b1de72a9954f91fb6cd6f",
+  "capacity": {
+    "clients": 50,
+    "rounds": 5,
+    "queries": 250,
+    "failed": 0,
+    "p95_ms": 590.0,
+    "max_ms": 701.77,
+    "p95_limit_ms": 3000
+  },
+  "container_usage": {
+    "BlockIO": "257MB / 5.28MB",
+    "CPUPerc": "1.49%",
+    "Container": "datapulse-p4-a28ae9b9b6",
+    "ID": "9928b21fc175",
+    "MemPerc": "5.05%",
+    "MemUsage": "206.7MiB / 4GiB",
+    "Name": "datapulse-p4-a28ae9b9b6",
+    "NetIO": "221kB / 285kB",
+    "PIDs": "25"
+  },
+  "backup_members": 4,
+  "restore_seconds": 2.038,
+  "finished_at": "2026-09-21T04:18:46.520685+00:00"
+}

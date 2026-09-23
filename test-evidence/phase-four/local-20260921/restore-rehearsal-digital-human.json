@@ -1,0 +1,23 @@
+{
+  "accounts": 2,
+  "archive_bytes": 300683,
+  "archive_members": 11,
+  "backup_seconds": 0.933,
+  "datasets": 2,
+  "datasources": 1,
+  "digital_human_components": 1,
+  "digital_human_portrait_audio_bytes_verified_after_restart": true,
+  "display_embed_query_media_plugin_verified_after_restart": true,
+  "editor_grants_preserved": true,
+  "file_rows": 2,
+  "independent_master_and_signing_keys": true,
+  "media_assets": 3,
+  "old_credentials_revoked": true,
+  "plugins": 1,
+  "published_screens": 1,
+  "restore_seconds": 1.037,
+  "restored_app_starts": 2,
+  "scope": "local temporary directories; not target deployment acceptance",
+  "sql_rows": 2,
+  "uncompressed_bytes": 296543
+}

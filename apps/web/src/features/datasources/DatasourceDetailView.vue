@@ -11,6 +11,7 @@ import { RouterLink, useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import { useStudioPermissions } from "../identity/permissions";
 import { getDatasource } from "./api";
 import SchemaBrowser from "./SchemaBrowser.vue";
 import type {
@@ -23,6 +24,8 @@ import type {
 type DetailTab = "overview" | "schema" | "sql" | "settings";
 
 const route = useRoute();
+const { canWriteResource } = useStudioPermissions();
+const canWrite = ref(false);
 const SqlDebugView = defineAsyncComponent(
   () => import("../query/SqlDebugView.vue"),
 );
@@ -33,14 +36,14 @@ const activeTab = ref<DetailTab>("overview");
 let loadController: AbortController | null = null;
 
 const tabs = computed(() =>
-  datasource.value?.config.type === "http_api"
+  (datasource.value?.config.type === "http_api"
     ? [{ id: "overview", label: "概览" }, { id: "settings", label: "设置" }]
     : [
         { id: "overview", label: "概览" },
         { id: "schema", label: "Schema" },
         { id: "sql", label: "SQL 调试" },
         { id: "settings", label: "设置" },
-      ],
+      ]).filter((tab) => tab.id !== "settings" || canWrite.value),
 );
 
 const typeLabels: Record<ConnectorType, string> = {
@@ -91,10 +94,14 @@ async function load(id: string): Promise<void> {
   loading.value = true;
   error.value = null;
   datasource.value = null;
+  canWrite.value = false;
   try {
-    const loaded = await getDatasource(id, controller.signal);
+    const [loaded, writable] = await Promise.all([
+      getDatasource(id, controller.signal), canWriteResource("datasource", id),
+    ]);
     if (!controller.signal.aborted) {
       datasource.value = loaded;
+      canWrite.value = writable;
     }
   } catch (reason) {
     if (!controller.signal.aborted) {
@@ -149,6 +156,7 @@ onBeforeUnmount(() => loadController?.abort());
           </div>
         </div>
         <RouterLink
+          v-if="canWrite"
           class="secondary-button"
           :to="`/studio/datasources/${datasource.id}/edit`"
         >

@@ -149,6 +149,44 @@ async def test_save_query_previews_infers_fields_and_persists_definition(
     assert await repository.list() == (created,)
 
 
+async def test_save_query_infers_unknown_column_types_from_sample_values(
+    datasource_repository: DatasourceRepository,
+    metadata_session_factory: object,
+) -> None:
+    repository = DatasetRepository(metadata_session_factory)
+    service, datasource_service = await build_service(
+        datasource_repository,
+        repository,
+    )
+    datasource_service.result = QueryResult(
+        request_id="preview-unknown",
+        columns=(
+            QueryColumn(name="month", data_type="unknown"),
+            QueryColumn(name="store_id", data_type="unknown"),
+            QueryColumn(name="amount", data_type="unknown"),
+        ),
+        rows=(("2026-01", 101, 120.5), ("2026-02", 102, 80.0)),
+        row_count=2,
+        truncated=False,
+        duration_ms=3,
+    )
+
+    created = await service.create(
+        DatasetCreate(
+            name="Store sales",
+            data_source_id="source-1",
+            sql="SELECT month, store_id, amount FROM sales",
+        ),
+        request_id="save-unknown",
+    )
+
+    assert [field.data_type for field in created.definition.fields] == [
+        DataType.STRING,
+        DataType.INTEGER,
+        DataType.NUMBER,
+    ]
+
+
 async def test_save_rest_query_previews_and_persists_definition(
     datasource_repository: DatasourceRepository,
     metadata_session_factory: object,

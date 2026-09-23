@@ -1,0 +1,30 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/resource-access.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "manage": {
+      "title": "Manage",
+      "type": "boolean"
+    },
+    "publish": {
+      "title": "Publish",
+      "type": "boolean"
+    },
+    "read": {
+      "title": "Read",
+      "type": "boolean"
+    },
+    "write": {
+      "title": "Write",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "read",
+    "write",
+    "publish",
+    "manage"
+  ],
+  "title": "ResourceAccessResponse",
+  "type": "object"
+}

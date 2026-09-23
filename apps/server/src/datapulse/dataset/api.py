@@ -10,6 +10,7 @@ from datapulse.dataset.models import (
     DatasetResponse,
     DatasetUpdate,
 )
+from datapulse.dataset.profile import DatasetProfile, DatasetProfilePatch
 from datapulse.dataset.repository import (
     DatasetDefinitionInvalid,
     DatasetNameConflict,
@@ -122,7 +123,9 @@ def _raise_query_error(error: Exception) -> NoReturn:
 @router.get("")
 async def list_datasets(request: Request) -> tuple[DatasetResponse, ...]:
     try:
-        return await request.app.state.dataset_service.list()
+        return await request.app.state.identity_service.filter_visible(
+            request.state.admin, "dataset", await request.app.state.dataset_service.list()
+        )
     except DatasetDefinitionInvalid as error:
         _raise_dataset_error(error)
 
@@ -133,10 +136,14 @@ async def create_dataset(
     request: Request,
 ) -> DatasetResponse:
     try:
-        return await request.app.state.dataset_service.create(
+        result = await request.app.state.dataset_service.create(
             payload,
             request_id=request.state.request_id,
         )
+        await request.app.state.identity_service.register_owner(
+            request.state.admin, "dataset", result.id
+        )
+        return result
     except (
         DatasetDefinitionInvalid,
         DatasetNameConflict,
@@ -155,10 +162,14 @@ async def create_file_dataset(
     request: Request,
 ) -> DatasetResponse:
     try:
-        return await request.app.state.dataset_service.create_file(
+        result = await request.app.state.dataset_service.create_file(
             payload,
             request_id=request.state.request_id,
         )
+        await request.app.state.identity_service.register_owner(
+            request.state.admin, "dataset", result.id
+        )
+        return result
     except (
         DatasetDefinitionInvalid,
         DatasetNameConflict,
@@ -183,6 +194,35 @@ async def get_dataset(dataset_id: str, request: Request) -> DatasetResponse:
         return await request.app.state.dataset_service.get(dataset_id)
     except (DatasetNotFound, DatasetDefinitionInvalid) as error:
         _raise_dataset_error(error)
+
+
+@router.get("/{dataset_id}/profile")
+async def get_dataset_profile(dataset_id: str, request: Request) -> DatasetProfile:
+    try:
+        return await request.app.state.dataset_profile_service.profile(dataset_id)
+    except (DatasetNotFound, DatasetDefinitionInvalid) as error:
+        _raise_dataset_error(error)
+
+
+@router.patch(
+    "/{dataset_id}/profile",
+    dependencies=[Depends(require_csrf)],
+)
+async def update_dataset_profile(
+    dataset_id: str,
+    payload: DatasetProfilePatch,
+    request: Request,
+) -> DatasetProfile:
+    try:
+        return await request.app.state.dataset_profile_service.update(dataset_id, payload)
+    except (DatasetNotFound, DatasetDefinitionInvalid) as error:
+        _raise_dataset_error(error)
+    except ValueError as error:
+        raise DataPulseError(
+            code="DATASET_PROFILE_INVALID",
+            message="The dataset profile correction is invalid.",
+            status_code=422,
+        ) from error
 
 
 @router.patch("/{dataset_id}", dependencies=[Depends(require_csrf)])

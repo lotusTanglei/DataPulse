@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from tests.support.app import AppClient, build_test_app
+from tests.support.media import image_bytes
 
 SIGNING_KEY = base64.urlsafe_b64encode(b"s" * 32).decode()
 
@@ -192,12 +193,12 @@ def test_display_runtime_scopes_queries_and_assets_to_published_screen(
     dataset_id = create_dataset(runtime_display_app)
     referenced_asset = runtime_display_app.client.post(
         "/api/admin/assets",
-        files={"file": ("logo.png", b"\x89PNG\r\n\x1a\nsafe", "image/png")},
+        files={"file": ("logo.png", image_bytes(), "image/png")},
         headers=mutation_headers(runtime_display_app),
     )
     unrelated_asset = runtime_display_app.client.post(
         "/api/admin/assets",
-        files={"file": ("other.png", b"\x89PNG\r\n\x1a\nother", "image/png")},
+        files={"file": ("other.png", image_bytes(color="#ff0000"), "image/png")},
         headers=mutation_headers(runtime_display_app),
     )
     assert referenced_asset.status_code == 201
@@ -264,3 +265,15 @@ def test_display_runtime_scopes_queries_and_assets_to_published_screen(
     )
     assert unrelated.status_code == 404
     assert unrelated.json()["error"]["code"] == "ASSET_NOT_FOUND"
+
+    with sqlite3.connect(runtime_display_app.database_path) as connection:
+        connection.execute(
+            "UPDATE screen_asset SET storage_path = ? WHERE id = ?",
+            ("/private/outside-asset-root/secret.png", referenced_asset.json()["id"]),
+        )
+    invalid = runtime_display_app.client.get(
+        f"/api/player/screens/{created['id']}/assets/{referenced_asset.json()['id']}"
+    )
+    assert invalid.status_code == 422
+    assert invalid.json()["error"]["code"] == "ASSET_INVALID"
+    assert "secret.png" not in invalid.text

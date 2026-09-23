@@ -27,6 +27,374 @@
       "title": "AckMessage",
       "type": "object"
     },
+    "DigitalHumanCommand": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "play",
+            "pause",
+            "stop",
+            "speak",
+            "getStatus",
+            "mute",
+            "setVolume"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "enabled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Enabled"
+        },
+        "volume": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Volume"
+        }
+      },
+      "required": [
+        "component_id",
+        "action"
+      ],
+      "title": "DigitalHumanCommand",
+      "type": "object"
+    },
+    "DigitalHumanEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Code"
+        },
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "cue_end": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cue End"
+        },
+        "cue_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cue Index"
+        },
+        "cue_start": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cue Start"
+        },
+        "cue_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cue Text"
+        },
+        "name": {
+          "default": "statusChange",
+          "enum": [
+            "digitalHumanReady",
+            "statusChange",
+            "speechStart",
+            "speechEnd",
+            "speechError",
+            "fallback",
+            "userGestureRequired",
+            "subtitleCue"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "enum": [
+                "completed",
+                "stopped",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outcome"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "initial",
+            "manual",
+            "interval",
+            "data_change",
+            "ranking_change",
+            "status_change",
+            "threshold",
+            "parameter",
+            "host"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "disabled",
+            "idle",
+            "loading_data",
+            "ready",
+            "queued",
+            "preparing_media",
+            "speaking",
+            "paused",
+            "muted",
+            "waiting_gesture",
+            "fallback",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Task Id"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        }
+      },
+      "required": [
+        "component_id",
+        "status",
+        "task_id",
+        "source",
+        "code",
+        "request_id",
+        "timestamp"
+      ],
+      "title": "DigitalHumanEvent",
+      "type": "object"
+    },
+    "DigitalHumanEventMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "event": {
+          "$ref": "#/$defs/DigitalHumanEvent"
+        },
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "digitalHumanEvent",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instance_id",
+        "type",
+        "event"
+      ],
+      "title": "DigitalHumanEventMessage",
+      "type": "object"
+    },
+    "DigitalHumanMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "$ref": "#/$defs/DigitalHumanCommand"
+        },
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "type": {
+          "const": "digitalHuman",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instance_id",
+        "type",
+        "request_id",
+        "command"
+      ],
+      "title": "DigitalHumanMessage",
+      "type": "object"
+    },
+    "DigitalHumanState": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Code"
+        },
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "muted": {
+          "title": "Muted",
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "disabled",
+            "idle",
+            "loading_data",
+            "ready",
+            "queued",
+            "preparing_media",
+            "speaking",
+            "paused",
+            "muted",
+            "waiting_gesture",
+            "fallback",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "volume": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Volume",
+          "type": "number"
+        }
+      },
+      "required": [
+        "component_id",
+        "status",
+        "code",
+        "muted",
+        "volume"
+      ],
+      "title": "DigitalHumanState",
+      "type": "object"
+    },
+    "DigitalHumanStatusMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "minLength": 1,
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "request_id": {
+          "minLength": 1,
+          "title": "Request Id",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/DigitalHumanState"
+        },
+        "type": {
+          "const": "digitalHumanStatus",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instance_id",
+        "type",
+        "request_id",
+        "state"
+      ],
+      "title": "DigitalHumanStatusMessage",
+      "type": "object"
+    },
     "ErrorMessage": {
       "additionalProperties": false,
       "properties": {
@@ -200,6 +568,14 @@
     "ReadyMessage": {
       "additionalProperties": false,
       "properties": {
+        "capabilities": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
         "instance_id": {
           "minLength": 1,
           "title": "Instance Id",
@@ -285,6 +661,9 @@
   "discriminator": {
     "mapping": {
       "ack": "#/$defs/AckMessage",
+      "digitalHuman": "#/$defs/DigitalHumanMessage",
+      "digitalHumanEvent": "#/$defs/DigitalHumanEventMessage",
+      "digitalHumanStatus": "#/$defs/DigitalHumanStatusMessage",
       "error": "#/$defs/ErrorMessage",
       "fullscreen": "#/$defs/FullscreenMessage",
       "getParameters": "#/$defs/GetParametersMessage",
@@ -316,6 +695,15 @@
     },
     {
       "$ref": "#/$defs/AckMessage"
+    },
+    {
+      "$ref": "#/$defs/DigitalHumanMessage"
+    },
+    {
+      "$ref": "#/$defs/DigitalHumanStatusMessage"
+    },
+    {
+      "$ref": "#/$defs/DigitalHumanEventMessage"
     },
     {
       "$ref": "#/$defs/ErrorMessage"

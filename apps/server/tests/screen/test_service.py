@@ -137,3 +137,55 @@ async def test_copy_rewrites_component_ids_and_uses_conflict_free_names(
         "a-2",
         "b-2",
     ]
+
+
+async def test_copy_rewrites_digital_human_component_references(
+    screen_repository: ScreenRepository,
+) -> None:
+    generated_ids = iter(("copy-screen", "kpi-copy", "speaker-copy"))
+    service = ScreenService(
+        repository=screen_repository,
+        id_factory=lambda: next(generated_ids),
+    )
+    source_document = DashboardDocument.model_validate(
+        {
+            "canvas": {"width": 1920, "height": 1080},
+            "components": [
+                {
+                    "id": "kpi",
+                    "type": "builtin.kpi",
+                    "frame": {"x": 0, "y": 0, "width": 300, "height": 200},
+                    "data_binding": {
+                        "source": "static",
+                        "static_data": {
+                            "columns": [{"name": "amount", "data_type": "number"}],
+                            "rows": [[1234]],
+                        },
+                    },
+                },
+                {
+                    "id": "speaker",
+                    "type": "builtin.digital_human",
+                    "frame": {"x": 400, "y": 0, "width": 320, "height": 420},
+                    "props": {"speech_template": "{{sales.value | number}}"},
+                    "data_binding": {
+                        "source": "components",
+                        "variables": [
+                            {"name": "sales.value", "component_id": "kpi", "field": "amount"}
+                        ],
+                    },
+                },
+            ],
+        }
+    )
+    original = await screen_repository.create("Broadcast", source_document, screen_id="source")
+
+    copied = await service.copy(original.id)
+
+    copied_speaker = copied.draft_document.components[1]
+    assert copied_speaker.id == "speaker-copy"
+    assert copied_speaker.data_binding["variables"][0]["component_id"] == "kpi-copy"
+    assert (
+        original.draft_document.components[1].data_binding["variables"][0]["component_id"]
+        == "kpi"
+    )

@@ -23,6 +23,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.43.7
         version: 6.43.7
+      '@datapulse/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/plugin-sdk
       '@datapulse/schema':
         specifier: workspace:*
         version: link:../../packages/schema
@@ -38,6 +41,9 @@ importers:
       echarts:
         specifier: ^6.1.0
         version: 6.1.0
+      jsonschema:
+        specifier: ^1.5.0
+        version: 1.5.0
       moveable:
         specifier: ^0.53.0
         version: 0.53.0
@@ -96,6 +102,12 @@ importers:
       vitest:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@22.20.1)(happy-dom@18.0.1)
+
+  packages/plugin-sdk:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.0
+        version: 5.9.3
 
   packages/schema:
     devDependencies:
@@ -877,6 +889,9 @@ packages:
     resolution: {integrity: sha512-Su9oK8DR4xCmDsLlyvadkXzX6+GGXJpbhwoLtOGArAG61dvbW4YQmSEno2y66ahpIdmLMg6YUf/QHLgiwvkrHQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
+
+  jsonschema@1.5.0:
+    resolution: {integrity: sha512-K+A9hhqbn0f3pJX17Q/7H6yQfD/5OXgdrR5UE12gMXCiN9D5Xq2o5mddV2QEcX/bjla99ASsAAQUyMCCRWAEhw==}
 
   keycode@2.2.1:
     resolution: {integrity: sha512-Rdgz9Hl9Iv4QKi8b0OlCRQEzp4AgVxyCtz5S/+VIHezDmrDhkp2N2TqBWOLz0/gbeREXOOiI9/4b8BY9uw2vFg==}
@@ -1984,6 +1999,8 @@ snapshots:
       minimist: 1.2.8
       prettier: 3.9.6
       tinyglobby: 0.2.17
+
+  jsonschema@1.5.0: {}
 
   keycode@2.2.1: {}
 

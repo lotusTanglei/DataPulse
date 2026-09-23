@@ -53,6 +53,7 @@ class Message(ContractModel):
 class ReadyMessage(Message):
     type: Literal["ready"]
     protocol_version: Literal[1] = 1
+    capabilities: tuple[NonBlankStr, ...] = Field(default_factory=tuple)
 
 
 class RefreshMessage(Message):
@@ -94,6 +95,110 @@ class ErrorMessage(Message):
     message: NonBlankStr
 
 
+SpeechState = Literal[
+    "disabled",
+    "idle",
+    "loading_data",
+    "ready",
+    "queued",
+    "preparing_media",
+    "speaking",
+    "paused",
+    "muted",
+    "waiting_gesture",
+    "fallback",
+    "error",
+]
+
+
+class DigitalHumanCommand(ContractModel):
+    component_id: NonBlankStr
+    action: Literal["play", "pause", "stop", "speak", "getStatus", "mute", "setVolume"]
+    enabled: bool | None = Field(default=None, strict=True)
+    volume: float | None = Field(default=None, ge=0, le=1, allow_inf_nan=False, strict=True)
+
+    @model_validator(mode="after")
+    def validate_arguments(self) -> Self:
+        if (self.action == "mute") != (self.enabled is not None):
+            raise ValueError("Only mute commands require enabled.")
+        if (self.action == "setVolume") != (self.volume is not None):
+            raise ValueError("Only volume commands require volume.")
+        return self
+
+
+class DigitalHumanMessage(Message):
+    type: Literal["digitalHuman"]
+    request_id: NonBlankStr
+    command: DigitalHumanCommand
+
+
+class DigitalHumanState(ContractModel):
+    component_id: NonBlankStr
+    status: SpeechState
+    code: str | None
+    muted: bool
+    volume: float = Field(ge=0, le=1, allow_inf_nan=False)
+
+
+class DigitalHumanStatusMessage(Message):
+    type: Literal["digitalHumanStatus"]
+    request_id: NonBlankStr
+    state: DigitalHumanState
+
+
+class DigitalHumanEvent(ContractModel):
+    name: Literal[
+        "digitalHumanReady",
+        "statusChange",
+        "speechStart",
+        "speechEnd",
+        "speechError",
+        "fallback",
+        "userGestureRequired",
+        "subtitleCue",
+    ] = "statusChange"
+    outcome: Literal["completed", "stopped", "cancelled"] | None = None
+    component_id: NonBlankStr
+    status: SpeechState
+    task_id: str | None
+    source: Literal[
+        "initial",
+        "manual",
+        "interval",
+        "data_change",
+        "ranking_change",
+        "status_change",
+        "threshold",
+        "parameter",
+        "host",
+    ]
+    code: str | None
+    request_id: str
+    timestamp: float = Field(ge=0, allow_inf_nan=False)
+    cue_index: int | None = Field(default=None, ge=0, strict=True)
+    cue_text: str | None = None
+    cue_start: float | None = Field(default=None, ge=0, allow_inf_nan=False, strict=True)
+    cue_end: float | None = Field(default=None, ge=0, allow_inf_nan=False, strict=True)
+
+    @model_validator(mode="after")
+    def validate_subtitle_cue(self) -> Self:
+        cue_values = (self.cue_index, self.cue_text, self.cue_start, self.cue_end)
+        has_any_cue = any(value is not None for value in cue_values)
+        if self.name == "subtitleCue" or has_any_cue:
+            if any(value is None for value in cue_values):
+                raise ValueError(
+                    "subtitleCue events require cue_index, cue_text, cue_start, and cue_end"
+                )
+            if self.cue_end <= self.cue_start:
+                raise ValueError("cue_end must be after cue_start")
+        return self
+
+
+class DigitalHumanEventMessage(Message):
+    type: Literal["digitalHumanEvent"]
+    event: DigitalHumanEvent
+
+
 EmbedMessage = Annotated[
     ReadyMessage
     | RefreshMessage
@@ -102,6 +207,9 @@ EmbedMessage = Annotated[
     | ParametersMessage
     | FullscreenMessage
     | AckMessage
+    | DigitalHumanMessage
+    | DigitalHumanStatusMessage
+    | DigitalHumanEventMessage
     | ErrorMessage,
     Field(discriminator="type"),
 ]

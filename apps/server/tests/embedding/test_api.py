@@ -6,8 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from datapulse.embedding.page import TicketRedactionFilter
+from datapulse.embedding.page import TicketRedactionFilter, embed_content_security_policy
 from tests.support.app import AppClient, build_test_app
+from tests.support.media import image_bytes
 
 SIGNING_KEY = base64.urlsafe_b64encode(b"e" * 32).decode()
 HOST_ORIGIN = "https://host.example.com"
@@ -168,7 +169,7 @@ def test_ticket_endpoint_requires_host_api_key_and_rotation_invalidates_old_key(
     assert loaded.json()["mutable_parameters"] == ["region"]
     assert loaded.headers["cache-control"] == "no-store"
     assert loaded.headers["referrer-policy"] == "no-referrer"
-    assert loaded.headers["content-security-policy"] == (f"frame-ancestors {HOST_ORIGIN}")
+    assert loaded.headers["content-security-policy"] == embed_content_security_policy(HOST_ORIGIN)
 
     rotate_api_key(embed_app)
     denied = embed_app.client.post(
@@ -181,6 +182,69 @@ def test_ticket_endpoint_requires_host_api_key_and_rotation_invalidates_old_key(
         },
     )
     assert denied.status_code == 401
+
+
+def test_existing_ticket_is_revoked_when_screen_origin_policy_changes(
+    embed_app: AppClient,
+) -> None:
+    setup_admin(embed_app)
+    screen_id = create_parameterized_screen(embed_app)
+    headers = mutation_headers(embed_app)
+    api_key = rotate_api_key(embed_app)
+    ticket = issue_ticket(embed_app, api_key=api_key, screen_id=screen_id)
+    bearer = {"Authorization": f"Bearer {ticket}"}
+
+    allowed = embed_app.client.get(
+        f"/api/embed/screens/{screen_id}", headers=bearer
+    )
+    assert allowed.status_code == 200
+
+    restricted = embed_app.client.patch(
+        f"/api/admin/screens/{screen_id}/access-policy",
+        json={"allowed_origins": ["https://other.example.com"]},
+        headers=headers,
+    )
+    assert restricted.status_code == 200
+
+    revoked = embed_app.client.get(
+        f"/api/embed/screens/{screen_id}", headers=bearer
+    )
+    assert revoked.status_code == 403
+    assert revoked.json()["error"]["code"] == "EMBED_ORIGIN_DENIED"
+
+    restored = embed_app.client.patch(
+        f"/api/admin/screens/{screen_id}/access-policy",
+        json={"allowed_origins": [HOST_ORIGIN]},
+        headers=headers,
+    )
+    assert restored.status_code == 200
+    usable_again = embed_app.client.get(
+        f"/api/embed/screens/{screen_id}", headers=bearer
+    )
+    assert usable_again.status_code == 200
+
+
+def test_revoked_embed_error_retains_cors_headers_for_host(
+    embed_app: AppClient,
+) -> None:
+    setup_admin(embed_app)
+    screen_id = create_parameterized_screen(embed_app)
+    api_key = rotate_api_key(embed_app)
+    ticket = issue_ticket(embed_app, api_key=api_key, screen_id=screen_id)
+    restricted = embed_app.client.patch(
+        f"/api/admin/screens/{screen_id}/access-policy",
+        json={"allowed_origins": ["https://other.example.com"]},
+        headers=mutation_headers(embed_app),
+    )
+    assert restricted.status_code == 200
+
+    response = embed_app.client.get(
+        f"/api/embed/screens/{screen_id}",
+        headers={"Authorization": f"Bearer {ticket}", "Origin": HOST_ORIGIN},
+    )
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "EMBED_ORIGIN_DENIED"
+    assert response.headers["access-control-allow-origin"] == HOST_ORIGIN
 
 
 def test_runtime_rejects_wrong_screen_and_immutable_parameter(
@@ -234,12 +298,12 @@ def test_embed_runtime_queries_and_assets_are_scoped_to_published_document(
     referenced_asset = runtime_embed_app.client.post(
         "/api/admin/assets",
         headers=mutation_headers(runtime_embed_app),
-        files={"file": ("logo.png", b"\x89PNG\r\n\x1a\nsafe", "image/png")},
+        files={"file": ("logo.png", image_bytes(), "image/png")},
     ).json()
     unrelated_asset = runtime_embed_app.client.post(
         "/api/admin/assets",
         headers=mutation_headers(runtime_embed_app),
-        files={"file": ("other.png", b"\x89PNG\r\n\x1a\nother", "image/png")},
+        files={"file": ("other.png", image_bytes(color="#ff0000"), "image/png")},
     ).json()
     created = runtime_embed_app.client.post(
         "/api/admin/screens",
@@ -291,6 +355,18 @@ def test_embed_runtime_queries_and_assets_are_scoped_to_published_document(
     )
     bearer = {"Authorization": f"Bearer {ticket}"}
 
+    preflight = runtime_embed_app.client.options(
+        f"/api/embed/screens/{created['id']}/assets/{referenced_asset['id']}",
+        headers={
+            "Origin": HOST_ORIGIN,
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "Authorization",
+        },
+    )
+    assert preflight.status_code == 204
+    assert preflight.headers["Access-Control-Allow-Origin"] == HOST_ORIGIN
+    assert "Authorization" in preflight.headers["Access-Control-Allow-Headers"]
+
     query = runtime_embed_app.client.post(
         f"/api/embed/screens/{created['id']}/query",
         headers=bearer,
@@ -300,16 +376,31 @@ def test_embed_runtime_queries_and_assets_are_scoped_to_published_document(
     assert query.json()["rows"] == [["2026-01", 100], ["2026-02", 200]]
     referenced = runtime_embed_app.client.get(
         f"/api/embed/screens/{created['id']}/assets/{referenced_asset['id']}",
-        headers=bearer,
+        headers={**bearer, "Origin": HOST_ORIGIN},
     )
     assert referenced.status_code == 200
     assert referenced.content.startswith(b"\x89PNG")
+    assert referenced.headers["Access-Control-Allow-Origin"] == HOST_ORIGIN
+    assert "Bearer" not in referenced.text
     unrelated = runtime_embed_app.client.get(
         f"/api/embed/screens/{created['id']}/assets/{unrelated_asset['id']}",
         headers=bearer,
     )
     assert unrelated.status_code == 404
     assert unrelated.json()["error"]["code"] == "ASSET_NOT_FOUND"
+
+    with sqlite3.connect(runtime_embed_app.database_path) as connection:
+        connection.execute(
+            "UPDATE screen_asset SET storage_path = ? WHERE id = ?",
+            ("/private/outside-asset-root/secret.png", referenced_asset["id"]),
+        )
+    invalid = runtime_embed_app.client.get(
+        f"/api/embed/screens/{created['id']}/assets/{referenced_asset['id']}",
+        headers=bearer,
+    )
+    assert invalid.status_code == 422
+    assert invalid.json()["error"]["code"] == "ASSET_INVALID"
+    assert "secret.png" not in invalid.text
 
 
 def test_embed_page_verifies_ticket_origin_and_sets_exact_csp(
@@ -330,7 +421,7 @@ def test_embed_page_verifies_ticket_origin_and_sets_exact_csp(
     )
     assert allowed.status_code == 200
     assert "DataPulse player" in allowed.text
-    assert allowed.headers["content-security-policy"] == (f"frame-ancestors {HOST_ORIGIN}")
+    assert allowed.headers["content-security-policy"] == embed_content_security_policy(HOST_ORIGIN)
     assert allowed.headers["cache-control"] == "no-store"
     assert allowed.headers["referrer-policy"] == "no-referrer"
 
@@ -353,7 +444,7 @@ def test_access_log_filter_redacts_ticket_query_parameter() -> None:
         args=(
             "127.0.0.1",
             "GET",
-            "/embed/screen-1?ticket=super-secret&mode=fit",
+            "/embed/screen-1?ticket=super-secret&key=private-display&api_key=private-api&mode=fit",
             "1.1",
             200,
         ),
@@ -363,3 +454,4 @@ def test_access_log_filter_redacts_ticket_query_parameter() -> None:
     assert TicketRedactionFilter().filter(record)
     assert "super-secret" not in record.getMessage()
     assert "ticket=%5BREDACTED%5D" in record.getMessage()
+    assert "private-" not in record.getMessage()

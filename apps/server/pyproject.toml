@@ -12,6 +12,7 @@ dependencies = [
     "duckdb>=1,<2",
     "fastapi>=0.115,<1",
     "httpx>=0.28,<1",
+    "jsonschema>=4.23,<5",
     "openpyxl>=3.1,<4",
     "packaging>=24,<27",
     "pyarrow>=18,<22",
@@ -22,6 +23,9 @@ dependencies = [
     "sqlalchemy[asyncio]>=2,<3",
     "sqlglot>=25,<40",
     "uvicorn[standard]>=0.34,<1",
+    "pillow>=11,<13",
+    "filelock>=3.18,<4",
+    "webvtt-py>=0.5,<1",
 ]
 
 [dependency-groups]
@@ -36,6 +40,10 @@ dev = [
 [build-system]
 requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
+
+[project.scripts]
+datapulse-speech-worker = "datapulse.worker:main"
+datapulse-operations = "datapulse.operations.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/datapulse"]

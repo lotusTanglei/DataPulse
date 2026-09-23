@@ -1,5 +1,9 @@
+import json
+import logging
 import re
 from collections.abc import Awaitable, Callable, Sequence
+from datetime import UTC, datetime
+from time import monotonic
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -7,6 +11,15 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 
 _request_id_pattern = re.compile(r"[A-Za-z0-9._:-]{1,128}")
+request_logger = logging.getLogger("datapulse.requests")
+
+
+def install_request_logging() -> None:
+    request_logger.disabled = False
+    if not request_logger.handlers:
+        request_logger.addHandler(logging.StreamHandler())
+    request_logger.setLevel(logging.INFO)
+    request_logger.propagate = False
 
 
 class DataPulseError(Exception):
@@ -56,9 +69,31 @@ async def request_id_middleware(
     supplied = request.headers.get("X-Request-ID", "")
     request_id = supplied if _request_id_pattern.fullmatch(supplied) else str(uuid4())
     request.state.request_id = request_id
-    response = await call_next(request)
-    response.headers["X-Request-ID"] = request_id
-    return response
+    started = monotonic()
+    status = 500
+    try:
+        response = await call_next(request)
+        status = response.status_code
+        response.headers["X-Request-ID"] = request_id
+        return response
+    finally:
+        # Only route templates and fixed fields are recorded. Raw paths, query strings,
+        # bodies, exception messages and authorization headers can contain credentials.
+        route = getattr(request.scope.get("route"), "path", "unmatched")
+        request_logger.info(
+            json.dumps(
+                {
+                    "event": "http_request",
+                    "time": datetime.now(UTC).isoformat(),
+                    "request_id": request_id,
+                    "method": request.method,
+                    "route": route,
+                    "status": status,
+                    "duration_ms": round((monotonic() - started) * 1000, 2),
+                },
+                separators=(",", ":"),
+            )
+        )
 
 
 def install_error_handlers(app: FastAPI) -> None:

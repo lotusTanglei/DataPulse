@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "run": {
+    "model": "gpt-6-astra",
+    "provider": "fixture",
+    "date": "2026-09-22",
+    "fixture": "golden-v1"
+  },
+  "metrics": {
+    "total_cases": 8,
+    "successful_cases": 8,
+    "first_success_rate": 1.0,
+    "failure_distribution": {},
+    "field_binding_accuracy": 1.0,
+    "field_bindings": {
+      "correct": 16,
+      "expected": 16
+    },
+    "chart_type_reasonable_rate": 1.0,
+    "warning_count": 0,
+    "draft_produced_rate": 1.0,
+    "duration_ms": {
+      "total": 110,
+      "average": 13.75,
+      "p95": 16
+    },
+    "token_cost": {
+      "input_tokens": 1036,
+      "output_tokens": 512,
+      "usd": 0.03596
+    }
+  },
+  "cases": [
+    {
+      "case_id": "business-region-sales",
+      "scenario": "经营",
+      "success": true,
+      "expected_bindings": [
+        "区域",
+        "销售额"
+      ],
+      "actual_bindings": {
+        "区域": "区域",
+        "销售额": "销售额"
+      },
+      "expected_chart_types": [
+        "bar"
+      ],
+      "actual_chart_type": "bar",
+      "warning_count": 0,
+      "duration_ms": 14,
+      "input_tokens": 130,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "business-sales-trend",
+      "scenario": "经营",
+      "success": true,
+      "expected_bindings": [
+        "日期",
+        "销售额"
+      ],
+      "actual_bindings": {
+        "日期": "日期",
+        "销售额": "销售额"
+      },
+      "expected_chart_types": [
+        "line"
+      ],
+      "actual_chart_type": "line",
+      "warning_count": 0,
+      "duration_ms": 16,
+      "input_tokens": 129,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "equipment-failure-rate",
+      "scenario": "设备",
+      "success": true,
+      "expected_bindings": [
+        "设备名称",
+        "故障率"
+      ],
+      "actual_bindings": {
+        "故障率": "故障率",
+        "设备名称": "设备名称"
+      },
+      "expected_chart_types": [
+        "bar"
+      ],
+      "actual_chart_type": "bar",
+      "warning_count": 0,
+      "duration_ms": 16,
+      "input_tokens": 128,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "equipment-runtime-trend",
+      "scenario": "设备",
+      "success": true,
+      "expected_bindings": [
+        "采集时间",
+        "运行时长"
+      ],
+      "actual_bindings": {
+        "运行时长": "运行时长",
+        "采集时间": "采集时间"
+      },
+      "expected_chart_types": [
+        "line"
+      ],
+      "actual_chart_type": "line",
+      "warning_count": 0,
+      "duration_ms": 10,
+      "input_tokens": 130,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "operations-channel-conversion",
+      "scenario": "运营",
+      "success": true,
+      "expected_bindings": [
+        "渠道",
+        "转化率"
+      ],
+      "actual_bindings": {
+        "渠道": "渠道",
+        "转化率": "转化率"
+      },
+      "expected_chart_types": [
+        "bar"
+      ],
+      "actual_chart_type": "bar",
+      "warning_count": 0,
+      "duration_ms": 12,
+      "input_tokens": 128,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "operations-user-trend",
+      "scenario": "运营",
+      "success": true,
+      "expected_bindings": [
+        "日期",
+        "活跃用户"
+      ],
+      "actual_bindings": {
+        "日期": "日期",
+        "活跃用户": "活跃用户"
+      },
+      "expected_chart_types": [
+        "line"
+      ],
+      "actual_chart_type": "line",
+      "warning_count": 0,
+      "duration_ms": 10,
+      "input_tokens": 130,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "sales-category-amount",
+      "scenario": "销售",
+      "success": true,
+      "expected_bindings": [
+        "产品类别",
+        "成交金额"
+      ],
+      "actual_bindings": {
+        "产品类别": "产品类别",
+        "成交金额": "成交金额"
+      },
+      "expected_chart_types": [
+        "bar"
+      ],
+      "actual_chart_type": "bar",
+      "warning_count": 0,
+      "duration_ms": 16,
+      "input_tokens": 131,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    },
+    {
+      "case_id": "sales-date-amount",
+      "scenario": "销售",
+      "success": true,
+      "expected_bindings": [
+        "成交日期",
+        "成交金额"
+      ],
+      "actual_bindings": {
+        "成交日期": "成交日期",
+        "成交金额": "成交金额"
+      },
+      "expected_chart_types": [
+        "line"
+      ],
+      "actual_chart_type": "line",
+      "warning_count": 0,
+      "duration_ms": 16,
+      "input_tokens": 130,
+      "output_tokens": 64,
+      "error_code": null,
+      "draft_produced": true
+    }
+  ]
+}

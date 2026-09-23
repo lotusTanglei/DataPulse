@@ -6,25 +6,38 @@ import {
   apiPost,
   appOrigin,
   authenticate,
+  ensureAnalyticsDataset,
   generateDisplayKey,
   type ScreenRecord,
 } from "./helpers.js";
 import { loadRuntimeConfig } from "./runtime-config.js";
 
-test("template creation enters the shared screen editor", async ({ page }) => {
+test("template creation enters the shared screen editor", async ({ page }, testInfo) => {
   await authenticate(page);
+  await ensureAnalyticsDataset(page);
   await page.goto("/studio/screens");
   await page.getByRole("button", { name: "从模板创建" }).first().click();
 
   const dialog = page.getByRole("dialog", { name: "从模板创建" });
   await expect(dialog.getByLabel("大屏模板").getByRole("button")).toHaveCount(5);
   await dialog.getByLabel("大屏名称").fill("E2E 第一阶段模板入口");
+  await dialog.getByLabel("数据集").selectOption({ index: 1 });
   await dialog.getByRole("button", { name: "使用此模板" }).click();
 
   await expect(page.getByLabel("大屏编辑器")).toBeVisible();
   const layersPanel = page.locator('section.layers-panel[aria-label="图层"]');
   await expect(layersPanel.locator("[data-layer-id]")).toHaveCount(9);
-  await expect(page.getByText("数据总览")).toBeVisible();
+  await expect(
+    page.locator(".screen-text").filter({ hasText: "E2E 第一阶段模板入口" }),
+  ).toBeVisible();
+  await expect(page.getByText("正在加载…")).toHaveCount(0, { timeout: 12_000 });
+  await expect(page).toHaveScreenshot("compiled-template-editor.png", {
+    animations: "disabled",
+  });
+  await page.screenshot({
+    path: testInfo.outputPath("compiled-template-editor-actual.png"),
+    animations: "disabled",
+  });
 });
 
 test("blank creation supports hand editing, AI preview, confirmation, undo, redo, and playback", async ({

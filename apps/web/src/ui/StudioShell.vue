@@ -15,6 +15,8 @@ const title = computed(() => String(route.meta.title ?? "DataPulse"));
 const username = computed(() =>
   auth.state.status === "authenticated" ? auth.state.username : "admin",
 );
+const isAdministrator = computed(() => auth.state.status === "authenticated" && auth.state.role === "admin");
+const canEdit = computed(() => auth.state.status === "authenticated" && ["admin", "editor"].includes(auth.state.role ?? ""));
 
 const navigation = [
   { label: "概览", to: "/studio/overview", icon: "overview" as const },
@@ -58,6 +60,10 @@ async function logout(): Promise<void> {
         </RouterLink>
       </nav>
 
+      <RouterLink to="/studio/sharing" class="sidebar-link"><IconGlyph name="screens" /><span>资源共享</span></RouterLink>
+      <RouterLink v-if="canEdit" to="/studio/ecosystem" class="sidebar-link"><IconGlyph name="screens" /><span>模板与插件</span></RouterLink>
+      <RouterLink v-if="isAdministrator" to="/studio/users" class="sidebar-link"><IconGlyph name="settings" /><span>用户管理</span></RouterLink>
+
       <section class="recent-section" aria-label="最近访问">
         <p class="sidebar-caption">最近访问</p>
         <p class="recent-empty">暂无最近项目</p>
@@ -65,7 +71,7 @@ async function logout(): Promise<void> {
 
       <div class="sidebar-spacer" />
 
-      <RouterLink to="/studio/settings" class="sidebar-link">
+      <RouterLink v-if="isAdministrator" to="/studio/settings" class="sidebar-link">
         <IconGlyph name="settings" />
         <span>系统设置</span>
       </RouterLink>

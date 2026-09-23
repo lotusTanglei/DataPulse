@@ -3,8 +3,13 @@ import {
   type ErrorMessage,
   type HostMessage,
   isPlayerMessage,
+  isDigitalHumanCommand,
   type JsonValue,
   type ParametersMessage,
+  type DigitalHumanCommand,
+  type DigitalHumanEvent,
+  type DigitalHumanState,
+  type DigitalHumanStatusMessage,
 } from "./protocol";
 
 const DEFAULT_REQUEST_TIMEOUT = 10_000;
@@ -14,6 +19,11 @@ export interface EmbedOptions {
   ticket: string;
   className?: string;
   requestTimeoutMs?: number;
+  allowAudio?: boolean;
+}
+
+export interface DigitalHumanRequestOptions {
+  signal?: AbortSignal;
 }
 
 export class EmbedError extends Error {
@@ -34,15 +44,19 @@ export interface EmbeddedScreen {
   setParameters(values: Record<string, JsonValue>): Promise<void>;
   getParameters(): Promise<Record<string, JsonValue>>;
   fullscreen(enabled?: boolean): Promise<void>;
+  digitalHuman(command: DigitalHumanCommand, options?: DigitalHumanRequestOptions): Promise<DigitalHumanState>;
+  onDigitalHuman(listener: (event: DigitalHumanEvent) => void): () => void;
   onError(listener: (error: EmbedError) => void): () => void;
   destroy(): void;
 }
 
 interface PendingRequest {
-  expected: "ack" | "parameters";
+  expected: "ack" | "parameters" | "digitalHumanStatus";
   resolve: (value: unknown) => void;
   reject: (error: EmbedError) => void;
   timeout: ReturnType<typeof setTimeout>;
+  componentId?: string;
+  cleanup: () => void;
 }
 
 function identifier(): string {
@@ -65,9 +79,12 @@ class EmbeddedScreenController implements EmbeddedScreen {
   private readonly origin: string;
   private readonly pending = new Map<string, PendingRequest>();
   private readonly errorListeners = new Set<(error: EmbedError) => void>();
+  private readonly speechListeners = new Set<(event: DigitalHumanEvent) => void>();
+  private readonly capabilities = new Set<string>();
   private readonly requestTimeoutMs: number;
   private destroyed = false;
   private isReady = false;
+  private accessError: EmbedError | null = null;
 
   constructor(
     container: HTMLElement,
@@ -85,7 +102,7 @@ class EmbeddedScreenController implements EmbeddedScreen {
     iframe.src = url.toString();
     iframe.title = "DataPulse embedded screen";
     iframe.referrerPolicy = "no-referrer";
-    iframe.allow = "fullscreen";
+    iframe.allow = options.allowAudio ? "fullscreen; autoplay" : "fullscreen";
     iframe.setAttribute("allowfullscreen", "");
     iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
     if (options.className) {
@@ -138,11 +155,33 @@ class EmbeddedScreenController implements EmbeddedScreen {
     return () => this.errorListeners.delete(listener);
   }
 
+  digitalHuman(command: DigitalHumanCommand, options?: DigitalHumanRequestOptions): Promise<DigitalHumanState> {
+    if (this.destroyed) return Promise.reject(new EmbedError("EMBED_DESTROYED", "The embedded screen was destroyed."));
+    if (this.accessError) return Promise.reject(this.accessError);
+    if (!this.isReady) return Promise.reject(new EmbedError("EMBED_PLAYER_NOT_READY", "The embedded screen is not ready."));
+    if (!this.capabilities.has("digitalHuman.v1")) {
+      return Promise.reject(new EmbedError("EMBED_CAPABILITY_UNAVAILABLE", "Digital human controls are unavailable."));
+    }
+    if (!isDigitalHumanCommand(command)) {
+      return Promise.reject(new EmbedError("DIGITAL_HUMAN_COMMAND_INVALID", "Invalid digital human command."));
+    }
+    return this.request<DigitalHumanState>("digitalHumanStatus", {
+      type: "digitalHuman", instance_id: this.instanceId, request_id: identifier(),
+      command: structuredClone(command),
+    }, options?.signal);
+  }
+
+  onDigitalHuman(listener: (event: DigitalHumanEvent) => void): () => void {
+    this.speechListeners.add(listener);
+    return () => this.speechListeners.delete(listener);
+  }
+
   destroy(): void {
     if (this.destroyed) {
       return;
     }
     this.destroyed = true;
+    this.isReady = false;
     window.removeEventListener("message", this.handleMessage);
     const error = new EmbedError(
       "EMBED_DESTROYED",
@@ -150,10 +189,12 @@ class EmbeddedScreenController implements EmbeddedScreen {
     );
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timeout);
+      pending.cleanup();
       pending.reject(error);
     }
     this.pending.clear();
     this.errorListeners.clear();
+    this.speechListeners.clear();
     this.iframe.remove();
   }
 
@@ -164,16 +205,24 @@ class EmbeddedScreenController implements EmbeddedScreen {
         "The embedded screen was destroyed.",
       );
     }
+    if (this.accessError) throw this.accessError;
     this.iframe.contentWindow?.postMessage(message, this.origin);
   }
 
   private request<T>(
     expected: PendingRequest["expected"],
     message: Exclude<HostMessage, { type: "refresh" }>,
+    signal?: AbortSignal,
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
+      const cancelled = () => new EmbedError("EMBED_REQUEST_CANCELLED", "The embed request was cancelled.");
+      if (signal?.aborted) {
+        reject(cancelled());
+        return;
+      }
+      const onAbort = () => this.removePending(message.request_id)?.reject(cancelled());
       const timeout = setTimeout(() => {
-        this.pending.delete(message.request_id);
+        this.removePending(message.request_id);
         reject(
           new EmbedError(
             "EMBED_REQUEST_TIMEOUT",
@@ -186,12 +235,14 @@ class EmbeddedScreenController implements EmbeddedScreen {
         resolve: (value) => resolve(value as T),
         reject,
         timeout,
+        componentId: message.type === "digitalHuman" ? message.command.component_id : undefined,
+        cleanup: () => signal?.removeEventListener("abort", onAbort),
       });
+      signal?.addEventListener("abort", onAbort, { once: true });
       try {
         this.post(message);
       } catch (error) {
-        clearTimeout(timeout);
-        this.pending.delete(message.request_id);
+        this.removePending(message.request_id);
         reject(
           error instanceof EmbedError
             ? error
@@ -199,6 +250,16 @@ class EmbeddedScreenController implements EmbeddedScreen {
         );
       }
     });
+  }
+
+  private removePending(requestId: string): PendingRequest | undefined {
+    const pending = this.pending.get(requestId);
+    if (pending) {
+      clearTimeout(pending.timeout);
+      pending.cleanup();
+      this.pending.delete(requestId);
+    }
+    return pending;
   }
 
   private readonly handleMessage = (event: MessageEvent<unknown>): void => {
@@ -213,7 +274,15 @@ class EmbeddedScreenController implements EmbeddedScreen {
     }
     const message = event.data;
     if (message.type === "ready") {
+      if (this.accessError) return;
       this.isReady = true;
+      this.capabilities.clear();
+      for (const capability of message.capabilities ?? []) this.capabilities.add(capability);
+      return;
+    }
+    if (message.type === "digitalHumanEvent") {
+      if (this.accessError) return;
+      for (const listener of this.speechListeners) listener(structuredClone(message.event));
       return;
     }
     if (message.type === "error") {
@@ -225,11 +294,15 @@ class EmbeddedScreenController implements EmbeddedScreen {
 
   private handleError(message: ErrorMessage): void {
     const error = new EmbedError(message.code, message.message);
+    if (["EMBED_TICKET_EXPIRED", "EMBED_TICKET_INVALID", "EMBED_AUTH_REQUIRED", "EMBED_ORIGIN_DENIED", "EMBED_ADDRESS_DENIED", "EMBED_SCREEN_UNAVAILABLE"].includes(error.code)) {
+      this.accessError = error;
+      this.isReady = false;
+      this.capabilities.clear();
+      for (const requestId of this.pending.keys()) this.removePending(requestId)?.reject(error);
+    }
     if (message.request_id) {
-      const pending = this.pending.get(message.request_id);
+      const pending = this.removePending(message.request_id);
       if (pending) {
-        clearTimeout(pending.timeout);
-        this.pending.delete(message.request_id);
         pending.reject(error);
       }
     }
@@ -238,16 +311,17 @@ class EmbeddedScreenController implements EmbeddedScreen {
     }
   }
 
-  private resolveRequest(message: AckMessage | ParametersMessage): void {
+  private resolveRequest(message: AckMessage | ParametersMessage | DigitalHumanStatusMessage): void {
     const pending = this.pending.get(message.request_id);
     if (!pending || pending.expected !== message.type) {
       return;
     }
-    clearTimeout(pending.timeout);
-    this.pending.delete(message.request_id);
+    if (message.type === "digitalHumanStatus" && message.state.component_id !== pending.componentId) return;
+    this.removePending(message.request_id);
     pending.resolve(
       message.type === "parameters"
         ? structuredClone(message.parameters)
+        : message.type === "digitalHumanStatus" ? structuredClone(message.state)
         : undefined,
     );
   }
@@ -260,3 +334,4 @@ export const DataPulseEmbed = {
 };
 
 export type { JsonValue } from "./protocol";
+export type { DigitalHumanCommand, DigitalHumanEvent, DigitalHumanState } from "./protocol";

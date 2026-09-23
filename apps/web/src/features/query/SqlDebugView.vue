@@ -4,6 +4,7 @@ import { computed, onBeforeUnmount, ref, shallowRef } from "vue";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import { useStudioPermissions } from "../identity/permissions";
 import SaveDatasetDialog from "../datasets/SaveDatasetDialog.vue";
 import SchemaBrowser from "../datasources/SchemaBrowser.vue";
 import type { Datasource } from "../datasources/types";
@@ -18,6 +19,7 @@ import type {
 } from "./types";
 
 const props = defineProps<{ datasource: Datasource }>();
+const { canCreate } = useStudioPermissions();
 
 const sql = ref("SELECT *\nFROM ");
 const parameters = shallowRef<QueryParameterInput[]>([]);
@@ -98,7 +100,7 @@ onBeforeUnmount(() => queryController?.abort());
         </div>
         <div class="query-actions">
           <button
-            v-if="result"
+            v-if="result && canCreate"
             class="secondary-button"
             type="button"
             @click="saveDialogOpen = true"
@@ -151,6 +153,7 @@ onBeforeUnmount(() => queryController?.abort());
     </section>
 
     <SaveDatasetDialog
+      v-if="canCreate"
       :open="saveDialogOpen"
       :datasource-id="datasource.id"
       :sql="sql"

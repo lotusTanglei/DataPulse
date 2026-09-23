@@ -1,0 +1,44 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-provider-health.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "checked_at": {
+      "format": "date-time",
+      "title": "Checked At",
+      "type": "string"
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Code"
+    },
+    "latency_ms": {
+      "minimum": 0,
+      "title": "Latency Ms",
+      "type": "integer"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "provider_id": {
+      "title": "Provider Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "checked_at",
+    "ok",
+    "latency_ms"
+  ],
+  "title": "DigitalHumanProviderHealthResponse",
+  "type": "object"
+}

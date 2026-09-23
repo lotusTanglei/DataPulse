@@ -15,9 +15,17 @@ type Canvas = DashboardDocument["canvas"];
 type Theme = NonNullable<DashboardDocument["theme"]>;
 type Refresh = NonNullable<DashboardDocument["refresh"]>;
 
+export interface DigitalHumanCopyOptions {
+  copySpeech?: boolean;
+  copyTrigger?: boolean;
+  copyAudio?: boolean;
+}
+
 export type EditorCommand =
   | { type: "batch"; commands: EditorCommand[] }
   | { type: "add_component"; component: ComponentInstance }
+  | { type: "add_plugin_component"; component: ComponentInstance; dependency: { id: string; version: string } }
+  | { type: "migrate_plugin"; expected_document: string; dependency: { id: string; version: string }; from_version: string; properties: Record<string, ComponentProps> }
   | {
       type: "group_components";
       component_ids: string[];
@@ -35,6 +43,7 @@ export type EditorCommand =
       source_ids: string[];
       id_map: Record<string, string>;
       offset?: { x: number; y: number };
+      digital_human?: DigitalHumanCopyOptions;
     }
   | {
       type: "update_frame";
@@ -110,12 +119,93 @@ function patchComponents(
   );
 }
 
+function applyDigitalHumanCopyOptions(
+  component: ComponentInstance,
+  options: DigitalHumanCopyOptions | undefined,
+): ComponentInstance {
+  if (component.type !== "builtin.digital_human" || !options) return component;
+  const props = { ...(component.props ?? {}) } as ComponentProps;
+  let dataBinding = component.data_binding;
+  if (options.copySpeech === false) {
+    delete props.speech_template;
+    dataBinding = {};
+  }
+  if (options.copyTrigger === false) {
+    delete props.trigger;
+    props.auto_play = false;
+  }
+  if (options.copyAudio === false) {
+    delete props.audio_asset_id;
+    delete props.recording;
+    delete props.recordings;
+    if (props.speech_source === "audio") props.speech_source = "browser";
+  }
+  return { ...component, props, data_binding: structuredClone(dataBinding) };
+}
+
+function remapDigitalHumanReferences(
+  component: ComponentInstance,
+  idMap: Record<string, string>,
+  options: DigitalHumanCopyOptions | undefined,
+): ComponentInstance {
+  if (
+    component.type !== "builtin.digital_human" ||
+    options?.copySpeech === false ||
+    component.data_binding?.source !== "components"
+  ) {
+    return component;
+  }
+  const binding = component.data_binding as Record<string, unknown>;
+  if (!Array.isArray(binding.variables)) return component;
+  return {
+    ...component,
+    data_binding: {
+      ...binding,
+      variables: binding.variables.map((variable) => {
+        if (!variable || typeof variable !== "object" || Array.isArray(variable)) {
+          return variable;
+        }
+        const item = variable as Record<string, unknown>;
+        const componentId = item.component_id;
+        return {
+          ...item,
+          component_id:
+            typeof componentId === "string"
+              ? idMap[componentId] ?? componentId
+              : componentId,
+        };
+      }),
+    },
+  };
+}
+
 export function applyCommand(
   document: DashboardDocument,
   command: EditorCommand,
 ): DashboardDocument {
   const next = structuredClone(document);
   switch (command.type) {
+    case "migrate_plugin": {
+      const pinned = next.plugin_dependencies?.find((item) => item.id === command.dependency.id);
+      if (JSON.stringify(document) !== command.expected_document || pinned?.version !== command.from_version) {
+        throw new EditorCommandError("草稿已变化，请重新执行版本切换。");
+      }
+      const ids = Object.keys(command.properties);
+      next.components = patchComponents(next, ids, (component) => ({
+        ...component, props: structuredClone(command.properties[component.id]!),
+      }));
+      pinned.version = command.dependency.version;
+      break;
+    }
+    case "add_plugin_component": {
+      const dependencies = next.plugin_dependencies ?? [];
+      const pinned = dependencies.find((item) => item.id === command.dependency.id);
+      if (pinned && pinned.version !== command.dependency.version) {
+        throw new EditorCommandError("A different plugin version is already pinned to this draft.");
+      }
+      if (!pinned) next.plugin_dependencies = [...dependencies, structuredClone(command.dependency)];
+      return applyCommand(next, { type: "add_component", component: command.component });
+    }
     case "batch": {
       let nextDocument = next;
       for (const nested of command.commands) {
@@ -200,11 +290,20 @@ export function applyCommand(
         const source = components(next).find(
           (component) => component.id === sourceId,
         )!;
+        const copied = applyDigitalHumanCopyOptions(
+          structuredClone(source),
+          command.digital_human,
+        );
+        const remapped = remapDigitalHumanReferences(
+          copied,
+          command.id_map,
+          command.digital_human,
+        );
         return {
-          ...structuredClone(source),
+          ...remapped,
           id: newId,
           frame: {
-            ...source.frame,
+            ...remapped.frame,
             x: source.frame.x + offset.x,
             y: source.frame.y + offset.y,
           },

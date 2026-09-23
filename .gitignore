@@ -13,6 +13,7 @@ dist/
 !.env.example
 .e2e/
 data/
+.secrets/
 coverage/
 .coverage
 htmlcov/

@@ -6,7 +6,7 @@ from typing import Annotated
 
 from alembic import command
 from alembic.config import Config
-from fastapi import Depends
+from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
 from datapulse.app import create_app
@@ -19,6 +19,7 @@ SERVER_ROOT = Path(__file__).resolve().parents[2]
 
 @dataclass(frozen=True)
 class AppClient:
+    app: FastAPI
     client: TestClient
     setup_code: str
     origin: str
@@ -66,6 +67,7 @@ def build_test_app(
     origin = "http://testserver"
     with TestClient(app, base_url=origin) as client:
         yield AppClient(
+            app=app,
             client=client,
             setup_code=setup_code,
             origin=origin,

@@ -46,6 +46,17 @@ test("AI screen preview cancels cleanly and confirms with one atomic create", as
       (item) => item.method === "POST" && item.path === "/api/admin/screens",
     ),
   ).toHaveLength(0);
+  await dialog.getByLabel("修改要求").fill("把区域对比改成饼图");
+  await dialog.getByLabel("修改范围").selectOption("regions");
+  await dialog.getByRole("checkbox", { name: "区域对比" }).check();
+  await dialog.getByRole("button", { name: "应用修改" }).click();
+  await expect(dialog.getByText("E2E AI 已修改区域对比图表。")).toBeVisible();
+  await expect(dialog.locator('[data-field="chart-type"]')).toHaveValue("pie");
+  expect(
+    requests.filter(
+      (item) => item.method === "POST" && item.path === "/api/admin/screens",
+    ),
+  ).toHaveLength(0);
   await dialog.getByRole("button", { name: "取消" }).click();
   await expect(dialog).toBeHidden();
   expect(await apiGet<ScreenRecord[]>(page, "/api/admin/screens")).toHaveLength(
@@ -92,13 +103,14 @@ test("invalid AI screens never create a draft", async ({ page }) => {
     .getByRole("checkbox")
     .check();
   await dialog.getByRole("button", { name: "生成草稿" }).click();
-  await expect(dialog).toContainText("The AI analysis request is invalid");
+  await expect(dialog).toContainText("AI 生成的大屏存在布局问题");
+  await expect(dialog).toContainText("unknown_field");
 
   await dialog
     .getByLabel("需求描述")
     .fill("E2E_MODE:valid-screen E2E_UNAUTHORIZED_DATASET");
   await dialog.getByRole("button", { name: "生成草稿" }).click();
-  await expect(dialog).toContainText("The AI analysis request is invalid");
+  await expect(dialog).toContainText("AI 返回结果无法使用");
   expect(await apiGet<ScreenRecord[]>(page, "/api/admin/screens")).toHaveLength(
     initial.length,
   );

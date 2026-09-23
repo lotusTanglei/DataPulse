@@ -156,6 +156,10 @@ test("administrator builds, previews, publishes, and plays a complete screen", a
   await expect(page).toHaveScreenshot(editorSnapshot, {
     animations: "disabled",
   });
+  await page.screenshot({
+    path: testInfo.outputPath("editor-shell-actual.png"),
+    animations: "disabled",
+  });
 
   const previewPromise = page.waitForEvent("popup");
   await page.getByRole("link", { name: "预览" }).click();

@@ -58,7 +58,9 @@ def _namespace(value: str | None) -> str | None:
 
 @router.get("")
 async def list_datasources(request: Request) -> tuple[DatasourceResponse, ...]:
-    return await request.app.state.datasource_service.list()
+    return await request.app.state.identity_service.filter_visible(
+        request.state.admin, "datasource", await request.app.state.datasource_service.list()
+    )
 
 
 @router.post("", status_code=201, dependencies=[Depends(require_csrf)])
@@ -67,7 +69,11 @@ async def create_datasource(
     request: Request,
 ) -> DatasourceResponse:
     try:
-        return await request.app.state.datasource_service.create(payload)
+        result = await request.app.state.datasource_service.create(payload)
+        await request.app.state.identity_service.register_owner(
+            request.state.admin, "datasource", result.id
+        )
+        return result
     except (DatasourceNameConflict, DatasourceNotFound, DatasourceInUse) as error:
         _raise_repository_error(error)
 

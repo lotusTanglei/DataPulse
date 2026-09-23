@@ -4,6 +4,7 @@ import {
   nextTick,
   onBeforeUnmount,
   ref,
+  shallowRef,
   watch,
 } from "vue";
 import { RouterLink, useRoute } from "vue-router";
@@ -13,12 +14,15 @@ import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import type { JsonValue } from "../query/types";
 import ScreenRuntime from "../runtime/ScreenRuntime.vue";
+import { defaultComponentRegistry } from "../runtime/registry";
+import type { SpeechCommand, SpeechEvent, SpeechStatus } from "../runtime/speechProtocol";
 import {
   exchangeStandaloneKey,
   getEmbedDocument,
   getPreviewDocument,
   getStandaloneDocument,
   loadEmbedAsset,
+  loadPlayerPlugins,
   loadPreviewAsset,
   loadStandaloneAsset,
   queryEmbedComponent,
@@ -45,12 +49,15 @@ const resolvedScreenId = computed(
   () => props.screenId ?? String(route.params.id ?? ""),
 );
 const document = ref<DashboardDocument | null>(null);
+const componentRegistry = shallowRef(defaultComponentRegistry);
 const screenName = ref("");
 const initialParameters = ref<Record<string, JsonValue>>({});
 const mutableParameters = ref<Set<string>>(new Set());
 const loading = ref(true);
 const loadError = ref<ApiError | null>(null);
 interface RuntimeController {
+  speechCommand(command: SpeechCommand): SpeechStatus;
+  stopSpeech(): void;
   getParameters(): Record<string, JsonValue>;
   refresh(): Promise<void>;
   setParameter(
@@ -66,6 +73,9 @@ interface RuntimeController {
 const runtime = ref<RuntimeController | null>(null);
 let controller: AbortController | null = null;
 let embedBridge: EmbedBridge | null = null;
+let embedExpiresAt: number | null = null;
+let embedAccessError: ApiError | null = null;
+let embedExpiryTimer: ReturnType<typeof setTimeout> | null = null;
 const bootstrapKey = ref(
   props.mode === "standalone" && typeof route.query.key === "string"
     ? route.query.key
@@ -103,12 +113,58 @@ function playerError(code: string, message: string): Error & { code: string } {
   return Object.assign(new Error(message), { code });
 }
 
+function clearEmbedExpiry(): void {
+  if (embedExpiryTimer !== null) clearTimeout(embedExpiryTimer);
+  embedExpiryTimer = null;
+}
+
+function denyEmbedAccess(error: ApiError): void {
+  if (embedAccessError) return;
+  embedAccessError = error;
+  clearEmbedExpiry();
+  runtime.value?.stopSpeech();
+  document.value = null;
+  loadError.value = error;
+  embedTicket.value = "";
+  embedBridge?.reportError(error);
+}
+
+function checkEmbedAccess(): void {
+  if (props.mode !== "embed") return;
+  if (!embedAccessError && embedExpiresAt !== null && Date.now() >= embedExpiresAt) {
+    denyEmbedAccess(new ApiError({
+      code: "EMBED_TICKET_EXPIRED", message: "嵌入票据已过期。", status: 401, requestId: "",
+    }));
+  }
+  if (embedAccessError) throw embedAccessError;
+}
+
+function recheckEmbedAccess(): void {
+  try { checkEmbedAccess(); } catch { /* The access error is already displayed and reported. */ }
+}
+
+function scheduleEmbedExpiry(): void {
+  clearEmbedExpiry();
+  checkEmbedAccess();
+  if (embedExpiresAt !== null) {
+    embedExpiryTimer = setTimeout(scheduleEmbedExpiryCheck, Math.min(2_147_483_647, Math.max(0, embedExpiresAt - Date.now())));
+  }
+}
+
+function scheduleEmbedExpiryCheck(): void {
+  try { scheduleEmbedExpiry(); } catch { /* Expiration is terminal for this ticket. */ }
+}
+
 async function configureEmbedBridge(allowedOrigin: string): Promise<void> {
   embedBridge?.destroy();
-  await nextTick();
   embedBridge = createEmbedBridge({
     allowedOrigin,
     instanceId: embedInstanceId,
+    checkAccess: checkEmbedAccess,
+    speechCommand: (command) => {
+      if (!runtime.value) throw playerError("EMBED_PLAYER_NOT_READY", "大屏尚未就绪。");
+      return runtime.value.speechCommand(command);
+    },
     refresh: async () => {
       if (!runtime.value) {
         throw playerError("EMBED_PLAYER_NOT_READY", "大屏尚未就绪。");
@@ -155,13 +211,21 @@ async function configureEmbedBridge(allowedOrigin: string): Promise<void> {
       }
     },
   });
-  embedBridge.ready();
+  const configuredBridge = embedBridge;
+  checkEmbedAccess();
+  await nextTick();
+  if (embedBridge !== configuredBridge) return;
+  checkEmbedAccess();
+  configuredBridge.ready();
 }
 
 async function load(): Promise<void> {
   controller?.abort();
   embedBridge?.destroy();
   embedBridge = null;
+  clearEmbedExpiry();
+  embedExpiresAt = null;
+  embedAccessError = null;
   const nextController = new AbortController();
   controller = nextController;
   loading.value = true;
@@ -204,14 +268,25 @@ async function load(): Promise<void> {
     } else {
       throw new Error("This playback mode is not configured yet.");
     }
+    const dependencies = loaded.document.plugin_dependencies ?? [];
+    const plugins = dependencies.length
+      ? await loadPlayerPlugins(props.mode, resolvedScreenId.value, embedTicket.value, dependencies, nextController.signal)
+      : defaultComponentRegistry;
     if (!nextController.signal.aborted && controller === nextController) {
+      componentRegistry.value = plugins;
       document.value = loaded.document;
       screenName.value = loaded.name;
       if (props.mode === "embed" && "allowed_origin" in loaded) {
         const embedded = loaded as EmbedPlayerDocument;
+        embedExpiresAt = Date.parse(embedded.expires_at);
+        if (!Number.isFinite(embedExpiresAt)) {
+          throw new ApiError({ code: "EMBED_TICKET_INVALID", message: "嵌入票据有效期无效。", status: 401, requestId: "" });
+        }
         initialParameters.value = embedded.parameters;
         mutableParameters.value = new Set(embedded.mutable_parameters);
+        loading.value = false;
         await configureEmbedBridge(embedded.allowed_origin);
+        scheduleEmbedExpiry();
       }
     }
   } catch (reason) {
@@ -237,7 +312,13 @@ watch([resolvedScreenId, () => props.mode], () => void load(), {
   immediate: true,
 });
 
+window.addEventListener("focus", recheckEmbedAccess);
+window.document.addEventListener("visibilitychange", recheckEmbedAccess);
+
 onBeforeUnmount(() => {
+  clearEmbedExpiry();
+  window.removeEventListener("focus", recheckEmbedAccess);
+  window.document.removeEventListener("visibilitychange", recheckEmbedAccess);
   controller?.abort();
   embedBridge?.destroy();
 });
@@ -256,6 +337,7 @@ const queryComponent = async (
     );
   }
   if (props.mode === "embed") {
+    checkEmbedAccess();
     const overrides = Object.fromEntries(
       Object.entries(parameters).filter(([name]) =>
         mutableParameters.value.has(name),
@@ -290,6 +372,7 @@ async function loadAsset(
       );
     }
     if (props.mode === "embed") {
+      checkEmbedAccess();
       return await loadEmbedAsset(
         resolvedScreenId.value,
         assetId,
@@ -299,17 +382,26 @@ async function loadAsset(
     }
     return await loadPreviewAsset(assetId, signal);
   } catch (error) {
-    if (props.mode === "embed") {
-      embedBridge?.reportError(error);
-    }
+    handleRuntimeError(error);
     throw error;
   }
 }
 
 function handleRuntimeError(error: unknown): void {
   if (props.mode === "embed") {
+    if (error instanceof ApiError && [
+      "EMBED_TICKET_EXPIRED", "EMBED_TICKET_INVALID", "EMBED_AUTH_REQUIRED",
+      "EMBED_ORIGIN_DENIED", "EMBED_ADDRESS_DENIED", "EMBED_SCREEN_UNAVAILABLE",
+    ].includes(error.code)) {
+      denyEmbedAccess(error);
+      return;
+    }
     embedBridge?.reportError(error);
   }
+}
+
+function handleSpeechEvent(event: SpeechEvent): void {
+  embedBridge?.reportSpeechEvent(event);
 }
 </script>
 
@@ -345,11 +437,13 @@ function handleRuntimeError(error: unknown): void {
         v-else-if="document"
         ref="runtime"
         :document="document"
+        :registry="componentRegistry"
         :initial-parameters="initialParameters"
         :load-asset="loadAsset"
         :mode="mode"
         :query-component="queryComponent"
         @error="handleRuntimeError"
+        @speech-event="handleSpeechEvent"
       />
     </section>
   </main>

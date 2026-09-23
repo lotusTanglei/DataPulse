@@ -129,7 +129,7 @@ async def setup(payload: SetupRequest, request: Request, response: Response) -> 
         session_token=created.session_token,
         csrf_token=created.csrf_token,
     )
-    return {"username": admin.username}
+    return {"id": admin.id, "username": admin.username, "role": admin.role}
 
 
 @router.post("/login", status_code=204)
@@ -146,7 +146,11 @@ async def login(payload: LoginRequest, request: Request, response: Response) -> 
         ) from error
 
     admin = await request.app.state.auth_repository.get_admin_by_username(payload.username)
-    if admin is None or not verify_password(payload.password, admin.password_hash):
+    if (
+        admin is None
+        or not admin.active
+        or not verify_password(payload.password, admin.password_hash)
+    ):
         request.app.state.login_limiter.record_failure(client_ip)
         raise DataPulseError(
             code="AUTH_INVALID_CREDENTIALS",
@@ -174,7 +178,7 @@ async def logout(request: Request, response: Response) -> None:
 async def session(
     admin: Annotated[AdminAccount, Depends(require_admin)],
 ) -> dict[str, str]:
-    return {"username": admin.username}
+    return {"id": admin.id, "username": admin.username, "role": admin.role}
 
 
 @router.patch("/password", status_code=204, dependencies=[Depends(require_csrf)])

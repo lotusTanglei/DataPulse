@@ -1,0 +1,11 @@
+.identity-page { display: grid; gap: 20px; max-width: 1280px; margin: 0 auto; }
+.identity-card { display: grid; gap: 14px; padding: 22px; border: 1px solid var(--border-color, #d9e1eb); border-radius: 12px; background: var(--surface, #fff); }
+.identity-card h2 { margin: 0; font-size: 17px; }
+.identity-form label { display: grid; gap: 7px; font-size: 14px; }
+.identity-form input, .identity-form select { width: 100%; box-sizing: border-box; min-height: 38px; padding: 8px 10px; border: 1px solid var(--border-color, #ccd5e0); border-radius: 6px; background: var(--surface, #fff); color: inherit; }
+.identity-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.identity-table-wrap { overflow-x: auto; }
+.identity-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+.identity-table th, .identity-table td { padding: 12px 8px; border-bottom: 1px solid var(--border-color, #e4e9f0); overflow-wrap: anywhere; }
+.identity-card p { margin: 0; line-height: 1.6; }
+.identity-card button { width: fit-content; }

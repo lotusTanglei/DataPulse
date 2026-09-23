@@ -13,7 +13,7 @@ import {
 
 import ComponentHost from "../../runtime/ComponentHost.vue";
 import { createDataRuntime } from "../../runtime/dataRuntime";
-import { defaultComponentRegistry } from "../../runtime/registry";
+import { useEditorRegistry } from "../../ecosystem/editorPlugins";
 import { resolveThemeTokens } from "../../runtime/theme";
 import { queryScreenDocument } from "../api";
 import type { ComponentInstance } from "./commands";
@@ -39,6 +39,7 @@ const props = withDefaults(
 );
 
 const store = useScreenEditorStore();
+const componentRegistry = useEditorRegistry();
 const themeTokens = computed(() => resolveThemeTokens(store.document?.theme));
 const host = ref<HTMLElement | null>(null);
 const canvas = ref<HTMLElement | null>(null);
@@ -72,6 +73,9 @@ const visibleComponents = computed(() =>
     (component) => !component.state?.hidden,
   ),
 );
+const dataStates = computed(() => Object.fromEntries(
+  visibleComponents.value.map((component) => [component.id, dataRuntime.state(component.id)]),
+));
 const parameterDefaults = computed(() =>
   Object.fromEntries(
     (store.document?.parameters ?? []).map((parameter) => [
@@ -145,7 +149,7 @@ async function refreshData(): Promise<void> {
   dataRuntime.beginGeneration();
   await Promise.all(
     visibleComponents.value
-      .filter((component) => component.data_binding && Object.keys(component.data_binding).length > 0)
+      .filter((component) => component.data_binding && component.data_binding.source !== "components" && Object.keys(component.data_binding).length > 0)
       .map((component) =>
         dataRuntime
           .load(
@@ -840,13 +844,15 @@ defineExpose({
             v-if="hoveredId === component.id || store.selection.includes(component.id) || overlapIds.has(component.id)"
             class="canvas-component-label"
           >
-            {{ defaultComponentRegistry.get(component.type)?.label ?? component.type }}
+            {{ componentRegistry.get(component.type)?.label ?? component.type }}
           </span>
           <ComponentHost
-            :definition="defaultComponentRegistry.get(component.type)"
+            :definition="componentRegistry.get(component.type)"
             :instance="component"
             :load-asset="loadAsset"
             :query-state="dataRuntime.state(component.id)"
+            :data-states="dataStates"
+            :parameters="parameterDefaults"
             :theme="themeTokens"
             mode="editor"
           />

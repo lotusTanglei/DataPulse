@@ -5,9 +5,11 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { ApiError } from "../../lib/api";
 import FormField from "../../ui/FormField.vue";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import { useStudioPermissions } from "../identity/permissions";
 import {
   createDatasource,
   getDatasource,
+  testDatasource,
   testDatasourceConfig,
   updateDatasource,
 } from "./api";
@@ -67,7 +69,10 @@ type DatasourceForm = SQLiteForm | PostgreSQLForm | MySQLForm | HttpApiForm;
 
 const route = useRoute();
 const router = useRouter();
+const { isAdmin, canCreate, canWriteResource } = useStudioPermissions();
+const writable = ref(false);
 const isEdit = computed(() => route.name === "datasource-edit");
+const canSave = computed(() => isEdit.value ? writable.value : canCreate.value);
 const datasourceId = computed(() => String(route.params.id ?? ""));
 const loading = ref(isEdit.value);
 const submitting = ref(false);
@@ -78,11 +83,13 @@ const notice = ref("");
 const requestId = ref("");
 const clientFields = ref<Record<string, string>>({});
 const serverFields = ref<Record<string, string>>({});
-const model = ref<DatasourceForm>(blankForm("sqlite"));
+const model = ref<DatasourceForm>(blankForm(isAdmin.value ? "sqlite" : "postgresql"));
+const fixedSqliteConfig = computed(() => !isAdmin.value && model.value.type === "sqlite");
 
 const connectorType = computed<ConnectorType>({
   get: () => model.value.type,
   set: (type) => {
+    if (fixedSqliteConfig.value || (type === "sqlite" && !isAdmin.value)) return;
     model.value = blankForm(type, model.value.name);
     clientFields.value = {};
     serverFields.value = {};
@@ -265,6 +272,7 @@ function configFromForm(current: DatasourceForm): DatasourceConfig {
 }
 
 async function testConnection(): Promise<void> {
+  if (!canSave.value) return;
   testResult.value = null;
   testError.value = null;
   if (!validate()) {
@@ -273,6 +281,15 @@ async function testConnection(): Promise<void> {
   testing.value = true;
   const current = model.value;
   try {
+    if (fixedSqliteConfig.value) {
+      const tested = await testDatasource(datasourceId.value);
+      testResult.value = {
+        status: tested.status,
+        latency_ms: tested.last_latency_ms ?? 0,
+        error_code: tested.last_error_code,
+      };
+      return;
+    }
     const payload = {
       config: configFromForm(current),
       ...(current.type !== "sqlite" && current.password !== ""
@@ -312,8 +329,13 @@ async function loadDatasource(): Promise<void> {
     return;
   }
   loading.value = true;
+  writable.value = false;
   try {
-    model.value = formFromDatasource(await getDatasource(datasourceId.value));
+    const [source, canWrite] = await Promise.all([
+      getDatasource(datasourceId.value), canWriteResource("datasource", datasourceId.value),
+    ]);
+    model.value = formFromDatasource(source);
+    writable.value = canWrite;
   } catch (reason) {
     if (reason instanceof ApiError) {
       notice.value = reason.message;
@@ -327,6 +349,7 @@ async function loadDatasource(): Promise<void> {
 }
 
 async function submit(): Promise<void> {
+  if (!canSave.value) return;
   notice.value = "";
   requestId.value = "";
   serverFields.value = {};
@@ -341,7 +364,7 @@ async function submit(): Promise<void> {
     if (isEdit.value) {
       saved = await updateDatasource(datasourceId.value, {
         name: current.name.trim(),
-        config,
+        ...(!fixedSqliteConfig.value ? { config } : {}),
         ...(current.type !== "sqlite" && current.password !== ""
           ? { password: current.password }
           : {}),
@@ -407,7 +430,8 @@ onMounted(loadDatasource);
         </p>
       </InlineNotice>
 
-      <form class="datasource-form" autocomplete="off" @submit.prevent="submit">
+      <InlineNotice v-if="!canSave" tone="info">当前为只读访问，请联系资源拥有者授予编辑权限。</InlineNotice>
+      <form v-else class="datasource-form" autocomplete="off" @submit.prevent="submit">
         <div class="form-section">
           <div class="form-section__heading">
             <h2>基本信息</h2>
@@ -424,8 +448,8 @@ onMounted(loadDatasource);
               <input id="name" v-model="model.name" name="name" autocomplete="off" />
             </FormField>
             <FormField label="连接器" name="connectorType" required>
-              <select id="connectorType" v-model="connectorType" name="connectorType">
-                <option value="sqlite">SQLite</option>
+              <select id="connectorType" v-model="connectorType" name="connectorType" :disabled="fixedSqliteConfig">
+                <option v-if="isAdmin || fixedSqliteConfig" value="sqlite">SQLite</option>
                 <option value="postgresql">PostgreSQL</option>
                 <option value="mysql">MySQL / MariaDB</option>
                 <option value="http_api">HTTP API</option>
@@ -453,6 +477,7 @@ onMounted(loadDatasource);
                 id="path"
                 v-model="model.path"
                 name="path"
+                :disabled="fixedSqliteConfig"
                 placeholder="sales.db"
                 autocomplete="off"
               />

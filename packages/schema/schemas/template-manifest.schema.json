@@ -1,0 +1,87 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/template-manifest.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "assets": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Assets",
+      "type": "array"
+    },
+    "compatible_api": {
+      "minLength": 1,
+      "title": "Compatible Api",
+      "type": "string"
+    },
+    "datasets": {
+      "default": [],
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Datasets",
+      "type": "array"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "document": {
+      "const": "document.json",
+      "default": "document.json",
+      "title": "Document",
+      "type": "string"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "const": "template",
+      "default": "template",
+      "title": "Kind",
+      "type": "string"
+    },
+    "license": {
+      "default": "UNLICENSED",
+      "minLength": 1,
+      "title": "License",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "source": {
+      "default": "local",
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    },
+    "version": {
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "compatible_api",
+    "name"
+  ],
+  "title": "TemplateManifest",
+  "type": "object"
+}

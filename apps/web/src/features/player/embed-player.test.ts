@@ -12,6 +12,7 @@ import {
   type EmbedBridge,
 } from "./embedBridge";
 import PlayerView from "./PlayerView.vue";
+import { pageSpeechQueue } from "../runtime/speechQueue";
 
 const HOST_ORIGIN = "https://host.example.com";
 
@@ -93,8 +94,97 @@ function dispatchHostMessage(data: unknown, origin = HOST_ORIGIN): void {
 }
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+
+test("speech commands preserve Origin, instance and request correlation", async () => {
+  const state = { component_id: "speaker", status: "idle" as const, code: null, muted: true, volume: 1 };
+  const speechCommand = vi.fn(() => state);
+  const post = vi.spyOn(window.parent, "postMessage").mockImplementation(() => {});
+  const bridge = createEmbedBridge({
+    allowedOrigin: HOST_ORIGIN, instanceId: "speech-embed", refresh: vi.fn(),
+    setParameters: vi.fn(), getParameters: () => ({}), fullscreen: vi.fn(), speechCommand,
+  });
+  const message = { type: "digitalHuman", instance_id: "speech-embed", request_id: "request-1", command: { component_id: "speaker", action: "getStatus" } };
+  dispatchHostMessage(message, "https://other.example.com");
+  dispatchHostMessage({ ...message, instance_id: "other" });
+  dispatchHostMessage({ ...message, command: { ...message.command, text: "unpublished" } });
+  expect(speechCommand).not.toHaveBeenCalled();
+  expect(post).toHaveBeenCalledWith({
+    type: "error", instance_id: "speech-embed", request_id: "request-1",
+    code: "DIGITAL_HUMAN_COMMAND_INVALID", message: "Invalid digital human command.",
+  }, HOST_ORIGIN);
+  dispatchHostMessage(message);
+  await flushPromises();
+  expect(post).toHaveBeenCalledWith({
+    type: "digitalHumanStatus", instance_id: "speech-embed", request_id: "request-1", state,
+  }, HOST_ORIGIN);
+  bridge.destroy();
+});
+
+test.each(["timer", "focus", "command"])("expired embed tickets stop active speech via %s", async (path) => {
+  vi.useFakeTimers();
+  const expiresAt = Date.now() + 1000;
+  const cancel = vi.fn();
+  vi.stubGlobal("SpeechSynthesisUtterance", class {});
+  vi.stubGlobal("speechSynthesis", {
+    speak: (utterance: SpeechSynthesisUtterance) => utterance.onstart?.(new Event("start") as SpeechSynthesisEvent),
+    cancel,
+  });
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
+    id: "screen-1", name: "Speech", document: {
+      ...embedDocument,
+      components: [{
+        id: "speaker", type: "builtin.digital_human",
+        frame: { x: 0, y: 0, width: 320, height: 420 },
+        props: { speech_template: "已授权的播报", auto_play: false },
+      }],
+    },
+    allowed_origin: HOST_ORIGIN, parameters: {}, mutable_parameters: [],
+    expires_at: new Date(expiresAt).toISOString(),
+  }), { status: 200, headers: { "Content-Type": "application/json" } })));
+  const post = vi.spyOn(window.parent, "postMessage").mockImplementation(() => {});
+  const router = embedRouter();
+  await router.push("/embed/screen-1?ticket=short-ticket&instance_id=expiry-test");
+  const wrapper = mount(PlayerView, { props: { mode: "embed", screenId: "screen-1" }, global: { plugins: [router] } });
+  try {
+    await flushPromises();
+    const messages = post.mock.calls.map(([message]) => message);
+    expect(messages[0]).toMatchObject({ type: "ready" });
+    expect(messages.some((message) => message.type === "digitalHumanEvent" && message.event.name === "digitalHumanReady")).toBe(true);
+    await wrapper.get('[aria-label="启用声音"]').trigger("click");
+    await flushPromises();
+    expect(wrapper.get(".digital-human").attributes("data-status")).toBe("speaking");
+    if (path === "timer") await vi.advanceTimersByTimeAsync(1000);
+    else {
+      vi.setSystemTime(expiresAt);
+      if (path === "focus") window.dispatchEvent(new Event("focus"));
+      else dispatchHostMessage({
+        type: "digitalHuman", instance_id: "expiry-test", request_id: "after-expiry",
+        command: { component_id: "speaker", action: "play" },
+      });
+    }
+    await flushPromises();
+    expect(wrapper.find(".screen-runtime").exists()).toBe(false);
+    expect(wrapper.text()).toContain("无法播放此大屏");
+    expect(cancel).toHaveBeenCalled();
+    expect(pageSpeechQueue.size()).toBe(0);
+    dispatchHostMessage({
+      type: "digitalHuman", instance_id: "expiry-test", request_id: "expired-command",
+      command: { component_id: "speaker", action: "getStatus" },
+    });
+    await flushPromises();
+    expect(post).toHaveBeenCalledWith(expect.objectContaining({
+      type: "error", code: "EMBED_TICKET_EXPIRED", request_id: "expired-command",
+    }), HOST_ORIGIN);
+    expect(post).not.toHaveBeenCalledWith(expect.objectContaining({
+      type: "digitalHumanStatus", request_id: "expired-command",
+    }), HOST_ORIGIN);
+  } finally {
+    wrapper.unmount();
+  }
 });
 
 test("iframe bridge validates parent Origin and correlates replies", async () => {
@@ -220,7 +310,7 @@ test("embed player scrubs the ticket and uses Bearer-only runtime APIs", async (
               allowed_origin: HOST_ORIGIN,
               parameters: { region: "west", year: 2026 },
               mutable_parameters: ["region"],
-              expires_at: "2026-07-30T18:00:00Z",
+              expires_at: new Date(Date.now() + 60_000).toISOString(),
             }),
             {
               status: 200,
@@ -288,6 +378,7 @@ test("embed player scrubs the ticket and uses Bearer-only runtime APIs", async (
   expect(postMessage).toHaveBeenCalledWith(
     {
       type: "ready",
+      capabilities: ["digitalHuman.v1"],
       protocol_version: 1,
       instance_id: "embed-1",
     },
@@ -316,7 +407,7 @@ test("direct iframe embeds work without an instance_id query parameter", async (
               allowed_origin: HOST_ORIGIN,
               parameters: { region: "west", year: 2026 },
               mutable_parameters: ["region"],
-              expires_at: "2026-07-30T18:00:00Z",
+              expires_at: new Date(Date.now() + 60_000).toISOString(),
             }),
             {
               status: 200,

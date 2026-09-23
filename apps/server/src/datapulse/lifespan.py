@@ -51,6 +51,7 @@ from datapulse.query.execution import QueryExecutor, QueryRunRepository
 from datapulse.query.limits import QueryLimiter
 from datapulse.screen.assets import AssetLimits, AssetService, ScreenAssetRepository
 from datapulse.screen.media import MediaInspector, MediaLimits
+from datapulse.screen.planning_service import DashboardPlanningService
 from datapulse.screen.publishing import PublishingService
 from datapulse.screen.repository import ScreenRepository
 from datapulse.screen.runtime import ScreenRuntimeService
@@ -175,6 +176,27 @@ def create_lifespan(
                 file_asset_repository=file_asset_repository,
                 file_query_service=file_query_service,
             )
+            screen_repository = ScreenRepository(session_factory)
+            app.state.screen_service = ScreenService(
+                repository=screen_repository,
+            )
+            app.state.ecosystem_service = EcosystemService(
+                root=settings.data_dir / "ecosystem",
+                screen_service=app.state.screen_service,
+                session_factory=session_factory,
+            )
+            app.state.screen_runtime_service = ScreenRuntimeService(
+                screen_repository=screen_repository,
+                dataset_repository=dataset_repository,
+                datasource_service=app.state.datasource_service,
+                file_asset_repository=file_asset_repository,
+                file_query_service=file_query_service,
+                ecosystem_service=app.state.ecosystem_service,
+            )
+            app.state.screen_planning_service = DashboardPlanningService(
+                dataset_repository=dataset_repository,
+                runtime_service=app.state.screen_runtime_service,
+            )
             app.state.file_asset_service = FileAssetService(
                 repository=file_asset_repository,
                 storage=FileStorage(settings, scanner=upload_scanner),
@@ -204,17 +226,9 @@ def create_lifespan(
                 registry=connector_registry,
                 file_asset_repository=file_asset_repository,
                 file_query_service=file_query_service,
+                planning_service=app.state.screen_planning_service,
                 max_context_rows=settings.ai_max_context_rows,
                 screen_timeout_seconds=settings.ai_screen_timeout_seconds,
-            )
-            screen_repository = ScreenRepository(session_factory)
-            app.state.screen_service = ScreenService(
-                repository=screen_repository,
-            )
-            app.state.ecosystem_service = EcosystemService(
-                root=settings.data_dir / "ecosystem",
-                screen_service=app.state.screen_service,
-                session_factory=session_factory,
             )
             asset_service = AssetService(
                 scanner=upload_scanner,
@@ -258,14 +272,6 @@ def create_lifespan(
                 screen_repository=screen_repository,
                 dataset_repository=dataset_repository,
                 asset_service=asset_service,
-                ecosystem_service=app.state.ecosystem_service,
-            )
-            app.state.screen_runtime_service = ScreenRuntimeService(
-                screen_repository=screen_repository,
-                dataset_repository=dataset_repository,
-                datasource_service=app.state.datasource_service,
-                file_asset_repository=file_asset_repository,
-                file_query_service=file_query_service,
                 ecosystem_service=app.state.ecosystem_service,
             )
             signing_key = settings.signing_key_bytes()

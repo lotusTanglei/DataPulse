@@ -1,23 +1,41 @@
-"""Versioned public contracts shared by DataPulse subsystems."""
+"""Versioned contracts with lazy public exports to avoid import-order cycles."""
 
-from pydantic import BaseModel
+from importlib import import_module
 
-from datapulse.contracts.ai import AiEditResponse, AnalysisPlan
-from datapulse.contracts.chart import ChartSpec
-from datapulse.contracts.dashboard import DashboardDocument
-from datapulse.contracts.dataset import DatasetDefinition
-from datapulse.contracts.embed import EmbedMessageEnvelope, EmbedTicketClaims
-from datapulse.contracts.plugin import PluginManifest
 
-CONTRACT_MODELS: dict[str, type[BaseModel]] = {
-    "analysis-plan": AnalysisPlan,
-    "ai-edit-response": AiEditResponse,
-    "chart-spec": ChartSpec,
-    "dashboard-document": DashboardDocument,
-    "dataset-definition": DatasetDefinition,
-    "embed-message": EmbedMessageEnvelope,
-    "embed-ticket-claims": EmbedTicketClaims,
-    "plugin-manifest": PluginManifest,
-}
+def __getattr__(name: str):
+    if name.startswith("_"):
+        raise AttributeError(name)
+    registry = import_module("datapulse.contracts.registry")
+    try:
+        value = getattr(registry, name)
+    except AttributeError:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from None
+    globals()[name] = value
+    return value
 
-__all__ = ["CONTRACT_MODELS"]
+
+__all__ = [
+    "CONTRACT_MODELS",
+    "DashboardPlan",
+    "GenerationSelfCheckReport",
+    "DigitalHumanCostReportResponse",
+    "DigitalHumanMetricsResponse",
+    "DigitalHumanPlaybackDiagnosticResponse",
+    "DigitalHumanCacheClearResponse",
+    "DigitalHumanAuditResponse",
+    "DigitalHumanProviderCreate",
+    "DigitalHumanProviderHealthResponse",
+    "DigitalHumanProviderResponse",
+    "DigitalHumanProviderTestResponse",
+    "DigitalHumanProviderUpdate",
+    "DigitalHumanSettingsResponse",
+    "DigitalHumanSettingsUpdate",
+    "DigitalHumanUsageResponse",
+    "SpeechDraftRequest",
+    "SpeechDraftResponse",
+    "SpeechPlanRequest",
+    "SpeechPlanResponse",
+    "SpeechTaskResponse",
+    "SpeechScriptSegment",
+]

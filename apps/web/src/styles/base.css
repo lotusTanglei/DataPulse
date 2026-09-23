@@ -531,6 +531,12 @@ textarea::placeholder {
   background: var(--dp-danger-soft);
 }
 
+.inline-notice[data-tone="warning"] {
+  border-color: #d7a32f;
+  background: #fff8e6;
+  color: #634b10;
+}
+
 .inline-notice__icon {
   display: inline-grid;
   width: 19px;

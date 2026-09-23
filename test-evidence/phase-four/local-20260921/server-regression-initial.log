@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/dundundebaba/sync/code/open/DataPulse
+configfile: pyproject.toml
+testpaths: apps/server/tests
+plugins: cov-7.1.0, anyio-4.14.2
+collected 797 items / 2 errors / 15 deselected / 782 selected
+
+==================================== ERRORS ====================================
+___________ ERROR collecting apps/server/tests/identity/test_api.py ____________
+import file mismatch:
+imported module 'test_api' has this __file__ attribute:
+  /Users/dundundebaba/sync/code/open/DataPulse/apps/server/tests/ecosystem/test_api.py
+which is not the same as the test file we want to collect:
+  /Users/dundundebaba/sync/code/open/DataPulse/apps/server/tests/identity/test_api.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+__________ ERROR collecting apps/server/tests/identity/test_speech.py __________
+import file mismatch:
+imported module 'test_speech' has this __file__ attribute:
+  /Users/dundundebaba/sync/code/open/DataPulse/apps/server/tests/contracts/test_speech.py
+which is not the same as the test file we want to collect:
+  /Users/dundundebaba/sync/code/open/DataPulse/apps/server/tests/identity/test_speech.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+=========================== short test summary info ============================
+ERROR apps/server/tests/identity/test_api.py
+ERROR apps/server/tests/identity/test_speech.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================= 15 deselected, 2 errors in 2.32s =======================

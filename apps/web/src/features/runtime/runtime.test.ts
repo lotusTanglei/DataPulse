@@ -10,11 +10,76 @@ import { ComponentRegistry, defaultComponentRegistry } from "./registry";
 import ScreenRuntime from "./ScreenRuntime.vue";
 import { resolveTheme } from "./theme";
 import type { ComponentDefinition } from "./types";
+import { resolveRuntimeViewport } from "./viewport";
 
 const StubComponent = defineComponent({
   name: "StubRuntimeComponent",
   template: "<div />",
 });
+
+const QueryResultProbe = defineComponent({
+  name: "QueryResultProbe",
+  props: {
+    result: { type: Object, default: null },
+  },
+  template: '<span data-query-result>{{ result?.request_id ?? "none" }}</span>',
+});
+
+test("fits standard and windowed canvases with density breakpoints", () => {
+  expect(
+    resolveRuntimeViewport({
+      canvasWidth: 1920,
+      canvasHeight: 1080,
+      containerWidth: 1920,
+      containerHeight: 1080,
+    }),
+  ).toEqual({
+    density: "comfortable",
+    overflow: false,
+    scale: 1,
+    viewportHeight: 1080,
+    viewportWidth: 1920,
+  });
+
+  const windowed = resolveRuntimeViewport({
+    canvasWidth: 1920,
+    canvasHeight: 1080,
+    containerWidth: 1280,
+    containerHeight: 720,
+  });
+  expect(windowed.density).toBe("compact");
+  expect(windowed.overflow).toBe(false);
+  expect(windowed.scale).toBeCloseTo(2 / 3);
+  expect(windowed.viewportWidth).toBeCloseTo(1280);
+  expect(windowed.viewportHeight).toBeCloseTo(720);
+});
+
+test("preserves one-to-one text size and contains narrow iframe overflow", () => {
+  const narrow = resolveRuntimeViewport({
+    canvasWidth: 1920,
+    canvasHeight: 1080,
+    containerWidth: 360,
+    containerHeight: 640,
+  });
+
+  expect(narrow).toEqual({
+    density: "scroll",
+    overflow: true,
+    scale: 1,
+    viewportHeight: 1080,
+    viewportWidth: 1920,
+  });
+});
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
 
 test("registers and resolves component definitions without silent duplicates", () => {
   const registry = new ComponentRegistry();
@@ -361,6 +426,80 @@ test("refresh cancellation does not surface as a component error", async () => {
   ).refresh();
   await flushPromises();
 
+  expect(wrapper.emitted("error")).toBeUndefined();
+  wrapper.unmount();
+});
+
+test("switching screens aborts the previous generation and keeps the latest result", async () => {
+  const registry = new ComponentRegistry().register({
+    type: "builtin.kpi",
+    label: "指标",
+    defaultFrame: { width: 240, height: 120 },
+    defaultProps: {},
+    dataCapability: "single",
+    component: QueryResultProbe,
+  });
+  const component = {
+    id: "kpi-a",
+    type: "builtin.kpi" as const,
+    frame: { x: 0, y: 0, width: 240, height: 120 },
+    data_binding: { chart_spec: { dataset_id: "sales" } },
+  };
+  const firstDocument: DashboardDocument = {
+    schema_version: 1,
+    canvas: { width: 1920, height: 1080 },
+    components: [component],
+  };
+  const secondDocument: DashboardDocument = {
+    ...firstDocument,
+    components: [{
+      ...component,
+      data_binding: { chart_spec: { dataset_id: "inventory" } },
+    }],
+  };
+  const oldRequest = deferred<QueryResult>();
+  const newRequest = deferred<QueryResult>();
+  let oldSignal: AbortSignal | undefined;
+  const queryComponent = vi.fn(
+    (_componentId: string, _parameters: Record<string, unknown>, signal?: AbortSignal) => {
+      if (queryComponent.mock.calls.length === 1) {
+        oldSignal = signal;
+        return oldRequest.promise;
+      }
+      return newRequest.promise;
+    },
+  );
+  const wrapper = mount(ScreenRuntime, {
+    props: {
+      document: firstDocument,
+      loadAsset: vi.fn(),
+      mode: "standalone",
+      queryComponent,
+      registry,
+    },
+  });
+
+  await flushPromises();
+  expect(queryComponent).toHaveBeenCalledOnce();
+
+  await wrapper.setProps({ document: secondDocument });
+  await flushPromises();
+  expect(queryComponent).toHaveBeenCalledTimes(2);
+  expect(oldSignal?.aborted).toBe(true);
+
+  newRequest.resolve({
+    request_id: "new-screen",
+    columns: [],
+    rows: [],
+    row_count: 0,
+    truncated: false,
+    duration_ms: 1,
+  });
+  await flushPromises();
+  oldRequest.reject(new DOMException("Aborted", "AbortError"));
+  await flushPromises();
+
+  expect(wrapper.get("[data-query-result]").text()).toBe("new-screen");
   expect(wrapper.emitted("error")).toBeUndefined();
   wrapper.unmount();
 });

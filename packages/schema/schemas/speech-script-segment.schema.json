@@ -1,0 +1,31 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/speech-script-segment.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "duration_ms": {
+      "default": 500,
+      "maximum": 10000,
+      "minimum": 100,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "kind": {
+      "default": "paragraph",
+      "enum": [
+        "paragraph",
+        "pause",
+        "emphasis"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "text": {
+      "default": "",
+      "maxLength": 4000,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "title": "SpeechScriptSegment",
+  "type": "object"
+}

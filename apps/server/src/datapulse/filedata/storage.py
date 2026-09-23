@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import os
 import tempfile
@@ -6,7 +7,10 @@ from contextlib import contextmanager
 from pathlib import Path
 from uuid import uuid4
 
+from filelock import AsyncFileLock
+
 from datapulse.filedata.models import StoredFile
+from datapulse.operations.scanner import CommandScanner
 from datapulse.settings import Settings
 
 _FORMAT_MAP = {
@@ -57,10 +61,20 @@ class FileStorage:
         settings: Settings,
         *,
         id_factory: Callable[[], str] | None = None,
+        scanner: CommandScanner | None = None,
     ) -> None:
         self._settings = settings
         self._files_dir = settings.resolved_files_dir()
         self._id_factory = id_factory or (lambda: str(uuid4()))
+        self._scanner = scanner
+
+    def operation_lock(self, asset_id: str) -> AsyncFileLock:
+        # Keep locks outside deletable asset directories. Independent server
+        # processes must serialize preview reads and deletion using the same inode.
+        directory = self._files_dir.parent / ".file-locks"
+        directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+        name = hashlib.sha256(asset_id.encode()).hexdigest()
+        return AsyncFileLock(str(directory / f"{name}.lock"), run_in_executor=False)
 
     async def save(self, upload) -> StoredFile:
         filename = (getattr(upload, "filename", "") or "").strip()
@@ -100,6 +114,9 @@ class FileStorage:
             if size_bytes == 0:
                 raise FileEmpty("The uploaded file is empty.")
 
+            if self._scanner is not None:
+                await self._scanner.scan_path(temp_path)
+
             storage_path = (asset_dir / f"source{extension}").resolve()
             if not storage_path.is_relative_to(asset_dir):
                 raise FileTypeUnsupported("The file path is invalid.")
@@ -113,7 +130,7 @@ class FileStorage:
                 size_bytes=size_bytes,
                 storage_path=str(storage_path),
             )
-        except Exception:
+        except (Exception, asyncio.CancelledError):
             if descriptor is not None:
                 os.close(descriptor)
             if temp_path is not None:

@@ -1,0 +1,104 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --project=chromium identity.spec.ts --output=../../test-evidence/phase-four/local-20260921/identity-retry-artifacts
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [54617]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:64598 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:12:55.674236+00:00","request_id":"d9fa9345-31bf-4c41-802c-1b33490ddd24","method":"GET","route":"/api/auth/status","status":200,"duration_ms":4.79}
+[WebServer] (node:54627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:54654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:54688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:12:58.754878+00:00","request_id":"0e63e5e5-9b47-4c57-9cc0-e03b0af08598","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:12:58.838268+00:00","request_id":"90212c30-9a99-4bd0-bab9-759e9df895d8","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":59.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:12:59.109041+00:00","request_id":"a011d384-9cc4-4a7c-8c60-e0c508f05ef6","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:12:59.166123+00:00","request_id":"20837df5-3f5f-4cc1-8b9f-428346b05a59","method":"GET","route":"/api/auth/session","status":200,"duration_ms":8.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:12:59.225725+00:00","request_id":"ee2f292c-4d57-4a28-9e0b-f10d97deb2c4","method":"GET","route":"/api/admin/users","status":200,"duration_ms":13.88}
+Traceback (most recent call last):
+  File "/Users/dundundebaba/sync/code/open/DataPulse/tools/run_e2e.py", line 264, in fake_tts_server
+    yield f"http://127.0.0.1:{server.server_port}/v1"
+  File "/Users/dundundebaba/sync/code/open/DataPulse/tools/run_e2e.py", line 291, in main
+    completed = subprocess.run(
+        [
+    ...<10 lines>...
+        check=False,
+    )
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 1214, in communicate
+    self.wait()
+    ~~~~~~~~~^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 1280, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 2085, in _wait
+    (pid, sts) = self._try_wait(0)
+                 ~~~~~~~~~~~~~~^^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/subprocess.py", line 2043, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/dundundebaba/sync/code/open/DataPulse/tools/run_e2e.py", line 311, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/dundundebaba/sync/code/open/DataPulse/tools/run_e2e.py", line 275, in main
+    with fake_ai_server() as ai_base_url, fake_tts_server() as tts_base_url:
+                                          ~~~~~~~~~~~~~~~^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/dundundebaba/sync/code/open/DataPulse/tools/run_e2e.py", line 266, in fake_tts_server
+    server.shutdown()
+    ~~~~~~~~~~~~~~~^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/socketserver.py", line 255, in shutdown
+    self.__is_shut_down.wait()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/threading.py", line 660, in wait
+    signaled = self._cond.wait(timeout)
+  File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/threading.py", line 359, in wait
+    waiter.acquire()
+    ~~~~~~~~~~~~~~^^
+KeyboardInterrupt
+ ELIFECYCLE  Command failed with exit code 130.

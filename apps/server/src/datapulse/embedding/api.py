@@ -8,6 +8,7 @@ from pydantic import Field
 from datapulse.auth.dependencies import require_admin, require_csrf
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 from datapulse.contracts.dashboard import DashboardDocument
+from datapulse.embedding.page import embed_content_security_policy
 from datapulse.embedding.service import (
     EmbedAddressDenied,
     EmbedApiKeyDenied,
@@ -24,7 +25,7 @@ from datapulse.embedding.tokens import (
 )
 from datapulse.errors import DataPulseError
 from datapulse.query.models import QueryResult
-from datapulse.screen.assets import AssetNotFound, collect_asset_references
+from datapulse.screen.assets import AssetInvalid, AssetNotFound, collect_asset_references
 from datapulse.screen.repository import ScreenNotFound
 from datapulse.screen.runtime import ComponentQueryRequest
 from datapulse.screen.runtime_api import _raise_runtime_error
@@ -121,6 +122,12 @@ def _raise_embed_error(error: Exception) -> NoReturn:
             message="Embed signing is not configured.",
             status_code=503,
         )
+    elif isinstance(error, AssetInvalid):
+        translated = DataPulseError(
+            code="ASSET_INVALID",
+            message="The screen asset is unavailable for playback.",
+            status_code=422,
+        )
     elif isinstance(error, AssetNotFound):
         translated = DataPulseError(
             code="ASSET_NOT_FOUND",
@@ -135,8 +142,12 @@ def _raise_embed_error(error: Exception) -> NoReturn:
 def _set_runtime_headers(response: Response, allowed_origin: str) -> None:
     response.headers["Cache-Control"] = "no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
-    response.headers["Content-Security-Policy"] = f"frame-ancestors {allowed_origin}"
+    response.headers["Content-Security-Policy"] = embed_content_security_policy(allowed_origin)
     response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Access-Control-Allow-Origin"] = allowed_origin
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+    response.headers["Access-Control-Expose-Headers"] = "Content-Length, ETag, X-Request-ID"
+    response.headers["Vary"] = "Origin"
 
 
 async def _authorize(request: Request, screen_id: str):
@@ -273,16 +284,20 @@ async def get_embed_asset(
         ):
             raise AssetNotFound(asset_id)
         asset = await request.app.state.asset_service.get(asset_id)
-    except (AssetNotFound, ScreenNotFound) as error:
+    except (AssetNotFound, AssetInvalid, ScreenNotFound) as error:
         _raise_embed_error(error)
     return FileResponse(
         asset.storage_path,
         media_type=asset.mime_type,
         headers={
             "Cache-Control": "no-store",
-            "Content-Security-Policy": (f"frame-ancestors {claims.allowed_origin}"),
+            "Content-Security-Policy": embed_content_security_policy(claims.allowed_origin),
             "Referrer-Policy": "no-referrer",
             "X-Content-Type-Options": "nosniff",
+            "Access-Control-Allow-Origin": claims.allowed_origin,
+            "Access-Control-Allow-Headers": "Authorization, Content-Type",
+            "Access-Control-Expose-Headers": "Content-Length, ETag, X-Request-ID",
+            "Vary": "Origin",
         },
     )
 

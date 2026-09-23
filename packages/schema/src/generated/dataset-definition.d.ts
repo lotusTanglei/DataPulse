@@ -19,6 +19,13 @@ export type JsonValue =
 export type Name2 = string;
 export type Required = boolean;
 export type Parameters = DatasetParameter[];
+export type DefaultAggregation = ("sum" | "avg" | "min" | "max" | "count") | null;
+export type DisplayName = string | null;
+export type Name3 = string;
+export type Role =
+  ("identifier" | "dimension" | "measure" | "geography" | "temporal" | "text" | "boolean" | "unknown") | null;
+export type Unit = string | null;
+export type ProfileOverrides = DatasetFieldOverride[];
 export type Query = TableQuery | SqlQuery | FileQuery | RestQuery;
 export type Kind = "table";
 export type SchemaName = string | null;
@@ -47,6 +54,7 @@ export interface DatasetDefinition {
   max_rows?: MaxRows;
   name: Name1;
   parameters?: Parameters;
+  profile_overrides?: ProfileOverrides;
   query: Query;
   refresh?: RefreshPolicy;
   schema_version?: SchemaVersion;
@@ -73,6 +81,14 @@ export interface DatasetParameter {
     | null;
   name: Name2;
   required?: Required;
+}
+export interface DatasetFieldOverride {
+  data_type?: DataType | null;
+  default_aggregation?: DefaultAggregation;
+  display_name?: DisplayName;
+  name: Name3;
+  role?: Role;
+  unit?: Unit;
 }
 export interface TableQuery {
   kind?: Kind;

@@ -11,6 +11,8 @@ from datapulse.contracts.ai import (
     AiChartResponse,
     AiEditRequest,
     AiEditResponse,
+    AiScreenEditRequest,
+    AiScreenEditResponse,
     AiScreenRequest,
     AiScreenResponse,
 )
@@ -55,6 +57,7 @@ def _raise_ai_error(error: Exception) -> NoReturn:
             "AI_COMPONENT_UNKNOWN": "AI 使用了不支持的组件类型，请更换组件。",
             "AI_DATASET_INVALID": "AI 使用的数据集无效或未授权，请检查数据集。",
             "AI_SCREEN_INVALID": "AI 生成的大屏存在布局问题，请检查组件和字段。",
+            "AI_SCREEN_EDIT_INVALID": "AI 修改超出允许范围，请检查组件和分区。",
         }
         raise DataPulseError(
             code=error.code,
@@ -105,6 +108,20 @@ async def screen(
 ) -> AiScreenResponse:
     try:
         return await request.app.state.ai_service.generate_screen(
+            payload,
+            request_id=request.state.request_id,
+        )
+    except (AiGatewayError, AiAnalysisError) as error:
+        _raise_ai_error(error)
+
+
+@router.post("/screen/edit", dependencies=[Depends(require_csrf)])
+async def edit_screen(
+    payload: AiScreenEditRequest,
+    request: Request,
+) -> AiScreenEditResponse:
+    try:
+        return await request.app.state.ai_service.edit_screen(
             payload,
             request_id=request.state.request_id,
         )

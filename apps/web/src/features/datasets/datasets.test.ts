@@ -1,5 +1,7 @@
+import { createPinia, setActivePinia } from "pinia";
+import { useAuthStore } from "../../stores/auth";
 import { flushPromises, mount } from "@vue/test-utils";
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import {
   createMemoryHistory,
   createRouter,
@@ -128,6 +130,11 @@ function testRouter(): Router {
     ],
   });
 }
+
+beforeEach(() => {
+  setActivePinia(createPinia());
+  useAuthStore().state = { status: "authenticated", username: "admin", role: "admin" };
+});
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -584,4 +591,89 @@ test("switches Excel preview sheets and deletes an unused file asset", async () 
     "删除文件“sales.xlsx”？仅未被数据集引用的文件可以删除。",
   );
   expect(wrapper.find('option[value="excel-1"]').exists()).toBe(false);
+});
+
+test("shows the dataset profile and submits a field correction", async () => {
+  let correction: unknown;
+  const profile = {
+    dataset_id: dataset.id,
+    name: dataset.name,
+    row_count: 3,
+    sampled: false,
+    fields: [
+      {
+        name: "month",
+        data_type: "string",
+        role: "temporal",
+        nullable: false,
+        null_count: 0,
+        unique_count: 2,
+        cardinality: 2,
+        uniqueness_ratio: 0.67,
+        sample_values: ["2026-01"],
+      },
+      {
+        name: "amount",
+        data_type: "number",
+        role: "measure",
+        nullable: false,
+        null_count: 0,
+        unique_count: 3,
+        cardinality: 3,
+        uniqueness_ratio: 1,
+        sample_values: [100],
+      },
+    ],
+  };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/admin/datasets/dataset-1" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse(dataset));
+      }
+      if (url === "/api/admin/datasources/source-1" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse({ id: "source-1", config: { type: "sqlite" } }));
+      }
+      if (url === "/api/admin/datasets/dataset-1/profile" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse(profile));
+      }
+      if (url === "/api/admin/datasets/dataset-1/profile" && init?.method === "PATCH") {
+        correction = JSON.parse(String(init.body));
+        return Promise.resolve(jsonResponse({
+          ...profile,
+          fields: profile.fields.map((field) =>
+            field.name === "month" ? { ...field, role: "dimension" } : field,
+          ),
+        }));
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+  const router = testRouter();
+  await router.push("/studio/datasets/dataset-1");
+  await router.isReady();
+  const wrapper = mount(DatasetDetailView, { global: { plugins: [router] } });
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("数据画像");
+  expect((wrapper.get('[data-profile-role="month"]').element as HTMLSelectElement).value).toBe("temporal");
+  await wrapper.get('[data-profile-role="month"]').setValue("dimension");
+  await wrapper.get('[data-profile-aggregation="month"]').setValue("avg");
+  await wrapper.get('[data-profile-unit="month"]').setValue("月");
+  await wrapper.get('[data-profile-display-name="month"]').setValue("月份");
+  await wrapper.get('[data-action="save-profile"]').trigger("click");
+  await flushPromises();
+
+  expect(correction).toEqual({
+    fields: [{
+      name: "month",
+      data_type: "string",
+      role: "dimension",
+      default_aggregation: "avg",
+      unit: "月",
+      display_name: "月份",
+    }],
+  });
+  expect((wrapper.get('[data-profile-role="month"]').element as HTMLSelectElement).value).toBe("dimension");
 });

@@ -13,7 +13,9 @@ from datapulse.contracts.dashboard import (
 )
 from datapulse.contracts.dataset import RestQuery
 from datapulse.dataset.models import DatasetResponse
-from datapulse.filedata.parsers import parse_file
+from datapulse.ecosystem.service import EcosystemService
+from datapulse.errors import DataPulseError
+from datapulse.filedata.parsers import FileParseInvalid, parse_file
 from datapulse.filedata.query import FileDatasetQueryService
 from datapulse.query.models import QueryResult
 from datapulse.screen.chart_query import ChartQueryCompiler
@@ -83,6 +85,7 @@ class _DatasourceService(Protocol):
 
 
 _COMPONENT_VISUALS = {
+    "builtin.digital_human": {ChartType.KPI, ChartType.TABLE},
     "builtin.digital_number": {ChartType.KPI},
     "builtin.gauge": {ChartType.GAUGE},
     "builtin.bar": {ChartType.BAR},
@@ -113,7 +116,7 @@ def _component(document: DashboardDocument, component_id: str) -> ComponentInsta
     return component
 
 
-def _chart_spec(component: ComponentInstance) -> ChartSpec:
+def _chart_spec(component: ComponentInstance, *, plugin: bool = False) -> ChartSpec:
     payload = component.data_binding.get("chart_spec")
     if payload is None:
         raise ComponentBindingInvalid(component.id)
@@ -121,7 +124,7 @@ def _chart_spec(component: ComponentInstance) -> ChartSpec:
         spec = ChartSpec.model_validate(payload)
     except (TypeError, ValueError, ValidationError) as error:
         raise ComponentBindingInvalid(component.id) from error
-    allowed_visuals = _COMPONENT_VISUALS.get(component.type)
+    allowed_visuals = set(ChartType) if plugin else _COMPONENT_VISUALS.get(component.type)
     if allowed_visuals is None or spec.visual.type not in allowed_visuals:
         raise ComponentBindingInvalid(component.id)
     return spec
@@ -178,6 +181,7 @@ class ScreenRuntimeService:
         file_asset_repository: _FileAssetRepository | None = None,
         file_query_service: FileDatasetQueryService | None = None,
         compiler: ChartQueryCompiler | None = None,
+        ecosystem_service: EcosystemService | None = None,
     ) -> None:
         self._screen_repository = screen_repository
         self._dataset_repository = dataset_repository
@@ -185,6 +189,7 @@ class ScreenRuntimeService:
         self._file_asset_repository = file_asset_repository
         self._file_query_service = file_query_service
         self._compiler = compiler or ChartQueryCompiler()
+        self._ecosystem_service = ecosystem_service
 
     async def _query(
         self,
@@ -195,19 +200,32 @@ class ScreenRuntimeService:
         trigger: str,
     ) -> QueryResult:
         component = _component(document, data.component_id)
-        spec = _chart_spec(component)
+        plugin = not component.type.startswith("builtin.")
+        if plugin:
+            if self._ecosystem_service is None:
+                raise ComponentBindingInvalid(component.id)
+            try:
+                self._ecosystem_service.validate_document(document)
+            except DataPulseError as error:
+                raise ComponentBindingInvalid(component.id) from error
+        spec = _chart_spec(component, plugin=plugin)
         runtime_parameters = resolve_parameters(document, data.parameters)
         dataset = await self._dataset_repository.get(spec.dataset_id)
         if dataset.definition.query.kind == "file":
             if self._file_asset_repository is None or self._file_query_service is None:
                 raise ComponentBindingInvalid(component.id)
             asset = await self._file_asset_repository.get(dataset.definition.query.asset_id)
-            parsed = await parse_file(
-                Path(asset.storage_path),
-                dataset.definition.query.format,
-                sheet_name=dataset.definition.query.sheet_name,
-                max_rows=dataset.definition.max_rows,
-            )
+            try:
+                parsed = await parse_file(
+                    Path(asset.storage_path),
+                    dataset.definition.query.format,
+                    sheet_name=dataset.definition.query.sheet_name,
+                    max_rows=dataset.definition.max_rows,
+                )
+            except FileParseInvalid as error:
+                raise DataPulseError(
+                    "FILE_PARSE_INVALID", "The file dataset could not be parsed.", 422
+                ) from error
             return await self._file_query_service.query(
                 dataset=dataset.definition,
                 chart_spec=spec,

@@ -1,0 +1,32 @@
+groups:
+  - name: datapulse-digital-human
+    rules:
+      - alert: DataPulseDigitalHumanProviderFailures
+        expr: increase(datapulse_digital_human_speech_synthesis_failures_total[10m]) >= 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: DataPulse digital human synthesis failures
+          description: Three or more speech synthesis failures occurred in the last ten minutes.
+      - alert: DataPulseDigitalHumanTaskFailureRatio
+        expr: |
+          (
+            increase(datapulse_digital_human_speech_tasks_failed_total[15m])
+            /
+            clamp_min(increase(datapulse_digital_human_speech_tasks_queued_total[15m]), 1)
+          ) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: DataPulse digital human task failure ratio is high
+          description: More than 20 percent of queued speech tasks failed over the last fifteen minutes.
+      - alert: DataPulseDigitalHumanSynthesisLatency
+        expr: datapulse_digital_human_speech_average_synthesis_ms > 5000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: DataPulse digital human synthesis latency is high
+          description: Average speech synthesis latency has exceeded five seconds for ten minutes.

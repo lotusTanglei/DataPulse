@@ -7,24 +7,33 @@ import {
   Trash2,
   X,
 } from "@lucide/vue";
-import { onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
+import { useAuthStore } from "../../stores/auth";
+import { getResourceAccess } from "../identity/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import AiScreenGeneratorDialog from "../ai/AiScreenGeneratorDialog.vue";
 import type { AiScreenResponse } from "../ai/types";
+import type { Dataset } from "../datasets/types";
 import TemplatePickerDialog from "./TemplatePickerDialog.vue";
 import {
+  compileDashboardPlan,
   copyScreen,
   createScreen,
   deleteScreen,
   listScreens,
 } from "./api";
-import { createTemplateDocument, type ScreenTemplate } from "./templates";
+import { createTemplatePlan, type ScreenTemplate } from "./templates";
 import type { ScreenSummary } from "./types";
 
 const router = useRouter();
+const auth = useAuthStore();
+const isAdmin = computed(() => auth.state.status === "authenticated" && auth.state.role === "admin");
+const canCreate = computed(() => auth.state.status === "authenticated" && (auth.state.role === "admin" || auth.state.role === "editor"));
+const writable = ref<Record<string, boolean>>({});
+const canWrite = (id: string) => isAdmin.value || writable.value[id] === true;
 const screens = ref<ScreenSummary[]>([]);
 const loading = ref(true);
 const error = ref<ApiError | null>(null);
@@ -67,6 +76,14 @@ function fallbackError(
 async function load(): Promise<void> {
   try {
     screens.value = await listScreens(controller.signal);
+    if (!isAdmin.value && canCreate.value) {
+      const access = await Promise.allSettled(screens.value.map(async (screen) => [
+        screen.id, (await getResourceAccess("screen", screen.id)).write,
+      ] as const));
+      if (!controller.signal.aborted) writable.value = Object.fromEntries(
+        access.flatMap((result) => result.status === "fulfilled" ? [result.value] : []),
+      );
+    }
   } catch (reason) {
     if (!controller.signal.aborted) {
       error.value = fallbackError(
@@ -83,6 +100,7 @@ async function load(): Promise<void> {
 }
 
 function openCreate(): void {
+  if (!canCreate.value) return;
   createName.value = "";
   createError.value = "";
   actionError.value = null;
@@ -96,16 +114,19 @@ function closeCreate(): void {
 }
 
 function openAiCreate(): void {
+  if (!canCreate.value) return;
   aiCreateOpen.value = true;
   actionError.value = null;
 }
 
 function openTemplateCreate(): void {
+  if (!canCreate.value) return;
   templateOpen.value = true;
   actionError.value = null;
 }
 
 async function submitCreate(): Promise<void> {
+  if (!canCreate.value) return;
   const name = createName.value.trim();
   if (!name) {
     createError.value = "请输入大屏名称";
@@ -133,6 +154,7 @@ async function submitAiCreate(payload: {
   name: string;
   result: AiScreenResponse;
 }): Promise<void> {
+  if (!canCreate.value) return;
   aiCreating.value = true;
   actionError.value = null;
   try {
@@ -157,14 +179,22 @@ async function submitAiCreate(payload: {
 async function submitTemplateCreate(payload: {
   name: string;
   template: ScreenTemplate;
+  dataset: Dataset;
 }): Promise<void> {
+  if (!canCreate.value) return;
   templateCreating.value = true;
   actionError.value = null;
   try {
+    const plan = createTemplatePlan(
+      payload.template.id,
+      payload.dataset,
+      payload.name,
+    );
+    const compiled = await compileDashboardPlan({ plan });
     const created = await createScreen({
       name: payload.name,
       description: payload.template.description,
-      draft_document: createTemplateDocument(payload.template.id),
+      draft_document: compiled.document,
     });
     templateOpen.value = false;
     await router.push(`/studio/screens/${created.id}/edit`);
@@ -180,7 +210,7 @@ async function submitTemplateCreate(payload: {
 }
 
 async function copy(item: ScreenSummary): Promise<void> {
-  if (actionId.value !== null) {
+  if (!canCreate.value || actionId.value !== null) {
     return;
   }
   actionId.value = item.id;
@@ -188,6 +218,7 @@ async function copy(item: ScreenSummary): Promise<void> {
   try {
     const copied = await copyScreen(item.id);
     screens.value = [...screens.value, copied];
+    writable.value = { ...writable.value, [copied.id]: true };
   } catch (reason) {
     actionError.value = fallbackError(
       reason,
@@ -201,6 +232,7 @@ async function copy(item: ScreenSummary): Promise<void> {
 
 async function remove(item: ScreenSummary): Promise<void> {
   if (
+    !canWrite(item.id) ||
     actionId.value !== null ||
     !window.confirm(`删除“${item.name}”？此操作无法撤销。`)
   ) {
@@ -240,7 +272,7 @@ onBeforeUnmount(() => controller.abort());
           创建、调试并发布可独立播放或安全嵌入业务系统的数据大屏。
         </p>
       </div>
-      <div class="query-actions">
+      <div v-if="canCreate" class="query-actions">
         <button
           class="secondary-button"
           type="button"
@@ -287,8 +319,8 @@ onBeforeUnmount(() => controller.abort());
           <LayoutDashboard :size="22" />
         </span>
         <h2>还没有大屏</h2>
-        <p>从一张空白的 1920 × 1080 画布开始搭建。</p>
-        <div class="query-actions">
+        <p>{{ canCreate ? "从一张空白的 1920 × 1080 画布开始搭建。" : "请联系资源拥有者共享大屏及其数据和媒体。" }}</p>
+        <div v-if="canCreate" class="query-actions">
           <button
             class="secondary-button"
             type="button"
@@ -322,7 +354,7 @@ onBeforeUnmount(() => controller.abort());
         <article v-for="item in screens" :key="item.id" class="screen-row">
           <RouterLink
             class="screen-row__main"
-            :to="`/studio/screens/${item.id}/edit`"
+            :to="`/studio/screens/${item.id}/${canWrite(item.id) ? 'edit' : 'preview'}`"
           >
             <span class="screen-row__icon" aria-hidden="true">
               <LayoutDashboard :size="17" />
@@ -348,6 +380,7 @@ onBeforeUnmount(() => controller.abort());
 
           <div class="screen-row__actions">
             <button
+              v-if="canCreate"
               class="screen-action"
               type="button"
               data-action="copy-screen"
@@ -359,6 +392,7 @@ onBeforeUnmount(() => controller.abort());
               复制
             </button>
             <button
+              v-if="canWrite(item.id)"
               class="screen-action screen-action--danger"
               type="button"
               data-action="delete-screen"

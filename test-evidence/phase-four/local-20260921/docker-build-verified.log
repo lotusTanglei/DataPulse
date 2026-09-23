@@ -1,0 +1,292 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.64kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.13-slim
+#2 DONE 0.0s
+
+#3 [internal] load metadata for mcr.microsoft.com/playwright:v1.62.0-noble
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 256B done
+#4 DONE 0.0s
+
+#5 [web  1/15] FROM mcr.microsoft.com/playwright:v1.62.0-noble
+#5 DONE 0.0s
+
+#6 [runtime  1/11] FROM docker.io/library/python:3.13-slim
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 340.65kB 0.1s done
+#7 DONE 0.2s
+
+#8 [web  5/15] COPY apps/web/package.json apps/web/package.json
+#8 CACHED
+
+#9 [web  4/15] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+#9 CACHED
+
+#10 [web  2/15] WORKDIR /src
+#10 CACHED
+
+#11 [web  6/15] COPY packages/schema/package.json packages/schema/package.json
+#11 CACHED
+
+#12 [web  7/15] COPY packages/embed-sdk/package.json packages/embed-sdk/package.json
+#12 CACHED
+
+#13 [web  8/15] COPY packages/plugin-sdk/package.json packages/plugin-sdk/package.json
+#13 CACHED
+
+#14 [web  3/15] RUN corepack enable
+#14 CACHED
+
+#15 [web  9/15] RUN pnpm install --frozen-lockfile
+#15 CACHED
+
+#16 [runtime  4/11] RUN apt-get update     && apt-get install --yes --no-install-recommends build-essential ffmpeg     && rm -rf /var/lib/apt/lists/*
+#16 CACHED
+
+#17 [runtime  2/11] WORKDIR /app
+#17 CACHED
+
+#18 [runtime  3/11] RUN pip install --no-cache-dir uv
+#18 CACHED
+
+#19 [runtime  5/11] COPY pyproject.toml uv.lock ./
+#19 CACHED
+
+#20 [runtime  6/11] COPY apps/server apps/server
+#20 DONE 1.4s
+
+#21 [web 10/15] COPY apps/web apps/web
+#21 DONE 1.4s
+
+#22 [web 11/15] COPY packages/schema packages/schema
+#22 DONE 0.2s
+
+#23 [runtime  7/11] RUN --mount=type=cache,target=/root/.cache/uv     uv sync --frozen --no-dev --package datapulse-server     && apt-get purge --yes --auto-remove build-essential     && rm -rf /var/lib/apt/lists/*
+#23 ...
+
+#24 [web 12/15] COPY packages/embed-sdk packages/embed-sdk
+#24 DONE 0.1s
+
+#25 [web 13/15] COPY packages/plugin-sdk packages/plugin-sdk
+#25 DONE 0.1s
+
+#26 [web 14/15] COPY examples examples
+#26 DONE 0.1s
+
+#23 [runtime  7/11] RUN --mount=type=cache,target=/root/.cache/uv     uv sync --frozen --no-dev --package datapulse-server     && apt-get purge --yes --auto-remove build-essential     && rm -rf /var/lib/apt/lists/*
+#23 0.499 Using CPython 3.13.15 interpreter at: /usr/local/bin/python3
+#23 0.499 Creating virtual environment at: .venv
+#23 0.555    Building datapulse-server @ file:///app/apps/server
+#23 2.154       Built datapulse-server @ file:///app/apps/server
+#23 2.157 Prepared 1 package in 1.61s
+#23 2.158 warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+#23 2.158          If the cache and target directories are on different filesystems, hardlinking may not be supported.
+#23 2.158          If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+#23 4.790 Installed 54 packages in 2.63s
+#23 4.790  + aiosqlite==0.22.1
+#23 4.790  + alembic==1.18.5
+#23 4.790  + annotated-doc==0.0.5
+#23 4.790  + annotated-types==0.8.0
+#23 4.790  + anyio==4.14.2
+#23 4.790  + argon2-cffi==25.1.0
+#23 4.790  + argon2-cffi-bindings==25.1.0
+#23 4.790  + asyncmy==0.2.11
+#23 4.790  + asyncpg==0.31.0
+#23 4.790  + attrs==26.1.0
+#23 4.790  + certifi==2026.7.22
+#23 4.790  + cffi==2.1.0
+#23 4.790  + click==8.4.2
+#23 4.790  + cryptography==49.0.0
+#23 4.790  + datapulse-server==0.1.0 (from file:///app/apps/server)
+#23 4.790  + duckdb==1.5.5
+#23 4.790  + et-xmlfile==2.0.0
+#23 4.790  + fastapi==0.140.13
+#23 4.790  + filelock==3.32.6
+#23 4.790  + greenlet==3.5.4
+#23 4.790  + h11==0.16.0
+#23 4.790  + httpcore==1.0.9
+#23 4.790  + httptools==0.8.0
+#23 4.790  + httpx==0.28.1
+#23 4.790  + idna==3.18
+#23 4.790  + jsonschema==4.26.0
+#23 4.790  + jsonschema-specifications==2025.9.1
+#23 4.790  + mako==1.3.12
+#23 4.790  + markupsafe==3.0.3
+#23 4.790  + openpyxl==3.1.5
+#23 4.790  + packaging==26.2
+#23 4.790  + pillow==12.3.0
+#23 4.790  + pwdlib==0.3.0
+#23 4.790  + pyarrow==21.0.0
+#23 4.790  + pycparser==3.0
+#23 4.790  + pydantic==2.13.4
+#23 4.790  + pydantic-core==2.46.4
+#23 4.790  + pydantic-settings==2.14.2
+#23 4.790  + pyjwt==2.13.0
+#23 4.790  + python-dotenv==1.2.2
+#23 4.790  + python-multipart==0.0.32
+#23 4.790  + pyyaml==6.0.3
+#23 4.790  + referencing==0.37.0
+#23 4.790  + rpds-py==2026.6.3
+#23 4.790  + sqlalchemy==2.0.51
+#23 4.790  + sqlglot==30.14.0
+#23 4.790  + starlette==1.3.1
+#23 4.790  + typing-extensions==4.16.0
+#23 4.790  + typing-inspection==0.4.2
+#23 4.790  + uvicorn==0.52.0
+#23 4.790  + uvloop==0.22.1
+#23 4.790  + watchfiles==1.2.0
+#23 4.790  + websockets==16.1.1
+#23 4.790  + webvtt-py==0.5.1
+#23 4.905 Reading package lists...
+#23 4.933 Building dependency tree...
+#23 4.934 Reading state information...
+#23 4.940 The following packages will be REMOVED:
+#23 4.940   binutils* binutils-aarch64-linux-gnu* binutils-common* build-essential*
+#23 4.940   bzip2* cpp* cpp-14* cpp-14-aarch64-linux-gnu* cpp-aarch64-linux-gnu*
+#23 4.940   dpkg-dev* g++* g++-14* g++-14-aarch64-linux-gnu* g++-aarch64-linux-gnu* gcc*
+#23 4.940   gcc-14* gcc-14-aarch64-linux-gnu* gcc-aarch64-linux-gnu* libasan8*
+#23 4.940   libbinutils* libc-dev-bin* libc6-dev* libcc1-0* libcrypt-dev* libctf-nobfd0*
+#23 4.940   libctf0* libdpkg-perl* libgcc-14-dev* libgdbm-compat4t64* libgprofng0*
+#23 4.940   libhwasan0* libisl23* libitm1* libjansson4* liblsan0* libmpc3* libmpfr6*
+#23 4.940   libperl5.40* libsframe1* libstdc++-14-dev* libtsan2* libubsan1*
+#23 4.940   linux-libc-dev* make* patch* perl* perl-modules-5.40* rpcsvc-proto*
+#23 4.940   xz-utils*
+#23 5.311 0 upgraded, 0 newly installed, 49 to remove and 0 not upgraded.
+#23 5.311 After this operation, 322 MB disk space will be freed.
+#23 5.334 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 16397 files and directories currently installed.)
+#23 5.575 Removing build-essential (12.12) ...
+#23 5.843 Removing g++ (4:14.2.0-1) ...
+#23 5.968 Removing g++-14 (14.2.0-19) ...
+#23 6.073 Removing gcc (4:14.2.0-1) ...
+#23 6.171 Removing gcc-14 (14.2.0-19) ...
+#23 6.256 Removing dpkg-dev (1.22.22) ...
+#23 6.329 Removing binutils (2.44-3) ...
+#23 6.404 Removing g++-aarch64-linux-gnu (4:14.2.0-1) ...
+#23 6.501 Removing g++-14-aarch64-linux-gnu (14.2.0-19) ...
+#23 6.583 Removing gcc-aarch64-linux-gnu (4:14.2.0-1) ...
+#23 6.755 Removing gcc-14-aarch64-linux-gnu (14.2.0-19) ...
+#23 6.877 Removing binutils-aarch64-linux-gnu (2.44-3) ...
+#23 7.043 Removing libgprofng0:arm64 (2.44-3) ...
+#23 7.219 Removing libctf0:arm64 (2.44-3) ...
+#23 7.341 Removing libbinutils:arm64 (2.44-3) ...
+#23 7.465 Removing binutils-common:arm64 (2.44-3) ...
+#23 7.529 Removing bzip2 (1.0.8-6) ...
+#23 7.644 Removing cpp (4:14.2.0-1) ...
+#23 7.735 Removing cpp-14 (14.2.0-19) ...
+#23 7.843 Removing cpp-aarch64-linux-gnu (4:14.2.0-1) ...
+#23 7.948 Removing cpp-14-aarch64-linux-gnu (14.2.0-19) ...
+#23 8.035 Removing libstdc++-14-dev:arm64 (14.2.0-19) ...
+#23 8.457 Removing libgcc-14-dev:arm64 (14.2.0-19) ...
+#23 8.557 Removing libasan8:arm64 (14.2.0-19) ...
+#23 8.618 Removing libc6-dev:arm64 (2.41-12+deb13u4) ...
+#23 8.998 Removing libc-dev-bin (2.41-12+deb13u4) ...
+#23 9.103 Removing libcc1-0:arm64 (14.2.0-19) ...
+#23 9.172 Removing libcrypt-dev:arm64 (1:4.4.38-1) ...
+#23 9.246 Removing libctf-nobfd0:arm64 (2.44-3) ...
+#23 9.324 Removing libdpkg-perl (1.22.22) ...
+#23 9.431 Removing perl (5.40.1-6+deb13u1) ...
+#23 9.494 Removing libperl5.40:arm64 (5.40.1-6+deb13u1) ...
+#23 9.688 Removing libgdbm-compat4t64:arm64 (1.24-2) ...
+#23 9.743 Removing libhwasan0:arm64 (14.2.0-19) ...
+#23 9.809 Removing libisl23:arm64 (0.27-1) ...
+#23 9.870 Removing libitm1:arm64 (14.2.0-19) ...
+#23 9.944 Removing libjansson4:arm64 (2.14-2+b3) ...
+#23 10.01 Removing liblsan0:arm64 (14.2.0-19) ...
+#23 10.16 Removing libmpc3:arm64 (1.3.1-1+b3) ...
+#23 10.26 Removing libmpfr6:arm64 (4.2.2-1) ...
+#23 10.37 Removing libsframe1:arm64 (2.44-3) ...
+#23 10.45 Removing libtsan2:arm64 (14.2.0-19) ...
+#23 10.54 Removing libubsan1:arm64 (14.2.0-19) ...
+#23 ...
+
+#27 [web 15/15] RUN pnpm build:web
+#27 0.958 
+#27 0.958 > datapulse@ build:web /src
+#27 0.958 > pnpm --filter @datapulse/web build
+#27 0.958 
+#27 1.314 
+#27 1.314 > @datapulse/web@ build /src/apps/web
+#27 1.314 > vue-tsc --noEmit && vite build
+#27 1.314 
+#27 ...
+
+#23 [runtime  7/11] RUN --mount=type=cache,target=/root/.cache/uv     uv sync --frozen --no-dev --package datapulse-server     && apt-get purge --yes --auto-remove build-essential     && rm -rf /var/lib/apt/lists/*
+#23 10.65 Removing linux-libc-dev (6.12.107-1) ...
+#23 11.58 Removing make (4.4.1-2) ...
+#23 11.79 Removing patch (2.8-2) ...
+#23 11.88 Removing perl-modules-5.40 (5.40.1-6+deb13u1) ...
+#23 12.46 Removing rpcsvc-proto (1.4.3-1+b1) ...
+#23 12.56 Removing xz-utils (5.8.1-1+deb13u1) ...
+#23 12.68 Processing triggers for libc-bin (2.41-12+deb13u4) ...
+#23 13.77 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 8429 files and directories currently installed.)
+#23 13.78 Purging configuration files for binutils-common:arm64 (2.44-3) ...
+#23 13.83 Purging configuration files for binutils (2.44-3) ...
+#23 13.89 Purging configuration files for dpkg-dev (1.22.22) ...
+#23 14.00 Purging configuration files for perl (5.40.1-6+deb13u1) ...
+#23 14.07 Purging configuration files for libcrypt-dev:arm64 (1:4.4.38-1) ...
+#23 14.20 Purging configuration files for cpp (4:14.2.0-1) ...
+#23 DONE 15.9s
+
+#27 [web 15/15] RUN pnpm build:web
+#27 24.41 vite v7.3.6 building client environment for production...
+#27 24.54 transforming...
+#27 27.49 ../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js (158:30): A comment
+#27 27.49 
+#27 27.49 "/*#__PURE__*/"
+#27 27.49 
+#27 27.49 in "../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+#27 37.55 ✓ 2633 modules transformed.
+#27 38.19 rendering chunks...
+#27 38.65 [plugin vite:reporter] 
+#27 38.65 (!) /src/apps/web/src/features/ecosystem/plugins.ts is dynamically imported by /src/apps/web/src/features/player/api.ts, /src/apps/web/src/features/player/api.ts but also statically imported by /src/apps/web/src/features/ecosystem/api.ts, /src/apps/web/src/features/ecosystem/editorPlugins.ts, /src/apps/web/src/features/ecosystem/migration.ts, dynamic import will not move module into another chunk.
+#27 38.65 
+#27 38.65 [plugin vite:reporter] 
+#27 38.65 (!) /src/apps/web/src/features/ecosystem/api.ts is dynamically imported by /src/apps/web/src/features/player/api.ts but also statically imported by /src/apps/web/src/features/ecosystem/CatalogView.vue?vue&type=script&setup=true&lang.ts, /src/apps/web/src/features/ecosystem/PluginLibrary.vue?vue&type=script&setup=true&lang.ts, /src/apps/web/src/features/ecosystem/editorPlugins.ts, dynamic import will not move module into another chunk.
+#27 38.65 
+#27 38.73 computing gzip size...
+#27 38.79 dist/index.html                                                            0.56 kB │ gzip:   0.38 kB
+#27 38.79 dist/assets/DatasetDetailView-DiSqDqwR.css                                 0.15 kB │ gzip:   0.13 kB
+#27 38.79 dist/assets/identity-DptdohQn.css                                          0.94 kB │ gzip:   0.42 kB
+#27 38.79 dist/assets/CatalogView-Bpn5Jc5l.css                                       2.59 kB │ gzip:   0.70 kB
+#27 38.79 
+#27 38.79 (!) Some chunks are larger than 500 kB after minification. Consider:
+#27 38.79 - Using dynamic import() to code-split the application
+#27 38.79 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+#27 38.79 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+#27 38.80 dist/assets/index-0Z6RMThS.css                                            92.24 kB │ gzip:  16.20 kB
+#27 38.80 dist/assets/SharingView-6wmvMGoO.js                                        5.71 kB │ gzip:   2.48 kB
+#27 38.80 dist/assets/SqlDebugView-ByE-kmXv.js                                       5.91 kB │ gzip:   2.65 kB
+#27 38.80 dist/assets/UsersView-BHbcd71P.js                                          6.46 kB │ gzip:   2.49 kB
+#27 38.80 dist/assets/CatalogView-CdFYzZ53.js                                        7.29 kB │ gzip:   3.05 kB
+#27 38.80 dist/assets/DatasetDetailView-D8DbojI-.js                                  9.19 kB │ gzip:   3.34 kB
+#27 38.80 dist/assets/SqlEditor.vue_vue_type_script_setup_true_lang-CqE_mCeZ.js    437.86 kB │ gzip: 145.41 kB
+#27 38.80 dist/assets/index--Na3yooc.js                                          1,522.33 kB │ gzip: 501.38 kB
+#27 38.80 ✓ built in 14.35s
+#27 DONE 39.4s
+
+#28 [runtime  8/11] COPY --from=web /src/apps/web/dist /app/static
+#28 DONE 0.1s
+
+#29 [runtime  9/11] RUN useradd --create-home --uid 10001 datapulse     && mkdir -p /data/sources     && chown -R datapulse:datapulse /data
+#29 DONE 0.5s
+
+#30 [runtime 10/11] COPY --chown=datapulse:datapulse apps/server/docker-entrypoint.sh /app/docker-entrypoint.sh
+#30 DONE 0.1s
+
+#31 [runtime 11/11] RUN chmod 0555 /app/docker-entrypoint.sh
+#31 DONE 0.2s
+
+#32 exporting to image
+#32 exporting layers
+#32 exporting layers 6.0s done
+#32 writing image sha256:dd0beebb16441f52fd1368ddcfe2cc276d9a0f9b9e4dd82f60ff83906b26fc0a 0.0s done
+#32 naming to docker.io/library/datapulse:phase-four-local 0.0s done
+#32 DONE 6.2s

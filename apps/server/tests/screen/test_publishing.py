@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from contextlib import nullcontext
 
 import pytest
 
@@ -44,6 +45,9 @@ class DatasetLookup:
 @dataclass
 class AssetLookup:
     existing_ids: set[str] = field(default_factory=set)
+
+    def publication_guard(self):
+        return nullcontext()
 
     async def assert_references_exist(self, document: DashboardDocument) -> None:
         referenced = {

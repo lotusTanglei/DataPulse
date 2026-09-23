@@ -1,10 +1,12 @@
-import type { DashboardDocument } from "../../contracts";
+import type { DashboardDocument, DashboardPlan } from "../../contracts";
+import type { Dataset } from "../datasets/types";
 import { createMockBinding } from "../runtime/mockData";
 
 type TemplateComponent = NonNullable<DashboardDocument["components"]>[number];
 
 export interface ScreenTemplate {
   id: string;
+  planTemplate: NonNullable<DashboardPlan["layout"]>["template"];
   name: string;
   description: string;
   category: string;
@@ -171,6 +173,7 @@ function documentOf(components: TemplateComponent[]): DashboardDocument {
 const templates: ScreenTemplate[] = [
   {
     id: "overview-grid",
+    planTemplate: "executive-overview",
     name: "总览网格",
     category: "总览布局",
     description: "标题、核心指标、趋势、排行和明细表的通用起始布局。",
@@ -188,6 +191,7 @@ const templates: ScreenTemplate[] = [
   },
   {
     id: "trend-focus",
+    planTemplate: "trend-focus",
     name: "趋势聚焦",
     category: "趋势分析",
     description: "大数字、进度、折线与雷达组合，适合观察变化和目标达成。",
@@ -206,6 +210,7 @@ const templates: ScreenTemplate[] = [
   },
   {
     id: "comparison-board",
+    planTemplate: "comparison-board",
     name: "对比分析",
     category: "对比分析",
     description: "柱状、环图、漏斗和表格组合，适合比较结构、阶段和明细。",
@@ -224,6 +229,7 @@ const templates: ScreenTemplate[] = [
   },
   {
     id: "status-wall",
+    planTemplate: "status-wall",
     name: "状态墙",
     category: "状态布局",
     description: "仪表盘、状态矩阵、告警和时间线组合，突出状态与异常层级。",
@@ -242,6 +248,7 @@ const templates: ScreenTemplate[] = [
   },
   {
     id: "analysis-lab",
+    planTemplate: "analysis-lab",
     name: "分析工作台",
     category: "分析布局",
     description: "热力、散点、排行和表格组合，适合搭建高密度分析工作台。",
@@ -262,10 +269,209 @@ const templates: ScreenTemplate[] = [
 
 export const screenTemplates: readonly ScreenTemplate[] = templates;
 
+const businessMeasureTerms = [
+  "amount",
+  "revenue",
+  "sales",
+  "value",
+  "target",
+  "count",
+  "total",
+  "金额",
+  "销售额",
+  "数量",
+  "收入",
+];
+
+const nonMeasureTerms = [
+  "month",
+  "year",
+  "date",
+  "time",
+  "id",
+  "code",
+  "月份",
+  "年份",
+  "日期",
+  "编号",
+];
+
+function includesAnyTerm(name: string, terms: readonly string[]): boolean {
+  const normalized = name.toLocaleLowerCase();
+  return terms.some((term) => normalized.includes(term));
+}
+
 export function createTemplateDocument(templateId: string): DashboardDocument {
   const template = templates.find((item) => item.id === templateId);
   if (!template) {
     throw new Error(`Unknown screen template: ${templateId}`);
   }
   return structuredClone(template.createDocument());
+}
+
+export function createTemplatePlan(
+  templateId: string,
+  dataset: Dataset,
+  title: string,
+): DashboardPlan {
+  const template = templates.find((item) => item.id === templateId);
+  if (!template) {
+    throw new Error(`Unknown screen template: ${templateId}`);
+  }
+  const fields = dataset.definition?.fields ?? [];
+  const first = fields[0];
+  if (!first) {
+    throw new Error("Template planning requires a dataset field.");
+  }
+  const numericFields = fields.filter((field) =>
+    ["integer", "number"].includes(field.data_type),
+  );
+  const numeric =
+    numericFields.find(
+      (field) =>
+        includesAnyTerm(field.name, businessMeasureTerms) &&
+        !includesAnyTerm(field.name, nonMeasureTerms),
+    ) ??
+    numericFields.find(
+      (field) => !includesAnyTerm(field.name, nonMeasureTerms),
+    ) ??
+    numericFields[0];
+  const temporal = fields.find((field) =>
+    ["date", "datetime"].includes(field.data_type),
+  );
+  const category = fields.find((field) =>
+    ["boolean", "string"].includes(field.data_type),
+  );
+  const dimension = category ?? temporal ?? first;
+  const trendDimension = temporal ?? dimension;
+  const measure = numeric ?? first;
+  const totalAggregation = numeric ? "sum" : "count";
+  const averageAggregation = numeric ? "avg" : "count";
+  const maximumAggregation = numeric ? "max" : "count";
+  const plan = {
+    schema_version: 1,
+    title,
+    audience: "业务负责人",
+    narrative: template.description,
+    dataset_ids: [dataset.id],
+    layout: {
+      template: template.planTemplate,
+      grid_columns: 24,
+      density: "comfortable",
+      theme: "dark",
+    },
+    regions: [
+      { id: "summary", kind: "summary", title: "核心指标", order: 0 },
+      { id: "main", kind: "main", title: "主要分析", order: 1 },
+      { id: "secondary", kind: "secondary", title: "补充分析", order: 2 },
+    ],
+    widgets: [
+      {
+        id: "template-total",
+        title: measure.name,
+        intent: `汇总 ${measure.name}`,
+        region_id: "summary",
+        dataset_id: dataset.id,
+        chart_type: "kpi",
+        dimensions: [],
+        measures: [{ field: measure.name, aggregation: totalAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-progress",
+        title: `${measure.name} 进度`,
+        intent: `展示 ${measure.name} 进度`,
+        region_id: "summary",
+        dataset_id: dataset.id,
+        chart_type: "progress",
+        dimensions: [],
+        measures: [{ field: measure.name, aggregation: averageAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-gauge",
+        title: `${measure.name} 状态`,
+        intent: `展示 ${measure.name} 状态`,
+        region_id: "summary",
+        dataset_id: dataset.id,
+        chart_type: "gauge",
+        dimensions: [],
+        measures: [{ field: measure.name, aggregation: maximumAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-bar",
+        title: `${dimension.name} · ${measure.name}`,
+        intent: `按 ${dimension.name} 分析 ${measure.name}`,
+        region_id: "main",
+        dataset_id: dataset.id,
+        chart_type: "bar",
+        dimensions: [dimension.name],
+        measures: [{ field: measure.name, aggregation: totalAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-share",
+        title: `${dimension.name} 占比`,
+        intent: `展示 ${dimension.name} 占比`,
+        region_id: "main",
+        dataset_id: dataset.id,
+        chart_type: category ? "pie" : "table",
+        dimensions: [dimension.name],
+        measures: [{ field: measure.name, aggregation: totalAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-radar",
+        title: `${dimension.name} 对比`,
+        intent: `对比 ${dimension.name}`,
+        region_id: "main",
+        dataset_id: dataset.id,
+        chart_type: "bar",
+        dimensions: [dimension.name],
+        measures: [{ field: measure.name, aggregation: averageAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-trend",
+        title: `${trendDimension.name} 趋势`,
+        intent: `展示 ${trendDimension.name} 趋势`,
+        region_id: "secondary",
+        dataset_id: dataset.id,
+        chart_type: temporal ? "line" : "bar",
+        dimensions: [trendDimension.name],
+        measures: [{ field: measure.name, aggregation: totalAggregation }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+      {
+        id: "template-detail",
+        title: "数据明细",
+        intent: "展示数据明细",
+        region_id: "secondary",
+        dataset_id: dataset.id,
+        chart_type: "table",
+        dimensions: [dimension.name],
+        measures: [{ field: measure.name, aggregation: "count" }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+    ],
+    parameters: [],
+  };
+  return plan as DashboardPlan;
 }

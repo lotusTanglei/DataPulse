@@ -1,0 +1,22 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-cache-clear.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "deleted_asset_count": {
+      "minimum": 0,
+      "title": "Deleted Asset Count",
+      "type": "integer"
+    },
+    "detached_task_count": {
+      "minimum": 0,
+      "title": "Detached Task Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "detached_task_count",
+    "deleted_asset_count"
+  ],
+  "title": "DigitalHumanCacheClearResponse",
+  "type": "object"
+}

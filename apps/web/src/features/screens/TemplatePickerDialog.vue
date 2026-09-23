@@ -3,6 +3,8 @@ import { Check, LayoutTemplate, X } from "@lucide/vue";
 import { computed, onMounted, ref, watch } from "vue";
 
 import type { DashboardDocument } from "../../contracts";
+import { listDatasets } from "../datasets/api";
+import type { Dataset } from "../datasets/types";
 import type { QueryResult } from "../query/types";
 import ScreenRuntime from "../runtime/ScreenRuntime.vue";
 import type { QueryComponent } from "../runtime/types";
@@ -18,10 +20,13 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   close: [];
-  confirm: [payload: { name: string; template: ScreenTemplate }];
+  confirm: [payload: { name: string; template: ScreenTemplate; dataset: Dataset }];
 }>();
 
 const selectedId = ref(screenTemplates[0]?.id ?? "");
+const selectedDatasetId = ref("");
+const datasets = ref<Dataset[]>([]);
+const loadingDatasets = ref(false);
 const name = ref("");
 const error = ref("");
 const selected = computed(() =>
@@ -56,14 +61,30 @@ watch(
   (open) => {
     if (open) {
       selectedId.value = screenTemplates[0]?.id ?? "";
+      selectedDatasetId.value = "";
       name.value = "";
       error.value = "";
+      loadingDatasets.value = true;
+      void listDatasets()
+        .then((items) => {
+          datasets.value = items;
+        })
+        .catch(() => {
+          datasets.value = [];
+          error.value = "暂时无法加载数据集。";
+        })
+        .finally(() => {
+          loadingDatasets.value = false;
+        });
     }
   },
 );
 
 function submit(): void {
   const template = selected.value;
+  const dataset = datasets.value.find(
+    (item) => item.id === selectedDatasetId.value,
+  );
   const nextName = name.value.trim();
   if (!template) {
     error.value = "请选择一个模板。";
@@ -73,7 +94,11 @@ function submit(): void {
     error.value = "请输入大屏名称。";
     return;
   }
-  emit("confirm", { name: nextName, template });
+  if (!dataset) {
+    error.value = "请选择一个包含字段的数据集。";
+    return;
+  }
+  emit("confirm", { name: nextName, template, dataset });
 }
 </script>
 
@@ -116,6 +141,28 @@ function submit(): void {
           placeholder="例如：华东区域经营分析"
           @input="error = ''"
         />
+      </label>
+
+      <label class="form-field">
+        <span class="form-field__heading">数据集</span>
+        <select
+          v-model="selectedDatasetId"
+          name="templateDataset"
+          :disabled="loadingDatasets || submitting"
+          @change="error = ''"
+        >
+          <option value="">
+            {{ loadingDatasets ? "正在加载数据集…" : "请选择数据集" }}
+          </option>
+          <option
+            v-for="dataset in datasets"
+            :key="dataset.id"
+            :value="dataset.id"
+            :disabled="(dataset.definition?.fields?.length ?? 0) === 0"
+          >
+            {{ dataset.name }} · {{ dataset.id }}
+          </option>
+        </select>
       </label>
 
       <div class="template-picker__content">

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from uuid import uuid4
 
 from datapulse.ai.models import DatasetContext, DatasetContextField
 from datapulse.contracts.common import JsonValue
-from datapulse.contracts.dataset import FileQuery, RestQuery, SqlQuery
+from datapulse.contracts.dataset import DatasetField, FileQuery, RestQuery, SqlQuery
 from datapulse.dataset.models import DatasetResponse
+from datapulse.dataset.profile import DatasetFieldProfile, DatasetProfile, DatasetProfileService
 from datapulse.dataset.repository import DatasetRepository
 from datapulse.datasource.registry import ConnectorRegistry
 from datapulse.datasource.service import DatasourceService
@@ -40,12 +42,18 @@ class DatasetContextService:
         registry: ConnectorRegistry,
         file_asset_repository: FileAssetRepository | None = None,
         file_query_service: FileDatasetQueryService | None = None,
+        profile_service: DatasetProfileService | None = None,
+        max_context_fields: int = 50,
+        max_context_chars: int = 12_000,
     ) -> None:
         self._dataset_repository = dataset_repository
         self._datasource_service = datasource_service
         self._registry = registry
         self._file_asset_repository = file_asset_repository
         self._file_query_service = file_query_service
+        self._profile_service = profile_service
+        self._max_context_fields = max_context_fields
+        self._max_context_chars = max_context_chars
 
     async def _preview_sql(self, dataset: DatasetResponse, *, max_rows: int) -> QueryResult:
         source = await self._datasource_service.get(dataset.data_source_id)
@@ -106,29 +114,62 @@ class DatasetContextService:
         dataset_ids: tuple[str, ...],
         *,
         max_rows: int,
+        question: str | None = None,
+        include_samples: bool = False,
     ) -> tuple[DatasetContext, ...]:
         contexts: list[DatasetContext] = []
         for dataset_id in dataset_ids:
             dataset = await self._dataset_repository.get(dataset_id)
-            if isinstance(dataset.definition.query, SqlQuery):
-                preview = await self._preview_sql(dataset, max_rows=max_rows)
-            elif isinstance(dataset.definition.query, FileQuery):
-                preview = await self._preview_file(dataset, max_rows=max_rows)
-            elif isinstance(dataset.definition.query, RestQuery):
-                preview = await self._preview_rest(dataset, max_rows=max_rows)
+            profile = (
+                await self._profile_service.profile(dataset_id)
+                if self._profile_service is not None
+                else None
+            )
+            preview = None
+            if include_samples or profile is None:
+                if isinstance(dataset.definition.query, SqlQuery):
+                    preview = await self._preview_sql(dataset, max_rows=max_rows)
+                elif isinstance(dataset.definition.query, FileQuery):
+                    preview = await self._preview_file(dataset, max_rows=max_rows)
+                elif isinstance(dataset.definition.query, RestQuery):
+                    preview = await self._preview_rest(dataset, max_rows=max_rows)
+                else:
+                    raise ValueError("Unsupported dataset query type.")
+            if profile is not None:
+                field_limit = _select_profile_fields(
+                    profile.fields,
+                    question=question,
+                    max_fields=self._max_context_fields,
+                )
+                profile_summary = _profile_summary(profile)
             else:
-                raise ValueError("Unsupported dataset query type.")
-            field_limit = dataset.definition.fields[:50]
-            sample_rows = _rows(preview)[:max_rows]
+                field_limit = tuple(dataset.definition.fields[: self._max_context_fields])
+                profile_summary = ""
+            field_names = tuple(field.name for field in field_limit)
+            sample_rows = (
+                tuple(
+                    {
+                        name: row.get(name)
+                        for name in field_names
+                        if name in row
+                    }
+                    for row in _rows(preview)[:max_rows]
+                )
+                if preview is not None
+                else ()
+            )
+            field_limit, sample_rows, profile_summary, clipped = _fit_budget(
+                field_limit,
+                sample_rows,
+                profile_summary,
+                max_chars=self._max_context_chars,
+            )
             contexts.append(
                 DatasetContext(
                     dataset_id=dataset.id,
                     name=dataset.name,
                     fields=tuple(
-                        DatasetContextField(
-                            name=field.name,
-                            data_type=field.data_type.value,
-                        )
+                        _context_field(field)
                         for field in field_limit
                     ),
                     sample_rows=sample_rows,
@@ -136,10 +177,103 @@ class DatasetContextService:
                         f"{len(field_limit)} fields; "
                         f"{len(sample_rows)} sample rows; "
                         f"{len(dataset.definition.parameters)} parameters."
+                        + (" budget clipped." if clipped else "")
                     ),
+                    profile_summary=profile_summary,
                 )
             )
         return tuple(contexts)
 
 
 __all__ = ["DatasetContextService"]
+
+
+def _fit_budget(
+    fields,
+    rows: tuple[dict[str, JsonValue], ...],
+    profile_summary: str,
+    *,
+    max_chars: int,
+):
+    selected_fields = list(fields)
+    selected_rows = list(rows)
+    clipped = False
+
+    def serialized_size() -> int:
+        return len(
+            json.dumps(
+                {
+                    "fields": [field.model_dump(mode="json") for field in selected_fields],
+                    "rows": selected_rows,
+                    "profile_summary": profile_summary,
+                },
+                ensure_ascii=False,
+                separators=(",", ":"),
+            )
+        )
+
+    while serialized_size() > max_chars and selected_rows:
+        selected_rows.pop()
+        clipped = True
+    while serialized_size() > max_chars and selected_fields:
+        selected_fields.pop()
+        allowed = {field.name for field in selected_fields}
+        selected_rows = [
+            {name: value for name, value in row.items() if name in allowed}
+            for row in selected_rows
+        ]
+        clipped = True
+    while serialized_size() > max_chars and profile_summary:
+        profile_summary = profile_summary[:- max(1, len(profile_summary) // 5)]
+        clipped = True
+    return tuple(selected_fields), tuple(selected_rows), profile_summary, clipped
+
+
+def _select_profile_fields(
+    fields: tuple[DatasetFieldProfile, ...],
+    *,
+    question: str | None,
+    max_fields: int,
+) -> tuple[DatasetFieldProfile, ...]:
+    if not fields:
+        return ()
+    ordered = list(fields)
+    if question:
+        lowered = question.casefold()
+        mentioned = [field for field in ordered if field.name.casefold() in lowered]
+        if mentioned:
+            ordered = mentioned
+        else:
+            ordered = [
+                field
+                for field in ordered
+                if field.role.value in {"dimension", "measure", "temporal", "geography"}
+            ] or ordered
+    return tuple(ordered[:max_fields])
+
+
+def _profile_summary(profile: DatasetProfile) -> str:
+    pieces = [f"{profile.row_count} rows"]
+    if profile.sampled:
+        pieces.append("sampled")
+    if profile.time_coverage is not None:
+        pieces.append(f"time={profile.time_coverage[0]}..{profile.time_coverage[1]}")
+    if profile.suspected_primary_key is not None:
+        pieces.append(f"primary_key={profile.suspected_primary_key}")
+    if profile.measure_candidates:
+        pieces.append(f"measures={','.join(profile.measure_candidates)}")
+    if profile.geographic_fields:
+        pieces.append(f"geography={','.join(profile.geographic_fields)}")
+    return "; ".join(pieces)
+
+
+def _context_field(field: DatasetField | DatasetFieldProfile) -> DatasetContextField:
+    if isinstance(field, DatasetFieldProfile):
+        return DatasetContextField(
+            name=field.name,
+            data_type=field.data_type.value,
+            role=field.role.value,
+            cardinality=field.cardinality,
+            null_rate=field.null_rate,
+        )
+    return DatasetContextField(name=field.name, data_type=field.data_type.value)

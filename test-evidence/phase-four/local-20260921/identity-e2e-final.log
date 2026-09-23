@@ -1,0 +1,106 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --project=chromium identity.spec.ts --output=../../test-evidence/phase-four/local-20260921/identity-final-artifacts
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [55039]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:65218 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:23.091126+00:00","request_id":"6a6cb3d6-bee9-45c9-8938-2aaea864fa00","method":"GET","route":"/api/auth/status","status":200,"duration_ms":3.6}
+[WebServer] (node:55066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:55086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:55095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.124085+00:00","request_id":"b63827b7-b482-4839-81f7-e4ae7e7e678a","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.192615+00:00","request_id":"d852897f-8a42-4c26-b91f-d44d5d4c1ed7","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":54.76}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.460890+00:00","request_id":"a4b83d99-7465-4b7f-8ff1-217bd973938f","method":"GET","route":"/api/auth/status","status":200,"duration_ms":0.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.490573+00:00","request_id":"50c3453d-88d6-41a9-9138-ffd9dab5a4ae","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.582648+00:00","request_id":"ad9b8b42-7078-4bea-a7f2-c15c2eb31c16","method":"GET","route":"/api/admin/users","status":200,"duration_ms":33.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.816721+00:00","request_id":"3083e54f-0535-420e-8bab-d1b871ff2de1","method":"POST","route":"/api/admin/users","status":201,"duration_ms":67.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.825975+00:00","request_id":"e6991490-a6a9-403a-b1c6-c0717e96456d","method":"GET","route":"/api/admin/users","status":200,"duration_ms":5.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.862490+00:00","request_id":"0f006033-300f-4e7f-9ea9-f87611a31d16","method":"GET","route":"/api/admin/users","status":200,"duration_ms":4.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:25.981540+00:00","request_id":"565c0236-f16f-45b7-ac92-8983b295ed24","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":110.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.256437+00:00","request_id":"15f3a21e-59a1-487e-9dd9-7b14176b3c98","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.259607+00:00","request_id":"0b062bb5-3885-4426-86dd-d6d7d5b3a6c7","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.413966+00:00","request_id":"2cc4f4b2-09f0-454a-afa4-c63c472b7543","method":"POST","route":"/api/auth/login","status":204,"duration_ms":53.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.419906+00:00","request_id":"19dcacb0-646c-415a-91a4-7c7a347645a3","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.437062+00:00","request_id":"c970104e-508d-4a7d-ae61-150e0464fb3d","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":9.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.456039+00:00","request_id":"36b35476-4c4d-483c-9658-df145b71b2e9","method":"GET","route":"/api/admin/users","status":403,"duration_ms":4.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.585260+00:00","request_id":"81f1d8d6-bb50-4d4a-9ab6-6759ad2ca74e","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.619098+00:00","request_id":"1a783ad4-b6cc-4ad9-ab5e-ffaf23a0ca1f","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.647350+00:00","request_id":"c5238a44-7dbd-47a1-adf9-655ecd74197b","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":7.72}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.665671+00:00","request_id":"514d1bd6-2f0c-4118-876c-27f415913eb4","method":"GET","route":"/api/admin/screens/{screen_id}","status":404,"duration_ms":7.46}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.799162+00:00","request_id":"31a4a84d-ddc6-4eae-a153-cff77db7e32a","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.832870+00:00","request_id":"2fb7f5ca-53f8-4faa-a4b8-4bdbb291b0f0","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.867104+00:00","request_id":"6330f9ae-acb4-45fb-b737-5d5650c0b913","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":6.0}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.893824+00:00","request_id":"1dac4e26-0030-40eb-b388-7de5f5da4c13","method":"GET","route":"/api/admin/identity/directory","status":200,"duration_ms":23.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.904404+00:00","request_id":"f5dbd722-c0cf-4759-b365-d2e1a4f9f753","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":7.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.948716+00:00","request_id":"a8f17526-0997-4ed0-a75f-18758551bb49","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":21.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:26.963863+00:00","request_id":"1b4b8b6b-b6ca-4e07-a1b1-a1cccbff049d","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":12.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.086779+00:00","request_id":"f852b83f-33d9-4b0e-b3c1-066cb2c68e83","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.094560+00:00","request_id":"a71eab15-ed56-4ae0-b714-3589587131af","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.109798+00:00","request_id":"69c0ee98-2f78-4ba3-9dcf-94172d57cd6a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.156167+00:00","request_id":"601f463f-6b77-4b74-8424-862f2515b8ba","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":20.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.165511+00:00","request_id":"c0b39f23-5bb1-432c-a517-d8a9a6ed733b","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":16.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.231286+00:00","request_id":"a73e2fb0-a9d7-465a-94c7-c5681b2ea049","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.239083+00:00","request_id":"e6c37750-78fc-444d-b940-f2662df007bd","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.259031+00:00","request_id":"d870445c-4c27-4caa-a852-b63cdb9eb0b9","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":13.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.280300+00:00","request_id":"8984bc00-11b8-45d3-93ca-f4e73d4e5ddd","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":8.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.294211+00:00","request_id":"18cecba4-a75c-4f7b-8107-46da4535b856","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":8.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.342115+00:00","request_id":"932116cf-ea69-4875-98cc-33e33f3089a7","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.382824+00:00","request_id":"c00c6e33-76fc-4d73-8767-7fdc3f668aa7","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":6.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.431058+00:00","request_id":"466cd3db-ccc9-47ca-9490-1d0e73e3d5bd","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.549421+00:00","request_id":"2d5ea869-36b5-4bf6-9118-084f4af29a3d","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:27.815181+00:00","request_id":"9e0026a2-61a9-42ac-b254-996e0079549f","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:28.242423+00:00","request_id":"d7c20591-d877-46b0-b68e-1459df9bcacf","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":25.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:28.337264+00:00","request_id":"2d7e0fe6-2b46-4b9a-b467-43f6660fe0d8","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":13.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.179464+00:00","request_id":"bcb40aa7-81ff-41e7-a696-e4f5be2b04f3","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":409,"duration_ms":10.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.210713+00:00","request_id":"06411f5f-50a7-47b7-a158-1ae45a478631","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":11.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.447867+00:00","request_id":"9ad914a9-5b35-4981-a85d-da3c0388c5d1","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.455987+00:00","request_id":"278ce51f-fed4-441d-bd9d-008ca09d8230","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.476254+00:00","request_id":"1f65d3fd-cbe7-4451-88dc-977d80dccff7","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":9.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.485664+00:00","request_id":"240c1d0c-1561-48f9-bfaf-03bf17e86ca3","method":"GET","route":"/api/admin/identity/directory","status":200,"duration_ms":5.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.494977+00:00","request_id":"9ddb31a4-3f21-453d-83af-512b8e70d78d","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":5.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.567090+00:00","request_id":"663e4262-5428-43e3-8da1-fc64783090cb","method":"DELETE","route":"/api/admin/permissions/{resource_type}/{resource_id}/{user_id}","status":204,"duration_ms":14.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.577663+00:00","request_id":"c6addccf-30ef-41e2-8363-5b22f94f85ce","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":7.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.597787+00:00","request_id":"a8414e4a-e836-4c9e-ba00-e6ce8e799774","method":"GET","route":"/api/admin/screens/{screen_id}","status":404,"duration_ms":5.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.611902+00:00","request_id":"d2ef3028-4dc6-47ca-975a-8da256ae2dca","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":404,"duration_ms":8.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.756837+00:00","request_id":"9c42a952-4aee-4865-8b1b-a9c19fe30801","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.82}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.767387+00:00","request_id":"d4f14b26-4daa-4158-989e-82343f5903f5","method":"GET","route":"/api/auth/session","status":200,"duration_ms":7.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:13:29.781296+00:00","request_id":"804d5001-83c6-4a7b-846f-931b95673afb","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":8.24}
+  ✓  1 [chromium] › e2e/identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access (5.1s)
+
+  1 passed (10.8s)

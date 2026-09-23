@@ -1,5 +1,7 @@
 import hashlib
+import os
 from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -16,12 +18,13 @@ from datapulse.screen.assets import (
 )
 from datapulse.screen.repository import ScreenRepository
 from tests.support.app import AppClient, build_test_app
+from tests.support.media import image_bytes
 
 pytestmark = pytest.mark.anyio
 
-PNG_BYTES = b"\x89PNG\r\n\x1a\n" + b"safe-png"
-JPEG_BYTES = b"\xff\xd8\xff" + b"safe-jpeg"
-WEBP_BYTES = b"RIFF\x08\x00\x00\x00WEBP" + b"safe-webp"
+PNG_BYTES = image_bytes()
+JPEG_BYTES = image_bytes("JPEG")
+WEBP_BYTES = image_bytes("WEBP")
 GEOJSON_BYTES = b'{"type":"FeatureCollection","features":[]}'
 
 
@@ -59,6 +62,32 @@ async def test_upload_accepts_supported_assets_and_uses_generated_path(
     assert ".." not in Path(uploaded.storage_path).parts
     assert Path(uploaded.storage_path).read_bytes() == PNG_BYTES
     assert await asset_service.get(uploaded.id) == uploaded
+
+
+async def test_reconcile_storage_removes_only_stale_unreferenced_files(
+    asset_service: AssetService,
+    assets_dir: Path,
+) -> None:
+    uploaded = await asset_service.upload(
+        filename="logo.png",
+        content_type="image/png",
+        content=PNG_BYTES,
+    )
+    referenced_path = Path(uploaded.storage_path)
+    orphan = assets_dir / "orphan.png"
+    recent = assets_dir / "recent.tmp"
+    orphan.write_bytes(b"orphan")
+    recent.write_bytes(b"recent")
+    stale_time = (datetime.now(UTC) - timedelta(hours=2)).timestamp()
+    os.utime(referenced_path, (stale_time, stale_time))
+    os.utime(orphan, (stale_time, stale_time))
+
+    removed = await asset_service.reconcile_storage(grace_seconds=3600)
+
+    assert removed == 1
+    assert referenced_path.is_file()
+    assert not orphan.exists()
+    assert recent.is_file()
 
 
 @pytest.mark.parametrize(

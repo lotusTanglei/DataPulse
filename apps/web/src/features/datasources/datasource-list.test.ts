@@ -95,7 +95,7 @@ function baseFetch(listResponse: Response | (() => Promise<Response>)) {
       return Promise.resolve(jsonResponse({ initialized: true }));
     }
     if (url === "/api/auth/session") {
-      return Promise.resolve(jsonResponse({ username: "admin" }));
+      return Promise.resolve(jsonResponse({ username: "admin", role: "admin" }));
     }
     if (url === "/api/admin/datasources") {
       return typeof listResponse === "function"
@@ -174,7 +174,7 @@ test("keeps the previous status while one connection test is running", async () 
       return Promise.resolve(jsonResponse({ initialized: true }));
     }
     if (url === "/api/auth/session") {
-      return Promise.resolve(jsonResponse({ username: "admin" }));
+      return Promise.resolve(jsonResponse({ username: "admin", role: "admin" }));
     }
     if (url === "/api/admin/datasources") {
       return Promise.resolve(jsonResponse(datasourceFixtures));

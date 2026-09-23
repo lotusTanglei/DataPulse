@@ -1,0 +1,31 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/speech-draft.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "preview_only": {
+      "const": true,
+      "default": true,
+      "title": "Preview Only",
+      "type": "boolean"
+    },
+    "text": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    },
+    "warnings": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "SpeechDraftResponse",
+  "type": "object"
+}

@@ -224,6 +224,7 @@ test("registers the complete built-in component system", () => {
   ).toEqual([
     "builtin.alert_list",
     "builtin.bar",
+    "builtin.digital_human",
     "builtin.digital_number",
     "builtin.divider",
     "builtin.funnel",

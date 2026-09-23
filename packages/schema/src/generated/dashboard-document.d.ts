@@ -31,15 +31,19 @@ export type Id1 = string;
 export type Mutable = boolean;
 export type Name = string;
 export type Parameters = DashboardParameter[];
+export type Id2 = string;
+export type Version = string;
+export type PluginDependencies = PluginDependency[];
 export type IntervalSeconds = (10 | 30 | 60 | 300) | null;
 export type Mode = "disabled" | "interval";
 export type SchemaVersion = 1;
-export type Id2 = string;
+export type Id3 = string;
 
 export interface DashboardDocument {
   canvas: Canvas;
   components?: Components;
   parameters?: Parameters;
+  plugin_dependencies?: PluginDependencies;
   refresh?: ScreenRefreshPolicy;
   schema_version?: SchemaVersion;
   theme?: Theme;
@@ -105,12 +109,16 @@ export interface DashboardParameter {
   mutable?: Mutable;
   name: Name;
 }
+export interface PluginDependency {
+  id: Id2;
+  version: Version;
+}
 export interface ScreenRefreshPolicy {
   interval_seconds?: IntervalSeconds;
   mode?: Mode;
 }
 export interface Theme {
-  id?: Id2;
+  id?: Id3;
   tokens?: Tokens;
 }
 export interface Tokens {

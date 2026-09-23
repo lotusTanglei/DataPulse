@@ -10,6 +10,8 @@ from datapulse.contracts.common import (
     PositiveInt,
 )
 from datapulse.contracts.dataset import DataType
+from datapulse.contracts.digital_human import DigitalHumanBinding, DigitalHumanSpec
+from datapulse.contracts.plugin import PluginManifest
 
 
 class Canvas(ContractModel):
@@ -49,6 +51,16 @@ class ComponentInstance(ContractModel):
     data_binding: dict[str, JsonValue] = Field(default_factory=dict)
     interactions: tuple[ComponentInteraction, ...] = Field(default_factory=tuple)
 
+    @model_validator(mode="after")
+    def validate_digital_human(self) -> Self:
+        if self.type == "builtin.digital_human":
+            DigitalHumanSpec.model_validate(self.props)
+            if self.data_binding.get("source") == "components":
+                DigitalHumanBinding.model_validate(self.data_binding)
+        elif self.data_binding.get("source") == "components":
+            raise ValueError("Component references are only supported by digital humans.")
+        return self
+
 
 class Theme(ContractModel):
     id: NonBlankStr = "datapulse-dark"
@@ -77,6 +89,17 @@ class DashboardParameter(ContractModel):
     allowed_values: tuple[JsonValue, ...] = Field(default_factory=tuple)
 
 
+class PluginDependency(ContractModel):
+    id: NonBlankStr
+    version: NonBlankStr
+
+    @model_validator(mode="after")
+    def validate_exact_version(self) -> Self:
+        PluginManifest.validate_id(self.id)
+        PluginManifest.validate_version(self.version)
+        return self
+
+
 class DashboardDocument(ContractModel):
     schema_version: Literal[1] = 1
     canvas: Canvas
@@ -84,9 +107,13 @@ class DashboardDocument(ContractModel):
     refresh: ScreenRefreshPolicy = Field(default_factory=ScreenRefreshPolicy)
     parameters: tuple[DashboardParameter, ...] = Field(default_factory=tuple)
     components: tuple[ComponentInstance, ...] = Field(default_factory=tuple)
+    plugin_dependencies: tuple[PluginDependency, ...] = Field(default_factory=tuple)
 
     @model_validator(mode="after")
     def validate_document_references(self) -> Self:
+        plugin_ids = [dependency.id for dependency in self.plugin_dependencies]
+        if len(plugin_ids) != len(set(plugin_ids)):
+            raise ValueError("a document must reference one exact version per plugin")
         component_ids = [component.id for component in self.components]
         if len(component_ids) != len(set(component_ids)):
             raise ValueError("component IDs must be unique")

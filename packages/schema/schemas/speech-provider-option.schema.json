@@ -1,0 +1,30 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/speech-provider-option.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "default_voice": {
+      "title": "Default Voice",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "language",
+    "default_voice"
+  ],
+  "title": "SpeechProviderOption",
+  "type": "object"
+}

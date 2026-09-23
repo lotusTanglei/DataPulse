@@ -61,12 +61,24 @@ class SecretBox:
     def _aad(datasource_id: str) -> bytes:
         return f"datapulse:datasource:{datasource_id}:password:v1".encode()
 
+    @staticmethod
+    def _aad_for(subject_id: str, purpose: str) -> bytes:
+        return f"datapulse:secret:{purpose}:{subject_id}:v1".encode()
+
     def encrypt(self, datasource_id: str, password: str) -> SecretEnvelope:
+        nonce = secrets.token_bytes(12)
+        ciphertext = self._cipher.encrypt(nonce, password.encode(), self._aad(datasource_id))
+        return SecretEnvelope(
+            nonce=_encode_base64(nonce),
+            ciphertext=_encode_base64(ciphertext),
+        )
+
+    def encrypt_for(self, subject_id: str, purpose: str, value: str) -> SecretEnvelope:
         nonce = secrets.token_bytes(12)
         ciphertext = self._cipher.encrypt(
             nonce,
-            password.encode(),
-            self._aad(datasource_id),
+            value.encode(),
+            self._aad_for(subject_id, purpose),
         )
         return SecretEnvelope(
             nonce=_encode_base64(nonce),
@@ -79,6 +91,17 @@ class SecretBox:
                 _decode_envelope_value(envelope.nonce),
                 _decode_envelope_value(envelope.ciphertext),
                 self._aad(datasource_id),
+            )
+            return plaintext.decode()
+        except (InvalidTag, UnicodeDecodeError, ValueError) as error:
+            raise SecretDecryptionError("The datasource secret cannot be decrypted.") from error
+
+    def decrypt_for(self, subject_id: str, purpose: str, envelope: SecretEnvelope) -> str:
+        try:
+            plaintext = self._cipher.decrypt(
+                _decode_envelope_value(envelope.nonce),
+                _decode_envelope_value(envelope.ciphertext),
+                self._aad_for(subject_id, purpose),
             )
             return plaintext.decode()
         except (InvalidTag, UnicodeDecodeError, ValueError) as error:

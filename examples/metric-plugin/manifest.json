@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "org.datapulse.example.metrics",
+  "version": "1.0.0",
+  "compatible_api": ">=1,<2",
+  "name": "示例指标插件",
+  "description": "从宿主提供的 QueryResult 显示一个数值，不访问数据源或凭据。",
+  "license": "MIT",
+  "source": "DataPulse example",
+  "entry": "index.mjs",
+  "components": [{
+    "type": "org.datapulse.example.metric",
+    "name": "示例指标",
+    "category": "插件指标",
+    "default_props": {"label": "示例指标", "field": "", "precision": 0, "color": "#26d9c1"},
+    "property_schema": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "label": {"type": "string", "title": "标签", "maxLength": 100},
+        "field": {"type": "string", "title": "数值字段（留空自动选择）"},
+        "precision": {"type": "integer", "title": "小数位数", "minimum": 0, "maximum": 8},
+        "color": {"type": "string", "title": "数值颜色", "pattern": "^#[0-9A-Fa-f]{6}$"}
+      },
+      "required": ["label", "precision", "color"]
+    },
+    "data_schema": {"type": "object", "required": ["columns", "rows", "row_count"]}
+  }]
+}

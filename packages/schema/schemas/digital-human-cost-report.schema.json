@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "DigitalHumanCostReportRow": {
+      "additionalProperties": false,
+      "properties": {
+        "cached_count": {
+          "minimum": 0,
+          "title": "Cached Count",
+          "type": "integer"
+        },
+        "estimated_cost": {
+          "minimum": 0,
+          "title": "Estimated Cost",
+          "type": "number"
+        },
+        "failed_count": {
+          "minimum": 0,
+          "title": "Failed Count",
+          "type": "integer"
+        },
+        "generated_seconds": {
+          "minimum": 0,
+          "title": "Generated Seconds",
+          "type": "number"
+        },
+        "provider_id": {
+          "title": "Provider Id",
+          "type": "string"
+        },
+        "provider_name": {
+          "title": "Provider Name",
+          "type": "string"
+        },
+        "succeeded_count": {
+          "minimum": 0,
+          "title": "Succeeded Count",
+          "type": "integer"
+        },
+        "task_count": {
+          "minimum": 0,
+          "title": "Task Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "provider_id",
+        "provider_name",
+        "task_count",
+        "succeeded_count",
+        "failed_count",
+        "cached_count",
+        "generated_seconds",
+        "estimated_cost"
+      ],
+      "title": "DigitalHumanCostReportRow",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-cost-report.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "period_end": {
+      "format": "date-time",
+      "title": "Period End",
+      "type": "string"
+    },
+    "period_start": {
+      "format": "date-time",
+      "title": "Period Start",
+      "type": "string"
+    },
+    "rows": {
+      "items": {
+        "$ref": "#/$defs/DigitalHumanCostReportRow"
+      },
+      "title": "Rows",
+      "type": "array"
+    },
+    "total_estimated_cost": {
+      "minimum": 0,
+      "title": "Total Estimated Cost",
+      "type": "number"
+    },
+    "total_generated_seconds": {
+      "minimum": 0,
+      "title": "Total Generated Seconds",
+      "type": "number"
+    },
+    "total_task_count": {
+      "minimum": 0,
+      "title": "Total Task Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "period_start",
+    "period_end",
+    "rows",
+    "total_task_count",
+    "total_generated_seconds",
+    "total_estimated_cost"
+  ],
+  "title": "DigitalHumanCostReportResponse",
+  "type": "object"
+}

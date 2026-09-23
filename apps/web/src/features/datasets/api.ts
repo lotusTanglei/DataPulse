@@ -3,6 +3,8 @@ import type {
   Dataset,
   DatasetCreatePayload,
   DatasetPreviewPayload,
+  DatasetProfile,
+  DatasetProfilePatch,
   DatasetUpdatePayload,
   QueryResult,
 } from "./types";
@@ -20,6 +22,26 @@ export function getDataset(
   return apiRequest<Dataset>(
     `${DATASETS_PATH}/${encodeURIComponent(datasetId)}`,
     { signal },
+  );
+}
+
+export function getDatasetProfile(
+  datasetId: string,
+  signal?: AbortSignal,
+): Promise<DatasetProfile> {
+  return apiRequest<DatasetProfile>(
+    `${DATASETS_PATH}/${encodeURIComponent(datasetId)}/profile`,
+    { signal },
+  );
+}
+
+export function updateDatasetProfile(
+  datasetId: string,
+  payload: DatasetProfilePatch,
+): Promise<DatasetProfile> {
+  return apiRequest<DatasetProfile>(
+    `${DATASETS_PATH}/${encodeURIComponent(datasetId)}/profile`,
+    { method: "PATCH", json: payload },
   );
 }
 

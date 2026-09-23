@@ -73,6 +73,7 @@ test("logout sends CSRF and clears the authenticated state", async () => {
   const fetchMock = vi
     .fn()
     .mockResolvedValueOnce(new Response(null, { status: 204 }))
+    .mockResolvedValueOnce(jsonResponse({ username: "admin" }))
     .mockResolvedValueOnce(new Response(null, { status: 204 }));
   vi.stubGlobal("fetch", fetchMock);
   const auth = useAuthStore();
@@ -80,7 +81,7 @@ test("logout sends CSRF and clears the authenticated state", async () => {
 
   await auth.logout();
 
-  const logoutInit = fetchMock.mock.calls[1]?.[1] as RequestInit;
+  const logoutInit = fetchMock.mock.calls[2]?.[1] as RequestInit;
   expect(new Headers(logoutInit.headers).get("X-CSRF-Token")).toBe("logout-token");
   expect(auth.state).toEqual({ status: "anonymous" });
 });
@@ -222,6 +223,7 @@ test("login submits credentials and opens the studio", async () => {
         ),
       )
       .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(jsonResponse({ username: "admin" }))
       .mockResolvedValueOnce(jsonResponse([])),
   );
   const router = createStudioRouter({

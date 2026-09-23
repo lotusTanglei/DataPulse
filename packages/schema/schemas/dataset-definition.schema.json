@@ -61,6 +61,99 @@
       "title": "DatasetField",
       "type": "object"
     },
+    "DatasetFieldOverride": {
+      "additionalProperties": false,
+      "properties": {
+        "data_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "default_aggregation": {
+          "anyOf": [
+            {
+              "enum": [
+                "sum",
+                "avg",
+                "min",
+                "max",
+                "count"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Aggregation"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "enum": [
+                "identifier",
+                "dimension",
+                "measure",
+                "geography",
+                "temporal",
+                "text",
+                "boolean",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "DatasetFieldOverride",
+      "type": "object"
+    },
     "DatasetParameter": {
       "additionalProperties": false,
       "properties": {
@@ -374,6 +467,13 @@
         "$ref": "#/$defs/DatasetParameter"
       },
       "title": "Parameters",
+      "type": "array"
+    },
+    "profile_overrides": {
+      "items": {
+        "$ref": "#/$defs/DatasetFieldOverride"
+      },
+      "title": "Profile Overrides",
       "type": "array"
     },
     "query": {

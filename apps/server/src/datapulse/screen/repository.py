@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from datapulse.contracts.dashboard import DashboardDocument
-from datapulse.metadata import ScreenRecord
+from datapulse.metadata import DigitalHumanAuditRecord, ScreenRecord
 from datapulse.metadata.models import utc_now
 from datapulse.screen.access import ScreenAccessPolicy, ScreenAccessPolicyInvalid
 from datapulse.screen.models import ScreenResponse
@@ -88,6 +88,16 @@ class ScreenRepository:
             async with self._session_factory.begin() as session:
                 session.add(record)
                 await session.flush()
+                session.add(
+                    DigitalHumanAuditRecord(
+                        created_at=utc_now(),
+                        actor="system",
+                        action="screen.created",
+                        resource_type="screen",
+                        resource_id=record.id,
+                        details_json={},
+                    )
+                )
         except IntegrityError as error:
             raise ScreenNameConflict(name) from error
         return self._to_response(record)
@@ -175,6 +185,16 @@ class ScreenRepository:
                         raise ScreenNotFound(screen_id)
                     raise ScreenRevisionConflict(screen_id)
                 record = await session.get(ScreenRecord, screen_id)
+                session.add(
+                    DigitalHumanAuditRecord(
+                        created_at=utc_now(),
+                        actor="system",
+                        action="screen.draft_updated",
+                        resource_type="screen",
+                        resource_id=screen_id,
+                        details_json={"revision": str(expected_revision + 1)},
+                    )
+                )
         except IntegrityError as error:
             raise ScreenNameConflict(name or "") from error
         if record is None:
@@ -225,6 +245,16 @@ class ScreenRepository:
                     raise ScreenNotFound(screen_id)
                 raise ScreenRevisionConflict(screen_id)
             record = await session.get(ScreenRecord, screen_id)
+            session.add(
+                DigitalHumanAuditRecord(
+                    created_at=published_at,
+                    actor="system",
+                    action="screen.published",
+                    resource_type="screen",
+                    resource_id=screen_id,
+                    details_json={"revision": str(expected_revision)},
+                )
+            )
         if record is None:
             raise ScreenNotFound(screen_id)
         return self._to_response(record)
@@ -234,3 +264,13 @@ class ScreenRepository:
             result = await session.execute(delete(ScreenRecord).where(ScreenRecord.id == screen_id))
             if not result.rowcount:
                 raise ScreenNotFound(screen_id)
+            session.add(
+                DigitalHumanAuditRecord(
+                    created_at=utc_now(),
+                    actor="system",
+                    action="screen.deleted",
+                    resource_type="screen",
+                    resource_id=screen_id,
+                    details_json={},
+                )
+            )

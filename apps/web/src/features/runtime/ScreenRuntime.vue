@@ -27,6 +27,8 @@ import type {
   RuntimeMode,
   RuntimeParameters,
 } from "./types";
+import { resolveRuntimeViewport } from "./viewport";
+import type { SpeechCommand, SpeechEvent } from "./speechProtocol";
 
 const props = withDefaults(
   defineProps<{
@@ -46,12 +48,31 @@ const props = withDefaults(
 const emit = defineEmits<{
   error: [error: unknown];
   parametersChange: [parameters: RuntimeParameters];
+  speechEvent: [event: SpeechEvent];
 }>();
 
+const hosts = new Map<string, InstanceType<typeof ComponentHost>>();
+function speechCommand(command: SpeechCommand) {
+  const host = hosts.get(command.component_id);
+  if (!host) throw Object.assign(new Error("Digital human is not configured."), { code: "DIGITAL_HUMAN_NOT_CONFIGURED" });
+  return host.speechCommand(command);
+}
+
 const container = ref<HTMLElement | null>(null);
-const scale = ref(1);
+const runtimeViewport = ref(
+  resolveRuntimeViewport({
+    canvasWidth: props.document.canvas.width,
+    canvasHeight: props.document.canvas.height,
+    containerWidth: 0,
+    containerHeight: 0,
+  }),
+);
 const parameterVersion = ref(0);
 const dataRuntime = createDataRuntime(props.queryComponent);
+const dataStates = computed(() => Object.fromEntries(
+  components.value.map((component) => [component.id, dataRuntime.state(component.id)]),
+));
+const parameterSource = ref<"runtime" | "host">("runtime");
 let parameterState = createParameterState(
   props.document.parameters ?? [],
   props.initialParameters,
@@ -81,12 +102,12 @@ const canvasStyle = computed(() => {
     width: `${props.document.canvas.width}px`,
     height: `${props.document.canvas.height}px`,
     backgroundColor: color,
-    transform: `scale(${scale.value})`,
+    transform: `scale(${runtimeViewport.value.scale})`,
   };
 });
 const viewportStyle = computed(() => ({
-  width: `${props.document.canvas.width * scale.value}px`,
-  height: `${props.document.canvas.height * scale.value}px`,
+  width: `${runtimeViewport.value.viewportWidth}px`,
+  height: `${runtimeViewport.value.viewportHeight}px`,
 }));
 
 function hasBinding(binding: unknown): binding is Record<string, JsonValue> {
@@ -102,11 +123,24 @@ function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
+function stopSpeech(): void {
+  for (const component of components.value) {
+    if (component.type === "builtin.digital_human") {
+      try {
+        hosts.get(component.id)?.speechCommand({ component_id: component.id, action: "stop" });
+      } catch (error) {
+        emit("error", error);
+      }
+    }
+  }
+}
+
 async function refresh(): Promise<void> {
+  stopSpeech();
   dataRuntime.beginGeneration();
   const parameters = parameterState.values();
   const loads = components.value
-    .filter((component) => hasBinding(component.data_binding))
+    .filter((component) => hasBinding(component.data_binding) && component.data_binding?.source !== "components")
     .map((component) =>
       dataRuntime
         .load(component.id, component.data_binding!, parameters, component.type)
@@ -139,6 +173,7 @@ function setParameters(
     nextState.set(name, value, source);
   }
   parameterState = nextState;
+  parameterSource.value = source === "host" ? "host" : "runtime";
   parameterVersion.value += 1;
   const parameters = parameterState.values();
   emit("parametersChange", parameters);
@@ -154,13 +189,12 @@ function updateScale(): void {
   if (!host) {
     return;
   }
-  const widthScale = host.clientWidth / props.document.canvas.width;
-  const heightScale =
-    host.clientHeight > 0
-      ? host.clientHeight / props.document.canvas.height
-      : widthScale;
-  const nextScale = Math.min(widthScale, heightScale);
-  scale.value = Number.isFinite(nextScale) && nextScale > 0 ? nextScale : 1;
+  runtimeViewport.value = resolveRuntimeViewport({
+    canvasWidth: props.document.canvas.width,
+    canvasHeight: props.document.canvas.height,
+    containerWidth: host.clientWidth,
+    containerHeight: host.clientHeight,
+  });
 }
 
 function configureTimer(): void {
@@ -219,6 +253,8 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
+  speechCommand,
+  stopSpeech,
   getParameters: () => parameterState.values(),
   refresh,
   setParameter,
@@ -231,6 +267,8 @@ defineExpose({
     ref="container"
     class="screen-runtime"
     :data-mode="mode"
+    :data-density="runtimeViewport.density"
+    :data-overflow="runtimeViewport.overflow ? 'scroll' : 'fit'"
     :data-parameter-version="parameterVersion"
   >
     <div class="screen-runtime__viewport" :style="viewportStyle">
@@ -238,6 +276,7 @@ defineExpose({
         <ComponentHost
           v-for="component in components"
           :key="component.id"
+          :ref="(host) => { if (host) hosts.set(component.id, host as InstanceType<typeof ComponentHost>); else hosts.delete(component.id); }"
           class="screen-runtime__component"
           :style="{
             left: `${component.frame.x}px`,
@@ -250,9 +289,13 @@ defineExpose({
           :instance="component"
           :load-asset="loadAsset"
           :query-state="dataRuntime.state(component.id)"
+          :data-states="dataStates"
+          :parameters="parameterState.values()"
+          :parameter-source="parameterSource"
           :theme="themeTokens"
           :mode="mode"
           @interaction="handleInteraction"
+          @speech-event="emit('speechEvent', $event)"
         />
       </div>
     </div>
@@ -268,6 +311,12 @@ defineExpose({
   min-height: 0;
   overflow: hidden;
   place-items: center;
+}
+
+.screen-runtime[data-overflow="scroll"] {
+  overflow: auto;
+  overscroll-behavior: contain;
+  place-items: start;
 }
 
 .screen-runtime__viewport {

@@ -20,6 +20,7 @@ class PluginComponent(ContractModel):
     category: NonBlankStr
     property_schema: dict[str, JsonValue]
     data_schema: dict[str, JsonValue]
+    default_props: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class PluginManifest(ContractModel):
@@ -28,6 +29,9 @@ class PluginManifest(ContractModel):
     version: NonBlankStr
     compatible_api: NonBlankStr
     name: NonBlankStr
+    description: str = ""
+    license: NonBlankStr = "UNLICENSED"
+    source: NonBlankStr = "local"
     entry: NonBlankStr
     components: tuple[PluginComponent, ...] = Field(min_length=1)
 
@@ -58,7 +62,15 @@ class PluginManifest(ContractModel):
     @classmethod
     def validate_entry(cls, value: str) -> str:
         path = PurePosixPath(value)
-        if path.is_absolute() or ".." in path.parts or path.suffix != ".mjs":
+        if (
+            path.is_absolute()
+            or path.suffix != ".mjs"
+            or "\\" in value
+            or ":" in value
+            or any(part in {"", ".", ".."} for part in value.split("/"))
+            or any(ord(char) < 32 for char in value)
+            or str(path) != value
+        ):
             raise ValueError("entry must be a safe relative .mjs path")
         return value
 

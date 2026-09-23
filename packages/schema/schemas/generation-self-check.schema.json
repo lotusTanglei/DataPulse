@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "GenerationIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "component_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Component Id"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "field",
+        "message"
+      ],
+      "title": "GenerationIssue",
+      "type": "object"
+    },
+    "WidgetSelfCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Aggregations",
+          "type": "array"
+        },
+        "dataset_id": {
+          "minLength": 1,
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "filters": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Filters",
+          "type": "array"
+        },
+        "issues": {
+          "items": {
+            "$ref": "#/$defs/GenerationIssue"
+          },
+          "title": "Issues",
+          "type": "array"
+        },
+        "row_count": {
+          "minimum": 0,
+          "title": "Row Count",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "empty",
+            "error"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "widget_id": {
+          "minLength": 1,
+          "title": "Widget Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "widget_id",
+        "dataset_id",
+        "row_count",
+        "status"
+      ],
+      "title": "WidgetSelfCheck",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/generation-self-check.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/WidgetSelfCheck"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "executed_count": {
+      "minimum": 0,
+      "title": "Executed Count",
+      "type": "integer"
+    },
+    "fallback_count": {
+      "minimum": 0,
+      "title": "Fallback Count",
+      "type": "integer"
+    },
+    "issues": {
+      "items": {
+        "$ref": "#/$defs/GenerationIssue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "valid": {
+      "title": "Valid",
+      "type": "boolean"
+    },
+    "widget_count": {
+      "minimum": 0,
+      "title": "Widget Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "valid",
+    "widget_count",
+    "executed_count",
+    "fallback_count"
+  ],
+  "title": "GenerationSelfCheckReport",
+  "type": "object"
+}

@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/datapulse-digital-human.yml
+
+scrape_configs:
+  - job_name: datapulse
+    metrics_path: /api/internal/digital-human/metrics/prometheus
+    static_configs:
+      - targets: ["datapulse:8000"]
+    bearer_token_file: /etc/prometheus/secrets/datapulse_metrics_token

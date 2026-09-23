@@ -1,0 +1,22 @@
+
+> @datapulse/web@ test /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vitest run src/features/identity/ src/features/screens/screen-list.test.ts src/features/datasets/datasets.test.ts src/features/datasources/ src/features/query/sql-debug.test.ts
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/identity/users.test.ts (3 tests) 68ms
+ ✓ src/features/identity/sharing.test.ts (2 tests) 76ms
+ ✓ src/features/query/sql-debug.test.ts (4 tests) 94ms
+ ✓ src/features/screens/screen-list.test.ts (9 tests) 265ms
+ ✓ src/features/identity/resource-permissions.test.ts (12 tests) 125ms
+ ✓ src/features/datasets/datasets.test.ts (6 tests) 154ms
+ ✓ src/features/datasources/datasource-list.test.ts (4 tests) 141ms
+ ✓ src/features/datasources/schema-browser.test.ts (4 tests) 167ms
+ ✓ src/features/datasources/datasource-form.test.ts (9 tests) 227ms
+
+ Test Files  9 passed (9)
+      Tests  53 passed (53)
+   Start at  11:37:13
+   Duration  30.01s (transform 7.37s, setup 0ms, collect 132.67s, tests 1.32s, environment 57.46s, prepare 8.05s)
+

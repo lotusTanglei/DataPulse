@@ -1,0 +1,149 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__ test_repeated_reader_cancellation_waits_for_launch_and_reaps_shared_child ___
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-128/test_repeated_reader_cancellat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10db9efd0>
+
+    async def test_repeated_reader_cancellation_waits_for_launch_and_reaps_shared_child(
+        tmp_path, monkeypatch
+    ):
+        source = tmp_path / "source.csv"
+        source.write_text("amount\n12\n")
+        started, release = asyncio.Event(), asyncio.Event()
+        processes = []
+        original = asyncio.create_subprocess_exec
+    
+        async def delayed(*args, **kwargs):
+            process = await original(*args, **kwargs)
+            processes.append(process)
+            started.set()
+            await release.wait()
+            return process
+    
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", delayed)
+        reader = asyncio.create_task(
+            parsers.parse_file(source, FileFormat.CSV, sheet_name=None, max_rows=10)
+        )
+        try:
+            await asyncio.wait_for(started.wait(), timeout=10)
+            reader.cancel()
+            await asyncio.sleep(0.01)
+            reader.cancel()
+            await asyncio.sleep(0.01)
+>           assert not reader.done(), "Reader returned before its launched child could be reaped"
+E           AssertionError: Reader returned before its launched child could be reaped
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x10de41860>()
+E            +    where <built-in method done of _asyncio.Task object at 0x10de41860> = <Task cancelled name='Task-3' coro=<parse_file() done, defined at /Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/parsers.py:327>>.done
+
+apps/server/tests/filedata/test_parse_cache.py:41: AssertionError
+____ test_repeated_processor_cancellation_cannot_interrupt_reaping[launch] _____
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-128/test_repeated_processor_cancel0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10760ad70>
+phase = 'launch'
+
+    @pytest.mark.parametrize("phase", ["launch", "cleanup"])
+    async def test_repeated_processor_cancellation_cannot_interrupt_reaping(tmp_path, monkeypatch, phase):
+        from datapulse.operations import processing
+    
+        started, cleanup_started, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        processes = []
+        original = asyncio.create_subprocess_exec
+        original_kill = processing._kill
+    
+        async def delayed_launch(*args, **kwargs):
+            process = await original(*args, **kwargs)
+            processes.append(process)
+            started.set()
+            if phase == "launch":
+                await release.wait()
+            return process
+    
+        async def delayed_kill(process):
+            cleanup_started.set()
+            if phase == "cleanup":
+                await release.wait()
+            await original_kill(process)
+    
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", delayed_launch)
+        monkeypatch.setattr(processing, "_kill", delayed_kill)
+        slots = tmp_path / "slots"
+        worker = asyncio.create_task(processing.run_processor(
+            [sys.executable, "-c", "import time; time.sleep(60)"],
+            directory=tmp_path, slot_directory=slots, concurrency=1,
+        ))
+        try:
+            await asyncio.wait_for(started.wait(), timeout=10)
+            worker.cancel()
+            if phase == "cleanup":
+                await asyncio.wait_for(cleanup_started.wait(), timeout=10)
+            else:
+                await asyncio.sleep(0.01)
+            worker.cancel()
+            await asyncio.sleep(0.01)
+>           assert not worker.done(), "Cancellation interrupted owned processor cleanup"
+E           AssertionError: Cancellation interrupted owned processor cleanup
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x10de43b70>()
+E            +    where <built-in method done of _asyncio.Task object at 0x10de43b70> = <Task cancelled name='Task-14' coro=<run_processor() done, defined at /Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/operations/processing.py:56>>.done
+
+apps/server/tests/operations/test_processing.py:56: AssertionError
+____ test_repeated_processor_cancellation_cannot_interrupt_reaping[cleanup] ____
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-128/test_repeated_processor_cancel1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10de9dd90>
+phase = 'cleanup'
+
+    @pytest.mark.parametrize("phase", ["launch", "cleanup"])
+    async def test_repeated_processor_cancellation_cannot_interrupt_reaping(tmp_path, monkeypatch, phase):
+        from datapulse.operations import processing
+    
+        started, cleanup_started, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        processes = []
+        original = asyncio.create_subprocess_exec
+        original_kill = processing._kill
+    
+        async def delayed_launch(*args, **kwargs):
+            process = await original(*args, **kwargs)
+            processes.append(process)
+            started.set()
+            if phase == "launch":
+                await release.wait()
+            return process
+    
+        async def delayed_kill(process):
+            cleanup_started.set()
+            if phase == "cleanup":
+                await release.wait()
+            await original_kill(process)
+    
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", delayed_launch)
+        monkeypatch.setattr(processing, "_kill", delayed_kill)
+        slots = tmp_path / "slots"
+        worker = asyncio.create_task(processing.run_processor(
+            [sys.executable, "-c", "import time; time.sleep(60)"],
+            directory=tmp_path, slot_directory=slots, concurrency=1,
+        ))
+        try:
+            await asyncio.wait_for(started.wait(), timeout=10)
+            worker.cancel()
+            if phase == "cleanup":
+                await asyncio.wait_for(cleanup_started.wait(), timeout=10)
+            else:
+                await asyncio.sleep(0.01)
+            worker.cancel()
+            await asyncio.sleep(0.01)
+>           assert not worker.done(), "Cancellation interrupted owned processor cleanup"
+E           AssertionError: Cancellation interrupted owned processor cleanup
+E           assert not True
+E            +  where True = <built-in method done of _asyncio.Task object at 0x10df0c050>()
+E            +    where <built-in method done of _asyncio.Task object at 0x10df0c050> = <Task cancelled name='Task-24' coro=<run_processor() done, defined at /Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/operations/processing.py:56>>.done
+
+apps/server/tests/operations/test_processing.py:56: AssertionError
+=========================== short test summary info ============================
+FAILED apps/server/tests/filedata/test_parse_cache.py::test_repeated_reader_cancellation_waits_for_launch_and_reaps_shared_child
+FAILED apps/server/tests/operations/test_processing.py::test_repeated_processor_cancellation_cannot_interrupt_reaping[launch]
+FAILED apps/server/tests/operations/test_processing.py::test_repeated_processor_cancellation_cannot_interrupt_reaping[cleanup]
+3 failed, 13 deselected in 1.05s

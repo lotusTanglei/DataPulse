@@ -3,11 +3,13 @@ import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
+import { useAuthStore } from "../../stores/auth";
+import { getResourceAccess } from "../identity/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
 import AiEditPanel from "../ai/AiEditPanel.vue";
 import type { JsonValue } from "../query/types";
-import { defaultComponentRegistry } from "../runtime/registry";
+import { provideEditorPlugins } from "../ecosystem/editorPlugins";
 import { generateDisplayKey, publishScreen, updateScreenAccessPolicy } from "./api";
 import { componentTypeToChartType } from "./editor/chartSuggestion";
 import ComponentLibrary from "./editor/ComponentLibrary.vue";
@@ -21,7 +23,10 @@ import { useScreenEditorStore } from "./editor/store";
 
 const route = useRoute();
 const store = useScreenEditorStore();
+const componentRegistry = provideEditorPlugins(() => store.document);
 const screenId = computed(() => String(route.params.id));
+const auth = useAuthStore();
+const publishAllowed = ref(false);
 const canvas = ref<InstanceType<typeof ScreenCanvas> | null>(null);
 const publishConfirmationOpen = ref(false);
 const publishing = ref(false);
@@ -29,7 +34,7 @@ const publishError = ref<ApiError | null>(null);
 const publishMessage = ref("");
 const usagePanelOpen = ref(false);
 const deliveryPanelVisible = computed(
-  () => usagePanelOpen.value || Boolean(store.screen?.published_at),
+  () => publishAllowed.value && (usagePanelOpen.value || Boolean(store.screen?.published_at)),
 );
 const usageLoading = ref(false);
 const usageError = ref("");
@@ -63,7 +68,7 @@ const canUngroupSelection = computed(() =>
 );
 const selectedDefinition = computed(() =>
   selectedComponent.value
-    ? defaultComponentRegistry.get(selectedComponent.value.type)
+    ? componentRegistry.value.get(selectedComponent.value.type)
     : undefined,
 );
 const selectedAiTarget = computed(() =>
@@ -132,6 +137,12 @@ const saveLabel = computed(() => {
 });
 
 onMounted(() => store.load(screenId.value));
+onMounted(async () => {
+  publishAllowed.value = auth.state.status === "authenticated" && auth.state.role === "admin";
+  if (!publishAllowed.value) {
+    publishAllowed.value = (await getResourceAccess("screen", screenId.value).catch(() => null))?.publish ?? false;
+  }
+});
 
 function handlePublishKeydown(event: KeyboardEvent): void {
   if (event.key === "Escape" && publishConfirmationOpen.value && !publishing.value) {
@@ -240,6 +251,7 @@ async function saveAccessPolicy(policy: ScreenAccessPolicy): Promise<void> {
       <EditorToolbar
         :save-label="saveLabel"
         :publishing="publishing"
+        :can-publish="publishAllowed"
         :zoom="canvas?.zoom ?? 0.5"
         :show-grid="canvas?.showGrid ?? true"
         :snap-enabled="canvas?.snapEnabled ?? true"

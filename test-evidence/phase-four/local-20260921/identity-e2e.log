@@ -1,0 +1,92 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --project=chromium identity.spec.ts
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [53067]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:61356 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:10:42.514360+00:00","request_id":"db700bbb-7431-427e-a0de-57b0b1ebfa1f","method":"GET","route":"/api/auth/status","status":200,"duration_ms":3.11}
+[WebServer] (node:53130) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:53152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:53311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:10:44.462740+00:00","request_id":"323c2908-8de0-456d-aa48-c6d5e8f42cc1","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:10:44.523417+00:00","request_id":"281e84e0-468d-4be0-b4bb-e5c9915d3f70","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":46.81}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:10:44.764536+00:00","request_id":"8011f4ef-3af5-4be2-8ace-1cea27475cc0","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:10:44.798750+00:00","request_id":"8b955262-7435-4791-a618-936b8993afa9","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:10:44.845025+00:00","request_id":"210d5dfc-aea4-4fd8-8cee-4c390d63dd18","method":"GET","route":"/api/admin/users","status":200,"duration_ms":9.94}
+  ✘  1 [chromium] › e2e/identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access (1.3m)
+
+
+  1) [chromium] › e2e/identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access 
+
+    Test timeout of 75000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 75000ms exceeded.
+    Call log:
+      - waiting for getByRole('form', { name: '创建用户' }).getByLabel('角色', { exact: true })
+
+
+      22 |   await createForm.getByLabel("用户名", { exact: true }).fill(username);
+      23 |   await createForm.getByLabel("初始密码", { exact: true }).fill(password);
+    > 24 |   await createForm.getByLabel("角色", { exact: true }).selectOption("editor");
+         |                                                      ^
+      25 |   await createForm.getByRole("button", { name: "创建用户", exact: true }).click();
+      26 |   await expect(page.getByRole("region", { name: "用户列表" }).getByText(username, { exact: true })).toBeVisible();
+      27 |   await expect(createForm.getByLabel("初始密码", { exact: true })).toHaveValue("");
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/identity.spec.ts:24:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/identity-two-accounts-shar-7517c-ale-edits-and-revoke-access-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/identity-two-accounts-shar-7517c-ale-edits-and-revoke-access-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/identity-two-accounts-shar-7517c-ale-edits-and-revoke-access-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/identity-two-accounts-shar-7517c-ale-edits-and-revoke-access-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access 
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=chromium identity.spec.ts
+ ELIFECYCLE  Command failed with exit code 1.

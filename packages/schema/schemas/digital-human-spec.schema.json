@@ -1,0 +1,810 @@
+{
+  "$defs": {
+    "DigitalHumanAction": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[\\w-]{1,128}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "asset_kind": {
+          "default": "image",
+          "enum": [
+            "image",
+            "video"
+          ],
+          "title": "Asset Kind",
+          "type": "string"
+        },
+        "condition_mode": {
+          "default": "all",
+          "enum": [
+            "all",
+            "any"
+          ],
+          "title": "Condition Mode",
+          "type": "string"
+        },
+        "conditions": {
+          "items": {
+            "$ref": "#/$defs/DigitalHumanCondition"
+          },
+          "maxItems": 20,
+          "title": "Conditions",
+          "type": "array"
+        },
+        "duration_ms": {
+          "default": 1200,
+          "maximum": 10000,
+          "minimum": 100,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "id": {
+          "pattern": "^[\\w.-]{1,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "default": "emphasis",
+          "enum": [
+            "nod",
+            "wave",
+            "emphasis"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "priority": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": -100,
+          "title": "Priority",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "asset_id"
+      ],
+      "title": "DigitalHumanAction",
+      "type": "object"
+    },
+    "DigitalHumanCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "operator": {
+          "default": "gt",
+          "enum": [
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "eq",
+            "neq",
+            "exists"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "variable": {
+          "pattern": "^[\\w.-]{1,128}$",
+          "title": "Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable"
+      ],
+      "title": "DigitalHumanCondition",
+      "type": "object"
+    },
+    "DigitalHumanTrigger": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_mode": {
+          "default": "all",
+          "enum": [
+            "all",
+            "any"
+          ],
+          "title": "Condition Mode",
+          "type": "string"
+        },
+        "conditions": {
+          "items": {
+            "$ref": "#/$defs/DigitalHumanCondition"
+          },
+          "maxItems": 20,
+          "title": "Conditions",
+          "type": "array"
+        },
+        "cooldown_seconds": {
+          "default": 30,
+          "maximum": 86400,
+          "minimum": 1,
+          "title": "Cooldown Seconds",
+          "type": "integer"
+        },
+        "debounce_seconds": {
+          "default": 0,
+          "maximum": 3600,
+          "minimum": 0,
+          "title": "Debounce Seconds",
+          "type": "integer"
+        },
+        "direction": {
+          "default": "above",
+          "enum": [
+            "above",
+            "below"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "edge": {
+          "default": "enter",
+          "enum": [
+            "enter",
+            "recover",
+            "both"
+          ],
+          "title": "Edge",
+          "type": "string"
+        },
+        "include_host": {
+          "default": true,
+          "title": "Include Host",
+          "type": "boolean"
+        },
+        "interval_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 10,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval Seconds"
+        },
+        "kind": {
+          "default": "data_change",
+          "enum": [
+            "initial",
+            "manual",
+            "interval",
+            "data_change",
+            "ranking_change",
+            "status_change",
+            "threshold",
+            "parameter"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "min_change": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Min Change",
+          "type": "number"
+        },
+        "parameter": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter"
+        },
+        "priority": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": -100,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "variable": {
+          "anyOf": [
+            {
+              "pattern": "^[\\w.-]{1,128}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variable"
+        },
+        "window_end": {
+          "anyOf": [
+            {
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window End"
+        },
+        "window_start": {
+          "anyOf": [
+            {
+              "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window Start"
+        }
+      },
+      "title": "DigitalHumanTrigger",
+      "type": "object"
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "SpeechRecording": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[\\w-]{1,128}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "condition_mode": {
+          "default": "all",
+          "enum": [
+            "all",
+            "any"
+          ],
+          "title": "Condition Mode",
+          "type": "string"
+        },
+        "conditions": {
+          "items": {
+            "$ref": "#/$defs/DigitalHumanCondition"
+          },
+          "maxItems": 20,
+          "title": "Conditions",
+          "type": "array"
+        },
+        "cues": {
+          "items": {
+            "$ref": "#/$defs/SubtitleCue"
+          },
+          "maxItems": 500,
+          "title": "Cues",
+          "type": "array"
+        },
+        "duration_seconds": {
+          "exclusiveMinimum": 0,
+          "maximum": 86400,
+          "title": "Duration Seconds",
+          "type": "number"
+        },
+        "priority": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": -100,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "subtitle_asset_id": {
+          "default": "",
+          "pattern": "^[\\w-]{0,128}$",
+          "title": "Subtitle Asset Id",
+          "type": "string"
+        },
+        "subtitle_sha256": {
+          "default": "",
+          "pattern": "^(?:[a-f0-9]{64})?$",
+          "title": "Subtitle Sha256",
+          "type": "string"
+        },
+        "transcript": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Transcript",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id",
+        "sha256",
+        "transcript",
+        "duration_seconds"
+      ],
+      "title": "SpeechRecording",
+      "type": "object"
+    },
+    "SpeechScriptSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_ms": {
+          "default": 500,
+          "maximum": 10000,
+          "minimum": 100,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "kind": {
+          "default": "paragraph",
+          "enum": [
+            "paragraph",
+            "pause",
+            "emphasis"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "text": {
+          "default": "",
+          "maxLength": 4000,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "title": "SpeechScriptSegment",
+      "type": "object"
+    },
+    "SubtitleCue": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "number"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "text"
+      ],
+      "title": "SubtitleCue",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-spec.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "items": {
+        "$ref": "#/$defs/DigitalHumanAction"
+      },
+      "maxItems": 8,
+      "title": "Actions",
+      "type": "array"
+    },
+    "animation": {
+      "default": true,
+      "title": "Animation",
+      "type": "boolean"
+    },
+    "audio_asset_id": {
+      "default": "",
+      "pattern": "^[\\w-]{0,128}$",
+      "title": "Audio Asset Id",
+      "type": "string"
+    },
+    "auto_play": {
+      "default": true,
+      "title": "Auto Play",
+      "type": "boolean"
+    },
+    "avatar_asset_id": {
+      "default": "",
+      "pattern": "^[\\w-]{0,128}$",
+      "title": "Avatar Asset Id",
+      "type": "string"
+    },
+    "avatar_kind": {
+      "default": "image",
+      "enum": [
+        "image",
+        "video"
+      ],
+      "title": "Avatar Kind",
+      "type": "string"
+    },
+    "daily_max_count": {
+      "default": 1000,
+      "maximum": 10000,
+      "minimum": 1,
+      "title": "Daily Max Count",
+      "type": "integer"
+    },
+    "daily_max_seconds": {
+      "default": 7200,
+      "maximum": 86400,
+      "minimum": 1,
+      "title": "Daily Max Seconds",
+      "type": "integer"
+    },
+    "empty_text": {
+      "default": "暂无数据",
+      "maxLength": 500,
+      "title": "Empty Text",
+      "type": "string"
+    },
+    "enabled": {
+      "default": true,
+      "title": "Enabled",
+      "type": "boolean"
+    },
+    "error_text": {
+      "default": "数据暂不可播报",
+      "maxLength": 500,
+      "title": "Error Text",
+      "type": "string"
+    },
+    "fit": {
+      "default": "contain",
+      "enum": [
+        "contain",
+        "cover",
+        "none"
+      ],
+      "title": "Fit",
+      "type": "string"
+    },
+    "language": {
+      "default": "zh-CN",
+      "pattern": "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$",
+      "title": "Language",
+      "type": "string"
+    },
+    "max_duration_seconds": {
+      "default": 30,
+      "maximum": 300,
+      "minimum": 1,
+      "title": "Max Duration Seconds",
+      "type": "integer"
+    },
+    "max_queue_length": {
+      "default": 5,
+      "maximum": 20,
+      "minimum": 1,
+      "title": "Max Queue Length",
+      "type": "integer"
+    },
+    "mirror": {
+      "default": false,
+      "title": "Mirror",
+      "type": "boolean"
+    },
+    "missing_text": {
+      "default": "字段不可用",
+      "maxLength": 500,
+      "title": "Missing Text",
+      "type": "string"
+    },
+    "muted": {
+      "default": true,
+      "title": "Muted",
+      "type": "boolean"
+    },
+    "name": {
+      "default": "DataPulse 数字人",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "pitch": {
+      "default": 1,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Pitch",
+      "type": "number"
+    },
+    "queue_policy": {
+      "default": "merge",
+      "enum": [
+        "queue",
+        "merge",
+        "drop_old",
+        "interrupt"
+      ],
+      "title": "Queue Policy",
+      "type": "string"
+    },
+    "quiet_end": {
+      "anyOf": [
+        {
+          "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quiet End"
+    },
+    "quiet_mode": {
+      "default": "mute",
+      "enum": [
+        "mute",
+        "delay",
+        "subtitle"
+      ],
+      "title": "Quiet Mode",
+      "type": "string"
+    },
+    "quiet_start": {
+      "anyOf": [
+        {
+          "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quiet Start"
+    },
+    "rate": {
+      "default": 1,
+      "maximum": 2,
+      "minimum": 0.5,
+      "title": "Rate",
+      "type": "number"
+    },
+    "recording": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SpeechRecording"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "recordings": {
+      "items": {
+        "$ref": "#/$defs/SpeechRecording"
+      },
+      "maxItems": 20,
+      "title": "Recordings",
+      "type": "array"
+    },
+    "role": {
+      "default": "",
+      "maxLength": 120,
+      "title": "Role",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "show_controls": {
+      "default": true,
+      "title": "Show Controls",
+      "type": "boolean"
+    },
+    "show_identity": {
+      "default": true,
+      "title": "Show Identity",
+      "type": "boolean"
+    },
+    "show_status": {
+      "default": true,
+      "title": "Show Status",
+      "type": "boolean"
+    },
+    "speaking_asset_id": {
+      "default": "",
+      "pattern": "^[\\w-]{0,128}$",
+      "title": "Speaking Asset Id",
+      "type": "string"
+    },
+    "speaking_kind": {
+      "default": "image",
+      "enum": [
+        "image",
+        "video"
+      ],
+      "title": "Speaking Kind",
+      "type": "string"
+    },
+    "speech_segments": {
+      "items": {
+        "$ref": "#/$defs/SpeechScriptSegment"
+      },
+      "maxItems": 50,
+      "title": "Speech Segments",
+      "type": "array"
+    },
+    "speech_source": {
+      "default": "auto",
+      "enum": [
+        "auto",
+        "browser",
+        "audio",
+        "video"
+      ],
+      "title": "Speech Source",
+      "type": "string"
+    },
+    "speech_template": {
+      "default": "数据播报：{{value}}",
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Speech Template",
+      "type": "string"
+    },
+    "stale_after_seconds": {
+      "default": 300,
+      "maximum": 86400,
+      "minimum": 10,
+      "title": "Stale After Seconds",
+      "type": "integer"
+    },
+    "stale_text": {
+      "default": "数据已过期",
+      "maxLength": 500,
+      "title": "Stale Text",
+      "type": "string"
+    },
+    "subtitle_background": {
+      "default": "#000000B8",
+      "pattern": "^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$",
+      "title": "Subtitle Background",
+      "type": "string"
+    },
+    "subtitle_color": {
+      "default": "#FFFFFF",
+      "pattern": "^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$",
+      "title": "Subtitle Color",
+      "type": "string"
+    },
+    "subtitle_enabled": {
+      "default": true,
+      "title": "Subtitle Enabled",
+      "type": "boolean"
+    },
+    "subtitle_font_size": {
+      "default": 20,
+      "maximum": 80,
+      "minimum": 12,
+      "title": "Subtitle Font Size",
+      "type": "integer"
+    },
+    "subtitle_max_lines": {
+      "default": 3,
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Subtitle Max Lines",
+      "type": "integer"
+    },
+    "subtitle_position": {
+      "default": "bottom",
+      "enum": [
+        "top",
+        "bottom"
+      ],
+      "title": "Subtitle Position",
+      "type": "string"
+    },
+    "subtitle_scroll": {
+      "default": "wrap",
+      "enum": [
+        "wrap",
+        "scroll"
+      ],
+      "title": "Subtitle Scroll",
+      "type": "string"
+    },
+    "task_ttl_seconds": {
+      "default": 60,
+      "maximum": 3600,
+      "minimum": 1,
+      "title": "Task Ttl Seconds",
+      "type": "integer"
+    },
+    "timezone": {
+      "default": "Asia/Shanghai",
+      "title": "Timezone",
+      "type": "string"
+    },
+    "trigger": {
+      "$ref": "#/$defs/DigitalHumanTrigger"
+    },
+    "voice_enabled": {
+      "default": true,
+      "title": "Voice Enabled",
+      "type": "boolean"
+    },
+    "volume": {
+      "default": 1,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Volume",
+      "type": "number"
+    }
+  },
+  "title": "DigitalHumanSpec",
+  "type": "object"
+}

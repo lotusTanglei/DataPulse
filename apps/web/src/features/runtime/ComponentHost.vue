@@ -11,19 +11,38 @@ import type {
   RuntimeMode,
 } from "./types";
 import { resolveTheme } from "./theme";
+import { isSpeechCommand, type SpeechCommand, type SpeechController, type SpeechEvent, type SpeechStatus } from "./speechProtocol";
 
 const props = defineProps<{
   definition?: ComponentDefinition;
   instance: ComponentInstance;
   loadAsset: LoadAsset;
   queryState: ComponentQueryState;
+  dataStates?: Record<string, ComponentQueryState>;
+  parameters?: Record<string, JsonValue>;
+  parameterSource?: "runtime" | "host";
   theme: Record<string, JsonValue>;
   mode?: RuntimeMode;
 }>();
 
 const emit = defineEmits<{
   interaction: [interaction: RuntimeInteraction];
+  speechEvent: [event: SpeechEvent];
 }>();
+
+const component = ref<SpeechController | null>(null);
+function speechCommand(command: SpeechCommand): SpeechStatus {
+  if (!isSpeechCommand(command)) throw Object.assign(new Error("Invalid speech command."), { code: "DIGITAL_HUMAN_COMMAND_INVALID" });
+  if (props.instance.id !== command.component_id || props.instance.type !== "builtin.digital_human" || !component.value) {
+    throw Object.assign(new Error("Digital human is not configured."), { code: "DIGITAL_HUMAN_NOT_CONFIGURED" });
+  }
+  if (command.action === "mute") component.value.mute(command.enabled!);
+  else if (command.action === "setVolume") component.value.setVolume(command.volume!);
+  else if (command.action === "play" || command.action === "speak") component.value[command.action]("host");
+  else if (command.action !== "getStatus") component.value[command.action]();
+  return component.value.getStatus();
+}
+defineExpose({ speechCommand });
 
 function stringStyle(name: string): string | undefined {
   const value = props.instance.style?.[name] ?? props.definition?.defaultStyle?.[name];
@@ -44,6 +63,7 @@ const hostStyle = computed(() => {
   return {
     ...resolveTheme({ tokens: props.theme }),
     "--screen-component-surface": surface,
+    "--screen-component-text": stringStyle("text_color"),
     "--screen-component-border": borderColor,
     "--screen-component-radius": `${radius}px`,
     backgroundColor: surface,
@@ -95,6 +115,7 @@ onErrorCaptured(() => {
       {{ errorMessage }}
     </div>
     <component
+      ref="component"
       :is="definition.component"
       v-else-if="definition"
       :instance="instance"
@@ -103,12 +124,15 @@ onErrorCaptured(() => {
       :error="queryState.error"
       :load-asset="loadAsset"
       v-bind="
-        definition.dataCapability === 'series' ||
+        definition.type === 'builtin.digital_human'
+          ? { dataStates, mode, parameters, parameterSource, queryUpdatedAt: queryState.updatedAt }
+          : !definition.type.startsWith('builtin.') || definition.dataCapability === 'series' ||
         definition.dataCapability === 'geo'
           ? { theme }
           : {}
       "
       @interaction="emit('interaction', $event)"
+      @speech-event="emit('speechEvent', $event)"
     />
   </div>
 </template>

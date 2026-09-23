@@ -5,8 +5,13 @@ services:
       DATAPULSE_MASTER_KEY: ${DATAPULSE_MASTER_KEY:?Generate DATAPULSE_MASTER_KEY before starting DataPulse}
       DATAPULSE_SIGNING_KEY: ${DATAPULSE_SIGNING_KEY:?Generate DATAPULSE_SIGNING_KEY before starting DataPulse}
       DATAPULSE_FORWARDED_ALLOW_IPS: ${DATAPULSE_FORWARDED_ALLOW_IPS:-127.0.0.1}
+      DATAPULSE_METRICS_TOKEN: ${DATAPULSE_METRICS_TOKEN:-}
+      DATAPULSE_UPLOAD_SCANNER_COMMAND: ${DATAPULSE_UPLOAD_SCANNER_COMMAND:-[]}
+      DATAPULSE_UPLOAD_SCANNER_TIMEOUT_SECONDS: ${DATAPULSE_UPLOAD_SCANNER_TIMEOUT_SECONDS:-30}
+      DATAPULSE_UPLOAD_SCANNER_MEMORY_MB: ${DATAPULSE_UPLOAD_SCANNER_MEMORY_MB:-1024}
+      DATAPULSE_UPLOAD_SCANNER_CONCURRENCY: ${DATAPULSE_UPLOAD_SCANNER_CONCURRENCY:-2}
     ports:
-      - "8000:8000"
+      - "${DATAPULSE_HTTP_PORT:-8000}:8000"
     volumes:
       - datapulse-data:/data
     healthcheck:
@@ -22,5 +27,21 @@ services:
       retries: 5
       start_period: 5s
 
+  # Optional observability stack. Configure the matching token before start.
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: ["observability"]
+    depends_on:
+      datapulse:
+        condition: service_healthy
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/prometheus/datapulse-digital-human.yml:/etc/prometheus/rules/datapulse-digital-human.yml:ro
+      - ${DATAPULSE_METRICS_TOKEN_FILE:-./.secrets/datapulse_metrics_token}:/etc/prometheus/secrets/datapulse_metrics_token:ro
+      - prometheus-data:/prometheus
+
 volumes:
   datapulse-data:
+  prometheus-data:

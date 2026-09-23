@@ -1,8 +1,10 @@
 import type { JsonValue } from "../query/types";
+import { isSpeechCommand, type SpeechCommand, type SpeechEvent, type SpeechStatus } from "../runtime/speechProtocol";
 
 interface BridgeOptions {
   allowedOrigin: string;
   instanceId: string;
+  checkAccess?: () => void;
   refresh: () => void | Promise<void>;
   setParameters: (
     parameters: Record<string, JsonValue>,
@@ -11,19 +13,22 @@ interface BridgeOptions {
     | Record<string, JsonValue>
     | Promise<Record<string, JsonValue>>;
   fullscreen: (enabled: boolean) => void | Promise<void>;
+  speechCommand?: (command: SpeechCommand) => SpeechStatus | Promise<SpeechStatus>;
 }
 
 interface HostMessage {
-  type: "refresh" | "setParameters" | "getParameters" | "fullscreen";
+  type: "refresh" | "setParameters" | "getParameters" | "fullscreen" | "digitalHuman";
   instance_id: string;
   request_id?: string;
   parameters?: Record<string, JsonValue>;
   enabled?: boolean;
+  command?: SpeechCommand;
 }
 
 export interface EmbedBridge {
   ready(): void;
   reportError(error: unknown): void;
+  reportSpeechEvent(event: SpeechEvent): void;
   destroy(): void;
 }
 
@@ -63,6 +68,9 @@ function isHostMessage(value: unknown): value is HostMessage {
   if (value.type === "refresh") {
     return true;
   }
+  if (value.type === "digitalHuman") {
+    return typeof value.request_id === "string" && isSpeechCommand(value.command);
+  }
   if (value.type === "getParameters") {
     return typeof value.request_id === "string";
   }
@@ -97,6 +105,8 @@ function errorDetails(error: unknown): { code: string; message: string } {
 
 export function createEmbedBridge(options: BridgeOptions): EmbedBridge {
   let destroyed = false;
+  let announcedReady = false;
+  const initialSpeechEvents: SpeechEvent[] = [];
 
   function post(message: Record<string, unknown>): void {
     if (!destroyed) {
@@ -119,6 +129,12 @@ export function createEmbedBridge(options: BridgeOptions): EmbedBridge {
   }
 
   async function handle(message: HostMessage): Promise<void> {
+    try {
+      options.checkAccess?.();
+    } catch (error) {
+      replyError(error, message.request_id);
+      return;
+    }
     if (message.type === "refresh") {
       try {
         await options.refresh();
@@ -128,7 +144,12 @@ export function createEmbedBridge(options: BridgeOptions): EmbedBridge {
       return;
     }
     try {
-      if (message.type === "setParameters") {
+      if (message.type === "digitalHuman") {
+        if (!options.speechCommand) {
+          throw Object.assign(new Error("Digital human is not configured."), { code: "DIGITAL_HUMAN_NOT_CONFIGURED" });
+        }
+        post({ type: "digitalHumanStatus", request_id: message.request_id, state: await options.speechCommand(message.command!) });
+      } else if (message.type === "setParameters") {
         await options.setParameters(message.parameters!);
         post({ type: "ack", request_id: message.request_id });
       } else if (message.type === "getParameters") {
@@ -151,9 +172,17 @@ export function createEmbedBridge(options: BridgeOptions): EmbedBridge {
       destroyed ||
       event.origin !== options.allowedOrigin ||
       event.source !== window.parent ||
-      !isHostMessage(event.data) ||
+      !isRecord(event.data) ||
       event.data.instance_id !== options.instanceId
     ) {
+      return;
+    }
+    if (!isHostMessage(event.data)) {
+      if (event.data.type === "digitalHuman" && typeof event.data.request_id === "string" && event.data.request_id.trim()) {
+        replyError(Object.assign(new Error("Invalid digital human command."), {
+          code: "DIGITAL_HUMAN_COMMAND_INVALID",
+        }), event.data.request_id);
+      }
       return;
     }
     void handle(event.data);
@@ -162,14 +191,27 @@ export function createEmbedBridge(options: BridgeOptions): EmbedBridge {
 
   return {
     ready() {
-      post({ type: "ready", protocol_version: 1 });
+      if (destroyed || announcedReady) return;
+      announcedReady = true;
+      post({ type: "ready", protocol_version: 1, ...(options.speechCommand ? { capabilities: ["digitalHuman.v1"] } : {}) });
+      for (const event of initialSpeechEvents.splice(0)) post({ type: "digitalHumanEvent", event });
     },
     reportError(error) {
       replyError(error);
     },
+    reportSpeechEvent(event) {
+      if (destroyed) return;
+      if (!announcedReady) {
+        if (initialSpeechEvents.length >= 512) initialSpeechEvents.shift();
+        initialSpeechEvents.push(structuredClone(event));
+        return;
+      }
+      post({ type: "digitalHumanEvent", event });
+    },
     destroy() {
       if (!destroyed) {
         destroyed = true;
+        initialSpeechEvents.length = 0;
         window.removeEventListener("message", receive);
       }
     },

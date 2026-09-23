@@ -39,9 +39,41 @@ async def test_parse_csv_utf8_bom_and_gbk(tmp_path: Path) -> None:
 
     assert utf8.row_count == 2
     assert utf8.fields[0].name == "region"
+    assert {field.name: field.data_type for field in utf8.fields} == {
+        "region": "string",
+        "amount": "integer",
+    }
     assert utf8.sample_rows[0]["region"] == "华东"
+    assert utf8.sample_rows[0]["amount"] == 10
     assert bom.sample_rows[0]["region"] == "华东"
     assert gbk.sample_rows[0]["region"] == "华东"
+
+
+async def test_parse_chinese_csv_infers_boolean_numeric_and_datetime_columns(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "中文销售.csv"
+    path.write_text(
+        "订单号,是否完成,金额,发生时间\n"
+        "A-001,是,10.5,2026-09-22T08:30:00\n"
+        "A-002,否,20,2026-09-23T08:30:00\n",
+        encoding="utf-8",
+    )
+
+    parsed = await parse_file(path, FileFormat.CSV, sheet_name=None, max_rows=10)
+
+    assert [(field.name, field.data_type.value) for field in parsed.fields] == [
+        ("订单号", "string"),
+        ("是否完成", "boolean"),
+        ("金额", "number"),
+        ("发生时间", "datetime"),
+    ]
+    assert parsed.sample_rows[0] == {
+        "订单号": "A-001",
+        "是否完成": True,
+        "金额": 10.5,
+        "发生时间": "2026-09-22T08:30:00",
+    }
 
 
 async def test_parse_excel_requires_sheet_selection_and_exports_normalized_path(
@@ -138,6 +170,77 @@ async def test_parse_parquet_maps_numeric_and_date_fields(tmp_path: Path) -> Non
     assert types_by_field["day"] == "date"
     assert types_by_field["amount"] == "number"
     assert types_by_field["count"] == "integer"
+
+
+async def test_file_formats_share_scalar_inference_semantics(tmp_path: Path) -> None:
+    json_path = tmp_path / "typed.json"
+    json_path.write_text(
+        '[{"amount":"10","enabled":"是","day":"2026-09-22"}]',
+        encoding="utf-8",
+    )
+    excel_path = tmp_path / "typed.xlsx"
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(["amount", "enabled", "day"])
+    sheet.append(["10", "是", "2026-09-22"])
+    workbook.save(excel_path)
+
+    json_result = await parse_file(json_path, FileFormat.JSON, sheet_name=None, max_rows=10)
+    excel_result = await parse_file(excel_path, FileFormat.EXCEL, sheet_name=None, max_rows=10)
+
+    expected = {"amount": "integer", "enabled": "boolean", "day": "date"}
+    assert {field.name: field.data_type.value for field in json_result.fields} == expected
+    assert {field.name: field.data_type.value for field in excel_result.fields} == expected
+    assert json_result.sample_rows[0] == excel_result.sample_rows[0] == {
+        "amount": 10,
+        "enabled": True,
+        "day": "2026-09-22",
+    }
+
+
+async def test_all_file_formats_share_scalar_inference_semantics(tmp_path: Path) -> None:
+    csv_path = tmp_path / "typed.csv"
+    csv_path.write_text(
+        "amount,enabled,day\n10,是,2026-09-22\n",
+        encoding="utf-8",
+    )
+    json_path = tmp_path / "typed.json"
+    json_path.write_text(
+        '[{"amount":"10","enabled":"是","day":"2026-09-22"}]',
+        encoding="utf-8",
+    )
+    excel_path = tmp_path / "typed.xlsx"
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(["amount", "enabled", "day"])
+    sheet.append(["10", "是", "2026-09-22"])
+    workbook.save(excel_path)
+    parquet_path = tmp_path / "typed.parquet"
+    pq.write_table(
+        pa.table(
+            {
+                "amount": ["10"],
+                "enabled": ["是"],
+                "day": ["2026-09-22"],
+            }
+        ),
+        parquet_path,
+    )
+
+    results = []
+    for path, file_format in (
+        (csv_path, FileFormat.CSV),
+        (excel_path, FileFormat.EXCEL),
+        (json_path, FileFormat.JSON),
+        (parquet_path, FileFormat.PARQUET),
+    ):
+        results.append(await parse_file(path, file_format, sheet_name=None, max_rows=10))
+
+    expected = {"amount": "integer", "enabled": "boolean", "day": "date"}
+    assert all(
+        {field.name: field.data_type.value for field in result.fields} == expected
+        for result in results
+    )
 
 
 async def test_parse_file_limits_sample_rows_without_losing_total_row_count(tmp_path: Path) -> None:

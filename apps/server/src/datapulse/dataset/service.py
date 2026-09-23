@@ -5,6 +5,7 @@ from uuid import uuid4
 from datapulse.contracts.dataset import (
     DatasetDefinition,
     DatasetField,
+    DatasetFieldOverride,
     DataType,
     FileQuery,
     RestQuery,
@@ -20,6 +21,7 @@ from datapulse.dataset.models import (
 from datapulse.dataset.repository import DatasetRepository
 from datapulse.datasource.registry import ConnectorRegistry
 from datapulse.datasource.service import DatasourceService
+from datapulse.filedata.inference import infer_type, merge_types
 from datapulse.filedata.parsers import parse_file
 from datapulse.filedata.query import FileDatasetQueryService
 from datapulse.filedata.repository import FileAssetRepository
@@ -41,8 +43,30 @@ def _field_type(column: QueryColumn) -> DataType:
 
 
 def _fields(result: QueryResult) -> tuple[DatasetField, ...]:
+    fields: list[DatasetField] = []
+    for index, column in enumerate(result.columns):
+        data_type = _field_type(column)
+        if column.data_type.casefold() == "unknown":
+            inferred: DataType | None = None
+            for row in result.rows:
+                if index >= len(row) or row[index] is None:
+                    continue
+                inferred = merge_types(inferred, infer_type(row[index]))
+            data_type = inferred or data_type
+        fields.append(DatasetField(name=column.name, data_type=data_type))
+    return tuple(fields)
+
+
+def _apply_field_overrides(
+    fields: tuple[DatasetField, ...],
+    overrides: tuple[DatasetFieldOverride, ...],
+) -> tuple[DatasetField, ...]:
+    by_name = {item.name: item for item in overrides}
     return tuple(
-        DatasetField(name=column.name, data_type=_field_type(column)) for column in result.columns
+        field.model_copy(update={"data_type": by_name[field.name].data_type})
+        if field.name in by_name and by_name[field.name].data_type is not None
+        else field
+        for field in fields
     )
 
 
@@ -157,6 +181,15 @@ class DatasetService:
     ) -> DatasetResponse:
         existing = await self._repository.get(dataset_id)
         definition = existing.definition
+        overrides = (
+            data.profile_overrides
+            if data.profile_overrides is not None
+            else definition.profile_overrides
+        )
+        if data.profile_overrides is not None:
+            known = {field.name for field in definition.fields}
+            if any(item.name not in known for item in data.profile_overrides):
+                raise DatasetUpdateInvalid("Profile overrides reference unknown fields.")
         if isinstance(definition.query, FileQuery):
             if data.sql is not None or data.parameters is not None:
                 raise DatasetUpdateInvalid("SQL and parameters are not valid for file datasets.")
@@ -174,7 +207,8 @@ class DatasetService:
             updated = definition.model_copy(
                 update={
                     "name": data.name or definition.name,
-                    "fields": parsed.fields,
+                    "fields": _apply_field_overrides(parsed.fields, overrides),
+                    "profile_overrides": overrides,
                     "max_rows": max_rows,
                     "timeout_seconds": timeout_seconds,
                 }
@@ -198,11 +232,13 @@ class DatasetService:
                 fields = _fields(result)
             else:
                 fields = definition.fields
+            fields = _apply_field_overrides(fields, overrides)
             updated = definition.model_copy(
                 update={
                     "name": data.name or definition.name,
                     "query": query,
                     "fields": fields,
+                    "profile_overrides": overrides,
                     "max_rows": data.max_rows or definition.max_rows,
                     "timeout_seconds": data.timeout_seconds or definition.timeout_seconds,
                 }
@@ -239,7 +275,8 @@ class DatasetService:
                 "name": data.name or definition.name,
                 "query": SqlQuery(sql=sql),
                 "parameters": parameters,
-                "fields": fields,
+                "fields": _apply_field_overrides(fields, overrides),
+                "profile_overrides": overrides,
                 "max_rows": max_rows,
                 "timeout_seconds": timeout_seconds,
             }

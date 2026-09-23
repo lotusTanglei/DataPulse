@@ -49,7 +49,7 @@ test("renders the authenticated Notion-style studio shell", async () => {
     vi
       .fn()
       .mockResolvedValueOnce(jsonResponse({ initialized: true }))
-      .mockResolvedValueOnce(jsonResponse({ username: "admin" }))
+      .mockResolvedValueOnce(jsonResponse({ id: "admin", username: "admin", role: "admin" }))
       .mockResolvedValueOnce(jsonResponse([])),
   );
   const pinia = createPinia();

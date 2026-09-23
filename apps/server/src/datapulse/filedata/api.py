@@ -61,7 +61,9 @@ def _raise_file_error(error: Exception) -> NoReturn:
 @router.get("")
 async def list_files(request: Request) -> tuple[FileAssetResponse, ...]:
     try:
-        return await request.app.state.file_asset_service.list()
+        return await request.app.state.identity_service.filter_visible(
+            request.state.admin, "file", await request.app.state.file_asset_service.list()
+        )
     except FileAssetNotFound as error:
         _raise_file_error(error)
 
@@ -72,10 +74,14 @@ async def upload_file(
     file: Annotated[UploadFile, File()],
 ) -> FileAssetResponse:
     try:
-        return await request.app.state.file_asset_service.ingest(
+        result = await request.app.state.file_asset_service.ingest(
             file,
             request_id=request.state.request_id,
         )
+        await request.app.state.identity_service.register_owner(
+            request.state.admin, "file", result.id
+        )
+        return result
     except (
         FileAssetNotFound,
         FileInUse,
