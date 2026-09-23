@@ -1,0 +1,55 @@
+{
+  "$defs": {
+    "Role": {
+      "enum": [
+        "admin",
+        "editor",
+        "viewer"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/studio-user-patch.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "active": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Active"
+    },
+    "password": {
+      "anyOf": [
+        {
+          "maxLength": 1024,
+          "minLength": 10,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Password"
+    },
+    "role": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Role"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "title": "UserPatch",
+  "type": "object"
+}

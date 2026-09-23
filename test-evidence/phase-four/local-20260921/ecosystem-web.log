@@ -1,0 +1,21 @@
+
+> @datapulse/web@ test /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vitest run src/features/ecosystem
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/ecosystem/example.test.ts (2 tests) 13ms
+ ✓ src/features/ecosystem/editor.test.ts (2 tests) 3ms
+ ✓ src/features/ecosystem/player-plugins.test.ts (2 tests) 14ms
+ ✓ src/features/ecosystem/schema.test.ts (2 tests) 7ms
+ ✓ src/features/ecosystem/catalog.test.ts (3 tests) 103ms
+ ✓ src/features/ecosystem/migration.test.ts (5 tests) 13ms
+ ✓ src/features/ecosystem/plugins.test.ts (5 tests) 37ms
+ ✓ src/features/ecosystem/plugin-library.test.ts (4 tests) 40ms
+
+ Test Files  8 passed (8)
+      Tests  25 passed (25)
+   Start at  11:36:38
+   Duration  33.34s (transform 3.22s, setup 0ms, collect 41.03s, tests 230ms, environment 121.25s, prepare 20.55s)
+

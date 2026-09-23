@@ -1,0 +1,41 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-provider-test.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Code"
+    },
+    "latency_ms": {
+      "minimum": 0,
+      "title": "Latency Ms",
+      "type": "integer"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "voices": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Voices",
+      "type": "array"
+    }
+  },
+  "required": [
+    "ok",
+    "latency_ms"
+  ],
+  "title": "DigitalHumanProviderTestResponse",
+  "type": "object"
+}

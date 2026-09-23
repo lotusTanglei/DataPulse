@@ -1,0 +1,50 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/screen-asset-usage.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "asset_count": {
+      "title": "Asset Count",
+      "type": "integer"
+    },
+    "duration_seconds": {
+      "title": "Duration Seconds",
+      "type": "number"
+    },
+    "max_duration_seconds": {
+      "title": "Max Duration Seconds",
+      "type": "number"
+    },
+    "max_image_bytes": {
+      "title": "Max Image Bytes",
+      "type": "integer"
+    },
+    "max_media_bytes": {
+      "title": "Max Media Bytes",
+      "type": "integer"
+    },
+    "max_total_bytes": {
+      "title": "Max Total Bytes",
+      "type": "integer"
+    },
+    "max_total_duration_seconds": {
+      "title": "Max Total Duration Seconds",
+      "type": "number"
+    },
+    "size_bytes": {
+      "title": "Size Bytes",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "asset_count",
+    "size_bytes",
+    "duration_seconds",
+    "max_total_bytes",
+    "max_total_duration_seconds",
+    "max_image_bytes",
+    "max_media_bytes",
+    "max_duration_seconds"
+  ],
+  "title": "ScreenAssetUsage",
+  "type": "object"
+}

@@ -1,0 +1,51 @@
+{
+  "$defs": {
+    "Role": {
+      "enum": [
+        "admin",
+        "editor",
+        "viewer"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/studio-user.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "active": {
+      "title": "Active",
+      "type": "boolean"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "role": {
+      "$ref": "#/$defs/Role"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "username": {
+      "title": "Username",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "username",
+    "role",
+    "active",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "UserResponse",
+  "type": "object"
+}

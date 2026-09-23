@@ -223,3 +223,59 @@ def test_file_dataset_update_accepts_limits_and_rejects_sql_fields(
     )
     assert deleted.status_code == 204
     assert dataset_app.client.get("/api/admin/files").json()[0]["id"] == uploaded.json()["id"]
+
+
+def test_dataset_profile_api_returns_contract_and_persists_field_correction(
+    dataset_app: AppClient,
+) -> None:
+    setup_admin(dataset_app)
+    source_id = create_source(dataset_app)
+    created = dataset_app.client.post(
+        "/api/admin/datasets",
+        json=dataset_payload(source_id),
+        headers=mutation_headers(dataset_app),
+    ).json()
+
+    profile = dataset_app.client.get(f"/api/admin/datasets/{created['id']}/profile")
+
+    assert profile.status_code == 200
+    body = profile.json()
+    assert body["dataset_id"] == created["id"]
+    assert {field["name"] for field in body["fields"]} == {"month", "amount"}
+    assert all("role" in field and "unique_count" in field for field in body["fields"])
+
+    corrected = dataset_app.client.patch(
+        f"/api/admin/datasets/{created['id']}/profile",
+        json={
+            "fields": [
+                {
+                    "name": "month",
+                    "data_type": "date",
+                    "role": "text",
+                    "default_aggregation": "count",
+                    "unit": "月",
+                    "display_name": "月份",
+                }
+            ]
+        },
+        headers=mutation_headers(dataset_app),
+    )
+
+    assert corrected.status_code == 200
+    assert next(field for field in corrected.json()["fields"] if field["name"] == "month")["role"] == "text"
+    corrected_month = next(
+        field for field in corrected.json()["fields"] if field["name"] == "month"
+    )
+    assert corrected_month["display_name"] == "月份"
+    saved = dataset_app.client.get(f"/api/admin/datasets/{created['id']}").json()
+    assert saved["definition"]["profile_overrides"] == [
+        {
+            "name": "month",
+            "data_type": "date",
+            "role": "text",
+            "default_aggregation": "count",
+            "unit": "月",
+            "display_name": "月份",
+        }
+    ]
+    assert next(field for field in saved["definition"]["fields"] if field["name"] == "month")["data_type"] == "date"

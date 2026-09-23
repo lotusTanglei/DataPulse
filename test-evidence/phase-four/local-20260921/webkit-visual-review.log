@@ -1,0 +1,186 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --project=webkit e2e/screen-editor.spec.ts --grep 'administrator builds' --output=../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [90236]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:58004 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:39.595090+00:00","request_id":"699e3d79-696b-4c8a-8858-16388c9c3760","method":"GET","route":"/api/auth/status","status":200,"duration_ms":5.28}
+[WebServer] (node:90267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:90287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:90295) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:43.719119+00:00","request_id":"4a3eaed9-0ec7-46bc-ab01-baaddf10f405","method":"GET","route":"/api/auth/status","status":200,"duration_ms":4.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:43.814367+00:00","request_id":"353a9e78-27cb-4729-8959-7597c72fbd9f","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":78.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:43.882828+00:00","request_id":"66e102a0-0419-4308-bc3f-8c2e723f586f","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":41.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:43.914343+00:00","request_id":"a5b4761d-8a8a-4728-8c32-d4c0cf80320c","method":"POST","route":"/api/admin/datasources","status":201,"duration_ms":15.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:43.936981+00:00","request_id":"9597d16a-1aa6-443e-a1ac-fe0a36329c67","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":15.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:44.145418+00:00","request_id":"6237307c-b870-431f-8e08-b9187b5033cf","method":"POST","route":"/api/admin/datasets","status":201,"duration_ms":188.55}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:45.144713+00:00","request_id":"1dbbce3d-8e38-4241-a290-40b9173d38d2","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":668.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:45.178912+00:00","request_id":"1592ac73-a15e-4d4c-8ae1-bae2f98405d4","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":13.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:45.577304+00:00","request_id":"a28cc53d-de1a-459c-9f0a-8e7e29dc1627","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:45.588204+00:00","request_id":"e4aca1c8-900c-4ed6-954c-c5cbdae66afc","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:45.624394+00:00","request_id":"fa21f4c1-d03a-4186-b982-bba005a01345","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":5.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.070451+00:00","request_id":"cc629772-680c-424b-ac80-4405f5e783a0","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":14.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.089036+00:00","request_id":"d48038fa-4123-4330-a575-5a9c280cef65","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.109977+00:00","request_id":"4a5991fc-3422-419d-9700-10786b9a6ce0","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":5.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.123389+00:00","request_id":"0ee1891c-d4f1-4614-9d3e-a8e1e1523307","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":4.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.242278+00:00","request_id":"941e44c1-3f4d-4919-96ed-f24bb19dc1c3","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.379295+00:00","request_id":"b40ebe3f-d3e5-473e-a581-b9498b281682","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":61.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.441792+00:00","request_id":"ddc2d196-9b4a-42a1-a4cc-f21078e87b63","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":13.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.451906+00:00","request_id":"5e12c730-2e7d-4550-873b-6f4db636b427","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":22.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.453571+00:00","request_id":"c38a05c3-153b-407b-89ca-bacebf4c9a09","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":24.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.543237+00:00","request_id":"6c9687b3-cf39-48f8-8555-3c3c0082cc0f","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":23.55}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.548257+00:00","request_id":"0c1fcc65-886b-4db2-92ed-49315dd0d0d6","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":29.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.551769+00:00","request_id":"9bc5e9ca-58bc-4e52-b77a-be50dc5beda9","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":32.46}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.608790+00:00","request_id":"69a37af1-5c8a-48af-9c25-cfc663ebedf5","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":19.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.622623+00:00","request_id":"15969988-1eda-4c74-b601-435275cde556","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":34.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.638443+00:00","request_id":"23391b67-0572-4bd3-bf0d-fc1361cc508e","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":49.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.665434+00:00","request_id":"dab61543-bde5-430c-8844-69baf873417f","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":9.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.668041+00:00","request_id":"55aba8f8-1a09-48b7-a511-0dfa4df54ff8","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":11.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.670949+00:00","request_id":"e8d87c25-4b9d-439a-b214-d54af9d38fe0","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":14.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.767948+00:00","request_id":"b518aeca-7fa3-4e60-893d-f29abdf915ae","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":8.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.774106+00:00","request_id":"33300a7b-5568-4bd6-9e86-478e660df2e9","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":12.54}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.785472+00:00","request_id":"c8f1ffed-b11c-4ebd-9303-1a4972bb314d","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":24.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.850745+00:00","request_id":"6b1210d2-1cd9-4926-82f7-7600670d506c","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.855849+00:00","request_id":"0822e794-0e63-405e-8728-6a8b449e0de8","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":13.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.863500+00:00","request_id":"61ed62da-1177-43c0-b7d9-f5ab9cf7ee20","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":20.55}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.928566+00:00","request_id":"3cfcd2fb-84ed-43ec-8be7-d1deb2b22f28","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":6.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.931651+00:00","request_id":"be32d160-65ec-4188-b639-3ed0fe272112","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":9.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:46.933330+00:00","request_id":"cf71b8a2-8105-4315-8efc-836ead177e24","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":9.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:47.037004+00:00","request_id":"1044ce24-694e-49a3-859d-cea82ce92eb2","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":17.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:47.282787+00:00","request_id":"c1cca3fa-bbe0-48b9-973e-68412cfb55a5","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":9.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:47.284819+00:00","request_id":"7dd63397-c81b-4ae7-9768-be7f859b6144","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":10.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:47.296271+00:00","request_id":"04b6a07e-7e58-4df5-8d4d-a69012696552","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":22.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:48.372769+00:00","request_id":"a53cf0c7-4a6d-4e78-aa0f-97f913fb052e","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":76.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.034257+00:00","request_id":"cab1305d-5a75-46a5-a648-654dad74ac29","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.74}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.043568+00:00","request_id":"65512477-01d5-467b-aad2-884cdcc16d2b","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.54}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.057996+00:00","request_id":"4d34c56c-b806-45b0-9f16-bf710bc8162c","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.081567+00:00","request_id":"8ae48b52-3324-4529-b6c2-261467c1ae41","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":5.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.091861+00:00","request_id":"5ff8266c-6906-48cb-9da5-ea1702e2fe11","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":6.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.155672+00:00","request_id":"99f97cfe-e0a9-4cb0-98b4-83c3b2c77839","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.195733+00:00","request_id":"c4dccd60-1f14-4e64-bc1d-6dddeee74fd1","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.237558+00:00","request_id":"ef33aef3-5f65-4ae2-a279-1cc7d7ce74bc","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.379442+00:00","request_id":"90273826-a8a6-46c8-834f-9a7b10f5b095","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.387672+00:00","request_id":"ddec27f2-abf2-4362-aafc-a400ec183126","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.416346+00:00","request_id":"3cf1472a-1ac1-4a6e-bce5-9469d70f6948","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":13.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.472089+00:00","request_id":"afc0249d-7e2d-4bb6-9840-fd14c2a208e8","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":34.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.477047+00:00","request_id":"8f5bf221-37bb-47f4-b725-b72189604288","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":43.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.507066+00:00","request_id":"7f359cfa-5a03-4e1a-853a-30991b5429c1","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":54.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.514349+00:00","request_id":"020def6e-3071-48a0-b62e-5be05d757644","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":71.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.558169+00:00","request_id":"74120d70-3ebd-4931-a064-60c17bfeed71","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":101.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.573107+00:00","request_id":"1f3bffbf-113e-4624-a1f7-5eed80a5f50c","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":112.63}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.582385+00:00","request_id":"ad6d0aec-d3a9-46e1-aff5-0316feec7dd8","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":69.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.591076+00:00","request_id":"d0a41f9e-404b-4023-8875-5756e8081209","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":105.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.594796+00:00","request_id":"f4c8a416-53fd-452b-ada5-579abe535ab3","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":108.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.597934+00:00","request_id":"3f78a510-2b36-47ee-a444-8528d1b1695d","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":80.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:51:49.609567+00:00","request_id":"79b89c25-41d2-491b-b2e1-4f895e6713a3","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":44.93}
+  ✘  1 [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen (10.1s)
+
+
+  1) [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen 
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      1874 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: editor-shell-webkit.png
+
+    Call log:
+      - Expect "toHaveScreenshot(editor-shell-webkit.png)" with timeout 8000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 15130 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 11571 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 250ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 3053 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 500ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 1874 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      154 |     ? "editor-shell.png"
+      155 |     : `editor-shell-${testInfo.project.name}.png`;
+    > 156 |   await expect(page).toHaveScreenshot(editorSnapshot, {
+          |                      ^
+      157 |     animations: "disabled",
+      158 |   });
+      159 |
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/screen-editor.spec.ts:156:22
+
+    attachment #1: editor-shell-webkit (image/png) ─────────────────────────────────────────────────
+    Expected: e2e/snapshots/darwin/editor-shell-webkit.png
+    Received: ../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/editor-shell-webkit-actual.png
+    Diff:     ../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/editor-shell-webkit-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [webkit] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen 
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=webkit e2e/screen-editor.spec.ts --grep administrator builds --output=../../test-evidence/phase-four/local-20260921/webkit-visual-artifacts
+ ELIFECYCLE  Command failed with exit code 1.

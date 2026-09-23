@@ -12,6 +12,7 @@ import {
   Grid2x2,
   Hash,
   Image,
+  PersonStanding,
   Map as MapIcon,
   Minus,
   PanelTop,
@@ -26,6 +27,7 @@ import { computed, type Component } from "vue";
 import type { ComponentFrame } from "./commands";
 import { snapToGrid } from "./geometry";
 import { useScreenEditorStore } from "./store";
+import PluginLibrary from "../../ecosystem/PluginLibrary.vue";
 
 const store = useScreenEditorStore();
 const groups = computed(() => {
@@ -42,6 +44,7 @@ const groups = computed(() => {
 const iconMap: Record<string, Component> = {
   "builtin.text": Type,
   "builtin.image": Image,
+  "builtin.digital_human": PersonStanding,
   "builtin.panel": PanelTop,
   "builtin.divider": Minus,
   "builtin.digital_number": Hash,
@@ -76,6 +79,7 @@ function previewKind(type: string): string {
   if (["builtin.alert_list", "builtin.timeline"].includes(type)) return "list";
   if (["builtin.digital_number", "builtin.kpi"].includes(type)) return "number";
   if (["builtin.panel", "builtin.image", "builtin.geo_map"].includes(type)) return "panel";
+  if (type === "builtin.digital_human") return "panel";
   return "line";
 }
 
@@ -209,5 +213,6 @@ function add(type: string): void {
         </button>
       </div>
     </div>
+    <PluginLibrary />
   </section>
 </template>

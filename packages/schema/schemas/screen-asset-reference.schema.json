@@ -1,0 +1,30 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/screen-asset-reference.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "in_draft": {
+      "title": "In Draft",
+      "type": "boolean"
+    },
+    "in_published": {
+      "title": "In Published",
+      "type": "boolean"
+    },
+    "screen_id": {
+      "title": "Screen Id",
+      "type": "string"
+    },
+    "screen_name": {
+      "title": "Screen Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "screen_id",
+    "screen_name",
+    "in_draft",
+    "in_published"
+  ],
+  "title": "ScreenAssetReference",
+  "type": "object"
+}

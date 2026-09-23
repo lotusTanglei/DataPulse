@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-09-21T03:59:07.654370+00:00",
+  "image": "datapulse:phase-four-local",
+  "cpu_limit": 2,
+  "memory_limit_bytes": 4294967296,
+  "application_environment": "test",
+  "transport": "loopback HTTP",
+  "status": "failed",
+  "image_id": "sha256:dd0beebb16441f52fd1368ddcfe2cc276d9a0f9b9e4dd82f60ff83906b26fc0a",
+  "failed_stage": "capacity",
+  "error_type": "RuntimeError",
+  "error": "HTTP 500; expected 200; code HTTP_ERROR",
+  "finished_at": "2026-09-21T03:59:18.529896+00:00"
+}

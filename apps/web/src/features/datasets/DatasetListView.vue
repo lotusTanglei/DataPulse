@@ -5,6 +5,7 @@ import { RouterLink } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import { useStudioPermissions } from "../identity/permissions";
 import { listDatasources } from "../datasources/api";
 import { listFileAssets } from "../files/api";
 import { listDatasets } from "./api";
@@ -17,6 +18,7 @@ interface DatasetCardModel {
 }
 
 const datasets = ref<DatasetCardModel[]>([]);
+const { canCreate } = useStudioPermissions();
 const loading = ref(true);
 const error = ref<ApiError | null>(null);
 const controller = new AbortController();
@@ -78,7 +80,7 @@ onBeforeUnmount(() => controller.abort());
           将验证过的只读 SQL、参数和字段定义沉淀为稳定的数据资产。
         </p>
       </div>
-      <div class="query-actions">
+      <div v-if="canCreate" class="query-actions">
         <RouterLink class="secondary-button" to="/studio/datasets/files/new">
           <Plus :size="15" aria-hidden="true" />
           导入文件
@@ -105,9 +107,9 @@ onBeforeUnmount(() => controller.abort());
         <Braces :size="22" />
       </span>
       <h2>还没有数据集</h2>
-      <p>进入一个数据源的 SQL 调试页，运行查询后即可保存。</p>
+      <p>{{ canCreate ? "进入一个数据源的 SQL 调试页，运行查询后即可保存。" : "请联系资源拥有者共享数据集。" }}</p>
       <div class="query-actions">
-        <RouterLink class="secondary-button" to="/studio/datasets/files/new">
+        <RouterLink v-if="canCreate" class="secondary-button" to="/studio/datasets/files/new">
           导入文件
         </RouterLink>
         <RouterLink class="secondary-button" to="/studio/datasources">

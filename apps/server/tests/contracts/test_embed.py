@@ -138,3 +138,25 @@ def test_embed_message_rejects_out_of_scope_variants(message_type: str) -> None:
                 "request_id": "request-1",
             }
         )
+
+
+@pytest.mark.parametrize("source", ["ranking_change", "status_change"])
+def test_embed_digital_human_event_accepts_change_trigger_sources(source: str) -> None:
+    envelope = EmbedMessageEnvelope.model_validate(
+        {
+            "type": "digitalHumanEvent",
+            "instance_id": "embed-1",
+            "event": {
+                "name": "speechStart",
+                "component_id": "speaker",
+                "status": "speaking",
+                "task_id": "task-1",
+                "source": source,
+                "code": None,
+                "request_id": "request-1",
+                "timestamp": 1000,
+            },
+        }
+    )
+
+    assert envelope.root.type == "digitalHumanEvent"

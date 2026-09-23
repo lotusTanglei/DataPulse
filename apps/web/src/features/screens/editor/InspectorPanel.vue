@@ -2,9 +2,9 @@
 import { computed, onMounted, ref, watch } from "vue";
 
 import type { ChartSpec } from "../../../contracts";
-import { listDatasets } from "../../datasets/api";
-import type { Dataset } from "../../datasets/types";
-import { defaultComponentRegistry } from "../../runtime/registry";
+import { getDatasetProfile, listDatasets } from "../../datasets/api";
+import type { Dataset, DatasetProfile } from "../../datasets/types";
+import { useEditorRegistry } from "../../ecosystem/editorPlugins";
 import {
   createMockBinding,
   resolveLocalResult,
@@ -14,14 +14,19 @@ import type { JsonValue } from "../../query/types";
 import { resolveThemeTokens } from "../../runtime/theme";
 import type { PropertyDefinition } from "../../runtime/types";
 import { useScreenEditorStore } from "./store";
+import DigitalHumanInspector from "./DigitalHumanInspector.vue";
 
 type Aggregation = "sum" | "avg" | "min" | "max" | "count";
 type InspectorTab = "base" | "data" | "style" | "interaction" | "advanced";
 
 const store = useScreenEditorStore();
+const componentRegistry = useEditorRegistry();
 const datasets = ref<Dataset[]>([]);
+const datasetProfiles = ref<Record<string, DatasetProfile>>({});
 const datasetsLoading = ref(false);
 const datasetsError = ref("");
+const profileLoading = ref(false);
+const profileError = ref("");
 const datasetId = ref("");
 const dimension = ref("");
 const measure = ref("");
@@ -56,6 +61,9 @@ const mockValueMax = ref(100);
 const mockTrend = ref<NonNullable<MockDataConfig["trend"]>>("up");
 const refreshMode = ref<"disabled" | "interval">("disabled");
 const refreshInterval = ref<10 | 30 | 60 | 300>(30);
+const copySpeech = ref(true);
+const copyTrigger = ref(true);
+const copyAudio = ref(true);
 const activeTab = ref<InspectorTab>("base");
 const selectedId = computed(() =>
   store.selection.length === 1 ? store.selection[0] ?? null : null,
@@ -71,6 +79,7 @@ const selected = computed(() => {
 const selectedDataset = computed(() =>
   datasets.value.find((item) => item.id === datasetId.value),
 );
+const selectedProfile = computed(() => datasetProfiles.value[datasetId.value] ?? null);
 const fields = computed(() => selectedDataset.value?.definition.fields ?? []);
 const measureFields = computed(() =>
   aggregation.value === "count"
@@ -81,12 +90,12 @@ const measureFields = computed(() =>
 );
 const selectedDefinition = computed(() =>
   selected.value
-    ? defaultComponentRegistry.get(selected.value.type)
+    ? componentRegistry.value.get(selected.value.type)
     : undefined,
 );
 const propertyGroups = computed(() => selectedDefinition.value?.propertyGroups ?? []);
 const supportsData = computed(
-  () => selectedDefinition.value?.dataCapability !== "none",
+  () => selectedDefinition.value?.dataCapability !== "none" && selected.value?.type !== "builtin.digital_human",
 );
 const supportsInteraction = computed(() =>
   ["series", "geo"].includes(selectedDefinition.value?.dataCapability ?? ""),
@@ -244,6 +253,12 @@ watch(datasetId, () => {
   tableFields.value = fields.value.slice(0, 2).map((field) => field.name);
 });
 
+watch([datasetId, datasets], () => {
+  if (selectedDataset.value && !datasetProfiles.value[selectedDataset.value.id]) {
+    void loadDatasetProfile(selectedDataset.value.id);
+  }
+});
+
 watch(measureFields, (available) => {
   if (!available.some((field) => field.name === measure.value)) {
     measure.value = available[0]?.name ?? "";
@@ -260,6 +275,24 @@ async function loadAvailableDatasets(): Promise<void> {
     datasetsError.value = "数据集列表加载失败，请重试。";
   } finally {
     datasetsLoading.value = false;
+  }
+}
+
+async function loadDatasetProfile(id = datasetId.value): Promise<void> {
+  if (!id || datasetProfiles.value[id]) {
+    return;
+  }
+  profileLoading.value = true;
+  profileError.value = "";
+  try {
+    datasetProfiles.value = {
+      ...datasetProfiles.value,
+      [id]: await getDatasetProfile(id),
+    };
+  } catch {
+    profileError.value = "数据画像加载失败。";
+  } finally {
+    profileLoading.value = false;
   }
 }
 
@@ -644,6 +677,13 @@ function duplicateComponent(): void {
     type: "duplicate_components",
     source_ids: [selected.value.id],
     id_map: { [selected.value.id]: newId },
+    ...(selected.value.type === "builtin.digital_human" ? {
+      digital_human: {
+        copySpeech: copySpeech.value,
+        copyTrigger: copyTrigger.value,
+        copyAudio: copyAudio.value,
+      },
+    } : {}),
   });
   store.selection = [newId];
 }
@@ -793,8 +833,15 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
             删除组件
           </button>
         </div>
+        <fieldset v-if="selected.type === 'builtin.digital_human'" class="inspector-copy-policy">
+          <legend>数字人复制内容</legend>
+          <label><input v-model="copySpeech" type="checkbox" data-copy-speech />话术与数据绑定</label>
+          <label><input v-model="copyTrigger" type="checkbox" data-copy-trigger />触发规则</label>
+          <label><input v-model="copyAudio" type="checkbox" data-copy-audio />音频与录音引用</label>
+        </fieldset>
+        <DigitalHumanInspector v-if="selected.type === 'builtin.digital_human'" :key="selected.id" class="inspector-field--wide" :instance="selected" />
         <div
-          v-for="group in propertyGroups"
+          v-for="group in selected.type === 'builtin.digital_human' ? [] : propertyGroups"
           :key="group.id"
           class="inspector-property-group inspector-field--wide"
         >
@@ -961,6 +1008,25 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
             </option>
           </select>
         </label>
+        <div v-if="profileLoading" class="inspector-field--wide" role="status">
+          正在加载数据画像…
+        </div>
+        <div v-else-if="profileError" class="inspector-inline-error inspector-field--wide" role="alert">
+          {{ profileError }}
+          <button class="table-action" type="button" @click="loadDatasetProfile()">重试</button>
+        </div>
+        <div v-else-if="selectedProfile" class="inspector-profile inspector-field--wide" data-inspector-profile>
+          <div class="inspector-section__heading">
+            <strong>字段画像</strong>
+            <span>{{ selectedProfile.row_count }} 行</span>
+          </div>
+          <ul class="inspector-profile__list">
+            <li v-for="field in selectedProfile.fields" :key="field.name">
+              <code>{{ field.name }}</code>
+              <span>{{ field.data_type }} · {{ field.role }} · {{ field.cardinality }} 个值</span>
+            </li>
+          </ul>
+        </div>
         <fieldset v-if="isTable" class="inspector-table-fields inspector-field--wide">
           <legend>展示字段</legend>
           <label v-for="field in fields" :key="field.name">
@@ -1174,3 +1240,47 @@ defineExpose({ bindChart, setClickInteraction, updateTheme });
     </template>
   </section>
 </template>
+
+<style scoped>
+.inspector-copy-policy {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 8px;
+  border: 1px solid var(--dp-border, #d7dce2);
+  border-radius: 4px;
+}
+
+.inspector-copy-policy legend {
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.inspector-copy-policy label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.inspector-profile {
+  border: 1px solid var(--dp-border, #d7dce2);
+  padding: 8px;
+}
+
+.inspector-profile__list {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+}
+
+.inspector-profile__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+</style>

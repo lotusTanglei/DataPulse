@@ -240,3 +240,44 @@ export async function loadEmbedAsset(
   }
   return URL.createObjectURL(await response.blob());
 }
+
+export async function fetchPlayerPluginModule(
+  mode: "preview" | "standalone" | "embed", screenId:string, pluginId:string,
+  version:string, entry:string, ticket:string, signal?:AbortSignal,
+):Promise<unknown> {
+  const { importPluginResponse } = await import("../ecosystem/plugins");
+  const encodedId=encodeURIComponent(pluginId), encodedVersion=encodeURIComponent(version);
+  const root=mode==="preview"
+    ? `/api/admin/ecosystem/packages/plugin/${encodedId}/${encodedVersion}`
+    : `/api/${mode==="standalone"?"player":"embed"}/screens/${encodeURIComponent(screenId)}/plugins/${encodedId}/${encodedVersion}`;
+  const response=await fetch(`${root}/files/${entry.split("/").map(encodeURIComponent).join("/")}`,{
+    credentials:mode==="embed"?"omit":"same-origin",
+    ...(mode==="embed"?{headers:{Authorization:`Bearer ${ticket}`}}:{}),signal,
+  });
+  if (!response.ok && mode==="embed") throw await embedApiError(response);
+  return importPluginResponse(response);
+}
+
+export async function loadPlayerPlugins(
+  mode: "preview" | "standalone" | "embed", screenId:string, ticket:string,
+  dependencies:ReadonlyArray<{id:string;version:string}>, signal?:AbortSignal,
+) {
+  const { createPluginRegistry } = await import("../ecosystem/plugins");
+  const { getPackage } = await import("../ecosystem/api");
+  type CatalogPackage = import("../ecosystem/types").CatalogPackage;
+  let packages:CatalogPackage[]=[];
+  try {
+    if (mode==="preview") {
+      packages=await Promise.all(dependencies.map(item=>getPackage("plugin",item.id,item.version,signal)));
+    } else if (mode==="standalone") {
+      packages=await apiRequest<CatalogPackage[]>(`${PLAYER_SCREENS_PATH}/${encodeURIComponent(screenId)}/plugins`,
+        {signal,suppressAuthExpiredEvent:true});
+    } else {
+      packages=await embedRequest<CatalogPackage[]>(`${EMBED_SCREENS_PATH}/${encodeURIComponent(screenId)}/plugins`,ticket,{signal});
+    }
+  } catch {
+    // Missing packages become the existing per-component fallback. Builtins still render.
+  }
+  return createPluginRegistry(packages.filter(item=>dependencies.some(dep=>dep.id===item.id&&dep.version===item.version)),
+    item=>fetchPlayerPluginModule(mode,screenId,item.id,item.version,item.manifest.entry,ticket,signal));
+}

@@ -1,4 +1,8 @@
-import type { DashboardDocument } from "../../contracts";
+import type {
+  DashboardDocument,
+  DashboardPlan,
+  GenerationSelfCheckReport,
+} from "../../contracts";
 
 export interface ScreenAccessPolicy {
   allowed_origins: string[];
@@ -32,4 +36,17 @@ export interface ScreenDraftUpdatePayload {
   description?: string;
   draft_document?: DashboardDocument;
   expected_revision?: number;
+}
+
+export interface DashboardPlanCompilePayload {
+  plan: DashboardPlan;
+  canvas_width?: number;
+  canvas_height?: number;
+}
+
+export interface DashboardPlanCompileResponse {
+  plan: DashboardPlan;
+  document: DashboardDocument;
+  report: GenerationSelfCheckReport | null;
+  warnings: string[];
 }

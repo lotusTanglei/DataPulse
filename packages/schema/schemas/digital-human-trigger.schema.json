@@ -1,0 +1,235 @@
+{
+  "$defs": {
+    "DigitalHumanCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "operator": {
+          "default": "gt",
+          "enum": [
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "eq",
+            "neq",
+            "exists"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "variable": {
+          "pattern": "^[\\w.-]{1,128}$",
+          "title": "Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable"
+      ],
+      "title": "DigitalHumanCondition",
+      "type": "object"
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-trigger.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "condition_mode": {
+      "default": "all",
+      "enum": [
+        "all",
+        "any"
+      ],
+      "title": "Condition Mode",
+      "type": "string"
+    },
+    "conditions": {
+      "items": {
+        "$ref": "#/$defs/DigitalHumanCondition"
+      },
+      "maxItems": 20,
+      "title": "Conditions",
+      "type": "array"
+    },
+    "cooldown_seconds": {
+      "default": 30,
+      "maximum": 86400,
+      "minimum": 1,
+      "title": "Cooldown Seconds",
+      "type": "integer"
+    },
+    "debounce_seconds": {
+      "default": 0,
+      "maximum": 3600,
+      "minimum": 0,
+      "title": "Debounce Seconds",
+      "type": "integer"
+    },
+    "direction": {
+      "default": "above",
+      "enum": [
+        "above",
+        "below"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "edge": {
+      "default": "enter",
+      "enum": [
+        "enter",
+        "recover",
+        "both"
+      ],
+      "title": "Edge",
+      "type": "string"
+    },
+    "include_host": {
+      "default": true,
+      "title": "Include Host",
+      "type": "boolean"
+    },
+    "interval_seconds": {
+      "anyOf": [
+        {
+          "maximum": 86400,
+          "minimum": 10,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Interval Seconds"
+    },
+    "kind": {
+      "default": "data_change",
+      "enum": [
+        "initial",
+        "manual",
+        "interval",
+        "data_change",
+        "ranking_change",
+        "status_change",
+        "threshold",
+        "parameter"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "min_change": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Min Change",
+      "type": "number"
+    },
+    "parameter": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parameter"
+    },
+    "priority": {
+      "default": 0,
+      "maximum": 100,
+      "minimum": -100,
+      "title": "Priority",
+      "type": "integer"
+    },
+    "threshold": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Threshold"
+    },
+    "variable": {
+      "anyOf": [
+        {
+          "pattern": "^[\\w.-]{1,128}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Variable"
+    },
+    "window_end": {
+      "anyOf": [
+        {
+          "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Window End"
+    },
+    "window_start": {
+      "anyOf": [
+        {
+          "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Window Start"
+    }
+  },
+  "title": "DigitalHumanTrigger",
+  "type": "object"
+}

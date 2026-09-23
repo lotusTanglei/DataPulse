@@ -1,12 +1,19 @@
 import math
+from contextlib import AbstractAsyncContextManager, nullcontext
 from typing import Protocol
 
+from filelock import Timeout
 from pydantic import ValidationError
 
 from datapulse.contracts.chart import ChartSpec, ChartType
 from datapulse.contracts.dashboard import DashboardDocument
+from datapulse.contracts.digital_human import DigitalHumanBinding, DigitalHumanSpec
+from datapulse.contracts.speech_template import parse_speech_template
 from datapulse.dataset.repository import DatasetDefinitionInvalid, DatasetNotFound
-from datapulse.screen.assets import AssetNotFound
+from datapulse.ecosystem.service import EcosystemService
+from datapulse.errors import DataPulseError
+from datapulse.screen.assets import AssetInvalid, AssetNotFound
+from datapulse.screen.media import MediaBusy, MediaUnavailable
 from datapulse.screen.models import ScreenResponse
 from datapulse.screen.repository import ScreenRevisionConflict
 
@@ -32,10 +39,13 @@ class _DatasetRepository(Protocol):
 
 
 class _AssetService(Protocol):
+    def publication_guard(self) -> AbstractAsyncContextManager: ...
+
     async def assert_references_exist(self, document: DashboardDocument) -> None: ...
 
 
 _COMPONENT_VISUALS: dict[str, set[ChartType] | None] = {
+    "builtin.digital_human": {ChartType.KPI, ChartType.TABLE},
     "builtin.alert_list": {ChartType.TABLE},
     "builtin.digital_number": {ChartType.KPI},
     "builtin.divider": None,
@@ -111,7 +121,9 @@ def _validate_local_binding(component_id: str, binding: dict[str, object]) -> bo
             raise PublishValidationError(f"Invalid demo data for component: {component_id}")
         row_count = mock_data.get("row_count")
         if row_count is not None and (
-            not isinstance(row_count, int) or isinstance(row_count, bool) or not 1 <= row_count <= 500
+            not isinstance(row_count, int)
+            or isinstance(row_count, bool)
+            or not 1 <= row_count <= 500
         ):
             raise PublishValidationError(f"Invalid demo data for component: {component_id}")
         for name, minimum, maximum in (
@@ -120,7 +132,9 @@ def _validate_local_binding(component_id: str, binding: dict[str, object]) -> bo
         ):
             value = mock_data.get(name)
             if value is not None and (
-                not isinstance(value, int) or isinstance(value, bool) or not minimum <= value <= maximum
+                not isinstance(value, int)
+                or isinstance(value, bool)
+                or not minimum <= value <= maximum
             ):
                 raise PublishValidationError(f"Invalid demo data for component: {component_id}")
         for name in ("value_min", "value_max"):
@@ -140,7 +154,12 @@ def _validate_local_binding(component_id: str, binding: dict[str, object]) -> bo
             raise PublishValidationError(f"Invalid static data for component: {component_id}")
         columns = static_data.get("columns")
         rows = static_data.get("rows")
-        if not isinstance(columns, list) or not isinstance(rows, list) or not 1 <= len(columns) <= 20 or len(rows) > 500:
+        if (
+            not isinstance(columns, list)
+            or not isinstance(rows, list)
+            or not 1 <= len(columns) <= 20
+            or len(rows) > 500
+        ):
             raise PublishValidationError(f"Invalid static data for component: {component_id}")
         names = set()
         for column in columns:
@@ -172,17 +191,82 @@ class PublishingService:
         screen_repository: _ScreenRepository,
         dataset_repository: _DatasetRepository,
         asset_service: _AssetService,
+        ecosystem_service: EcosystemService | None = None,
     ) -> None:
         self._screen_repository = screen_repository
         self._dataset_repository = dataset_repository
         self._asset_service = asset_service
+        self._ecosystem_service = ecosystem_service
 
     async def _validate(self, document: DashboardDocument) -> None:
+        if self._ecosystem_service is not None:
+            try:
+                self._ecosystem_service.validate_document(document)
+            except DataPulseError as error:
+                raise PublishValidationError(
+                    "Plugin dependencies or properties are invalid."
+                ) from error
         dataset_ids: set[str] = set()
         for component in document.components:
-            if component.type not in _COMPONENT_VISUALS:
+            if component.type not in _COMPONENT_VISUALS and (
+                self._ecosystem_service is None or component.type.startswith("builtin.")
+            ):
                 raise PublishValidationError(f"Unknown component type: {component.type}")
             binding = component.data_binding
+            if component.type == "builtin.digital_human":
+                config = DigitalHumanSpec.model_validate(component.props)
+                if config.trigger.kind == "parameter" and config.trigger.parameter not in {
+                    parameter.name for parameter in document.parameters
+                }:
+                    raise PublishValidationError("Unknown speech trigger parameter.")
+                if binding.get("source") == "components":
+                    references = DigitalHumanBinding.model_validate(binding)
+                    components = {item.id: item for item in document.components}
+                    names = {item.name for item in references.variables}
+                    for variable in references.variables:
+                        source = components.get(variable.component_id)
+                        if (
+                            source is None
+                            or source.state.hidden
+                            or not source.data_binding
+                            or source.type == "builtin.digital_human"
+                        ):
+                            raise PublishValidationError("Unavailable speech source component.")
+                        local = source.data_binding.get("static_data")
+                        if isinstance(local, dict) and isinstance(local.get("columns"), list):
+                            fields = {
+                                column.get("name")
+                                for column in local["columns"]
+                                if isinstance(column, dict)
+                            }
+                            if variable.field not in fields:
+                                raise PublishValidationError("Unknown speech source field.")
+                    if any(
+                        token.name not in names
+                        for token in parse_speech_template(config.speech_template)
+                    ):
+                        raise PublishValidationError("Unbound speech template variable.")
+                    if config.trigger.variable and config.trigger.variable not in names:
+                        raise PublishValidationError("Unbound speech trigger variable.")
+                    if any(
+                        condition.variable not in names for condition in config.trigger.conditions
+                    ):
+                        raise PublishValidationError("Unbound speech trigger condition variable.")
+                    if any(
+                        condition.variable not in names
+                        for recording in config.recordings
+                        for condition in recording.conditions
+                    ):
+                        raise PublishValidationError("Unbound speech recording condition variable.")
+                    if any(
+                        condition.variable not in names
+                        for action in config.actions
+                        for condition in action.conditions
+                    ):
+                        raise PublishValidationError(
+                            "Unbound digital human action condition variable."
+                        )
+                    continue
             if not binding:
                 continue
             if _validate_local_binding(component.id, binding):
@@ -196,7 +280,7 @@ class PublishingService:
                 raise PublishValidationError(
                     f"Invalid data binding for component: {component.id}"
                 ) from error
-            allowed_visuals = _COMPONENT_VISUALS[component.type]
+            allowed_visuals = _COMPONENT_VISUALS.get(component.type, set(ChartType))
             if allowed_visuals is None or spec.visual.type not in allowed_visuals:
                 raise PublishValidationError(f"Invalid visual type for component: {component.id}")
             dataset_ids.add(spec.dataset_id)
@@ -211,7 +295,7 @@ class PublishingService:
 
         try:
             await self._asset_service.assert_references_exist(document)
-        except AssetNotFound as error:
+        except (AssetNotFound, AssetInvalid, MediaBusy, MediaUnavailable) as error:
             raise PublishValidationError(f"Referenced asset is unavailable: {error}") from error
 
     async def publish(
@@ -222,12 +306,25 @@ class PublishingService:
         screen = await self._screen_repository.get(screen_id)
         if screen.draft_revision != expected_revision:
             raise ScreenRevisionConflict(screen_id)
-        await self._validate(screen.draft_document)
-        return await self._screen_repository.publish(
-            screen_id,
-            document=screen.draft_document,
-            expected_revision=expected_revision,
-        )
+        try:
+            async with (
+                (
+                    self._ecosystem_service.publication_guard()
+                    if self._ecosystem_service is not None
+                    else nullcontext()
+                ),
+                self._asset_service.publication_guard(),
+            ):
+                await self._validate(screen.draft_document)
+                return await self._screen_repository.publish(
+                    screen_id,
+                    document=screen.draft_document,
+                    expected_revision=expected_revision,
+                )
+        except Timeout as error:
+            raise PublishValidationError(
+                "Asset storage is busy. Retry publication shortly."
+            ) from error
 
 
 __all__ = ["PublishValidationError", "PublishingService"]

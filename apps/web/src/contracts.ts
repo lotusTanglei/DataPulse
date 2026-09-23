@@ -3,8 +3,10 @@ export type {
   AnalysisPlan,
   ChartSpec,
   DashboardDocument,
+  DashboardPlan,
   DatasetDefinition,
   EmbedMessageEnvelope,
   EmbedTicketClaims,
+  GenerationSelfCheckReport,
   PluginManifest,
 } from "@datapulse/schema";

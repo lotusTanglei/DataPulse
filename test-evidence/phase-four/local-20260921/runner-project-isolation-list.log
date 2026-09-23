@@ -1,0 +1,8 @@
+[E2E] Running isolated project: firefox
+Listing tests:
+  [firefox] › identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access
+Total: 1 test in 1 file
+[E2E] Running isolated project: webkit
+Listing tests:
+  [webkit] › identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access
+Total: 1 test in 1 file

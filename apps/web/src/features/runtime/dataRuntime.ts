@@ -130,6 +130,7 @@ export function createDataRuntime(queryComponent: QueryComponent): DataRuntime {
           status: "success",
           result,
           error: null,
+          updatedAt: Date.now(),
         });
       }
       return result;

@@ -1,0 +1,499 @@
+{
+  "$defs": {
+    "Aggregation": {
+      "enum": [
+        "sum",
+        "avg",
+        "min",
+        "max",
+        "count"
+      ],
+      "title": "Aggregation",
+      "type": "string"
+    },
+    "ChartType": {
+      "enum": [
+        "area",
+        "bar",
+        "funnel",
+        "gauge",
+        "heatmap",
+        "kpi",
+        "line",
+        "map",
+        "pie",
+        "progress",
+        "radar",
+        "scatter",
+        "table"
+      ],
+      "title": "ChartType",
+      "type": "string"
+    },
+    "DashboardParameter": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_values": {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Allowed Values",
+          "type": "array"
+        },
+        "data_type": {
+          "$ref": "#/$defs/DataType"
+        },
+        "default": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "mutable": {
+          "default": false,
+          "title": "Mutable",
+          "type": "boolean"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "data_type"
+      ],
+      "title": "DashboardParameter",
+      "type": "object"
+    },
+    "DataType": {
+      "enum": [
+        "boolean",
+        "date",
+        "datetime",
+        "integer",
+        "number",
+        "string"
+      ],
+      "title": "DataType",
+      "type": "string"
+    },
+    "Filter": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/FilterOperator"
+        },
+        "value": {
+          "discriminator": {
+            "mapping": {
+              "literal": "#/$defs/LiteralValue",
+              "parameter": "#/$defs/ParameterRef"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ParameterRef"
+            },
+            {
+              "$ref": "#/$defs/LiteralValue"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field",
+        "operator"
+      ],
+      "title": "Filter",
+      "type": "object"
+    },
+    "FilterOperator": {
+      "enum": [
+        "equals",
+        "not_equals",
+        "greater_than",
+        "greater_than_or_equal",
+        "less_than",
+        "less_than_or_equal",
+        "in",
+        "not_in",
+        "contains",
+        "between",
+        "is_null",
+        "is_not_null"
+      ],
+      "title": "FilterOperator",
+      "type": "string"
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "LiteralValue": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "literal",
+          "default": "literal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        }
+      },
+      "title": "LiteralValue",
+      "type": "object"
+    },
+    "Measure": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation": {
+          "$ref": "#/$defs/Aggregation"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "aggregation"
+      ],
+      "title": "Measure",
+      "type": "object"
+    },
+    "ParameterRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "parameter",
+          "default": "parameter",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "ParameterRef",
+      "type": "object"
+    },
+    "PlanLayout": {
+      "additionalProperties": false,
+      "properties": {
+        "density": {
+          "default": "comfortable",
+          "enum": [
+            "comfortable",
+            "compact"
+          ],
+          "title": "Density",
+          "type": "string"
+        },
+        "grid_columns": {
+          "default": 24,
+          "enum": [
+            12,
+            24
+          ],
+          "title": "Grid Columns",
+          "type": "integer"
+        },
+        "template": {
+          "default": "executive-overview",
+          "enum": [
+            "executive-overview",
+            "trend-focus",
+            "comparison-board",
+            "status-wall",
+            "analysis-lab"
+          ],
+          "title": "Template",
+          "type": "string"
+        },
+        "theme": {
+          "default": "dark",
+          "enum": [
+            "dark",
+            "light"
+          ],
+          "title": "Theme",
+          "type": "string"
+        }
+      },
+      "title": "PlanLayout",
+      "type": "object"
+    },
+    "PlanRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "header",
+            "summary",
+            "main",
+            "secondary",
+            "sidebar",
+            "footer"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "order": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Order",
+          "type": "integer"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "title": "PlanRegion",
+      "type": "object"
+    },
+    "PlanWidget": {
+      "additionalProperties": false,
+      "properties": {
+        "chart_type": {
+          "$ref": "#/$defs/ChartType"
+        },
+        "dataset_id": {
+          "minLength": 1,
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "filters": {
+          "items": {
+            "$ref": "#/$defs/Filter"
+          },
+          "maxItems": 12,
+          "title": "Filters",
+          "type": "array"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "intent": {
+          "minLength": 1,
+          "title": "Intent",
+          "type": "string"
+        },
+        "limit": {
+          "default": 1000,
+          "maximum": 5000,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "measures": {
+          "items": {
+            "$ref": "#/$defs/Measure"
+          },
+          "maxItems": 4,
+          "title": "Measures",
+          "type": "array"
+        },
+        "region_id": {
+          "minLength": 1,
+          "title": "Region Id",
+          "type": "string"
+        },
+        "sort": {
+          "items": {
+            "$ref": "#/$defs/Sort"
+          },
+          "maxItems": 4,
+          "title": "Sort",
+          "type": "array"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "intent",
+        "region_id",
+        "dataset_id",
+        "chart_type"
+      ],
+      "title": "PlanWidget",
+      "type": "object"
+    },
+    "Sort": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "$ref": "#/$defs/SortDirection",
+          "default": "asc"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "Sort",
+      "type": "object"
+    },
+    "SortDirection": {
+      "enum": [
+        "asc",
+        "desc"
+      ],
+      "title": "SortDirection",
+      "type": "string"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/dashboard-plan.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "audience": {
+      "minLength": 1,
+      "title": "Audience",
+      "type": "string"
+    },
+    "dataset_ids": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Dataset Ids",
+      "type": "array"
+    },
+    "layout": {
+      "$ref": "#/$defs/PlanLayout"
+    },
+    "narrative": {
+      "minLength": 1,
+      "title": "Narrative",
+      "type": "string"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/DashboardParameter"
+      },
+      "maxItems": 12,
+      "title": "Parameters",
+      "type": "array"
+    },
+    "regions": {
+      "items": {
+        "$ref": "#/$defs/PlanRegion"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Regions",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "widgets": {
+      "items": {
+        "$ref": "#/$defs/PlanWidget"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Widgets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "title",
+    "audience",
+    "narrative",
+    "dataset_ids",
+    "regions",
+    "widgets"
+  ],
+  "title": "DashboardPlan",
+  "type": "object"
+}

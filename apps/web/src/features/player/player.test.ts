@@ -10,6 +10,7 @@ import {
 import type { Screen } from "../screens/types";
 import ScreenEditorView from "../screens/ScreenEditorView.vue";
 import PlayerView from "./PlayerView.vue";
+import { useAuthStore } from "../../stores/auth";
 
 const screen: Screen = {
   id: "screen-1",
@@ -142,6 +143,7 @@ test("requires explicit confirmation before publishing the saved revision", asyn
   );
   const pinia = createPinia();
   setActivePinia(pinia);
+  useAuthStore().state = { status: "authenticated", id: "admin", username: "admin", role: "admin" };
   const router = testRouter();
   await router.push("/studio/screens/screen-1/edit");
   await router.isReady();

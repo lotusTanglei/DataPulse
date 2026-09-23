@@ -46,6 +46,13 @@
           "title": "Data Schema",
           "type": "object"
         },
+        "default_props": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Default Props",
+          "type": "object"
+        },
         "name": {
           "minLength": 1,
           "title": "Name",
@@ -91,6 +98,11 @@
       "title": "Components",
       "type": "array"
     },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
     "entry": {
       "minLength": 1,
       "title": "Entry",
@@ -99,6 +111,12 @@
     "id": {
       "minLength": 1,
       "title": "Id",
+      "type": "string"
+    },
+    "license": {
+      "default": "UNLICENSED",
+      "minLength": 1,
+      "title": "License",
       "type": "string"
     },
     "name": {
@@ -111,6 +129,12 @@
       "default": 1,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "source": {
+      "default": "local",
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
     },
     "version": {
       "minLength": 1,

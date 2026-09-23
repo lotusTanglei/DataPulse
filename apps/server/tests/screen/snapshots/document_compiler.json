@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "background": {
+      "color": "#07111f"
+    }
+  },
+  "theme": {
+    "id": "datapulse-dark",
+    "tokens": {
+      "font_family": "Inter, system-ui, sans-serif",
+      "canvas_background": "#07111f",
+      "panel_background": "#101d2c",
+      "panel_border": "#26384d",
+      "text_primary": "#f4f7fb",
+      "text_secondary": "#a9b7c8",
+      "accent": "#36c2b4",
+      "warning": "#f2b84b",
+      "danger": "#ef6a6a",
+      "title_font_size": 32,
+      "body_font_size": 14,
+      "number_precision": 0
+    }
+  },
+  "refresh": {
+    "mode": "disabled",
+    "interval_seconds": null
+  },
+  "parameters": [],
+  "components": [
+    {
+      "id": "plan-title",
+      "type": "builtin.text",
+      "frame": {
+        "x": 48.0,
+        "y": 32.0,
+        "width": 1824.0,
+        "height": 64.0,
+        "z_index": 1
+      },
+      "state": {
+        "locked": false,
+        "hidden": false,
+        "group_id": null
+      },
+      "props": {
+        "text": "销售经营总览",
+        "align": "left",
+        "font_size": 32
+      },
+      "style": {
+        "color": "#f4f7fb"
+      },
+      "data_binding": {},
+      "interactions": []
+    },
+    {
+      "id": "revenue",
+      "type": "builtin.kpi",
+      "frame": {
+        "x": 48.0,
+        "y": 112.0,
+        "width": 1824.0,
+        "height": 222.0,
+        "z_index": 1
+      },
+      "state": {
+        "locked": false,
+        "hidden": false,
+        "group_id": null
+      },
+      "props": {
+        "empty_text": "暂无数据",
+        "label": "销售额",
+        "precision": 0
+      },
+      "style": {
+        "background": "#101d2c",
+        "border_color": "#26384d",
+        "color": "#f4f7fb"
+      },
+      "data_binding": {
+        "chart_spec": {
+          "schema_version": 1,
+          "dataset_id": "sales",
+          "dimensions": [],
+          "measures": [
+            {
+              "field": "amount",
+              "aggregation": "sum"
+            }
+          ],
+          "filters": [],
+          "sort": [],
+          "limit": 1000,
+          "visual": {
+            "type": "kpi",
+            "title": "销售额"
+          }
+        }
+      },
+      "interactions": []
+    },
+    {
+      "id": "trend",
+      "type": "builtin.line",
+      "frame": {
+        "x": 48.0,
+        "y": 350.0,
+        "width": 904.0,
+        "height": 698.0,
+        "z_index": 1
+      },
+      "state": {
+        "locked": false,
+        "hidden": false,
+        "group_id": null
+      },
+      "props": {
+        "empty_text": "暂无数据"
+      },
+      "style": {
+        "background": "#101d2c",
+        "border_color": "#26384d",
+        "color": "#f4f7fb"
+      },
+      "data_binding": {
+        "chart_spec": {
+          "schema_version": 1,
+          "dataset_id": "sales",
+          "dimensions": [
+            "month"
+          ],
+          "measures": [
+            {
+              "field": "amount",
+              "aggregation": "sum"
+            }
+          ],
+          "filters": [],
+          "sort": [],
+          "limit": 1000,
+          "visual": {
+            "type": "line",
+            "title": "销售趋势"
+          }
+        }
+      },
+      "interactions": []
+    },
+    {
+      "id": "ranking",
+      "type": "builtin.bar",
+      "frame": {
+        "x": 968.0,
+        "y": 350.0,
+        "width": 904.0,
+        "height": 698.0,
+        "z_index": 1
+      },
+      "state": {
+        "locked": false,
+        "hidden": false,
+        "group_id": null
+      },
+      "props": {
+        "empty_text": "暂无数据",
+        "orientation": "vertical"
+      },
+      "style": {
+        "background": "#101d2c",
+        "border_color": "#26384d",
+        "color": "#f4f7fb"
+      },
+      "data_binding": {
+        "chart_spec": {
+          "schema_version": 1,
+          "dataset_id": "sales",
+          "dimensions": [
+            "region"
+          ],
+          "measures": [
+            {
+              "field": "amount",
+              "aggregation": "sum"
+            }
+          ],
+          "filters": [],
+          "sort": [],
+          "limit": 1000,
+          "visual": {
+            "type": "bar",
+            "title": "区域排名"
+          }
+        }
+      },
+      "interactions": []
+    }
+  ],
+  "plugin_dependencies": []
+}

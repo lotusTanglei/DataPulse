@@ -1,0 +1,244 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.64kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.13-slim
+#2 DONE 0.0s
+
+#3 [internal] load metadata for mcr.microsoft.com/playwright:v1.62.0-noble
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 256B 0.0s done
+#4 DONE 0.0s
+
+#5 [web  1/15] FROM mcr.microsoft.com/playwright:v1.62.0-noble
+#5 DONE 0.0s
+
+#6 [runtime  1/11] FROM docker.io/library/python:3.13-slim
+#6 DONE 0.0s
+
+#7 [internal] load build context
+#7 transferring context: 84.08kB 0.1s done
+#7 DONE 0.1s
+
+#8 [runtime  2/11] WORKDIR /app
+#8 CACHED
+
+#9 [runtime  3/11] RUN pip install --no-cache-dir uv
+#9 CACHED
+
+#10 [runtime  4/11] RUN apt-get update     && apt-get install --yes --no-install-recommends build-essential ffmpeg     && rm -rf /var/lib/apt/lists/*
+#10 CACHED
+
+#11 [runtime  5/11] COPY pyproject.toml uv.lock ./
+#11 CACHED
+
+#12 [runtime  6/11] COPY apps/server apps/server
+#12 ...
+
+#13 [web  2/15] WORKDIR /src
+#13 CACHED
+
+#14 [web  3/15] RUN corepack enable
+#14 CACHED
+
+#15 [web  7/15] COPY packages/embed-sdk/package.json packages/embed-sdk/package.json
+#15 CACHED
+
+#16 [web 12/15] COPY packages/embed-sdk packages/embed-sdk
+#16 CACHED
+
+#17 [web  4/15] COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+#17 CACHED
+
+#18 [web  6/15] COPY packages/schema/package.json packages/schema/package.json
+#18 CACHED
+
+#19 [web  8/15] COPY packages/plugin-sdk/package.json packages/plugin-sdk/package.json
+#19 CACHED
+
+#20 [web  9/15] RUN pnpm install --frozen-lockfile
+#20 CACHED
+
+#21 [web 11/15] COPY packages/schema packages/schema
+#21 CACHED
+
+#22 [web 13/15] COPY packages/plugin-sdk packages/plugin-sdk
+#22 CACHED
+
+#23 [web 10/15] COPY apps/web apps/web
+#23 CACHED
+
+#24 [web 14/15] COPY examples examples
+#24 CACHED
+
+#25 [web  5/15] COPY apps/web/package.json apps/web/package.json
+#25 CACHED
+
+#26 [web 15/15] RUN pnpm build:web
+#26 CACHED
+
+#12 [runtime  6/11] COPY apps/server apps/server
+#12 DONE 0.2s
+
+#27 [runtime  7/11] RUN --mount=type=cache,target=/root/.cache/uv     uv sync --frozen --no-dev --package datapulse-server     && apt-get purge --yes --auto-remove build-essential     && rm -rf /var/lib/apt/lists/*
+#27 0.305 Using CPython 3.13.15 interpreter at: /usr/local/bin/python3
+#27 0.305 Creating virtual environment at: .venv
+#27 0.370    Building datapulse-server @ file:///app/apps/server
+#27 1.581       Built datapulse-server @ file:///app/apps/server
+#27 1.583 Prepared 1 package in 1.22s
+#27 1.585 warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+#27 1.585          If the cache and target directories are on different filesystems, hardlinking may not be supported.
+#27 1.585          If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+#27 3.417 Installed 54 packages in 1.83s
+#27 3.417  + aiosqlite==0.22.1
+#27 3.417  + alembic==1.18.5
+#27 3.417  + annotated-doc==0.0.5
+#27 3.417  + annotated-types==0.8.0
+#27 3.417  + anyio==4.14.2
+#27 3.417  + argon2-cffi==25.1.0
+#27 3.417  + argon2-cffi-bindings==25.1.0
+#27 3.417  + asyncmy==0.2.11
+#27 3.417  + asyncpg==0.31.0
+#27 3.417  + attrs==26.1.0
+#27 3.417  + certifi==2026.7.22
+#27 3.417  + cffi==2.1.0
+#27 3.417  + click==8.4.2
+#27 3.417  + cryptography==49.0.0
+#27 3.417  + datapulse-server==0.1.0 (from file:///app/apps/server)
+#27 3.417  + duckdb==1.5.5
+#27 3.417  + et-xmlfile==2.0.0
+#27 3.417  + fastapi==0.140.13
+#27 3.417  + filelock==3.32.6
+#27 3.417  + greenlet==3.5.4
+#27 3.417  + h11==0.16.0
+#27 3.417  + httpcore==1.0.9
+#27 3.417  + httptools==0.8.0
+#27 3.417  + httpx==0.28.1
+#27 3.417  + idna==3.18
+#27 3.417  + jsonschema==4.26.0
+#27 3.417  + jsonschema-specifications==2025.9.1
+#27 3.417  + mako==1.3.12
+#27 3.417  + markupsafe==3.0.3
+#27 3.417  + openpyxl==3.1.5
+#27 3.417  + packaging==26.2
+#27 3.417  + pillow==12.3.0
+#27 3.417  + pwdlib==0.3.0
+#27 3.417  + pyarrow==21.0.0
+#27 3.417  + pycparser==3.0
+#27 3.417  + pydantic==2.13.4
+#27 3.417  + pydantic-core==2.46.4
+#27 3.417  + pydantic-settings==2.14.2
+#27 3.417  + pyjwt==2.13.0
+#27 3.417  + python-dotenv==1.2.2
+#27 3.417  + python-multipart==0.0.32
+#27 3.417  + pyyaml==6.0.3
+#27 3.417  + referencing==0.37.0
+#27 3.417  + rpds-py==2026.6.3
+#27 3.417  + sqlalchemy==2.0.51
+#27 3.417  + sqlglot==30.14.0
+#27 3.417  + starlette==1.3.1
+#27 3.417  + typing-extensions==4.16.0
+#27 3.417  + typing-inspection==0.4.2
+#27 3.417  + uvicorn==0.52.0
+#27 3.417  + uvloop==0.22.1
+#27 3.417  + watchfiles==1.2.0
+#27 3.417  + websockets==16.1.1
+#27 3.417  + webvtt-py==0.5.1
+#27 3.483 Reading package lists...
+#27 3.496 Building dependency tree...
+#27 3.496 Reading state information...
+#27 3.503 The following packages will be REMOVED:
+#27 3.503   binutils* binutils-aarch64-linux-gnu* binutils-common* build-essential*
+#27 3.503   bzip2* cpp* cpp-14* cpp-14-aarch64-linux-gnu* cpp-aarch64-linux-gnu*
+#27 3.503   dpkg-dev* g++* g++-14* g++-14-aarch64-linux-gnu* g++-aarch64-linux-gnu* gcc*
+#27 3.503   gcc-14* gcc-14-aarch64-linux-gnu* gcc-aarch64-linux-gnu* libasan8*
+#27 3.503   libbinutils* libc-dev-bin* libc6-dev* libcc1-0* libcrypt-dev* libctf-nobfd0*
+#27 3.503   libctf0* libdpkg-perl* libgcc-14-dev* libgdbm-compat4t64* libgprofng0*
+#27 3.503   libhwasan0* libisl23* libitm1* libjansson4* liblsan0* libmpc3* libmpfr6*
+#27 3.503   libperl5.40* libsframe1* libstdc++-14-dev* libtsan2* libubsan1*
+#27 3.503   linux-libc-dev* make* patch* perl* perl-modules-5.40* rpcsvc-proto*
+#27 3.503   xz-utils*
+#27 3.728 0 upgraded, 0 newly installed, 49 to remove and 0 not upgraded.
+#27 3.728 After this operation, 322 MB disk space will be freed.
+#27 3.755 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 16397 files and directories currently installed.)
+#27 3.943 Removing build-essential (12.12) ...
+#27 4.026 Removing g++ (4:14.2.0-1) ...
+#27 4.101 Removing g++-14 (14.2.0-19) ...
+#27 4.153 Removing gcc (4:14.2.0-1) ...
+#27 4.224 Removing gcc-14 (14.2.0-19) ...
+#27 4.275 Removing dpkg-dev (1.22.22) ...
+#27 4.301 Removing binutils (2.44-3) ...
+#27 4.347 Removing g++-aarch64-linux-gnu (4:14.2.0-1) ...
+#27 4.397 Removing g++-14-aarch64-linux-gnu (14.2.0-19) ...
+#27 4.431 Removing gcc-aarch64-linux-gnu (4:14.2.0-1) ...
+#27 4.464 Removing gcc-14-aarch64-linux-gnu (14.2.0-19) ...
+#27 4.499 Removing binutils-aarch64-linux-gnu (2.44-3) ...
+#27 4.591 Removing libgprofng0:arm64 (2.44-3) ...
+#27 4.647 Removing libctf0:arm64 (2.44-3) ...
+#27 4.695 Removing libbinutils:arm64 (2.44-3) ...
+#27 4.726 Removing binutils-common:arm64 (2.44-3) ...
+#27 4.756 Removing bzip2 (1.0.8-6) ...
+#27 4.811 Removing cpp (4:14.2.0-1) ...
+#27 4.846 Removing cpp-14 (14.2.0-19) ...
+#27 4.902 Removing cpp-aarch64-linux-gnu (4:14.2.0-1) ...
+#27 4.950 Removing cpp-14-aarch64-linux-gnu (14.2.0-19) ...
+#27 4.993 Removing libstdc++-14-dev:arm64 (14.2.0-19) ...
+#27 5.119 Removing libgcc-14-dev:arm64 (14.2.0-19) ...
+#27 5.180 Removing libasan8:arm64 (14.2.0-19) ...
+#27 5.234 Removing libc6-dev:arm64 (2.41-12+deb13u4) ...
+#27 5.335 Removing libc-dev-bin (2.41-12+deb13u4) ...
+#27 5.386 Removing libcc1-0:arm64 (14.2.0-19) ...
+#27 5.422 Removing libcrypt-dev:arm64 (1:4.4.38-1) ...
+#27 5.453 Removing libctf-nobfd0:arm64 (2.44-3) ...
+#27 5.495 Removing libdpkg-perl (1.22.22) ...
+#27 5.562 Removing perl (5.40.1-6+deb13u1) ...
+#27 5.600 Removing libperl5.40:arm64 (5.40.1-6+deb13u1) ...
+#27 5.713 Removing libgdbm-compat4t64:arm64 (1.24-2) ...
+#27 5.766 Removing libhwasan0:arm64 (14.2.0-19) ...
+#27 5.813 Removing libisl23:arm64 (0.27-1) ...
+#27 5.862 Removing libitm1:arm64 (14.2.0-19) ...
+#27 5.937 Removing libjansson4:arm64 (2.14-2+b3) ...
+#27 6.047 Removing liblsan0:arm64 (14.2.0-19) ...
+#27 6.177 Removing libmpc3:arm64 (1.3.1-1+b3) ...
+#27 6.267 Removing libmpfr6:arm64 (4.2.2-1) ...
+#27 6.351 Removing libsframe1:arm64 (2.44-3) ...
+#27 6.417 Removing libtsan2:arm64 (14.2.0-19) ...
+#27 6.477 Removing libubsan1:arm64 (14.2.0-19) ...
+#27 6.539 Removing linux-libc-dev (6.12.107-1) ...
+#27 7.039 Removing make (4.4.1-2) ...
+#27 7.095 Removing patch (2.8-2) ...
+#27 7.150 Removing perl-modules-5.40 (5.40.1-6+deb13u1) ...
+#27 7.312 Removing rpcsvc-proto (1.4.3-1+b1) ...
+#27 7.357 Removing xz-utils (5.8.1-1+deb13u1) ...
+#27 7.432 Processing triggers for libc-bin (2.41-12+deb13u4) ...
+#27 8.375 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 8429 files and directories currently installed.)
+#27 8.400 Purging configuration files for binutils-common:arm64 (2.44-3) ...
+#27 8.458 Purging configuration files for binutils (2.44-3) ...
+#27 8.519 Purging configuration files for dpkg-dev (1.22.22) ...
+#27 8.583 Purging configuration files for perl (5.40.1-6+deb13u1) ...
+#27 8.683 Purging configuration files for libcrypt-dev:arm64 (1:4.4.38-1) ...
+#27 8.750 Purging configuration files for cpp (4:14.2.0-1) ...
+#27 DONE 10.3s
+
+#28 [runtime  8/11] COPY --from=web /src/apps/web/dist /app/static
+#28 DONE 0.1s
+
+#29 [runtime  9/11] RUN useradd --create-home --uid 10001 datapulse     && mkdir -p /data/sources     && chown -R datapulse:datapulse /data
+#29 DONE 0.5s
+
+#30 [runtime 10/11] COPY --chown=datapulse:datapulse apps/server/docker-entrypoint.sh /app/docker-entrypoint.sh
+#30 DONE 0.1s
+
+#31 [runtime 11/11] RUN chmod 0555 /app/docker-entrypoint.sh
+#31 DONE 0.3s
+
+#32 exporting to image
+#32 exporting layers
+#32 exporting layers 1.0s done
+#32 writing image sha256:7dfba6b47813e78241f618002894ac908d1342f0f205bdf3be54f077ffe85c4a 0.0s done
+#32 naming to docker.io/library/datapulse:phase-four-local done
+#32 DONE 1.0s

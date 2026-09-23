@@ -30,7 +30,8 @@ export type BuiltinComponentType =
   | "builtin.ranking"
   | "builtin.alert_list"
   | "builtin.timeline"
-  | "builtin.geo_map";
+  | "builtin.geo_map"
+  | "builtin.digital_human";
 
 export type DataCapability = "none" | "single" | "table" | "series" | "geo";
 export type ComponentCategory =
@@ -77,9 +78,9 @@ export interface PropertyGroup {
 }
 
 export interface ComponentDefinition {
-  type: BuiltinComponentType;
+  type: string;
   label: string;
-  category?: ComponentCategory;
+  category?: string;
   defaultFrame: { width: number; height: number };
   defaultProps: Record<string, JsonValue>;
   defaultStyle?: Record<string, JsonValue>;
@@ -106,6 +107,7 @@ export interface ComponentQueryState {
   status: ComponentQueryStatus;
   result: QueryResult | null;
   error: unknown | null;
+  updatedAt?: number;
 }
 
 export interface RuntimeInteraction {

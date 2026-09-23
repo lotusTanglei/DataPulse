@@ -67,6 +67,24 @@ class DatasetField(ContractModel):
     data_type: DataType
 
 
+class DatasetFieldOverride(ContractModel):
+    name: NonBlankStr
+    data_type: DataType | None = None
+    role: Literal[
+        "identifier",
+        "dimension",
+        "measure",
+        "geography",
+        "temporal",
+        "text",
+        "boolean",
+        "unknown",
+    ] | None = None
+    default_aggregation: Literal["sum", "avg", "min", "max", "count"] | None = None
+    unit: NonBlankStr | None = None
+    display_name: NonBlankStr | None = None
+
+
 class DatasetParameter(ContractModel):
     name: NonBlankStr
     data_type: DataType
@@ -92,6 +110,7 @@ class DatasetDefinition(ContractModel):
     data_source_id: str | None = None
     query: QueryDefinition
     fields: tuple[DatasetField, ...] = Field(default_factory=tuple)
+    profile_overrides: tuple[DatasetFieldOverride, ...] = Field(default_factory=tuple)
     parameters: tuple[DatasetParameter, ...] = Field(default_factory=tuple)
     cache: CachePolicy = Field(default_factory=CachePolicy)
     refresh: RefreshPolicy = Field(default_factory=RefreshPolicy)

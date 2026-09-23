@@ -144,7 +144,7 @@ def test_file_preview_supports_csv_and_excel_sheets(file_app: AppClient) -> None
     assert csv_preview.status_code == 200
     assert csv_preview.json()["sheet_names"] == []
     assert csv_preview.json()["selected_sheet"] is None
-    assert csv_preview.json()["result"]["rows"] == [["north", "10"], ["south", "20"]]
+    assert csv_preview.json()["result"]["rows"] == [["north", 10], ["south", 20]]
 
     excel_upload = file_app.client.post(
         "/api/admin/files",

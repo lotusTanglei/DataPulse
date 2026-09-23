@@ -1,0 +1,51 @@
+{
+  "$defs": {
+    "Identifier": {
+      "maxLength": 36,
+      "minLength": 1,
+      "type": "string"
+    },
+    "Permission": {
+      "enum": [
+        "read",
+        "write",
+        "publish"
+      ],
+      "type": "string"
+    },
+    "ResourceType": {
+      "enum": [
+        "datasource",
+        "dataset",
+        "file",
+        "asset",
+        "screen"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/resource-grant.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "permission": {
+      "$ref": "#/$defs/Permission"
+    },
+    "resource_id": {
+      "$ref": "#/$defs/Identifier"
+    },
+    "resource_type": {
+      "$ref": "#/$defs/ResourceType"
+    },
+    "user_id": {
+      "$ref": "#/$defs/Identifier"
+    }
+  },
+  "required": [
+    "resource_type",
+    "resource_id",
+    "user_id",
+    "permission"
+  ],
+  "title": "GrantRequest",
+  "type": "object"
+}

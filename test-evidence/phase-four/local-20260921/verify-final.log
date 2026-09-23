@@ -1,0 +1,280 @@
+
+> datapulse@ verify /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build
+
+
+> datapulse@ check:contracts /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python tools/check_generated.py
+
+Generated contracts match the current source.
+
+> datapulse@ test /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/embed-sdk test && pnpm test:web && uv run --package datapulse-server pytest -m "not integration"
+
+
+> @datapulse/embed-sdk@0.1.0 test /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+> vitest run --environment happy-dom
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+
+ ✓ src/index.test.ts (20 tests) 42ms
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  11:44:52
+   Duration  885ms (transform 53ms, setup 0ms, collect 53ms, tests 42ms, environment 320ms, prepare 98ms)
+
+
+> datapulse@ test:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web test
+
+
+> @datapulse/web@ test /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vitest run
+
+
+ RUN  v3.2.7 /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+
+ ✓ src/features/settings/settings.test.ts (4 tests) 179ms
+ ✓ src/features/query/sql-debug.test.ts (4 tests) 55ms
+ ✓ src/features/screens/assets/AssetLibraryDialog.test.ts (11 tests) 344ms
+ ✓ src/features/runtime/builtins/DigitalHumanComponent.test.ts (18 tests) 258ms
+ ✓ src/features/screens/screen-list.test.ts (9 tests) 165ms
+ ✓ src/features/screens/editor/inspector.test.ts (16 tests) 343ms
+ ✓ src/features/datasources/schema-browser.test.ts (4 tests) 101ms
+ ✓ src/features/datasources/datasource-form.test.ts (9 tests) 158ms
+ ✓ src/features/screens/editor/canvas.test.ts (14 tests) 307ms
+ ✓ src/features/player/embed-player.test.ts (8 tests) 168ms
+ ✓ src/features/ecosystem/catalog.test.ts (3 tests) 49ms
+ ✓ src/features/datasets/datasets.test.ts (6 tests) 99ms
+ ✓ src/features/datasources/datasource-list.test.ts (4 tests) 80ms
+ ✓ src/features/query/query-result-table.test.ts (2 tests) 56ms
+ ✓ src/features/runtime/runtime.test.ts (10 tests) 133ms
+ ✓ src/features/identity/sharing.test.ts (2 tests) 41ms
+ ✓ src/features/identity/resource-permissions.test.ts (12 tests) 90ms
+ ✓ src/features/ai/ai-panel.test.ts (2 tests) 48ms
+ ✓ src/features/player/player.test.ts (2 tests) 58ms
+ ✓ src/features/auth/auth.test.ts (9 tests) 54ms
+ ✓ src/features/runtime/builtins/basic-components.test.ts (8 tests) 47ms
+ ✓ src/features/runtime/builtins/digitalHuman.test.ts (23 tests) 28ms
+ ✓ src/features/ecosystem/plugin-library.test.ts (4 tests) 28ms
+ ✓ src/features/screens/editor/component-library.test.ts (1 test) 41ms
+stderr | Fetch.onError (file:/Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:671:35)
+DOMException [AbortError]: The operation was aborted.
+    at Fetch.onAsyncTaskManagerAbort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:684:17)
+    at Object.<anonymous> (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/fetch/Fetch.ts:518:10)
+    at AsyncTaskManager.abortAll (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:328:21)
+    at AsyncTaskManager.abort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/async-task-manager/AsyncTaskManager.ts:61:15)
+    at DetachedBrowserFrame.abort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/browser/detached-browser/DetachedBrowserFrame.ts:150:49)
+    at DetachedWindowAPI.abort (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/happy-dom@18.0.1/node_modules/happy-dom/src/window/DetachedWindowAPI.ts:62:29)
+    at teardownWindow (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/vitest@3.2.7_@types+node@22.20.1_happy-dom@18.0.1/node_modules/vitest/dist/chunks/index.CmSc2RE5.js:336:22)
+    at Object.teardown (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/vitest@3.2.7_@types+node@22.20.1_happy-dom@18.0.1/node_modules/vitest/dist/chunks/index.CmSc2RE5.js:391:10)
+    at withEnv (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/vitest@3.2.7_@types+node@22.20.1_happy-dom@18.0.1/node_modules/vitest/dist/chunks/runBaseTests.9Ij9_de-.js:89:13)
+    at run (file:///Users/dundundebaba/sync/code/open/DataPulse/node_modules/.pnpm/vitest@3.2.7_@types+node@22.20.1_happy-dom@18.0.1/node_modules/vitest/dist/chunks/runBaseTests.9Ij9_de-.js:109:2)
+
+ ✓ src/features/identity/users.test.ts (3 tests) 38ms
+ ✓ src/ui/studio-shell.test.ts (1 test) 28ms
+ ✓ src/features/screens/editor/SpeechRecordingEditor.test.ts (2 tests) 34ms
+ ✓ src/App.test.ts (2 tests) 39ms
+ ✓ src/features/ai/AiEditPanel.test.ts (1 test) 21ms
+ ✓ src/features/ecosystem/plugins.test.ts (5 tests) 28ms
+ ✓ src/features/ecosystem/player-plugins.test.ts (2 tests) 4ms
+ ✓ src/features/runtime/speechPlayback.test.ts (10 tests) 14ms
+ ✓ src/features/player/standalone-player.test.ts (2 tests) 31ms
+ ✓ src/features/screens/editor/editor-toolbar.test.ts (1 test) 24ms
+ ✓ src/features/ecosystem/example.test.ts (2 tests) 8ms
+ ✓ src/features/runtime/builtins/chart-components.test.ts (6 tests) 19ms
+ ✓ src/features/auth/identity-session.test.ts (8 tests) 14ms
+ ✓ src/features/runtime/mock-data.test.ts (5 tests) 14ms
+ ✓ src/features/runtime/data-runtime.test.ts (3 tests) 12ms
+ ✓ src/features/ecosystem/schema.test.ts (2 tests) 3ms
+ ✓ src/lib/api.test.ts (7 tests) 6ms
+ ✓ src/features/screens/templates.test.ts (2 tests) 5ms
+ ✓ src/features/runtime/speechQueue.test.ts (6 tests) 5ms
+ ✓ src/features/screens/editor/commands.test.ts (8 tests) 5ms
+ ✓ src/features/ecosystem/editor.test.ts (2 tests) 3ms
+ ✓ src/features/screens/editor/geometry.test.ts (3 tests) 3ms
+ ✓ src/features/ecosystem/migration.test.ts (5 tests) 7ms
+ ✓ src/features/screens/editor/store.test.ts (5 tests) 12ms
+ ✓ src/features/runtime/builtins/chart-motion.test.ts (2 tests) 2ms
+ ✓ src/lib/dev-proxy.test.ts (1 test) 2ms
+
+ Test Files  50 passed (50)
+      Tests  281 passed (281)
+   Start at  11:44:59
+   Duration  17.02s (transform 3.94s, setup 0ms, collect 69.64s, tests 3.31s, environment 47.29s, prepare 10.75s)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/dundundebaba/sync/code/open/DataPulse
+configfile: pyproject.toml
+testpaths: apps/server/tests
+plugins: cov-7.1.0, anyio-4.14.2
+collected 837 items / 15 deselected / 822 selected
+
+apps/server/tests/ai/test_api.py .                                       [  0%]
+apps/server/tests/ai/test_chart_generation.py ......                     [  0%]
+apps/server/tests/ai/test_context.py .                                   [  0%]
+apps/server/tests/ai/test_edit.py .....                                  [  1%]
+apps/server/tests/ai/test_gateway.py ......                              [  2%]
+apps/server/tests/ai/test_screen_generator.py ........                   [  3%]
+apps/server/tests/ai/test_service.py .......                             [  4%]
+apps/server/tests/auth/test_api.py ......                                [  4%]
+apps/server/tests/auth/test_bootstrap.py ......                          [  5%]
+apps/server/tests/auth/test_limiter.py ...                               [  5%]
+apps/server/tests/auth/test_password.py ..                               [  6%]
+apps/server/tests/auth/test_session.py ....                              [  6%]
+apps/server/tests/connectors/test_sqlite.py ............                 [  8%]
+apps/server/tests/contracts/test_ai.py .................                 [ 10%]
+apps/server/tests/contracts/test_chart.py .......                        [ 11%]
+apps/server/tests/contracts/test_dashboard.py ..........                 [ 12%]
+apps/server/tests/contracts/test_dataset.py ...                          [ 12%]
+apps/server/tests/contracts/test_digital_human.py ...................... [ 15%]
+............................................................             [ 22%]
+apps/server/tests/contracts/test_embed.py .....................          [ 25%]
+apps/server/tests/contracts/test_exported_schemas.py ................... [ 27%]
+.....................                                                    [ 30%]
+apps/server/tests/contracts/test_filedata.py ...................         [ 32%]
+apps/server/tests/contracts/test_import_order.py ...                     [ 32%]
+apps/server/tests/contracts/test_plugin.py ...........                   [ 34%]
+apps/server/tests/contracts/test_plugin_dependencies.py ....             [ 34%]
+apps/server/tests/contracts/test_speech.py ....                          [ 35%]
+apps/server/tests/dataset/test_api.py ...                                [ 35%]
+apps/server/tests/dataset/test_repository.py ...                         [ 35%]
+apps/server/tests/dataset/test_service.py ....                           [ 36%]
+apps/server/tests/datasource/test_api.py .....                           [ 36%]
+apps/server/tests/datasource/test_http_api.py ....                       [ 37%]
+apps/server/tests/datasource/test_models.py ............                 [ 38%]
+apps/server/tests/datasource/test_registry.py ....                       [ 39%]
+apps/server/tests/datasource/test_repository.py ......                   [ 40%]
+apps/server/tests/datasource/test_secrets.py ........                    [ 40%]
+apps/server/tests/datasource/test_service.py .....                       [ 41%]
+apps/server/tests/display/test_api.py ...                                [ 41%]
+apps/server/tests/display/test_service.py ..                             [ 42%]
+apps/server/tests/display/test_tokens.py ..                              [ 42%]
+apps/server/tests/ecosystem/test_api.py ......                           [ 43%]
+apps/server/tests/ecosystem/test_delivery.py .                           [ 43%]
+apps/server/tests/ecosystem/test_service.py ............................ [ 46%]
+................                                                         [ 48%]
+apps/server/tests/embedding/test_api.py .......                          [ 49%]
+apps/server/tests/embedding/test_service.py ..                           [ 49%]
+apps/server/tests/embedding/test_tokens.py ...............               [ 51%]
+apps/server/tests/filedata/test_api.py ....                              [ 52%]
+apps/server/tests/filedata/test_duckdb_executor.py ......                [ 52%]
+apps/server/tests/filedata/test_parsers.py ......                        [ 53%]
+apps/server/tests/filedata/test_repository.py ..                         [ 53%]
+apps/server/tests/filedata/test_service.py ..                            [ 54%]
+apps/server/tests/filedata/test_storage.py .........                     [ 55%]
+apps/server/tests/identity/test_access_directory.py .                    [ 55%]
+apps/server/tests/identity/test_api.py ...................               [ 57%]
+apps/server/tests/identity/test_migration.py .                           [ 57%]
+apps/server/tests/identity/test_speech.py ....                           [ 58%]
+apps/server/tests/metadata/test_database.py ..                           [ 58%]
+apps/server/tests/metadata/test_migrations.py ....                       [ 58%]
+apps/server/tests/operations/test_backup.py ............................ [ 62%]
+...                                                                      [ 62%]
+apps/server/tests/operations/test_processing.py ......                   [ 63%]
+apps/server/tests/operations/test_request_logging.py .                   [ 63%]
+apps/server/tests/operations/test_restore_rehearsal.py .                 [ 63%]
+apps/server/tests/operations/test_scanner.py .....                       [ 64%]
+apps/server/tests/query/test_execution.py ....                           [ 64%]
+apps/server/tests/query/test_limits.py ....                              [ 65%]
+apps/server/tests/query/test_normalization.py ..................         [ 67%]
+apps/server/tests/query/test_parameters.py ......                        [ 68%]
+apps/server/tests/query/test_safety.py ................................. [ 72%]
+......................                                                   [ 74%]
+apps/server/tests/screen/test_access_policy.py ...                       [ 75%]
+apps/server/tests/screen/test_access_policy_api.py ..                    [ 75%]
+apps/server/tests/screen/test_api.py ....                                [ 75%]
+apps/server/tests/screen/test_asset_management.py ..................     [ 78%]
+apps/server/tests/screen/test_assets.py ............                     [ 79%]
+apps/server/tests/screen/test_chart_query.py ..............              [ 81%]
+apps/server/tests/screen/test_digital_human.py ..............            [ 82%]
+apps/server/tests/screen/test_media.py ............................      [ 86%]
+apps/server/tests/screen/test_publishing.py ............                 [ 87%]
+apps/server/tests/screen/test_repository.py ....                         [ 88%]
+apps/server/tests/screen/test_runtime.py .........                       [ 89%]
+apps/server/tests/screen/test_runtime_api.py ...                         [ 89%]
+apps/server/tests/screen/test_service.py ......                          [ 90%]
+apps/server/tests/speech/test_api.py ......                              [ 91%]
+apps/server/tests/speech/test_concurrency.py ........                    [ 92%]
+apps/server/tests/speech/test_providers.py ...                           [ 92%]
+apps/server/tests/speech/test_repository.py ...................          [ 94%]
+apps/server/tests/speech/test_service.py ...................             [ 97%]
+apps/server/tests/speech/test_worker_process.py .                        [ 97%]
+apps/server/tests/test_app.py .                                          [ 97%]
+apps/server/tests/test_e2e_fake_ai.py ..                                 [ 97%]
+apps/server/tests/test_e2e_file_fixtures.py .                            [ 97%]
+apps/server/tests/test_errors.py ....                                    [ 98%]
+apps/server/tests/test_lifespan.py .......                               [ 99%]
+apps/server/tests/test_prepare_e2e.py .                                  [ 99%]
+apps/server/tests/test_static.py ......                                  [100%]
+
+================ 822 passed, 15 deselected in 172.98s (0:02:52) ================
+
+> datapulse@ typecheck /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck && pnpm --filter @datapulse/plugin-sdk typecheck
+
+
+> datapulse@ typecheck:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web typecheck
+
+
+> @datapulse/web@ typecheck /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && tsc -p tsconfig.e2e.json
+
+
+> @datapulse/embed-sdk@0.1.0 typecheck /Users/dundundebaba/sync/code/open/DataPulse/packages/embed-sdk
+> tsc -p tsconfig.json
+
+
+> @datapulse/plugin-sdk@0.1.0 typecheck /Users/dundundebaba/sync/code/open/DataPulse/packages/plugin-sdk
+> tsc -p tsconfig.json
+
+
+> datapulse@ build /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm build:web
+
+
+> datapulse@ build:web /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm --filter @datapulse/web build
+
+
+> @datapulse/web@ build /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js (158:30): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@daybrush+utils@1.13.0/node_modules/@daybrush/utils/dist/utils.esm.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 2633 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/plugins.ts is dynamically imported by /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/player/api.ts, /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/player/api.ts but also statically imported by /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/api.ts, /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/editorPlugins.ts, /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/migration.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/api.ts is dynamically imported by /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/player/api.ts but also statically imported by /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/CatalogView.vue?vue&type=script&setup=true&lang.ts, /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/PluginLibrary.vue?vue&type=script&setup=true&lang.ts, /Users/dundundebaba/sync/code/open/DataPulse/apps/web/src/features/ecosystem/editorPlugins.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                                                            0.56 kB │ gzip:   0.38 kB
+dist/assets/DatasetDetailView-DiSqDqwR.css                                 0.15 kB │ gzip:   0.13 kB
+dist/assets/identity-DptdohQn.css                                          0.94 kB │ gzip:   0.42 kB
+dist/assets/CatalogView-Bpn5Jc5l.css                                       2.59 kB │ gzip:   0.70 kB
+dist/assets/index-0Z6RMThS.css                                            92.24 kB │ gzip:  16.20 kB
+dist/assets/SharingView-6wmvMGoO.js                                        5.71 kB │ gzip:   2.48 kB
+dist/assets/SqlDebugView-ByE-kmXv.js                                       5.91 kB │ gzip:   2.65 kB
+dist/assets/UsersView-BHbcd71P.js                                          6.46 kB │ gzip:   2.49 kB
+dist/assets/CatalogView-CdFYzZ53.js                                        7.29 kB │ gzip:   3.05 kB
+dist/assets/DatasetDetailView-D8DbojI-.js                                  9.19 kB │ gzip:   3.34 kB
+dist/assets/SqlEditor.vue_vue_type_script_setup_true_lang-CqE_mCeZ.js    437.86 kB │ gzip: 145.41 kB
+dist/assets/index--Na3yooc.js                                          1,522.33 kB │ gzip: 501.38 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.16s

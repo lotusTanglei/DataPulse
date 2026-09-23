@@ -1,0 +1,38 @@
+{
+  "$defs": {
+    "Role": {
+      "enum": [
+        "admin",
+        "editor",
+        "viewer"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/studio-user-create.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "password": {
+      "maxLength": 1024,
+      "minLength": 10,
+      "title": "Password",
+      "type": "string"
+    },
+    "role": {
+      "$ref": "#/$defs/Role",
+      "default": "viewer"
+    },
+    "username": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Username",
+      "type": "string"
+    }
+  },
+  "required": [
+    "username",
+    "password"
+  ],
+  "title": "UserCreate",
+  "type": "object"
+}

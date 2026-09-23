@@ -3,11 +3,13 @@ import { ref } from "vue";
 
 import { ApiError, apiRequest } from "../lib/api";
 
+export type UserRole = "admin" | "editor" | "viewer";
+
 export type AuthState =
   | { status: "unknown" }
   | { status: "setup-required" }
   | { status: "anonymous" }
-  | { status: "authenticated"; username: string };
+  | { status: "authenticated"; username: string; id?: string; role?: UserRole };
 
 export interface SetupPayload {
   code: string;
@@ -26,6 +28,8 @@ interface AuthStatusResponse {
 
 interface SessionResponse {
   username: string;
+  id?: string;
+  role?: UserRole;
 }
 
 export const useAuthStore = defineStore("auth", () => {
@@ -58,7 +62,7 @@ export const useAuthStore = defineStore("auth", () => {
         const session = await apiRequest<SessionResponse>("/api/auth/session");
         state.value = {
           status: "authenticated",
-          username: session.username,
+          ...session,
         };
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
@@ -83,7 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
     });
     state.value = {
       status: "authenticated",
-      username: session.username,
+      ...session,
     };
   }
 
@@ -92,9 +96,10 @@ export const useAuthStore = defineStore("auth", () => {
       method: "POST",
       json: payload,
     });
+    const session = await apiRequest<SessionResponse>("/api/auth/session");
     state.value = {
       status: "authenticated",
-      username: payload.username,
+      ...session,
     };
   }
 

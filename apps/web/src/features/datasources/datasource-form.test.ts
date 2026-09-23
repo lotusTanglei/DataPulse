@@ -42,7 +42,7 @@ function authenticatedFetch(
       return Promise.resolve(jsonResponse({ initialized: true }));
     }
     if (url === "/api/auth/session") {
-      return Promise.resolve(jsonResponse({ username: "admin" }));
+      return Promise.resolve(jsonResponse({ username: "admin", role: "admin" }));
     }
     if (handler !== undefined) {
       return handler(url, init);

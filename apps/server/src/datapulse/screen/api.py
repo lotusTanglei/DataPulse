@@ -3,15 +3,21 @@ from typing import NoReturn
 from fastapi import APIRouter, Depends, Request, Response
 
 from datapulse.auth.dependencies import require_admin, require_csrf
+from datapulse.dataset.repository import DatasetNotFound
 from datapulse.errors import DataPulseError
 from datapulse.screen.access import ScreenAccessPolicy, ScreenAccessPolicyInvalid
 from datapulse.screen.models import (
+    DashboardPlanCompileRequest,
+    DashboardPlanCompileResponse,
+    DashboardPlanRecompileRequest,
+    DashboardPlanRecompileResponse,
     ScreenCreate,
     ScreenDraftUpdate,
     ScreenPublish,
     ScreenResponse,
     ScreenSummary,
 )
+from datapulse.screen.planning import PlanValidationError
 from datapulse.screen.publishing import PublishValidationError
 from datapulse.screen.repository import (
     ScreenDocumentInvalid,
@@ -72,7 +78,9 @@ def _raise_screen_error(error: Exception) -> NoReturn:
 @router.get("")
 async def list_screens(request: Request) -> tuple[ScreenSummary, ...]:
     try:
-        return await request.app.state.screen_service.list()
+        return await request.app.state.identity_service.filter_visible(
+            request.state.admin, "screen", await request.app.state.screen_service.list()
+        )
     except ScreenDocumentInvalid as error:
         _raise_screen_error(error)
 
@@ -80,9 +88,82 @@ async def list_screens(request: Request) -> tuple[ScreenSummary, ...]:
 @router.post("", status_code=201, dependencies=[Depends(require_csrf)])
 async def create_screen(payload: ScreenCreate, request: Request) -> ScreenResponse:
     try:
-        return await request.app.state.screen_service.create(payload)
+        async with request.app.state.ecosystem_service.publication_guard():
+            if payload.draft_document is not None:
+                request.app.state.ecosystem_service.validate_document(payload.draft_document)
+            result = await request.app.state.screen_service.create(payload)
+        await request.app.state.identity_service.register_owner(
+            request.state.admin, "screen", result.id
+        )
+        return result
     except ScreenNameConflict as error:
         _raise_screen_error(error)
+
+
+@router.post("/plan/compile", dependencies=[Depends(require_csrf)])
+async def compile_dashboard_plan(
+    payload: DashboardPlanCompileRequest,
+    request: Request,
+) -> DashboardPlanCompileResponse:
+    try:
+        return await request.app.state.screen_planning_service.compile(
+            payload,
+            request_id=request.state.request_id,
+        )
+    except PlanValidationError as error:
+        raise DataPulseError(
+            code="PLAN_INVALID",
+            message="The dashboard plan is invalid.",
+            status_code=422,
+            field_errors=tuple(
+                {
+                    "component_id": issue.widget_id or "plan",
+                    "field": issue.field,
+                    "reason": issue.reason,
+                    "expected": issue.expected,
+                }
+                for issue in error.result.issues
+            ),
+        ) from error
+    except DatasetNotFound as error:
+        raise DataPulseError(
+            code="PLAN_DATASET_UNAUTHORIZED",
+            message="The dashboard plan references an unavailable dataset.",
+            status_code=422,
+        ) from error
+
+
+@router.post("/plan/recompile", dependencies=[Depends(require_csrf)])
+async def recompile_dashboard_plan(
+    payload: DashboardPlanRecompileRequest,
+    request: Request,
+) -> DashboardPlanRecompileResponse:
+    try:
+        return await request.app.state.screen_planning_service.recompile(
+            payload,
+            request_id=request.state.request_id,
+        )
+    except PlanValidationError as error:
+        raise DataPulseError(
+            code="PLAN_INVALID",
+            message="The dashboard plan is invalid.",
+            status_code=422,
+            field_errors=tuple(
+                {
+                    "component_id": issue.widget_id or "plan",
+                    "field": issue.field,
+                    "reason": issue.reason,
+                    "expected": issue.expected,
+                }
+                for issue in error.result.issues
+            ),
+        ) from error
+    except DatasetNotFound as error:
+        raise DataPulseError(
+            code="PLAN_DATASET_UNAUTHORIZED",
+            message="The dashboard plan references an unavailable dataset.",
+            status_code=422,
+        ) from error
 
 
 @router.get("/{screen_id}")
@@ -100,7 +181,10 @@ async def update_screen(
     request: Request,
 ) -> ScreenResponse:
     try:
-        return await request.app.state.screen_service.save_draft(screen_id, payload)
+        async with request.app.state.ecosystem_service.publication_guard():
+            if payload.draft_document is not None:
+                request.app.state.ecosystem_service.validate_document(payload.draft_document)
+            return await request.app.state.screen_service.save_draft(screen_id, payload)
     except (
         ScreenNotFound,
         ScreenNameConflict,
@@ -136,7 +220,14 @@ async def update_screen_access_policy(
 )
 async def copy_screen(screen_id: str, request: Request) -> ScreenResponse:
     try:
-        return await request.app.state.screen_service.copy(screen_id)
+        async with request.app.state.ecosystem_service.publication_guard():
+            source = await request.app.state.screen_service.get(screen_id)
+            request.app.state.ecosystem_service.validate_document(source.draft_document)
+            result = await request.app.state.screen_service.copy(screen_id)
+        await request.app.state.identity_service.register_owner(
+            request.state.admin, "screen", result.id
+        )
+        return result
     except (ScreenNotFound, ScreenNameConflict, ScreenDocumentInvalid) as error:
         _raise_screen_error(error)
 

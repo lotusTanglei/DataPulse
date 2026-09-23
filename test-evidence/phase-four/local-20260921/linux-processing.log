@@ -1,0 +1,151 @@
+..........F.............................                                 [100%]
+=================================== FAILURES ===================================
+_______________ test_parse_parquet_maps_numeric_and_date_fields ________________
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_parse_parquet_maps_numeri0/sales.parquet')
+file_format = <FileFormat.PARQUET: 'parquet'>, sheet_name = None, max_rows = 10
+
+    async def parse_file(
+        path: Path,
+        file_format: FileFormat,
+        *,
+        sheet_name: str | None,
+        max_rows: int,
+    ) -> ParsedFile:
+        if max_rows < 1 or max_rows > 5000:
+            raise FileParseInvalid("The file preview row limit is invalid.")
+        path = path.resolve()
+        try:
+            with TemporaryDirectory(prefix=".parse-", dir=path.parent) as temporary:
+                stage = Path(temporary).resolve()
+                source = stage / path.name
+                shutil.copyfile(path, source)
+                os.chmod(source, 0o600)
+>               result = await run_json_worker(
+                    {
+                        "operation": "file",
+                        "path": str(source),
+                        "format": file_format.value,
+                        "sheet_name": sheet_name,
+                        "max_rows": max_rows,
+                    },
+                    directory=stage,
+                )
+
+apps/server/src/datapulse/filedata/parsers.py:276: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/server/src/datapulse/operations/processing.py:134: in run_json_worker
+    output = await run_processor(
+apps/server/src/datapulse/operations/processing.py:80: in run_processor
+    return await _execute(command, directory, timeout_seconds, memory_mb, max_output_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+command = ['/app/.venv/bin/python', '-m', 'datapulse.operations.parse_worker', '/tmp/pytest-of-root/pytest-0/test_parse_parquet_maps_numeri0/.parse-_4zixlu6/request-i7xhkn__.json']
+directory = PosixPath('/tmp/pytest-of-root/pytest-0/test_parse_parquet_maps_numeri0/.parse-_4zixlu6')
+timeout = 30, memory = 1024, limit = 8388608
+
+    async def _execute(
+        command: list[str], directory: Path, timeout: float, memory: int, limit: int
+    ) -> bytes:
+        launch = asyncio.create_task(
+            asyncio.create_subprocess_exec(
+                *bounded_command(command, cpu_seconds=max(1, math.ceil(timeout)), memory_mb=memory),
+                cwd=directory,
+                env=processor_environment(),
+                start_new_session=True,
+                stdin=asyncio.subprocess.DEVNULL,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+        )
+        try:
+            process = await asyncio.shield(launch)
+        except asyncio.CancelledError:
+            process = await launch
+            await _kill(process)
+            raise
+        except OSError as error:
+            raise ProcessorFailed("The processor is unavailable.") from error
+        tasks = [
+            asyncio.create_task(_read_bounded(process.stdout, limit)),
+            asyncio.create_task(_read_bounded(process.stderr, limit)),
+            asyncio.create_task(process.wait()),
+        ]
+        try:
+            output, _diagnostics, code = await asyncio.wait_for(asyncio.gather(*tasks), timeout)
+            if code != 0:
+>               raise ProcessorFailed("The processor failed or exceeded a resource limit.")
+E               datapulse.operations.processing.ProcessorFailed: The processor failed or exceeded a resource limit.
+
+apps/server/src/datapulse/operations/processing.py:116: ProcessorFailed
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_parse_parquet_maps_numeri0')
+
+    async def test_parse_parquet_maps_numeric_and_date_fields(tmp_path: Path) -> None:
+        parquet_path = tmp_path / "sales.parquet"
+        table = pa.table(
+            {
+                "day": pa.array([date(2026, 1, 1), date(2026, 1, 2)], type=pa.date32()),
+                "amount": pa.array([10.5, 12.0], type=pa.float64()),
+                "count": pa.array([1, 2], type=pa.int64()),
+            }
+        )
+        pq.write_table(table, parquet_path)
+    
+>       parsed = await parse_file(parquet_path, FileFormat.PARQUET, sheet_name=None, max_rows=10)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/server/tests/filedata/test_parsers.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-root/pytest-0/test_parse_parquet_maps_numeri0/sales.parquet')
+file_format = <FileFormat.PARQUET: 'parquet'>, sheet_name = None, max_rows = 10
+
+    async def parse_file(
+        path: Path,
+        file_format: FileFormat,
+        *,
+        sheet_name: str | None,
+        max_rows: int,
+    ) -> ParsedFile:
+        if max_rows < 1 or max_rows > 5000:
+            raise FileParseInvalid("The file preview row limit is invalid.")
+        path = path.resolve()
+        try:
+            with TemporaryDirectory(prefix=".parse-", dir=path.parent) as temporary:
+                stage = Path(temporary).resolve()
+                source = stage / path.name
+                shutil.copyfile(path, source)
+                os.chmod(source, 0o600)
+                result = await run_json_worker(
+                    {
+                        "operation": "file",
+                        "path": str(source),
+                        "format": file_format.value,
+                        "sheet_name": sheet_name,
+                        "max_rows": max_rows,
+                    },
+                    directory=stage,
+                )
+                parsed = ParsedFile.model_validate(result["parsed"])
+                normalized = parsed.normalized_path
+                if normalized.is_symlink() or normalized.parent != stage or not normalized.is_file():
+                    raise FileParseInvalid("The processor returned an invalid normalized file.")
+                destination = path if normalized == source else path.parent / normalized.name
+                if normalized != source:
+                    os.chmod(normalized, 0o600)
+                    os.replace(normalized, destination)
+                return parsed.model_copy(update={"normalized_path": destination})
+        except (ProcessorFailed, OSError, ValueError, KeyError) as error:
+            if isinstance(error, FileParseInvalid):
+                raise
+>           raise FileParseInvalid("The file cannot be decoded within processing limits.") from error
+E           datapulse.filedata.parsers.FileParseInvalid: The file cannot be decoded within processing limits.
+
+apps/server/src/datapulse/filedata/parsers.py:298: FileParseInvalid
+=========================== short test summary info ============================
+FAILED apps/server/tests/filedata/test_parsers.py::test_parse_parquet_maps_numeric_and_date_fields
+1 failed, 39 passed in 22.13s

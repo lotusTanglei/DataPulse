@@ -1,0 +1,94 @@
+F.FF                                                                     [100%]
+=================================== FAILURES ===================================
+__ test_fifty_concurrent_reads_share_one_real_parser_and_cache_is_not_mutable __
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-122/test_fifty_concurrent_reads_sh0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f1b3360>
+
+    async def test_fifty_concurrent_reads_share_one_real_parser_and_cache_is_not_mutable(
+        tmp_path, monkeypatch
+    ):
+        source = tmp_path / "source.csv"
+        source.write_text("amount\n12\n")
+        launches = []
+        original = asyncio.create_subprocess_exec
+    
+        async def capture(*args, **kwargs):
+            process = await original(*args, **kwargs)
+            launches.append(process)
+            return process
+    
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", capture)
+        results = await asyncio.gather(
+            *(parsers.parse_file(source, FileFormat.CSV, sheet_name=None, max_rows=10) for _ in range(50)),
+            return_exceptions=True,
+        )
+>       assert not [result for result in results if isinstance(result, BaseException)]
+E       AssertionError: assert not [FileParseInvalid('The file cannot be decoded within processing limits.'), FileParseInvalid('The file cannot be decode... be decoded within processing limits.'), FileParseInvalid('The file cannot be decoded within processing limits.'), ...]
+
+apps/server/tests/filedata/test_parse_cache.py:30: AssertionError
+____ test_cancelling_one_waiter_keeps_shared_parser_alive_for_other_reader _____
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-122/test_cancelling_one_waiter_kee0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f53c2b0>
+
+    async def test_cancelling_one_waiter_keeps_shared_parser_alive_for_other_reader(tmp_path, monkeypatch):
+        source = tmp_path / "source.csv"
+        source.write_text("amount\n12\n")
+        started, release = asyncio.Event(), asyncio.Event()
+        processes = []
+        original = asyncio.create_subprocess_exec
+    
+        async def delayed(*args, **kwargs):
+            process = await original(*args, **kwargs)
+            processes.append(process)
+            started.set()
+            await release.wait()
+            return process
+    
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", delayed)
+        first = asyncio.create_task(
+            parsers.parse_file(source, FileFormat.CSV, sheet_name=None, max_rows=10)
+        )
+        second = asyncio.create_task(
+            parsers.parse_file(source, FileFormat.CSV, sheet_name=None, max_rows=10)
+        )
+        try:
+            await asyncio.wait_for(started.wait(), timeout=10)
+            first.cancel()
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await first
+            result = await second
+            assert result.sample_rows == ({"amount": "12"},)
+>           assert len(processes) == 1
+E           assert 2 == 1
+E            +  where 2 = len([<Process 98277>, <Process 98278>])
+
+apps/server/tests/filedata/test_parse_cache.py:91: AssertionError
+_____ test_source_changed_during_parse_is_rejected_and_next_read_is_fresh ______
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-122/test_source_changed_during_par0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f49d5b0>
+
+    async def test_source_changed_during_parse_is_rejected_and_next_read_is_fresh(tmp_path, monkeypatch):
+        source = tmp_path / "source.csv"
+        source.write_text("amount\n12\n")
+        original = parsers.run_json_worker
+    
+        async def changed(*args, **kwargs):
+            result = await original(*args, **kwargs)
+            source.write_text("amount\n99\n")
+            return result
+    
+        monkeypatch.setattr(parsers, "run_json_worker", changed)
+>       with pytest.raises(parsers.FileParseInvalid, match="changed"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'datapulse.filedata.parsers.FileParseInvalid'>
+
+apps/server/tests/filedata/test_parse_cache.py:110: Failed
+=========================== short test summary info ============================
+FAILED apps/server/tests/filedata/test_parse_cache.py::test_fifty_concurrent_reads_share_one_real_parser_and_cache_is_not_mutable
+FAILED apps/server/tests/filedata/test_parse_cache.py::test_cancelling_one_waiter_keeps_shared_parser_alive_for_other_reader
+FAILED apps/server/tests/filedata/test_parse_cache.py::test_source_changed_during_parse_is_rejected_and_next_read_is_fresh
+3 failed, 1 passed in 8.40s

@@ -181,6 +181,78 @@ test("document commands update canvas, theme, refresh, and parameters immutably"
   expect(initial.canvas.width).toBe(1920);
 });
 
+test("digital human duplication can omit speech, trigger, and audio references", () => {
+  const initial = documentWithText();
+  initial.components!.push({
+    id: "speaker-1",
+    type: "builtin.digital_human",
+    frame: { x: 400, y: 40, width: 320, height: 420, z_index: 1 },
+    state: { locked: false, hidden: false },
+    props: {
+      speech_template: "销售额 {{value}}",
+      trigger: { kind: "data_change" },
+      auto_play: true,
+      speech_source: "audio",
+      audio_asset_id: "voice-1",
+      recording: { asset_id: "voice-1" },
+      recordings: [{ asset_id: "voice-2" }],
+      avatar_asset_id: "avatar-1",
+    },
+    data_binding: { source: "components", variables: [{ name: "value", component_id: "text-1", field: "value" }] },
+    interactions: [],
+  });
+
+  const result = applyCommand(initial, {
+    type: "duplicate_components",
+    source_ids: ["speaker-1"],
+    id_map: { "speaker-1": "speaker-copy" },
+    digital_human: { copySpeech: false, copyTrigger: false, copyAudio: false },
+  });
+  const copied = result.components?.find((component) => component.id === "speaker-copy");
+
+  expect(copied?.props).toMatchObject({
+    auto_play: false,
+    speech_source: "browser",
+    avatar_asset_id: "avatar-1",
+  });
+  expect(copied?.props).not.toHaveProperty("speech_template");
+  expect(copied?.props).not.toHaveProperty("trigger");
+  expect(copied?.props).not.toHaveProperty("audio_asset_id");
+  expect(copied?.props).not.toHaveProperty("recordings");
+  expect(copied?.data_binding).toEqual({});
+  expect(initial.components?.find((component) => component.id === "speaker-1")?.props).toHaveProperty("audio_asset_id", "voice-1");
+});
+
+test("digital human duplication remaps references copied in the same batch", () => {
+  const initial = documentWithText();
+  initial.components!.push({
+    id: "speaker-1",
+    type: "builtin.digital_human",
+    frame: { x: 400, y: 40, width: 320, height: 420, z_index: 1 },
+    props: { speech_template: "销售额 {{value}}" },
+    data_binding: {
+      source: "components",
+      variables: [{ name: "value", component_id: "text-1", field: "value" }],
+    },
+    interactions: [],
+  });
+
+  const result = applyCommand(initial, {
+    type: "duplicate_components",
+    source_ids: ["text-1", "speaker-1"],
+    id_map: { "text-1": "text-copy", "speaker-1": "speaker-copy" },
+  });
+  const copied = result.components?.find((component) => component.id === "speaker-copy");
+
+  expect(copied?.data_binding).toMatchObject({
+    source: "components",
+    variables: [{ component_id: "text-copy" }],
+  });
+  expect(initial.components?.find((component) => component.id === "speaker-1")?.data_binding).toMatchObject({
+    variables: [{ component_id: "text-1" }],
+  });
+});
+
 test("commands reject unknown and duplicate component IDs", () => {
   expect(() =>
     applyCommand(documentWithText(), {

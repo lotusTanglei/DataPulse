@@ -1,0 +1,52 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-usage.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "cached_count": {
+      "minimum": 0,
+      "title": "Cached Count",
+      "type": "integer"
+    },
+    "estimated_cost": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Estimated Cost",
+      "type": "number"
+    },
+    "failed_count": {
+      "minimum": 0,
+      "title": "Failed Count",
+      "type": "integer"
+    },
+    "generated_seconds": {
+      "minimum": 0,
+      "title": "Generated Seconds",
+      "type": "number"
+    },
+    "period_start": {
+      "format": "date-time",
+      "title": "Period Start",
+      "type": "string"
+    },
+    "succeeded_count": {
+      "minimum": 0,
+      "title": "Succeeded Count",
+      "type": "integer"
+    },
+    "task_count": {
+      "minimum": 0,
+      "title": "Task Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "period_start",
+    "task_count",
+    "succeeded_count",
+    "failed_count",
+    "generated_seconds",
+    "cached_count"
+  ],
+  "title": "DigitalHumanUsageResponse",
+  "type": "object"
+}

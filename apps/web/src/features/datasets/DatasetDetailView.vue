@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
+import { useStudioPermissions } from "../identity/permissions";
 import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
 import { getDatasource } from "../datasources/api";
 import { listFileAssets } from "../files/api";
@@ -21,21 +22,41 @@ import type {
 import {
   deleteDataset,
   getDataset,
+  getDatasetProfile,
   previewDataset,
+  updateDatasetProfile,
   updateDataset,
 } from "./api";
-import type { Dataset } from "./types";
+import type {
+  Dataset,
+  DatasetAggregation,
+  DatasetFieldProfile,
+  DatasetFieldRole,
+  DatasetProfile,
+} from "./types";
 
 const route = useRoute();
 const router = useRouter();
+const { canCreate, canWriteResource } = useStudioPermissions();
+const canWrite = ref(false);
 const dataset = ref<Dataset | null>(null);
+const profile = ref<DatasetProfile | null>(null);
+const profileDraft = ref<Record<string, {
+  data_type: string;
+  role: DatasetFieldRole;
+  default_aggregation: DatasetAggregation | "";
+  unit: string;
+  display_name: string;
+}>>({});
 const loading = ref(true);
 const saving = ref(false);
 const previewing = ref(false);
 const deleting = ref(false);
+const profileSaving = ref(false);
 const loadError = ref<ApiError | null>(null);
 const formError = ref<ApiError | null>(null);
 const previewError = ref<ApiError | null>(null);
+const profileError = ref<ApiError | null>(null);
 const result = ref<QueryResult | null>(null);
 const fileAsset = ref<FileAsset | null>(null);
 const name = ref("");
@@ -73,14 +94,32 @@ function hydrate(value: Dataset): void {
     : [];
 }
 
+function hydrateProfile(value: DatasetProfile): void {
+  profile.value = value;
+  profileDraft.value = Object.fromEntries(
+    value.fields.map((field) => [field.name, {
+      data_type: field.data_type,
+      role: field.role,
+      default_aggregation: field.default_aggregation ?? "",
+      unit: field.unit ?? "",
+      display_name: field.display_name ?? field.name,
+    }]),
+  );
+}
+
 async function load(id: string): Promise<void> {
   loadController?.abort();
   const controller = new AbortController();
   loadController = controller;
   loading.value = true;
   loadError.value = null;
+  canWrite.value = false;
+  profile.value = null;
+  profileError.value = null;
   try {
-    const loaded = await getDataset(id, controller.signal);
+    const [loaded, writable] = await Promise.all([
+      getDataset(id, controller.signal), canWriteResource("dataset", id),
+    ]);
     const query = loaded.definition.query;
     let nextDialect: SqlDialect = "sqlite";
     let nextFileAsset: FileAsset | null = null;
@@ -100,6 +139,21 @@ async function load(id: string): Promise<void> {
       datasourceDialect.value = nextDialect;
       fileAsset.value = nextFileAsset;
       hydrate(loaded);
+      canWrite.value = writable;
+      try {
+        hydrateProfile(await getDatasetProfile(id, controller.signal));
+      } catch (reason) {
+        if (!controller.signal.aborted) {
+          profileError.value = reason instanceof ApiError
+            ? reason
+            : new ApiError({
+                code: "DATASET_PROFILE_LOAD_FAILED",
+                message: "暂时无法加载数据画像。",
+                requestId: "",
+                status: 500,
+              });
+        }
+      }
     }
   } catch (reason) {
     if (!controller.signal.aborted) {
@@ -120,8 +174,75 @@ async function load(id: string): Promise<void> {
   }
 }
 
+async function saveProfile(): Promise<void> {
+  if (!canWrite.value || dataset.value === null || profile.value === null) {
+    return;
+  }
+  profileSaving.value = true;
+  profileError.value = null;
+  try {
+    const corrections = profile.value.fields.flatMap((field) => {
+      const draft = profileDraft.value[field.name] ?? field;
+      const typeOrRoleChanged =
+        draft.data_type !== field.data_type || draft.role !== field.role;
+      const aggregationChanged =
+        draft.default_aggregation !== (field.default_aggregation ?? "");
+      const unitChanged = draft.unit !== (field.unit ?? "");
+      const displayNameChanged =
+        draft.display_name !== (field.display_name ?? field.name);
+      if (!typeOrRoleChanged && !aggregationChanged && !unitChanged && !displayNameChanged) {
+        return [];
+      }
+      const correction: {
+        name: string;
+        data_type?: DatasetFieldProfile["data_type"];
+        role?: DatasetFieldRole;
+        default_aggregation?: DatasetAggregation;
+        unit?: string;
+        display_name?: string;
+      } = {
+        name: field.name,
+      };
+      if (typeOrRoleChanged) {
+        correction.data_type = draft.data_type as DatasetFieldProfile["data_type"];
+        correction.role = draft.role;
+      }
+      if (aggregationChanged && draft.default_aggregation !== "") {
+        correction.default_aggregation = draft.default_aggregation;
+      }
+      if (unitChanged && draft.unit !== "") {
+        correction.unit = draft.unit;
+      }
+      if (displayNameChanged && draft.display_name !== "") {
+        correction.display_name = draft.display_name;
+      }
+      return [correction];
+    });
+    if (corrections.length === 0) {
+      profileSaving.value = false;
+      return;
+    }
+    const updated = await updateDatasetProfile(dataset.value.id, {
+      fields: corrections,
+    });
+    hydrateProfile(updated);
+  } catch (reason) {
+    profileError.value = reason instanceof ApiError
+      ? reason
+      : new ApiError({
+          code: "DATASET_PROFILE_UPDATE_FAILED",
+          message: "暂时无法保存字段修正。",
+          requestId: "",
+          status: 500,
+        });
+  } finally {
+    profileSaving.value = false;
+  }
+}
+
 async function save(): Promise<void> {
   if (
+    !canWrite.value ||
     dataset.value === null ||
     name.value.trim() === "" ||
     !parametersValid.value
@@ -174,6 +295,7 @@ async function save(): Promise<void> {
 
 async function remove(): Promise<void> {
   if (
+    !canWrite.value ||
     dataset.value === null ||
     deleting.value ||
     !window.confirm(
@@ -281,6 +403,7 @@ onBeforeUnmount(() => {
         </div>
         <div class="query-actions">
           <button
+            v-if="canWrite"
             class="secondary-button"
             data-action="save-dataset"
             type="button"
@@ -291,6 +414,7 @@ onBeforeUnmount(() => {
             {{ saving ? "正在保存…" : "保存" }}
           </button>
           <button
+            v-if="canWrite"
             class="secondary-button"
             data-action="delete-dataset"
             type="button"
@@ -313,24 +437,26 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <InlineNotice v-if="!canWrite" tone="info">当前为只读访问，可调整预览参数并运行查询。</InlineNotice>
       <div v-if="isSqlDataset">
         <div class="dataset-config-grid">
           <label>
             <span>名称</span>
-            <input v-model="name" name="name" />
+            <input v-model="name" name="name" :disabled="!canWrite" />
           </label>
           <label>
             <span>最大行数</span>
-            <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" />
+            <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" :disabled="!canWrite" />
           </label>
           <label>
             <span>超时（秒）</span>
-            <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" />
+            <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" :disabled="!canWrite" />
           </label>
         </div>
 
         <div id="dataset-sql-editor" class="sql-editor-frame dataset-sql-editor">
-          <SqlEditor v-model="sql" :dialect="datasourceDialect" />
+          <SqlEditor v-if="canWrite" v-model="sql" :dialect="datasourceDialect" />
+          <pre v-else class="readonly-sql" aria-label="SQL 查询定义">{{ sql }}</pre>
         </div>
 
         <ParameterEditor
@@ -344,7 +470,7 @@ onBeforeUnmount(() => {
         <div class="dataset-config-grid dataset-config-grid--stacked">
           <label>
             <span>名称</span>
-            <input v-model="name" name="name" />
+            <input v-model="name" name="name" :disabled="!canWrite" />
           </label>
           <label>
             <span>来源文件</span>
@@ -360,11 +486,11 @@ onBeforeUnmount(() => {
           </label>
           <label>
             <span>最大行数</span>
-            <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" />
+            <input v-model.number="maxRows" name="maxRows" type="number" min="1" max="5000" :disabled="!canWrite" />
           </label>
           <label>
             <span>超时（秒）</span>
-            <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" />
+            <input v-model.number="timeoutSeconds" name="timeoutSeconds" type="number" min="1" max="300" :disabled="!canWrite" />
           </label>
         </div>
         <div v-if="fileAsset" class="dataset-file-asset">
@@ -385,6 +511,112 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
+      <section v-if="profile" class="dataset-profile" aria-labelledby="dataset-profile-title">
+        <div class="dataset-profile__heading">
+          <div>
+            <p class="page-eyebrow">Profile</p>
+            <h2 id="dataset-profile-title">数据画像</h2>
+            <p>
+              {{ profile.row_count.toLocaleString("zh-CN") }} 行 ·
+              {{ profile.fields.length }} 个字段
+              <span v-if="profile.sampled">· 基于受限样本</span>
+            </p>
+          </div>
+          <button
+            v-if="canWrite"
+            class="secondary-button"
+            data-action="save-profile"
+            type="button"
+            :disabled="profileSaving"
+            @click="saveProfile"
+          >
+            <Save :size="14" aria-hidden="true" />
+            {{ profileSaving ? "正在保存…" : "保存字段修正" }}
+          </button>
+        </div>
+        <div class="dataset-profile__table-wrap">
+          <table class="dataset-profile__table">
+            <thead>
+              <tr><th>字段</th><th>类型</th><th>角色</th><th>聚合</th><th>单位</th><th>显示名</th><th>基数</th><th>空值</th></tr>
+            </thead>
+            <tbody>
+              <tr v-for="field in profile.fields" :key="field.name">
+                <th scope="row"><code>{{ field.name }}</code></th>
+                <td>
+                  <select
+                    v-if="canWrite"
+                    :data-profile-type="field.name"
+                    v-model="profileDraft[field.name]!.data_type"
+                  >
+                    <option value="string">string</option>
+                    <option value="integer">integer</option>
+                    <option value="number">number</option>
+                    <option value="boolean">boolean</option>
+                    <option value="date">date</option>
+                    <option value="datetime">datetime</option>
+                  </select>
+                  <span v-else>{{ field.data_type }}</span>
+                </td>
+                <td>
+                  <select
+                    v-if="canWrite"
+                    :data-profile-role="field.name"
+                    v-model="profileDraft[field.name]!.role"
+                  >
+                    <option value="identifier">标识</option>
+                    <option value="dimension">维度</option>
+                    <option value="measure">度量</option>
+                    <option value="geography">地理</option>
+                    <option value="temporal">时间</option>
+                    <option value="text">文本</option>
+                    <option value="boolean">布尔</option>
+                    <option value="unknown">未知</option>
+                  </select>
+                  <span v-else>{{ field.role }}</span>
+                </td>
+                <td>
+                  <select
+                    v-if="canWrite"
+                    :data-profile-aggregation="field.name"
+                    v-model="profileDraft[field.name]!.default_aggregation"
+                  >
+                    <option value="">无</option>
+                    <option value="sum">sum</option>
+                    <option value="avg">avg</option>
+                    <option value="min">min</option>
+                    <option value="max">max</option>
+                    <option value="count">count</option>
+                  </select>
+                  <span v-else>{{ field.default_aggregation || "-" }}</span>
+                </td>
+                <td>
+                  <input
+                    v-if="canWrite"
+                    :data-profile-unit="field.name"
+                    v-model="profileDraft[field.name]!.unit"
+                  />
+                  <span v-else>{{ field.unit || "-" }}</span>
+                </td>
+                <td>
+                  <input
+                    v-if="canWrite"
+                    :data-profile-display-name="field.name"
+                    v-model="profileDraft[field.name]!.display_name"
+                  />
+                  <span v-else>{{ field.display_name || field.name }}</span>
+                </td>
+                <td>{{ field.cardinality }}</td>
+                <td>{{ field.null_count }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <InlineNotice v-if="profileError" tone="error">
+        <p>{{ profileError.message }}</p>
+        <code v-if="profileError.requestId">{{ profileError.requestId }}</code>
+      </InlineNotice>
+
       <InlineNotice v-if="formError" tone="error">
         <p>{{ formError.message }}</p>
         <code v-if="formError.requestId">{{ formError.requestId }}</code>
@@ -395,6 +627,7 @@ onBeforeUnmount(() => {
       </InlineNotice>
 
       <AiAnalysisPanel
+        v-if="canCreate"
         class="dataset-ai-panel"
         :fixed-dataset-id="dataset.id"
       />
@@ -412,7 +645,43 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.readonly-sql {
+  margin: 0;
+  padding: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .dataset-ai-panel {
   margin-top: 20px;
+}
+.dataset-profile {
+  margin-top: 20px;
+  border: 1px solid var(--border-color, #d6dde7);
+  padding: 16px;
+}
+.dataset-profile__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dataset-profile__heading h2,
+.dataset-profile__heading p {
+  margin: 0;
+}
+.dataset-profile__table-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+.dataset-profile__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.dataset-profile__table th,
+.dataset-profile__table td {
+  border-bottom: 1px solid var(--border-color, #d6dde7);
+  padding: 8px;
+  white-space: nowrap;
 }
 </style>

@@ -1,8 +1,8 @@
 # DataPulse
 
-DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源数据分析与大屏创作软件。当前版本已经交付数据源工作室和完整的大屏创作链路：单管理员登录、数据库与 HTTP API 数据源、可复用数据集、5 个内置模板、21 类内置组件、可视化编辑、草稿预览、发布、独立播放和安全嵌入。
+DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源数据分析与大屏创作软件。当前版本已经交付数据源工作室和完整的大屏创作链路：本地多用户与资源授权、数据库与 HTTP API 数据源、可复用数据集、5 个内置模板、21 类内置组件、可视化编辑、草稿预览、发布、独立播放和安全嵌入。
 
-编辑端由 DataPulse 的单一管理员账号保护；未来发布的大屏页面以嵌入宿主系统为主，查看权限和身份由宿主系统承担。
+编辑端支持管理员、编辑者和只读用户，按资源共享查看、编辑和发布权限。发布的大屏可嵌入宿主系统，观看者身份与业务权限仍由宿主系统承担。
 
 ## 当前能力与边界
 
@@ -26,9 +26,9 @@ DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源
 - 运行时组件级错误隔离和手动刷新
 - Vue 3 Studio 与 FastAPI 单镜像交付，容器启动自动执行 Alembic 迁移
 
-当前不包含多用户协作、复杂权限、模板市场、组件市场、插件 SDK 或任意
-JavaScript/HTML 注入。内置模板不等于模板市场。AI 生成和局部修改只会先产生预览或
-写入草稿，不会自动发布；发布仍需管理员在编辑器中明确确认。
+第四阶段已新增本地账号生命周期、逐资源共享与冲突检测，受控离线模板/插件目录、固定版本插件 SDK 和 SQLite 离线备份恢复工具。开发与本地验证已完成，结果见 [`docs/PHASE_FOUR_CLOSEOUT.md`](docs/PHASE_FOUR_CLOSEOUT.md)；八项目标环境验收仍因条件未准备而阻塞，第四阶段尚未完成。
+
+多人协作采用共享和版本冲突检测；不提供实时共同编辑、组织树、行列级数据权限、外部身份联邦、公共交易市场或对话数字人。插件仅允许管理员安装审核过的同源可信代码；组件异常隔离不是恶意代码沙箱。AI 生成和局部修改先进入预览或草稿，发布需有发布权限的用户明确确认。
 
 ## 路线口径
 
@@ -37,10 +37,10 @@ JavaScript/HTML 注入。内置模板不等于模板市场。AI 生成和局部�
 
 - **第一阶段：基础闭环。** 数据源、数据集、安全查询、可视化编辑、草稿预览、发布、独立播放和安全嵌入。
 - **第二阶段：数据理解与融合创作（已完成）。** 文件数据集、DuckDB、AI 分析、整屏草稿生成、5 个模板、21 类组件、演示/静态/mock 数据和编辑器内 AI 局部修改。
-- **第三阶段：完整数字人播报。** 以数字人组件为载体，提供数据驱动的话术、字幕、播报状态、定时/事件触发、语音播放、静音/暂停和播放/嵌入兼容；必须支持无 AI、无音频时的可用降级。
-- **第四阶段：产品成熟度与生态。** 多用户协作、复杂权限、模板/组件市场、插件 SDK、备份恢复、规模化质量和长期运维能力；包含真实密码管理器、目标生产代理链/CSP、物理 4K/高 DPI 和连续 8 小时播放验收。
+- **第三阶段：完整数字人播报。** 以数字人组件为载体，提供数据驱动的话术、字幕、播报状态、定时/事件触发、语音播放、静音/暂停和播放/嵌入兼容；必须支持无 AI、无音频时的可用降级。当前阶段已完成数字人功能与本地自动化回归，功能预研清单见 [`docs/superpowers/specs/2026-09-09-phase-three-digital-human-broadcast-design.md`](docs/superpowers/specs/2026-09-09-phase-three-digital-human-broadcast-design.md)。
+- **第四阶段：产品成熟度与生态。** 多用户协作、复杂权限、模板/组件市场、插件 SDK、备份恢复、规模化质量和长期运维能力；包含真实密码管理器、目标生产代理链/CSP、物理 4K/高 DPI、连续 8 小时播放，以及数字人真实供应商、播放矩阵、性能基线和生产运维安全验收。
 
-当前映射为：`E1`/`E2` 已完成第一阶段核心能力；`E3`/`E4` 对应第二阶段能力。
+当前映射为：`E1`/`E2` 已完成第一阶段核心能力；`E3`/`E4` 对应第二阶段能力。数字人播报功能与本地回归属于第三阶段；对话数字人暂不纳入产品路线，作为独立产品候选孵化；目标环境和生产成熟度验收属于第四阶段，门禁见 [`docs/PHASE_FOUR_TARGET_ENVIRONMENT.md`](docs/PHASE_FOUR_TARGET_ENVIRONMENT.md)。
 截至 2026-09-09，第二阶段已完成：8 组功能均已实现，确认未开发功能点为 0，
 契约、全量测试、类型、构建、Chromium/Firefox/WebKit 完整 E2E 和数据库集成门禁全部通过。
 验收代码基线为 `08adadb`，详见 [`docs/PHASE_TWO_CLOSEOUT.md`](docs/PHASE_TWO_CLOSEOUT.md)。
@@ -48,11 +48,20 @@ JavaScript/HTML 注入。内置模板不等于模板市场。AI 生成和局部�
 按 2026-09-09 确认的阶段调整，真实密码管理器、目标生产代理链、物理 4K 和连续 8 小时
 播放四项目标环境验收归入第四阶段，仍待目标环境执行，不计为通过，也不再阻塞第二阶段。
 执行条件与证据要求见 [`docs/PHASE_FOUR_TARGET_ENVIRONMENT.md`](docs/PHASE_FOUR_TARGET_ENVIRONMENT.md)。
-数字人播报的功能、可用降级与资源占用在第三阶段验收。
+数字人播报的功能、可用降级与本地资源回归在第三阶段验收；对话数字人不作为当前产品阶段交付。
 
 播放和嵌入共享同一份已发布文档与组件运行时，但访问方式不同：独立播放使用可撤销
 显示密钥，系统嵌入由宿主后端使用 API Key 换取短期 Embed Ticket。编辑端 Session
 不会暴露给播放页或宿主前端。
+
+## 第四阶段使用与运维
+
+- [用户、角色与共享权限](docs/operations/identity-permissions.md)：用户管理、授权依赖、会话撤销和编辑冲突。
+- [插件 SDK 与离线目录](docs/operations/ecosystem-plugins.md)：安装包、可信代码、固定版本、升级和回退。
+- [备份恢复](docs/operations/backup-restore.md)：维护窗口、归档校验、独立密钥、空目录恢复和升级回滚。
+- [独立 speech worker](docs/operations/speech-workers.md)：数据库领取、租约心跳、配额和过期任务恢复。
+- [上传安全与容量](docs/operations/security-capacity.md)：扫描器、受限子进程及生产验证边界。
+- [容器、容量与日志预检](docs/operations/local-validation.md)：隔离容器演练工具、固定负载、结构化日志和告警配置。
 
 ## 环境要求
 
@@ -79,6 +88,14 @@ uv run --package datapulse-server uvicorn datapulse.app:app --reload
 pnpm dev:web
 ```
 
+生产环境可将 API 进程的 `DATAPULSE_SPEECH_WORKER_ENABLED` 设为 `false`，再使用相同数据目录、密钥和数据库配置启动独立播报 worker：
+
+```bash
+uv run --package datapulse-server datapulse-speech-worker
+```
+
+worker 使用持久化语音任务表和原子状态转换；可运行多个副本，但仍需由部署平台负责进程守护、数据库高可用和跨主机容量治理。
+
 后端启动日志会输出仅可使用一次、且有有效期的初始化代码。打开 `http://127.0.0.1:5173/studio` 创建管理员。Vite 默认把 `/api` 代理到 `http://127.0.0.1:8000`，也可用 `VITE_API_PROXY_TARGET` 覆盖。
 
 ## Docker 部署
@@ -101,6 +118,21 @@ docker compose logs datapulse
 ```
 
 日志中的 `DataPulse one-time setup code` 是首次初始化代码。Studio 地址为 `http://127.0.0.1:8000/studio`，健康检查为 `http://127.0.0.1:8000/api/health`。容器会先执行 `alembic upgrade head`，成功后才启动 Web 服务。
+
+可选启用 Prometheus 数字人指标抓取。先生成只用于抓取的 bearer token，同时写入
+DataPulse 环境变量和 Prometheus token 文件（不要复用管理员或签名密钥）：
+
+```bash
+mkdir -p .secrets
+python3 -c 'import secrets; print(secrets.token_urlsafe(32))' | tee .secrets/datapulse_metrics_token
+export DATAPULSE_METRICS_TOKEN="$(tr -d "\\n" < .secrets/datapulse_metrics_token)"
+export DATAPULSE_METRICS_TOKEN_FILE=./.secrets/datapulse_metrics_token
+docker compose --profile observability up -d prometheus
+```
+
+Prometheus 只抓取低基数的当天数字人计数和耗时，并加载
+`deploy/prometheus/datapulse-digital-human.yml` 中的失败率、失败次数和延迟告警。
+未配置 `DATAPULSE_METRICS_TOKEN` 时，内部端点保持关闭。
 
 运行数据保存在 `datapulse-data` 卷。SQLite 文件必须放在容器 `/data/sources` 下，并在表单中填写相对路径，例如 `sales.db`：
 
@@ -131,6 +163,15 @@ HTTP API 凭据保存在数据源的加密密钥信封中，支持无认证、Be
 与数据源保持相同协议、主机和端口；响应体上限为 5 MB，数据集行数和超时仍受统一的
 5,000 行与 300 秒上限约束。部署时仍应在网络出口层配置 DNS 解析和内网访问控制。
 HTTP API 数据源没有数据库 Schema 或 SQL 调试页，使用 API 数据集请求定义进行预览和查询。
+
+## 多源大屏与跨源口径
+
+一块大屏可以同时使用数据库、Excel/CSV 等文件和 HTTP API 数据集。DataPulse 会按来源组织
+数据集与组件，并在时间或维度粒度不一致时提示口径风险；每个图表组件仍只绑定一个数据集。
+
+需要把多个来源的数据放进同一张图表时，请先在上游完成合并：同库数据优先建立源库视图或
+物化视图，跨系统数据由上游服务提供统一接口，再通过现有 HTTP API 数据集接入。DataPulse
+不执行单张图表跨数据集 join，也不提供派生数据集或临时 ETL。
 
 ## 文件数据集与 DuckDB
 

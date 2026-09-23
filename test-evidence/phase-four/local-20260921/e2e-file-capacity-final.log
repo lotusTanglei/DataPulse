@@ -1,0 +1,266 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --project=chromium --project=firefox --project=webkit e2e/file-dataset.spec.ts --output=../../test-evidence/phase-four/local-20260921/file-capacity-final-artifacts
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[E2E] Running isolated project: chromium
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [3978]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:58187 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:24.265404+00:00","request_id":"fe0e9fd8-511b-4ac2-8ad2-5723a016d946","method":"GET","route":"/api/auth/status","status":200,"duration_ms":3.36}
+[WebServer] (node:3997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:4025) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:26.109370+00:00","request_id":"f2fbac6a-d958-4987-b674-abf3784efbee","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:26.173596+00:00","request_id":"9e898fe9-594b-4347-88ea-9c81a972ec8a","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":52.82}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:26.435160+00:00","request_id":"c0f2dc9b-92c9-4875-9101-548737c2289d","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:26.450489+00:00","request_id":"8444c913-616b-4307-a9cb-dda84314331c","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:26.492346+00:00","request_id":"362e307e-2b87-4b46-972a-a41fea04937c","method":"GET","route":"/api/admin/files","status":200,"duration_ms":25.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:27.600199+00:00","request_id":"5389743a-843e-4bfb-96ac-62decb540da7","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1024.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:28.573334+00:00","request_id":"580b4eea-feeb-4f72-8b7d-674d6042afb1","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":969.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.023464+00:00","request_id":"6db74f66-797d-431a-9995-bf59f94822e7","method":"POST","route":"/api/admin/datasets/files","status":201,"duration_ms":12.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.113923+00:00","request_id":"5a673bae-bc7a-4f48-bdba-697e45ed3757","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":6.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.125529+00:00","request_id":"f562b475-da0b-4369-9544-e20ae8fa7ef7","method":"GET","route":"/api/admin/files","status":200,"duration_ms":5.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.134787+00:00","request_id":"169556ef-cddd-46e1-b34a-c91461690e95","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.325690+00:00","request_id":"5a6b2735-9d00-4855-8e7f-4ea4c5df4b2b","method":"PATCH","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":23.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.411127+00:00","request_id":"57ce9fe4-3445-4592-a4c2-660a633cc5e8","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":55.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.567755+00:00","request_id":"57d8130f-acdc-4033-87c6-3c616581e079","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.601728+00:00","request_id":"db7f50f2-6d8f-4ce5-849e-cc634a56f796","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.613026+00:00","request_id":"ff9ab4a1-cb23-4840-9c92-64a0672251df","method":"GET","route":"/api/admin/files","status":200,"duration_ms":5.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.621112+00:00","request_id":"c9e4892b-d159-4c10-981c-84b7de403e50","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":5.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.667410+00:00","request_id":"4f13d69f-b4c0-43e9-b9fb-dbdb672bad14","method":"DELETE","route":"/api/admin/files/{asset_id}","status":409,"duration_ms":8.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.815494+00:00","request_id":"f6ff0d6c-9d5a-4c28-81b2-6f835cd30fac","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.822073+00:00","request_id":"a7b8822b-729f-4fb8-bc67-bc599bcaba72","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.845448+00:00","request_id":"334b878f-5e76-4d89-82bb-357e6a4d3976","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":7.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.866534+00:00","request_id":"888e25fc-944f-47ab-8e97-3b0845a7fe70","method":"GET","route":"/api/admin/files","status":200,"duration_ms":5.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.874662+00:00","request_id":"e325fc7f-bac3-4196-994f-13518c6b1f76","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.932259+00:00","request_id":"7510ea5f-022e-402d-b850-605705d4a7df","method":"DELETE","route":"/api/admin/datasets/{dataset_id}","status":204,"duration_ms":8.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.947399+00:00","request_id":"f584ab9b-6c63-474f-9dd2-bd9f09910504","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":10.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.950699+00:00","request_id":"f91549e8-57b7-4022-b400-8168f0ebd190","method":"GET","route":"/api/admin/files","status":200,"duration_ms":12.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.959924+00:00","request_id":"a025829a-bf29-4887-96f1-b66e241c821d","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":21.74}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.961678+00:00","request_id":"0b60c950-2b01-408a-b8e1-16a905600a37","method":"GET","route":"/api/admin/files","status":200,"duration_ms":6.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:29.970780+00:00","request_id":"04e7ce32-b731-4797-b1cf-790e8f64cd23","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":5.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.014995+00:00","request_id":"3df0fda9-b420-40f0-abea-5f2f0dd157b4","method":"DELETE","route":"/api/admin/files/{asset_id}","status":204,"duration_ms":9.88}
+  ✓  1 [chromium] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset (4.2s)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.119975+00:00","request_id":"49767543-d014-46a6-b483-3e7520dd2115","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.124074+00:00","request_id":"a67860ef-5df0-4cbe-bf55-d0c299f4dcc3","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.166154+00:00","request_id":"d1e7aa0e-f647-4f19-91ca-e6adcfc848a2","method":"POST","route":"/api/auth/login","status":204,"duration_ms":39.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.337971+00:00","request_id":"a0524f31-c476-4680-9fd4-54df4fc76ed7","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.369150+00:00","request_id":"86a38d91-dbd7-40a8-a1cb-670e20399564","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:30.384121+00:00","request_id":"57b47827-133b-4e4f-9b4e-5be862d32b9c","method":"GET","route":"/api/admin/files","status":200,"duration_ms":4.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:31.529461+00:00","request_id":"b20c26e9-c2a1-4b63-a5f4-743156501ec5","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1090.0}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:33.481744+00:00","request_id":"a0ec8f1d-43fc-4ca2-924e-06206460fdc7","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1948.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:35.682283+00:00","request_id":"d80812e5-92c3-443c-9d06-4e5867e4f785","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1909.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:37.152767+00:00","request_id":"11208828-1dae-4b7a-9fd5-237b66193ad0","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1062.55}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:38.058569+00:00","request_id":"0483056e-7457-43a1-b5f0-44009292f172","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":902.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:39.333949+00:00","request_id":"e36265de-4e65-4186-a9e2-c069f995c47c","method":"POST","route":"/api/admin/files","status":201,"duration_ms":931.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:40.356253+00:00","request_id":"cf332e19-3a01-43e3-8388-72e50c35f4d2","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1019.37}
+  ✓  2 [chromium] › e2e/file-dataset.spec.ts:59:1 › administrator previews Excel sheets, JSON, and Parquet files (10.7s)
+
+  2 passed (19.5s)
+[E2E] Running isolated project: firefox
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [4242]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:58767 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:45.298717+00:00","request_id":"873f5d35-fc43-42b2-b26b-749387480ac4","method":"GET","route":"/api/auth/status","status":200,"duration_ms":6.95}
+[WebServer] (node:4261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:4299) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:48.682310+00:00","request_id":"ee017008-9367-470d-9e33-7641098d79da","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.72}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:48.761106+00:00","request_id":"32206816-72bd-452e-9817-eb2427e6c89d","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":61.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:49.119511+00:00","request_id":"aae2f4c2-b840-44ec-ae95-bba1f2073c14","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:49.140635+00:00","request_id":"606c6c47-0af3-45f0-a01b-b814d34d743b","method":"GET","route":"/api/auth/session","status":200,"duration_ms":13.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:49.207512+00:00","request_id":"1676a074-72d0-4ba0-a8a9-ca4c3619459a","method":"GET","route":"/api/admin/files","status":200,"duration_ms":41.63}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:50.250830+00:00","request_id":"3c88d034-c7bf-4e42-9167-22a3a0b9ea91","method":"POST","route":"/api/admin/files","status":201,"duration_ms":976.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.107036+00:00","request_id":"af86d9c6-b15d-4168-8acc-f59b77c4c666","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":851.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.359381+00:00","request_id":"3631521e-c198-4eb5-afb2-db6f454485cf","method":"POST","route":"/api/admin/datasets/files","status":201,"duration_ms":18.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.451043+00:00","request_id":"91ae12bf-04f6-4cdc-a8b4-a45e3d417eb5","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":10.41}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.460705+00:00","request_id":"a1b79c2f-955d-4e45-b4c5-0acee21db7ed","method":"GET","route":"/api/admin/files","status":200,"duration_ms":4.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.471806+00:00","request_id":"6d1df5c5-b6b8-4354-9feb-9cd06178ff8d","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.647838+00:00","request_id":"f8350277-c144-44b4-b22c-6445fb6a1bcc","method":"PATCH","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":8.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.776601+00:00","request_id":"e9566ae2-dde6-48be-9580-1e80d1f74ad3","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":35.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.954838+00:00","request_id":"dd44d730-a5bc-4d5c-9ae9-405580633693","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.962779+00:00","request_id":"3d4d88dc-20c8-4371-aad1-db835dc61fd6","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.43}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.981480+00:00","request_id":"84dc167d-1439-4a9c-9e94-7e1adee052ab","method":"GET","route":"/api/admin/files","status":200,"duration_ms":3.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:51.990201+00:00","request_id":"8faf3ca8-78c1-41f9-b6da-80e4401c927a","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":5.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.091253+00:00","request_id":"b7743ab7-d09c-4379-a0a1-a87022a0dbb1","method":"DELETE","route":"/api/admin/files/{asset_id}","status":409,"duration_ms":7.63}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.275468+00:00","request_id":"841a5a75-e7d9-4f83-b576-52147db387d2","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.21}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.282432+00:00","request_id":"be7664c2-226c-4cbe-b2bb-08d7fb231784","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.82}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.340758+00:00","request_id":"d0d7be2b-7743-4f61-8267-03208c210ae9","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":4.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.347065+00:00","request_id":"1b281d6f-0725-427f-b77a-ed4938c6e7de","method":"GET","route":"/api/admin/files","status":200,"duration_ms":3.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.356157+00:00","request_id":"06905d89-c4c4-439e-87f3-5a4486c6a0cb","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":3.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.450547+00:00","request_id":"bd0bf858-ad1e-44c7-87c5-b286e5dad6b0","method":"DELETE","route":"/api/admin/datasets/{dataset_id}","status":204,"duration_ms":7.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.472237+00:00","request_id":"95227707-a1d9-4d67-af25-e95156285298","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":7.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.474903+00:00","request_id":"947937bc-9d2a-4220-8e01-54c2a19e668f","method":"GET","route":"/api/admin/files","status":200,"duration_ms":11.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.482722+00:00","request_id":"e5dfb9db-9099-43e1-a094-1c2d5440f977","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":17.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.527606+00:00","request_id":"4f72bd92-8ac2-4395-92ad-e0721fd80b66","method":"GET","route":"/api/admin/files","status":200,"duration_ms":4.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.535930+00:00","request_id":"7e6b1b43-061c-4b59-8a3b-d29d5ae3c883","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":5.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.630691+00:00","request_id":"18c63ec6-d525-4cd2-b344-c9cec55b80dc","method":"DELETE","route":"/api/admin/files/{asset_id}","status":204,"duration_ms":8.35}
+  ✓  1 [firefox] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset (4.8s)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.900054+00:00","request_id":"a3d8bfd0-7560-460a-b7d8-3711225bfb56","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.904964+00:00","request_id":"2c65e980-d1be-4d79-811f-5531beab305d","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:52.949052+00:00","request_id":"eccd884b-83a1-431a-adc4-bd45371a9d30","method":"POST","route":"/api/auth/login","status":204,"duration_ms":41.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:53.147295+00:00","request_id":"e87894e1-ed7a-4301-995f-0a375827bd9d","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:53.160339+00:00","request_id":"a50d5945-2833-4a31-9a72-5726b607e28a","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:53.178019+00:00","request_id":"c7f90009-621f-4062-ade6-be8649249552","method":"GET","route":"/api/admin/files","status":200,"duration_ms":4.71}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:54.163256+00:00","request_id":"ae6c0ea2-e7aa-4ce4-96de-ef6660aa19c1","method":"POST","route":"/api/admin/files","status":201,"duration_ms":926.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:56.150748+00:00","request_id":"7ee06f5d-249b-40ec-815b-4cf4af650003","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1983.74}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:58.486970+00:00","request_id":"264dfce2-9f06-48ea-8719-4e861969563f","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1819.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:12:59.514736+00:00","request_id":"1bd10681-4652-4278-bc18-a8b90ebdaa51","method":"POST","route":"/api/admin/files","status":201,"duration_ms":980.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:00.570395+00:00","request_id":"1decb40b-e286-4dd7-826f-76a4af5f54ea","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1051.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:01.980821+00:00","request_id":"bd0e80ba-f52a-4cfa-9b6d-ea6ce4b05307","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1080.76}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:02.959824+00:00","request_id":"552bc17d-05ee-41ee-9401-fbe055f56629","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":974.25}
+  ✓  2 [firefox] › e2e/file-dataset.spec.ts:59:1 › administrator previews Excel sheets, JSON, and Parquet files (10.6s)
+
+  2 passed (21.3s)
+[E2E] Running isolated project: webkit
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [4584]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:59348 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:07.888377+00:00","request_id":"ccf2c36a-4bb4-4008-91a2-dbed5a0ec963","method":"GET","route":"/api/auth/status","status":200,"duration_ms":3.21}
+[WebServer] (node:4596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:4621) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:4628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:10.554700+00:00","request_id":"57fd9ba6-fcd9-4f5f-8ad3-d2b24faeea49","method":"GET","route":"/api/auth/status","status":200,"duration_ms":0.94}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:10.618804+00:00","request_id":"77a9ed9b-2852-49ae-92aa-e6de7d7e9f6e","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":52.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:11.135087+00:00","request_id":"df9251c4-37ea-458c-b7db-2960e23fe8f3","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:11.150592+00:00","request_id":"f9754a76-e643-46bf-b8e5-2ee30a613c18","method":"GET","route":"/api/auth/session","status":200,"duration_ms":6.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:11.202556+00:00","request_id":"df86d26d-d362-4ab6-808e-7859080040ab","method":"GET","route":"/api/admin/files","status":200,"duration_ms":27.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:12.266463+00:00","request_id":"1645f046-faaa-4398-8e80-b3d76d71bbcd","method":"POST","route":"/api/admin/files","status":201,"duration_ms":926.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.172719+00:00","request_id":"e188a8ce-2871-4f60-8e6d-a2bff5790fca","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":901.99}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.309826+00:00","request_id":"ab23f2dd-3f98-487c-af36-5785f605b3f1","method":"POST","route":"/api/admin/datasets/files","status":201,"duration_ms":12.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.393194+00:00","request_id":"05c295fa-8805-4ab0-b6cc-cd853ed38726","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":9.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.400100+00:00","request_id":"9e317ee9-6298-4dc7-b924-d232ebac8bb3","method":"GET","route":"/api/admin/files","status":200,"duration_ms":3.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.413945+00:00","request_id":"f4a7aad8-909a-4de5-bc9b-4f3261382e0b","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.605644+00:00","request_id":"8d41217c-6515-4c75-a5c6-acaa6f2da330","method":"PATCH","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":8.82}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.700926+00:00","request_id":"7e851fd8-bc9f-41af-8739-20d4fe412238","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":34.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.891022+00:00","request_id":"4386c056-a84a-407f-9fa0-3f442d0ef0a4","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.897834+00:00","request_id":"85926a69-13ea-4aaa-aef1-399f8be19702","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.88}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.914693+00:00","request_id":"016c2576-3fa2-4881-b648-402531fa83fc","method":"GET","route":"/api/admin/files","status":200,"duration_ms":8.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.928227+00:00","request_id":"90087f91-64da-46dc-977e-1da90fdc4283","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":8.41}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:13.991585+00:00","request_id":"53ac0908-16d5-44ee-b5f2-f180f3841e56","method":"DELETE","route":"/api/admin/files/{asset_id}","status":409,"duration_ms":8.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.138252+00:00","request_id":"462b7890-30dd-4c49-a22a-2bdb764868fa","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.146402+00:00","request_id":"1082b9d1-461e-41d9-a547-73a42181d781","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.185186+00:00","request_id":"a6be3ad3-8e9a-4e1a-9ce6-1425f924e688","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":4.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.192901+00:00","request_id":"fa7d1ffb-f54d-4e17-85cd-19e35c7100ac","method":"GET","route":"/api/admin/files","status":200,"duration_ms":3.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.201695+00:00","request_id":"11961267-27e4-49d0-b8a9-eccd8c2c11cb","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":3.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.274977+00:00","request_id":"191c2359-a456-41b6-bcfd-d5ded935d9aa","method":"DELETE","route":"/api/admin/datasets/{dataset_id}","status":204,"duration_ms":6.77}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.296010+00:00","request_id":"dbbf3753-71e9-40f7-a653-40b51d3224a9","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":8.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.298462+00:00","request_id":"167798b7-e1ae-4c39-b055-eb664e01f303","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":12.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.302749+00:00","request_id":"92f3978a-ae0d-4a74-8f99-12542d9e86d9","method":"GET","route":"/api/admin/files","status":200,"duration_ms":14.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.338480+00:00","request_id":"0b231dd2-bb72-44c2-959b-223f06358ed1","method":"GET","route":"/api/admin/files","status":200,"duration_ms":3.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.347963+00:00","request_id":"ceca1924-9833-4839-bee0-3291d299c302","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":5.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.417524+00:00","request_id":"b78451cd-9ee5-4b75-97c2-0cd759710770","method":"DELETE","route":"/api/admin/files/{asset_id}","status":204,"duration_ms":8.52}
+  ✓  1 [webkit] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset (4.7s)
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.735152+00:00","request_id":"b1fe3ef9-5646-4bf8-838b-13d9f9c6e467","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.739366+00:00","request_id":"c8d845ef-99d4-4504-b914-a4913c5ae488","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:14.782886+00:00","request_id":"1c5fa4cf-3980-4b22-b43b-8b4357357d8d","method":"POST","route":"/api/auth/login","status":204,"duration_ms":40.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:15.004954+00:00","request_id":"04b7e157-7f18-48f3-bc35-da80a90957b7","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:15.013517+00:00","request_id":"7261f81e-a40d-4c6c-bd5e-f6a8a3a28019","method":"GET","route":"/api/auth/session","status":200,"duration_ms":5.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:15.046556+00:00","request_id":"8df65624-48ab-49ed-971a-eee662997d2f","method":"GET","route":"/api/admin/files","status":200,"duration_ms":11.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:16.142144+00:00","request_id":"770c097a-d6aa-40d0-bf92-bd3cdb8e28ff","method":"POST","route":"/api/admin/files","status":201,"duration_ms":969.87}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:18.111849+00:00","request_id":"8d189d43-ebdf-45e1-872f-84182da205a9","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1965.72}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:20.376481+00:00","request_id":"8dff86d1-ce93-41c7-953b-4f66d8c2e017","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1847.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:21.778455+00:00","request_id":"69dafd74-1f6f-445b-accf-4ebc3a1332c0","method":"POST","route":"/api/admin/files","status":201,"duration_ms":901.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:22.716932+00:00","request_id":"bb32d92a-32ce-4c60-ab7c-8aaedaf0b3db","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":934.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:24.302541+00:00","request_id":"7d0d8b1c-34c5-4586-b519-5f74459415c6","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1074.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T04:13:25.381382+00:00","request_id":"ad0cb6db-e128-4ad6-9888-952532f9f71c","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1073.04}
+  ✓  2 [webkit] › e2e/file-dataset.spec.ts:59:1 › administrator previews Excel sheets, JSON, and Parquet files (11.1s)
+
+  2 passed (20.7s)

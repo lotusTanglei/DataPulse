@@ -1,0 +1,116 @@
+{
+  "at": "2026-09-21T03:58:24.609007+00:00",
+  "sanitized_text_files": [
+    "chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/error-context.md",
+    "cross-browser-artifacts/first-stage-creation-blank-f8379-tion-undo-redo-and-playback-webkit/error-context.md",
+    "cross-browser-artifacts/first-stage-creation-edito-b83e8-h-dialog-closes-with-Escape-webkit/error-context.md",
+    "cross-browser-artifacts/first-stage-creation-scree-51e0d-ect-and-embed-authorization-webkit/error-context.md",
+    "cross-browser-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-firefox/error-context.md",
+    "cross-browser-artifacts/screen-editor-multi-select-0993d-sists-the-same-canvas-delta-webkit/error-context.md",
+    "e2e-chromium-final.log",
+    "e2e-chromium-initial.log",
+    "e2e-cross-final.log",
+    "e2e-cross-initial.log",
+    "e2e-file-capacity-final.log",
+    "identity-e2e-final.log",
+    "identity-e2e-retry.log",
+    "identity-e2e.log",
+    "identity-retry-artifacts/.playwright-artifacts-0/traces/resources/648a5f80cfa4f86f410b0421457913198183846b.json",
+    "webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/error-context.md",
+    "webkit-visual-review.log"
+  ],
+  "removed_raw_traces": [
+    {
+      "path": "chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/trace.zip",
+      "sha256": "88781ffa7537fb21eb6d7ad496a635064cf0ec70884024e476c7e279feab673b",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "chromium-artifacts/file-dataset-administrator-17f54-moves-a-Chinese-CSV-dataset-chromium/trace.zip",
+      "sha256": "a0f445ad92f406b6661b833b539fb981f0a5a053f60687254d92f413f17af49d",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/trace.zip",
+      "sha256": "3455f4dd03098c37efaffa0a33a3bbd240cf39be062c75cce59ee68e664fdacc",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/first-stage-creation-templ-637fe-rs-the-shared-screen-editor-webkit/trace.zip",
+      "sha256": "24a32ca6e429e35a98c03eca92c2d825d5a926a0bc84b109d350e797c9cc7a79",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/screen-editor-multi-select-0993d-sists-the-same-canvas-delta-webkit/trace.zip",
+      "sha256": "b92d1ccf7ba7828f6b6910ee6a1b96a3546c443bb87ced8f4c090a5b2541c045",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/screen-playback-published--4d130-error-and-letterbox-visuals-webkit/trace.zip",
+      "sha256": "3001c7ecc0f892d0ae591e2af9662dda56af46fcf856347b80c049aeeab4c2d2",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/screen-playback-direct-ifr-3dd53-instance-id-query-parameter-webkit/trace.zip",
+      "sha256": "607748165c6056979054ae126492edafd9cb60ba7c9f751ba16f33b87e4dd350",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/ai-screen-generation-AI-sc-ba43f-irms-with-one-atomic-create-webkit/trace.zip",
+      "sha256": "5855ee733364f83a3c6a89c37ec3270a35db7b573cf806a9137e8cc2f6dbe37f",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/first-stage-creation-edito-b83e8-h-dialog-closes-with-Escape-webkit/trace.zip",
+      "sha256": "01cd7e3f1fe5b8074b4966c8ee76fa3d0b020939aed568318b235260afb1494d",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/ai-analysis-AI-analysis-us-3d460-art-and-preserves-the-draft-webkit/trace.zip",
+      "sha256": "7d40201b50bf634dafafb656a8f6a042c7d69b48dbedc04458bd811e9a9dd01f",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/first-stage-creation-blank-f8379-tion-undo-redo-and-playback-webkit/trace.zip",
+      "sha256": "dbc9bea836d28d0d2934a51740cf5b63862d0431e1f4376ae128198a44dc93d6",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/ai-analysis-AI-analysis-us-3d460-art-and-preserves-the-draft-firefox/trace.zip",
+      "sha256": "215ef0bd9954e05bc382bc75055520758df755c6379d530724dada84ba48bd96",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/screen-playback-host-SDK-c-7b323-n-and-rejects-unsafe-access-webkit/trace.zip",
+      "sha256": "1151a3d0ad34d914cc106cce9cc18432b4ecaaad30a2988e9589471acd2ec570",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-firefox/trace.zip",
+      "sha256": "677735bcdb85bddc536c9cbc037892b99c18dad3a34ed10ad429727de231c245",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/first-stage-creation-scree-51e0d-ect-and-embed-authorization-webkit/trace.zip",
+      "sha256": "cf4cab6979edb4317137555da287fbeec5ab74b76b774e40d06e07cc3cf48045",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "cross-browser-artifacts/datasource-studio-administ-9a11d-analyze-a-SQLite-datasource-webkit/trace.zip",
+      "sha256": "1b219524f9d8f33571e343365ab9e3f63dc55e41f23e03411281c61335748cce",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "webkit-visual-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-webkit/trace.zip",
+      "sha256": "40c1d4acdcbb349e7a34975bba228db06a6117f2bde82b950b0c3bb41ea183d1",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    },
+    {
+      "path": "identity-retry-artifacts/identity-two-accounts-shar-7517c-ale-edits-and-revoke-access-chromium/trace.zip",
+      "sha256": "37f40b700dccb5205b104d34ef3b9661c018ceb112b06a320f8b6663e73f4e4c",
+      "reason": "Raw Playwright network trace may include fixture session, display or Embed credentials; sanitized text and screenshots retained."
+    }
+  ],
+  "screenshots": "人工抽样核对编辑器和失败截图；字段为掩码或短期 ticket 占位符；播放测试在截图前断言 URL 已移除 key。",
+  "final_scan_at": "2026-09-21T04:22:17.362578+00:00"
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 
@@ -8,8 +9,8 @@ from pydantic import Field, ValidationError
 from datapulse.ai.context import DatasetContextService
 from datapulse.ai.edit import apply_ai_edit_commands, validate_edit_document
 from datapulse.ai.gateway import AiGateway
-from datapulse.ai.models import AiAnalysisError, AiHealth
-from datapulse.ai.screen_generator import ScreenDraftGenerator
+from datapulse.ai.models import AiAnalysisError, AiGatewayError, AiHealth
+from datapulse.ai.plan_generator import ScreenPlanGenerator
 from datapulse.contracts.ai import (
     AiAnalysisDraft,
     AiAnalysisRequest,
@@ -19,11 +20,14 @@ from datapulse.contracts.ai import (
     AiEditCommand,
     AiEditRequest,
     AiEditResponse,
+    AiScreenEditRequest,
+    AiScreenEditResponse,
     AiScreenRequest,
     AiScreenResponse,
 )
 from datapulse.contracts.chart import Aggregation, ChartSpec, ChartType, FilterOperator
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
+from datapulse.contracts.dashboard_plan import DashboardPlan
 from datapulse.contracts.dataset import FileQuery, RestQuery, SqlQuery
 from datapulse.dataset.models import DatasetResponse
 from datapulse.dataset.repository import (
@@ -44,6 +48,12 @@ from datapulse.query.models import QueryResult
 from datapulse.query.parameters import ParameterValidationError
 from datapulse.query.safety import QueryValidationError
 from datapulse.screen.chart_query import ChartQueryCompiler, ChartQueryInvalid
+from datapulse.screen.models import (
+    DashboardPlanCompileRequest,
+    DashboardPlanRecompileRequest,
+)
+from datapulse.screen.planning import PlanValidationError
+from datapulse.screen.planning_service import DashboardPlanningService
 
 
 class _AiChartDraftResponse(ContractModel):
@@ -54,6 +64,13 @@ class _AiChartDraftResponse(ContractModel):
 
 class _AiEditDraftResponse(ContractModel):
     commands: tuple[AiEditCommand, ...] = Field(min_length=1, max_length=8)
+    explanation: NonBlankStr
+    warnings: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class _AiScreenEditDraftResponse(ContractModel):
+    plan: DashboardPlan
+    affected_region_ids: tuple[NonBlankStr, ...] = Field(min_length=1, max_length=12)
     explanation: NonBlankStr
     warnings: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -86,7 +103,9 @@ class AiService:
         registry: ConnectorRegistry | None = None,
         file_asset_repository: FileAssetRepository | None = None,
         file_query_service: FileDatasetQueryService | None = None,
+        planning_service: DashboardPlanningService | None = None,
         max_context_rows: int = 100,
+        screen_timeout_seconds: int = 120,
     ) -> None:
         self._gateway = gateway
         self._context_service = context_service
@@ -95,8 +114,14 @@ class AiService:
         self._registry = registry
         self._file_asset_repository = file_asset_repository
         self._file_query_service = file_query_service
+        self._planning_service = planning_service or (
+            DashboardPlanningService(dataset_repository=dataset_repository)
+            if dataset_repository is not None
+            else None
+        )
         self._compiler = ChartQueryCompiler()
         self._max_context_rows = max_context_rows
+        self._screen_timeout_seconds = screen_timeout_seconds
 
     def health(self) -> AiHealth:
         return self._gateway.health()
@@ -112,13 +137,19 @@ class AiService:
     def _default_limit(self, dataset: DatasetResponse) -> int:
         return min(1000, dataset.definition.max_rows)
 
-    async def _contexts(self, dataset_ids: tuple[str, ...]) -> tuple[object, ...]:
+    async def _contexts(
+        self,
+        dataset_ids: tuple[str, ...],
+        *,
+        question: str | None = None,
+    ) -> tuple[object, ...]:
         if self._context_service is None:
             raise RuntimeError("context service is not configured")
         try:
             return await self._context_service.build(
                 dataset_ids,
                 max_rows=self._max_context_rows,
+                question=question,
             )
         except (
             DatasetNotFound,
@@ -343,7 +374,7 @@ class AiService:
             raise RuntimeError("context service is not configured")
         self._gateway.ensure_configured()
         datasets = tuple([await self._dataset(dataset_id) for dataset_id in request.dataset_ids])
-        contexts = await self._contexts(request.dataset_ids)
+        contexts = await self._contexts(request.dataset_ids, question=request.question)
         system = (
             "You are a DataPulse analytics assistant. "
             "Return only valid JSON that matches the requested response model."
@@ -396,7 +427,7 @@ class AiService:
             raise RuntimeError("context service is not configured")
         self._gateway.ensure_configured()
         dataset = await self._dataset(request.dataset_id)
-        contexts = await self._contexts((request.dataset_id,))
+        contexts = await self._contexts((request.dataset_id,), question=request.question)
         system, user = self._chart_generation_prompt(
             request=request,
             dataset=dataset,
@@ -433,14 +464,36 @@ class AiService:
         request_id: str,
     ) -> AiScreenResponse:
         self._gateway.ensure_configured()
-        generator = ScreenDraftGenerator(
+        if self._context_service is None or self._dataset_repository is None:
+            raise RuntimeError("screen generation services are not configured")
+        generator = ScreenPlanGenerator(
             gateway=self._gateway,
             context_service=self._context_service,
             dataset_repository=self._dataset_repository,
             max_context_rows=self._max_context_rows,
         )
         try:
-            return await generator.generate(request, request_id=request_id)
+            async with asyncio.timeout(self._screen_timeout_seconds):
+                draft = await generator.generate(request, request_id=request_id)
+                if self._planning_service is None:
+                    raise RuntimeError("screen planning service is not configured")
+                compiled = await self._planning_service.compile(
+                    DashboardPlanCompileRequest(
+                        plan=draft.plan,
+                        canvas_width=request.canvas_width,
+                        canvas_height=request.canvas_height,
+                    ),
+                    request_id=request_id,
+                )
+                return AiScreenResponse(
+                    plan=draft.plan,
+                    document=compiled.document,
+                    report=compiled.report,
+                    explanation=draft.explanation,
+                    warnings=tuple(dict.fromkeys((*draft.warnings, *compiled.warnings))),
+                )
+        except TimeoutError as error:
+            raise AiGatewayError("AI_TIMEOUT", "AI screen generation timed out.") from error
         except (
             DatasetNotFound,
             DatasetDefinitionInvalid,
@@ -453,6 +506,126 @@ class AiService:
             FileQueryExecutionError,
         ) as error:
             raise AiAnalysisError("AI_DATASET_INVALID", "The dataset is invalid.") from error
+
+    def _screen_edit_prompt(
+        self,
+        *,
+        request: AiScreenEditRequest,
+        contexts: tuple[object, ...],
+        request_id: str,
+    ) -> tuple[str, str]:
+        requested_regions = request.affected_region_ids or tuple(
+            region.id for region in request.plan.regions
+        )
+        system = (
+            "You are a DataPulse dashboard planning assistant. Return only valid JSON for "
+            "the response model. Modify the DashboardPlan, never pixel coordinates. Use one "
+            "dataset per widget; never publish, join datasets, execute code, or emit SQL."
+        )
+        user = (
+            f"request_id: {request_id}\n"
+            f"question: {request.question}\n"
+            f"requested_region_ids: {', '.join(requested_regions)}\n"
+            "allowed_changes: visual style, chart type, anomaly emphasis, and region planning.\n"
+            "rules: return the complete updated plan and the exact affected_region_ids; "
+            "preserve every unselected region; use only existing dataset IDs and fields; "
+            "keep every widget bound to one scalar dataset_id; do not include frame, x, y, "
+            "width, height, scripts, SQL, URLs, or publish commands.\n"
+            f"plan: {json.dumps(request.plan.model_dump(mode='json'), ensure_ascii=False)}\n"
+            "document: "
+            f"{json.dumps(request.document.model_dump(mode='json'), ensure_ascii=False)}\n"
+            "contexts: "
+            f"{json.dumps([item.model_dump(mode='json') for item in contexts], ensure_ascii=False)}"
+        )
+        return system, user
+
+    async def edit_screen(
+        self,
+        request: AiScreenEditRequest,
+        *,
+        request_id: str,
+    ) -> AiScreenEditResponse:
+        self._gateway.ensure_configured()
+        if self._planning_service is None:
+            raise RuntimeError("screen planning service is not configured")
+        known_regions = {region.id for region in request.plan.regions}
+        if not set(request.affected_region_ids) <= known_regions:
+            raise AiAnalysisError(
+                "AI_SCREEN_EDIT_INVALID",
+                "The requested region scope is invalid.",
+            )
+        try:
+            async with asyncio.timeout(self._screen_timeout_seconds):
+                contexts = await self._contexts(
+                    request.plan.dataset_ids,
+                    question=request.question,
+                )
+                system, user = self._screen_edit_prompt(
+                    request=request,
+                    contexts=contexts,
+                    request_id=request_id,
+                )
+                draft = await self._gateway.complete_json(
+                    system=system,
+                    user=user,
+                    response_model=_AiScreenEditDraftResponse,
+                )
+                if not set(draft.plan.dataset_ids) <= set(request.plan.dataset_ids):
+                    raise AiAnalysisError(
+                        "AI_DATASET_INVALID",
+                        "The edited plan references another dataset.",
+                    )
+                affected_region_ids = tuple(dict.fromkeys(draft.affected_region_ids))
+                if request.affected_region_ids and set(affected_region_ids) != set(
+                    request.affected_region_ids
+                ):
+                    raise AiAnalysisError(
+                        "AI_SCREEN_EDIT_INVALID",
+                        "The edited plan changed regions outside the requested scope.",
+                    )
+                if not set(affected_region_ids) <= {
+                    *(region.id for region in request.plan.regions),
+                    *(region.id for region in draft.plan.regions),
+                }:
+                    raise AiAnalysisError(
+                        "AI_SCREEN_EDIT_INVALID",
+                        "The edited plan returned an unknown region.",
+                    )
+                compiled = await self._planning_service.recompile(
+                    DashboardPlanRecompileRequest(
+                        previous_plan=request.plan,
+                        plan=draft.plan,
+                        document=request.document,
+                        affected_region_ids=affected_region_ids,
+                    ),
+                    request_id=request_id,
+                )
+                if compiled.report is None:
+                    raise RuntimeError("screen planning preflight is not configured")
+                return AiScreenEditResponse(
+                    plan=compiled.plan,
+                    document=compiled.document,
+                    affected_region_ids=compiled.affected_region_ids,
+                    report=compiled.report,
+                    explanation=draft.explanation,
+                    warnings=tuple(dict.fromkeys((*draft.warnings, *compiled.warnings))),
+                )
+        except TimeoutError as error:
+            raise AiGatewayError("AI_TIMEOUT", "AI screen editing timed out.") from error
+        except PlanValidationError as error:
+            raise AiAnalysisError(
+                "AI_SCREEN_EDIT_INVALID",
+                "The screen edit is invalid.",
+                issues=tuple(
+                    {
+                        "component_id": issue.widget_id or "plan",
+                        "field": issue.field,
+                        "reason": issue.reason,
+                        "expected": issue.expected,
+                    }
+                    for issue in error.result.issues
+                ),
+            ) from error
 
     @staticmethod
     def _document_dataset_ids(request: AiEditRequest) -> tuple[str, ...]:

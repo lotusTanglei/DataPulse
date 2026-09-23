@@ -267,6 +267,27 @@
         }
       ]
     },
+    "PluginDependency": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "PluginDependency",
+      "type": "object"
+    },
     "ScreenRefreshPolicy": {
       "additionalProperties": false,
       "properties": {
@@ -340,6 +361,13 @@
         "$ref": "#/$defs/DashboardParameter"
       },
       "title": "Parameters",
+      "type": "array"
+    },
+    "plugin_dependencies": {
+      "items": {
+        "$ref": "#/$defs/PluginDependency"
+      },
+      "title": "Plugin Dependencies",
       "type": "array"
     },
     "refresh": {

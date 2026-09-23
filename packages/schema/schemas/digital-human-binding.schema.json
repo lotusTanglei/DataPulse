@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "DigitalHumanVariable": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "enum_labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "maxProperties": 50,
+          "title": "Enum Labels",
+          "type": "object"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "name": {
+          "pattern": "^[\\w.-]{1,128}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "row": {
+          "default": 0,
+          "maximum": 499,
+          "minimum": 0,
+          "title": "Row",
+          "type": "integer"
+        },
+        "unit": {
+          "default": "",
+          "maxLength": 24,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "component_id",
+        "field"
+      ],
+      "title": "DigitalHumanVariable",
+      "type": "object"
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-binding.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "source": {
+      "const": "components",
+      "default": "components",
+      "title": "Source",
+      "type": "string"
+    },
+    "variables": {
+      "items": {
+        "$ref": "#/$defs/DigitalHumanVariable"
+      },
+      "maxItems": 50,
+      "minItems": 1,
+      "title": "Variables",
+      "type": "array"
+    }
+  },
+  "required": [
+    "variables"
+  ],
+  "title": "DigitalHumanBinding",
+  "type": "object"
+}

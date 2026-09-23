@@ -1,0 +1,81 @@
+{
+  "version": "golden-v1",
+  "datasets": [
+    {
+      "scenario": "经营",
+      "path": "business/data.csv",
+      "table_kind": "single",
+      "cases": [
+        {
+          "case_id": "business-region-sales",
+          "question": "按区域查看销售额对比",
+          "expected_bindings": ["区域", "销售额"],
+          "expected_chart_types": ["bar"]
+        },
+        {
+          "case_id": "business-sales-trend",
+          "question": "查看每日销售额趋势",
+          "expected_bindings": ["日期", "销售额"],
+          "expected_chart_types": ["line"]
+        }
+      ]
+    },
+    {
+      "scenario": "运营",
+      "path": "operations/data.csv",
+      "table_kind": "wide",
+      "cases": [
+        {
+          "case_id": "operations-user-trend",
+          "question": "查看每日活跃用户趋势",
+          "expected_bindings": ["日期", "活跃用户"],
+          "expected_chart_types": ["line"]
+        },
+        {
+          "case_id": "operations-channel-conversion",
+          "question": "比较各渠道转化率",
+          "expected_bindings": ["渠道", "转化率"],
+          "expected_chart_types": ["bar"]
+        }
+      ]
+    },
+    {
+      "scenario": "销售",
+      "path": "sales/data.csv",
+      "table_kind": "single",
+      "cases": [
+        {
+          "case_id": "sales-category-amount",
+          "question": "按产品类别汇总成交金额",
+          "expected_bindings": ["产品类别", "成交金额"],
+          "expected_chart_types": ["bar"]
+        },
+        {
+          "case_id": "sales-date-amount",
+          "question": "查看成交金额变化趋势",
+          "expected_bindings": ["成交日期", "成交金额"],
+          "expected_chart_types": ["line"]
+        }
+      ]
+    },
+    {
+      "scenario": "设备",
+      "path": "equipment/data.csv",
+      "table_kind": "wide",
+      "cases": [
+        {
+          "case_id": "equipment-failure-rate",
+          "question": "比较各设备故障率",
+          "expected_bindings": ["设备名称", "故障率"],
+          "expected_chart_types": ["bar"]
+        },
+        {
+          "case_id": "equipment-runtime-trend",
+          "question": "查看设备运行时长趋势",
+          "expected_bindings": ["采集时间", "运行时长"],
+          "expected_chart_types": ["line"]
+        }
+      ]
+    }
+  ]
+}

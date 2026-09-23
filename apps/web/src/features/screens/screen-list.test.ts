@@ -1,5 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { afterEach, expect, test, vi } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import {
   createMemoryHistory,
   createRouter,
@@ -8,6 +9,7 @@ import {
 
 import ScreenListView from "./ScreenListView.vue";
 import type { Screen, ScreenSummary } from "./types";
+import { useAuthStore } from "../../stores/auth";
 
 const publishedScreen: ScreenSummary = {
   id: "screen-1",
@@ -48,6 +50,7 @@ function testRouter(): Router {
     history: createMemoryHistory(),
     routes: [
       { path: "/", component: { template: "<div />" } },
+      { path: "/studio/screens/:id/preview", component: { template: "<div />" } },
       {
         path: "/studio/screens/:id/edit",
         name: "screen-edit",
@@ -57,9 +60,47 @@ function testRouter(): Router {
   });
 }
 
+beforeEach(() => {
+  setActivePinia(createPinia());
+  useAuthStore().state = { status: "authenticated", username: "admin", role: "admin" };
+});
+
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+
+test("viewer opens previews and has no create, copy or delete actions", async () => {
+  useAuthStore().state = { status: "authenticated", username: "viewer", role: "viewer" };
+  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse([publishedScreen]))));
+  const router = testRouter();
+  await router.push("/");
+  await router.isReady();
+  const wrapper = mount(ScreenListView, { global: { plugins: [router] } });
+  await flushPromises();
+  expect(wrapper.get(".screen-row__main").attributes("href")).toBe("/studio/screens/screen-1/preview");
+  expect(wrapper.find('[data-action="open-create-screen"]').exists()).toBe(false);
+  expect(wrapper.find('[data-action="open-template-screen"]').exists()).toBe(false);
+  expect(wrapper.find('[data-action="open-ai-screen"]').exists()).toBe(false);
+  expect(wrapper.find('[data-action="copy-screen"]').exists()).toBe(false);
+  expect(wrapper.find('[data-action="delete-screen"]').exists()).toBe(false);
+});
+
+test.each([false, true])("editor screen controls follow server write permission %s", async (write) => {
+  useAuthStore().state = { status: "authenticated", username: "editor", role: "editor" };
+  vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => Promise.resolve(jsonResponse(
+    String(input).includes("/identity/access/")
+      ? { read: true, write, publish: false, manage: false }
+      : [publishedScreen],
+  ))));
+  const router = testRouter();
+  await router.push("/");
+  const wrapper = mount(ScreenListView, { global: { plugins: [router] } });
+  await flushPromises();
+  expect(wrapper.get(".screen-row__main").attributes("href")).toBe(`/studio/screens/screen-1/${write ? "edit" : "preview"}`);
+  expect(wrapper.find('[data-action="delete-screen"]').exists()).toBe(write);
+  expect(wrapper.find('[data-action="copy-screen"]').exists()).toBe(true);
+  wrapper.unmount();
 });
 
 test("lists, marks, and copies a published screen", async () => {
@@ -142,12 +183,52 @@ test("creates a screen from the empty workspace and opens the editor", async () 
 test("creates a screen from a template through the normal draft flow", async () => {
   const created = { ...copiedScreen, id: "screen-template", name: "华东经营分析" };
   let submitted: Record<string, unknown> | undefined;
+  let compileSubmitted: Record<string, unknown> | undefined;
+  const compiledDocument = {
+    ...copiedScreen.draft_document,
+    components: [
+      {
+        id: "template-summary",
+        type: "builtin.kpi",
+        frame: { x: 48, y: 120, width: 1824, height: 240, z_index: 1 },
+      },
+      {
+        id: "template-main",
+        type: "builtin.bar",
+        frame: { x: 48, y: 380, width: 1824, height: 650, z_index: 1 },
+      },
+    ],
+  };
   vi.stubGlobal(
     "fetch",
     vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url === "/api/admin/screens" && init?.method === "GET") {
         return Promise.resolve(jsonResponse([]));
+      }
+      if (url === "/api/admin/datasets") {
+        return Promise.resolve(jsonResponse([
+          {
+            id: "sales",
+            name: "销售数据",
+            data_source_id: "warehouse",
+            definition: {
+              fields: [
+                { name: "region", data_type: "string" },
+                { name: "amount", data_type: "number" },
+              ],
+            },
+          },
+        ]));
+      }
+      if (url === "/api/admin/screens/plan/compile" && init?.method === "POST") {
+        compileSubmitted = JSON.parse(String(init.body)) as Record<string, unknown>;
+        return Promise.resolve(jsonResponse({
+          plan: compileSubmitted.plan,
+          document: compiledDocument,
+          report: null,
+          warnings: [],
+        }));
       }
       if (url === "/api/admin/screens" && init?.method === "POST") {
         submitted = JSON.parse(String(init.body)) as Record<string, unknown>;
@@ -165,16 +246,31 @@ test("creates a screen from a template through the normal draft flow", async () 
   await flushPromises();
 
   await wrapper.get('[data-action="open-template-screen"]').trigger("click");
+  await flushPromises();
   expect(wrapper.get('[role="dialog"]').text()).toContain("总览网格");
   await wrapper.get('input[name="templateScreenName"]').setValue("通用数据总览");
+  await wrapper.get('select[name="templateDataset"]').setValue("sales");
   await wrapper.get("button.template-option").trigger("click");
   await wrapper.get('[role="dialog"] .primary-button').trigger("click");
   await flushPromises();
 
   expect(submitted?.name).toBe("通用数据总览");
-  expect(
-    (submitted?.draft_document as { components?: unknown[] }).components?.length,
-  ).toBeGreaterThanOrEqual(7);
+  expect(submitted?.draft_document).toEqual(compiledDocument);
+  expect(compileSubmitted).toMatchObject({
+    plan: {
+      title: "通用数据总览",
+      dataset_ids: ["sales"],
+      layout: { template: "executive-overview" },
+    },
+  });
+  const compiledWidgets = (
+    compileSubmitted?.plan as { widgets?: Array<{ dataset_id?: string }> }
+  ).widgets;
+  expect(compiledWidgets).toHaveLength(8);
+  expect(compiledWidgets?.every((widget) => widget.dataset_id === "sales")).toBe(
+    true,
+  );
+  expect(JSON.stringify(compileSubmitted?.plan)).not.toContain('"frame"');
   expect(router.currentRoute.value.fullPath).toBe(
     "/studio/screens/screen-template/edit",
   );
@@ -211,6 +307,38 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
     parameters: [],
     refresh: { mode: "disabled", interval_seconds: null },
     theme: { id: "datapulse-dark", tokens: {} },
+  };
+  const generatedPlan = {
+    schema_version: 1,
+    title: "AI 经营总览",
+    audience: "经营负责人",
+    narrative: "展示销售额。",
+    dataset_ids: ["sales"],
+    layout: {
+      template: "executive-overview",
+      grid_columns: 24,
+      density: "comfortable",
+      theme: "dark",
+    },
+    regions: [
+      { id: "summary", kind: "summary", title: "核心指标", order: 0 },
+    ],
+    widgets: [
+      {
+        id: "kpi-1",
+        title: "销售额",
+        intent: "展示销售额",
+        region_id: "summary",
+        dataset_id: "sales",
+        chart_type: "kpi",
+        dimensions: [],
+        measures: [{ field: "amount", aggregation: "sum" }],
+        filters: [],
+        sort: [],
+        limit: 1000,
+      },
+    ],
+    parameters: [],
   };
   const requests: Array<{ url: string; method: string; body?: unknown }> = [];
   vi.stubGlobal(
@@ -258,9 +386,18 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
       if (url === "/api/admin/ai/screen" && method === "POST") {
         return Promise.resolve(
           jsonResponse({
+            plan: generatedPlan,
             explanation: "建议使用 1 个 KPI 和 1 张趋势图。",
             warnings: [],
             document: generatedDocument,
+            report: {
+              valid: true,
+              widget_count: 1,
+              executed_count: 1,
+              fallback_count: 0,
+              checks: [],
+              issues: [],
+            },
           }),
         );
       }

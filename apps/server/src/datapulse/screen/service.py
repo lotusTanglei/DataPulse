@@ -2,6 +2,7 @@ from collections.abc import Callable
 from uuid import uuid4
 
 from datapulse.contracts.dashboard import DashboardDocument
+from datapulse.contracts.digital_human import DigitalHumanBinding
 from datapulse.screen.access import ScreenAccessPolicy
 from datapulse.screen.models import (
     ScreenCreate,
@@ -89,10 +90,43 @@ class ScreenService:
         while copy_name in existing_names:
             copy_name = f"{base_name} {suffix}"
             suffix += 1
-        components = tuple(
-            component.model_copy(update={"id": self._id_factory()}, deep=True)
+        component_ids = {
+            component.id: self._id_factory()
             for component in source.draft_document.components
-        )
+        }
+        copied_components = []
+        for component in source.draft_document.components:
+            data_binding = component.data_binding
+            if (
+                component.type == "builtin.digital_human"
+                and data_binding.get("source") == "components"
+            ):
+                binding = DigitalHumanBinding.model_validate(data_binding)
+                data_binding = binding.model_copy(
+                    update={
+                        "variables": tuple(
+                            variable.model_copy(
+                                update={
+                                    "component_id": component_ids.get(
+                                        variable.component_id,
+                                        variable.component_id,
+                                    ),
+                                },
+                            )
+                            for variable in binding.variables
+                        ),
+                    },
+                ).model_dump(mode="json")
+            copied_components.append(
+                component.model_copy(
+                    update={
+                        "id": component_ids[component.id],
+                        "data_binding": data_binding,
+                    },
+                    deep=True,
+                )
+            )
+        components = tuple(copied_components)
         document = source.draft_document.model_copy(
             update={"components": components},
             deep=True,

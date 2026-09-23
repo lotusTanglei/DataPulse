@@ -6,6 +6,7 @@
     "dev:web": "pnpm --filter @datapulse/web dev",
     "test:web": "pnpm --filter @datapulse/web test",
     "generate:e2e-fixtures": "uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures",
+    "quality:baseline": "uv run --package datapulse-server python -m tools.run_quality_baseline",
     "test:e2e": "pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e",
     "test:e2e:cross-browser": "pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --project=firefox --project=webkit",
     "test:e2e:display": "pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --config=playwright.target.config.ts --headed --grep @display",
@@ -16,7 +17,7 @@
     "generate:contracts": "uv run --package datapulse-server python tools/export_schemas.py && node tools/generate_types.mjs",
     "check:contracts": "uv run --package datapulse-server python tools/check_generated.py",
     "test": "pnpm --filter @datapulse/embed-sdk test && pnpm test:web && uv run --package datapulse-server pytest -m \"not integration\"",
-    "typecheck": "pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck",
+    "typecheck": "pnpm typecheck:web && pnpm --filter @datapulse/schema exec tsc -p tsconfig.json && pnpm --filter @datapulse/embed-sdk typecheck && pnpm --filter @datapulse/plugin-sdk typecheck",
     "build": "pnpm build:web",
     "verify": "pnpm check:contracts && pnpm test && pnpm typecheck && pnpm build",
     "verify:full": "pnpm verify && pnpm test:integration && pnpm test:e2e"

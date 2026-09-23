@@ -1,0 +1,9 @@
+{"event": "diagnostic_context", "image": "sha256:dd0beebb16441f52fd1368ddcfe2cc276d9a0f9b9e4dd82f60ff83906b26fc0a", "scope": "direct executor, generated two-row CSV; no API, parser or target-environment acceptance", "container_removed_automatically": true}
+{"affinity": 10, "cpu_count": 10, "cpu_max": "200000 100000", "event": "limits", "memory_bytes": 37445632, "memory_max": "4294967296", "pids": 1, "pids_max": "256", "process_cpu_count": 10, "process_threads": 1}
+{"event": "duckdb_import", "memory_bytes": 97636352, "pids": 2, "process_threads": 2, "version": "1.5.5"}
+{"default_threads": 2, "event": "connect_before_set", "memory_bytes": 102920192, "pids": 3, "process_threads": 3}
+{"configured_threads": 2, "event": "connect_after_set", "memory_bytes": 102920192, "pids": 3, "process_threads": 3}
+{"event": "threadpool", "live_workers": 14, "max_workers": 14}
+{"baseline": {"memory_bytes": 310546432, "pids": 2, "process_threads": 2}, "clients": 50, "duration_seconds": 1.513, "error_counts": {}, "errors": [], "event": "capacity_result", "failed": 0, "final": {"memory_bytes": 418738176, "pids": 2, "process_threads": 2}, "max_ms": 485.869, "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0", "p50_ms": 300.533, "p95_ms": 399.317, "peak_concurrent_sync_queries": 14, "peaks": {"memory_bytes": 458637312, "pids": 31, "process_threads": 31}, "pids_events": "max 0", "requests_per_client": 5, "successful": 250, "total_requests": 250}
+{"event": "exit", "code": 0}
+{"event": "reproduction", "script": "test-evidence/phase-four/local-20260921/duckdb-capacity-diagnostic.py", "command": "docker run --rm -i --cpus 2 --memory 4g --pids-limit 256 --network none --entrypoint /app/.venv/bin/python sha256:dd0beebb16441f52fd1368ddcfe2cc276d9a0f9b9e4dd82f60ff83906b26fc0a -u - < test-evidence/phase-four/local-20260921/duckdb-capacity-diagnostic.py", "own_containers_remaining": 0}

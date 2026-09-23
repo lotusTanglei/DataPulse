@@ -1,0 +1,1157 @@
+
+> datapulse@ test:e2e /Users/dundundebaba/sync/code/open/DataPulse
+> pnpm generate:e2e-fixtures && uv run python -m tools.run_e2e --output=../../test-evidence/phase-four/local-20260921/chromium-artifacts
+
+
+> datapulse@ generate:e2e-fixtures /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.generate_e2e_file_fixtures
+
+[WebServer] INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+[WebServer] INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+[WebServer] INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+[WebServer] INFO:     Started server process [59864]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] DataPulse one-time setup code: [REDACTED]
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:59183 (Press CTRL+C to quit)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:08.691148+00:00","request_id":"ea3381b8-e84c-4203-9961-01b6a051027a","method":"GET","route":"/api/auth/status","status":200,"duration_ms":4.62}
+[WebServer] (node:59883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:59903) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 26 tests using 1 worker
+
+(node:59911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.164629+00:00","request_id":"817b0967-f51d-4ad1-9e95-dd8f2efc716d","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.227978+00:00","request_id":"115a1704-e102-415f-a1a1-300fc07cb865","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":50.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.260273+00:00","request_id":"394138f9-b2b9-4b08-840d-8f242a2f2bbb","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":23.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.279926+00:00","request_id":"22be0a85-9252-4586-a8e2-65406f01f01b","method":"POST","route":"/api/admin/datasources","status":201,"duration_ms":10.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.297695+00:00","request_id":"07f701e1-8d92-4747-a329-f45dc53d4638","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":10.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.337711+00:00","request_id":"1f207975-fcb6-4c5b-8305-8bf2dd49e9e3","method":"POST","route":"/api/admin/datasets","status":201,"duration_ms":28.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.350718+00:00","request_id":"70319294-cbb6-458f-8782-ae8f9efe59c0","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.439498+00:00","request_id":"597dad14-c2d5-4cb1-a3c9-2966d087cd34","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":78.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.686540+00:00","request_id":"a4f7ae00-6df2-4f64-a474-6592e15c41e1","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.718541+00:00","request_id":"09cd85eb-0d51-4b7e-a04f-684842e4a117","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.741053+00:00","request_id":"bd88b45b-8edc-44ac-b29f-966ff3cbfe9c","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.866541+00:00","request_id":"a06ff84c-9584-4bd8-a409-7249dc3caee8","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":13.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.881969+00:00","request_id":"2cf04fe9-abeb-4881-8d67-8b901ad48e96","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":14.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:11.898565+00:00","request_id":"727a8ea8-93d4-4b00-b2ee-d2a48e07e16a","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":29.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:12.055425+00:00","request_id":"513a1044-cafc-4458-ab30-1865b28a6274","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":14.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:12.056540+00:00","request_id":"fe222fee-7f5d-4710-aef8-f26e03b3b58b","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":15.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:12.060997+00:00","request_id":"1abccd54-9eb2-4664-9498-052789822c39","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":2.76}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:12.238010+00:00","request_id":"d4e2ffca-9f15-4ec7-8227-ddc07ca3d3fd","method":"POST","route":"/api/admin/ai/analyze","status":200,"duration_ms":46.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:12.360354+00:00","request_id":"c878e8a8-3b50-4c55-ab6e-983599baf84f","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":21.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.152831+00:00","request_id":"1c2b9321-2be0-4586-9223-d81eea870f29","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":15.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.182310+00:00","request_id":"6e2ce808-6baa-4202-8e37-c89983600557","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":19.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.357974+00:00","request_id":"0e108ded-7894-403f-a951-fa44fee9644d","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.391357+00:00","request_id":"394e1bf7-9ab1-4d25-b9cf-0b0558cd0001","method":"GET","route":"/api/auth/session","status":200,"duration_ms":6.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.400553+00:00","request_id":"e022d173-a264-4bba-8cb7-23c21e7f51ad","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.404604+00:00","request_id":"05f4993a-f0d9-481f-acf7-c7bf668bad2a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.418228+00:00","request_id":"ef9020e2-4b82-4a0d-84c8-54b32821732c","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":5.44}
+  ✓   1 [chromium] › e2e/ai-analysis.spec.ts:12:1 › AI analysis uses one request, applies a chart, and preserves the draft (2.6s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.470521+00:00","request_id":"8b382ea7-de72-4312-aa54-e8b5546eca04","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":46.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.483228+00:00","request_id":"ba3d560f-c75b-4d10-8b16-5ec6211fe485","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":59.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.533395+00:00","request_id":"0cb6aa41-8488-4d62-9fc1-06e3febd95f9","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.537168+00:00","request_id":"93c266de-1a2c-4a1f-be76-c874d0cfebbd","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.582201+00:00","request_id":"6214b253-bace-4a63-a2a5-b8d1bbdc7d54","method":"POST","route":"/api/auth/login","status":204,"duration_ms":42.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.592122+00:00","request_id":"d806620c-6eda-44cd-8a10-4015cfc982a2","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":4.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.600594+00:00","request_id":"278ef9c9-a9c5-4300-83da-45c0ca5a40ea","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":4.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.632053+00:00","request_id":"16f9567f-a0fd-4fd4-a500-cea9fc1e37d2","method":"POST","route":"/api/admin/ai/analyze","status":422,"duration_ms":25.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:13.727028+00:00","request_id":"26390a82-b4ea-475d-af3e-389718ac8d27","method":"POST","route":"/api/admin/ai/analyze","status":422,"duration_ms":90.43}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.801607+00:00","request_id":"bf935b31-a8ca-49b5-8298-00c56fb1b06e","method":"POST","route":"/api/admin/ai/analyze","status":504,"duration_ms":2070.09}
+  ✓   2 [chromium] › e2e/ai-analysis.spec.ts:113:1 › AI analysis maps malformed, invalid-field, and timeout responses (2.4s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.910909+00:00","request_id":"df18adac-6e5b-4761-988c-3f4ddec90b62","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.915008+00:00","request_id":"cfbc91b8-0823-4bdf-a84c-e64f1f1968b3","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.958140+00:00","request_id":"3d112c36-622e-4ab3-ada3-6d96a87675d4","method":"POST","route":"/api/auth/login","status":204,"duration_ms":40.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.966663+00:00","request_id":"b86e1240-e2e2-4031-b054-f77c8e9e2fe5","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":4.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.976692+00:00","request_id":"c718dc5b-1daa-48ae-872d-441d6db0e0a9","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":4.81}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:15.988450+00:00","request_id":"55f9840a-1bd8-444b-81ba-4f14f91136b0","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":4.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.177941+00:00","request_id":"1d989dfe-1ef6-4648-9df3-70f2ee86145c","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.214195+00:00","request_id":"4be47a6f-a111-4d6c-bbb3-f194c69f09bb","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.244215+00:00","request_id":"65bdff3e-af7f-4608-aaa8-6d03703542fd","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":7.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.312638+00:00","request_id":"9f4bcd3a-9f96-493a-93bb-c538fa81f920","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":6.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.318026+00:00","request_id":"11b2b521-ebc9-442b-a8a5-05cc46340345","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":12.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.455845+00:00","request_id":"85da80ab-3dce-47d6-b9ff-48d891a6b144","method":"POST","route":"/api/admin/ai/screen","status":200,"duration_ms":43.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.492553+00:00","request_id":"706758f1-3900-4e1b-8813-5892341a29c8","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":24.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.609022+00:00","request_id":"83a98ace-bc8b-4e37-b25d-47623288bc87","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":15.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.635112+00:00","request_id":"17d72ea3-2ea7-4f3a-b125-4f8371e773bc","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.76}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.718247+00:00","request_id":"bc13609b-ecd4-48e2-b74c-cdff9df415d9","method":"POST","route":"/api/admin/ai/screen","status":200,"duration_ms":31.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.746609+00:00","request_id":"f7fa9267-7cfd-45d7-867e-64e62f9b4c35","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":22.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.811530+00:00","request_id":"4b19ba9a-7972-432a-ad4b-1549ae865e5a","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":12.91}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.828292+00:00","request_id":"c059d627-fe54-49d5-abae-21eec7203ecc","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.842945+00:00","request_id":"889b3fc9-0034-4908-8bcd-1a74e2282668","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":3.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.866437+00:00","request_id":"a30c04e1-12d9-44ff-9582-128618281316","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":12.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:16.895024+00:00","request_id":"cd4e5d1d-0ce2-4e0d-b28f-f9b0fec18840","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":40.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.056717+00:00","request_id":"37f81e99-dfbf-49e0-8956-c9d5c29f97a5","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.096100+00:00","request_id":"e09a8cbb-ac53-4a25-afd4-22449e964af0","method":"GET","route":"/api/auth/session","status":200,"duration_ms":13.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.107715+00:00","request_id":"b2adc75a-9953-4157-98bd-4db67c7bf3d4","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.120035+00:00","request_id":"26d3d8d5-44cf-471c-a3ed-64d08b237288","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":3.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.134176+00:00","request_id":"669914cf-c03d-4d09-97ac-8f6786cb4a4f","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":7.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.169174+00:00","request_id":"3eaf8fe2-24e6-4253-9fe0-4d6ceee20903","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":41.08}
+  ✓   3 [chromium] › e2e/ai-screen-generation.spec.ts:10:1 › AI screen preview cancels cleanly and confirms with one atomic create (1.3s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.284257+00:00","request_id":"fb14c943-7f95-446b-ac9b-c333dd4962b2","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.288298+00:00","request_id":"583d5617-6b8a-4a5c-ae22-5fdc9110a56d","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.330500+00:00","request_id":"91982a4a-830e-4861-967e-ed9fe85170e4","method":"POST","route":"/api/auth/login","status":204,"duration_ms":39.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.342458+00:00","request_id":"17c613bc-daa1-4a25-a131-3a46b36a0d2d","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":7.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.349933+00:00","request_id":"c4365437-60bd-470d-99e7-2101fb01aa27","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":3.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.358947+00:00","request_id":"24919eba-86ec-4a24-b050-7c4ff7a4eba2","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":5.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.532473+00:00","request_id":"d040cfc1-30ed-430b-91db-6419ae3d476b","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.562679+00:00","request_id":"e9795fbb-6a94-4414-8f1d-6ab287d897af","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.586405+00:00","request_id":"a7861902-ffc5-401f-94c2-11660da7272c","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":4.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.662419+00:00","request_id":"b8d602a1-accd-4806-9e19-de37e1745ab8","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":13.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.667243+00:00","request_id":"4771f569-3df0-4243-8616-9ce1e811a722","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":19.41}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.788368+00:00","request_id":"1c192b8d-4719-45ea-b869-e6f1dc516a55","method":"POST","route":"/api/admin/ai/screen","status":422,"duration_ms":24.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.857525+00:00","request_id":"1b60b617-e619-4304-b53e-17c9ad59b464","method":"POST","route":"/api/admin/ai/screen","status":422,"duration_ms":33.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:17.909616+00:00","request_id":"7ce13442-9ba1-40fc-853a-a964f938defd","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":4.69}
+  ✓   4 [chromium] › e2e/ai-screen-generation.spec.ts:81:1 › invalid AI screens never create a draft (754ms)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.001656+00:00","request_id":"fb305229-d947-418c-b62c-5ad128214066","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.005840+00:00","request_id":"60c13330-60a7-4806-b0f3-e2c6e493c349","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.046997+00:00","request_id":"1990ad5e-acbd-48c4-8498-6df20eac8103","method":"POST","route":"/api/auth/login","status":204,"duration_ms":38.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.241346+00:00","request_id":"4b1a2a24-3536-4a67-b4f5-01dfbc1ac242","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.252655+00:00","request_id":"b11d171e-f5be-4494-a886-4c114f734f6b","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.265662+00:00","request_id":"e64379b6-dd02-42d3-b97f-0298ad9b2c09","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":4.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.430280+00:00","request_id":"e8d4f0a0-6d93-4906-802b-569e9ad81975","method":"POST","route":"/api/admin/datasources","status":201,"duration_ms":10.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.444543+00:00","request_id":"d4565258-88e4-47c6-97b2-827ac85a5348","method":"GET","route":"/api/admin/datasources/{datasource_id}","status":200,"duration_ms":6.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.493556+00:00","request_id":"7e480b3b-2079-4102-af3f-6cbc79c80f86","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":5.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.542753+00:00","request_id":"11a9702c-345a-4dac-bdb1-3b2d7a049db4","method":"POST","route":"/api/admin/datasources/{datasource_id}/test","status":200,"duration_ms":12.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.593766+00:00","request_id":"9791d8ec-c0ee-4fb1-9c75-ad52105f9735","method":"GET","route":"/api/admin/datasources/{datasource_id}","status":200,"duration_ms":4.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.639225+00:00","request_id":"53bdd670-5262-43fd-816f-99d06c8331d2","method":"GET","route":"/api/admin/datasources/{datasource_id}/relations","status":200,"duration_ms":9.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.686218+00:00","request_id":"7dafc9d2-2d35-42c7-8a02-2030cf44baea","method":"GET","route":"/api/admin/datasources/{datasource_id}/relation","status":200,"duration_ms":8.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.790846+00:00","request_id":"5cc4816e-d564-47a0-92b1-b74f21602403","method":"GET","route":"/api/admin/datasources/{datasource_id}/relations","status":200,"duration_ms":7.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.927281+00:00","request_id":"da0153ca-5260-419e-9a7d-bb02ed0307c6","method":"POST","route":"/api/admin/datasources/{datasource_id}/query","status":200,"duration_ms":22.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:18.994018+00:00","request_id":"03c6c4c0-d337-466b-886b-df2db3128310","method":"POST","route":"/api/admin/datasources/{datasource_id}/query","status":422,"duration_ms":24.41}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.051510+00:00","request_id":"ec7a58f3-19e6-43cb-8c00-3a9bd69c87db","method":"POST","route":"/api/admin/datasources/{datasource_id}/query","status":200,"duration_ms":23.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.130424+00:00","request_id":"5be0b3db-8494-45b6-ac6e-94b221b7879d","method":"POST","route":"/api/admin/datasets","status":201,"duration_ms":22.46}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.159946+00:00","request_id":"7d3b988e-baa5-4e31-87f0-5069b2e36e3b","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":5.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.176203+00:00","request_id":"013d9b0e-2afd-44d5-9942-9e4d6be31208","method":"GET","route":"/api/admin/datasources/{datasource_id}","status":200,"duration_ms":13.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.191652+00:00","request_id":"e7077312-1567-4888-9635-04adc3422f66","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.46}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.229124+00:00","request_id":"fb4030d9-818e-40b4-be6c-24616f8ddce9","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":24.75}
+  ✓   5 [chromium] › e2e/datasource-studio.spec.ts:5:1 › administrator can configure and analyze a SQLite datasource (1.3s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.379816+00:00","request_id":"900d13b8-2376-4adb-af66-789a3acf3d59","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.384130+00:00","request_id":"01e34ab8-e2bf-4c04-b94d-0b120086b86a","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.427005+00:00","request_id":"78a7f6fb-360b-49cd-80ae-7d4328be8bc9","method":"POST","route":"/api/auth/login","status":204,"duration_ms":40.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.440890+00:00","request_id":"cfd5238f-48bb-4f4b-8da6-50d01f1e98ce","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":8.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.457095+00:00","request_id":"4b78b2b9-e1e4-4dd9-bf7c-b54210b06010","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.477868+00:00","request_id":"230f0477-6466-4791-bcba-96b3a6fa4c32","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":10.21}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.509628+00:00","request_id":"4af6c91e-a3d0-49ad-87f9-e1ff56b285bc","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":17.58}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.699064+00:00","request_id":"8367d924-ba53-4609-af7e-cb0a5f993675","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":5.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.742796+00:00","request_id":"700070b6-5ac7-4f99-a56f-db1b5ff22ea7","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":4.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:19.974979+00:00","request_id":"7741daa7-8390-43ad-89cf-e05cae75cdbf","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":4.63}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.110020+00:00","request_id":"73794d15-3da2-4cc7-affc-3d64b067f703","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.249896+00:00","request_id":"20cb260e-5bc8-42d2-baf5-d24d1cd3113a","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":6.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.406872+00:00","request_id":"8f3b4ba3-19d5-46d9-90f5-2d45aec4b8b2","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.414462+00:00","request_id":"dd24fde2-6b03-45a0-a481-5494b93ccb93","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.91}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.428016+00:00","request_id":"69d0e018-270b-4ad6-8ab1-0e30f87642f3","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.456906+00:00","request_id":"2a8909c2-1b8e-4c22-be8c-ff99b9dc0e4b","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":5.72}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.469479+00:00","request_id":"084f35d9-a14f-414b-9158-9249c2de3fc1","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":4.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.570870+00:00","request_id":"00ea5794-698b-40e8-b9cb-36553028934d","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":11.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.576885+00:00","request_id":"c53fc034-4d2d-4240-9bff-d59819237ecc","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":17.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.581646+00:00","request_id":"572c9210-4177-4dde-9894-799026ad0037","method":"GET","route":"/api/admin/digital-human/provider-directory","status":200,"duration_ms":20.24}
+  ✓   6 [chromium] › e2e/digital-human.spec.ts:45:1 › digital human publishes, renders shared data and keeps the draft isolated (1.4s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.777838+00:00","request_id":"bcbb400f-1648-4d71-95ff-76e7eb8b3f65","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.781907+00:00","request_id":"90b9e938-ca27-423d-b1a9-31d972505739","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.822445+00:00","request_id":"383c55d7-cae3-4b2a-a4a8-143570486707","method":"POST","route":"/api/auth/login","status":204,"duration_ms":38.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.838963+00:00","request_id":"cf49d9cd-b905-4647-bcbc-d79fac652986","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":10.99}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:20.861777+00:00","request_id":"80c842ff-7a0f-48a2-9154-6da15628cbd0","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":11.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.037977+00:00","request_id":"92a00f99-2ce4-4959-89aa-bf5e24be4b57","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.068844+00:00","request_id":"c45acab9-340e-4dd5-a75c-7975e5ba679e","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.117514+00:00","request_id":"ddf3e33c-8be7-4c61-813b-c14f4839248d","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":36.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.199533+00:00","request_id":"5f7cf624-b13c-4786-94ea-9d23d82da05b","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":12.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.236216+00:00","request_id":"0e1feca0-61bc-4585-8ac5-25a46332f4ee","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":35.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.301600+00:00","request_id":"a2f4ba3c-2e35-48e4-86fa-12938f0feaad","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.77}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.306316+00:00","request_id":"f5ad9c15-3d60-4fff-94ff-00a219d7a361","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":11.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.313697+00:00","request_id":"65a69960-d2e0-469d-8aa5-a03af099c7ae","method":"GET","route":"/api/admin/digital-human/provider-directory","status":200,"duration_ms":18.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.449411+00:00","request_id":"b15bca48-63fd-4e78-9c13-09497ca6bea1","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.602560+00:00","request_id":"50e77ba5-1499-4fa3-8875-487474444768","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.642279+00:00","request_id":"f12b3a78-526a-4c80-a3c3-0bcf6db3b23b","method":"GET","route":"/api/auth/session","status":200,"duration_ms":8.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.653313+00:00","request_id":"2b3698fe-f1b4-4057-b890-ebf52f9fc65b","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.0}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.667087+00:00","request_id":"72ce8067-e5ea-4523-ab05-2dffd062a690","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":5.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.677668+00:00","request_id":"11b004c2-de21-4215-9f40-06229fc55e6e","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":6.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.718141+00:00","request_id":"c676fe17-64d8-4857-a2bf-0cf19266144a","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":12.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.720972+00:00","request_id":"da17d598-fdbd-4960-a97c-5c9be78f2a00","method":"GET","route":"/api/admin/digital-human/provider-directory","status":200,"duration_ms":13.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.729819+00:00","request_id":"c95b39f6-c69c-4a5c-ac66-732a8be0fc43","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":22.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.757996+00:00","request_id":"e84ae86f-6f56-4e33-9f5f-264c356de91a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.774794+00:00","request_id":"cb0a6298-a90b-4d41-b3f5-48488b4775da","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":11.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.799966+00:00","request_id":"5433cab4-e4f1-4dac-9bf2-a71654d92ded","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":19.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.939300+00:00","request_id":"54b8f53f-cf7b-470a-a310-3fb3a19a345d","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:21.945773+00:00","request_id":"7219ae04-440e-47b2-a026-7fc0e7be6ad7","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":3.89}
+  ✓   7 [chromium] › e2e/digital-human.spec.ts:95:1 › structured speech segments persist through editor reload and publish (1.3s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.054613+00:00","request_id":"894c6a2c-4d03-4377-8aa1-430bd5b18d76","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.058697+00:00","request_id":"9647768a-61b7-4620-b562-d5d7e654b875","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.098307+00:00","request_id":"b5ef3835-c083-48e7-8890-6fb48cd4625b","method":"POST","route":"/api/auth/login","status":204,"duration_ms":37.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.123429+00:00","request_id":"61703244-94f6-4c7a-af82-78f4a419edd5","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":11.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.136955+00:00","request_id":"6426931d-5a1d-49ad-8fb1-4420688ec7d7","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.150423+00:00","request_id":"382748ea-83a3-42ae-8867-02cfecad89b8","method":"POST","route":"/api/admin/digital-human/providers","status":201,"duration_ms":7.94}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.333178+00:00","request_id":"9b5ebc45-628f-4862-8d27-b1882dcd9987","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.364312+00:00","request_id":"86aa33d7-1a20-46d4-9ba2-787809dec41a","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.380320+00:00","request_id":"5fdaa8fd-2c3c-4509-8c1b-3929e500e7a7","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.454357+00:00","request_id":"43c1a197-3463-4ff4-8191-f26554e9f6b5","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":3.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.469386+00:00","request_id":"204abba4-9f57-452d-bb19-ece44fe6ed4f","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":4.71}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.531334+00:00","request_id":"c5876df3-3c40-4303-b298-f109375fa368","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.533580+00:00","request_id":"71dc1f7b-b727-4950-af8c-5ef1557045b6","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":7.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.537101+00:00","request_id":"c8f020d4-ba3f-453a-b0cf-d6c201ce8bf0","method":"GET","route":"/api/admin/digital-human/provider-directory","status":200,"duration_ms":10.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.680741+00:00","request_id":"4dcd225f-6059-46f1-ac99-e8f87068f8d1","method":"POST","route":"/api/admin/digital-human/plans/preview","status":200,"duration_ms":39.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:22.711796+00:00","request_id":"ab5dd680-9c9a-4979-8ae7-c0ad19e38642","method":"POST","route":"/api/admin/digital-human/plans/{plan_id}/tasks","status":201,"duration_ms":28.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.230756+00:00","request_id":"5bfda04d-2383-4bb6-88f7-a48c06237a1d","method":"GET","route":"/api/admin/digital-human/tasks/{task_id}","status":200,"duration_ms":13.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.261396+00:00","request_id":"543493ad-a752-4635-9cd1-a245277c3c09","method":"GET","route":"/api/admin/assets/{asset_id}","status":206,"duration_ms":5.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.528462+00:00","request_id":"c23e58d5-6087-42e0-aced-9915ec99d626","method":"GET","route":"/api/admin/assets/{asset_id}/metadata","status":200,"duration_ms":5.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.541109+00:00","request_id":"08dda501-a704-4656-933a-c58462efe866","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":8.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.546169+00:00","request_id":"6ea51f1f-7987-4151-b8b5-e180267f985c","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":10.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.555464+00:00","request_id":"87b07434-4283-4dbe-b3d2-0f4b0c33391c","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.569512+00:00","request_id":"3bf9944d-bc57-4d30-b8dc-230b43127493","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.577721+00:00","request_id":"790aaf08-049e-41c8-b924-c3222157fc6b","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.595883+00:00","request_id":"a380915b-e8d7-418d-a80b-d94035f634a4","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.71}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:23.723120+00:00","request_id":"a62b7bd7-5047-452f-a0b8-9b31f8ef578a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":11.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.002107+00:00","request_id":"ec9a01f8-d8de-4f70-a685-ca4d6b577f68","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.357403+00:00","request_id":"3651b19d-61c5-4f8e-b0d9-b228354db619","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":18.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.370294+00:00","request_id":"05a5fed6-d78b-4d97-82e6-6c3db12371b4","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":7.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.379666+00:00","request_id":"b837df15-c1e3-46b2-9d5c-3a3935015864","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.389740+00:00","request_id":"40248a28-545d-40dd-be37-a511d7f2d355","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":7.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.398161+00:00","request_id":"b28166e0-9ced-494d-90b8-dd90fa3265f6","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":4.66}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.518055+00:00","request_id":"f260c73c-18ba-4e8b-8d1f-ba164a4e77a1","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.541160+00:00","request_id":"d9bf0cb5-7f4c-490e-94f0-761d994eff28","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":13.77}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.555839+00:00","request_id":"64e9c788-177a-4aec-95c3-3c63db3fcd8d","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":7.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.745436+00:00","request_id":"39c40754-c51c-4e07-936d-acfadef2471f","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.772614+00:00","request_id":"dbb4c46f-a986-42f0-b82b-3b9f4a14a772","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":4.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:24.789980+00:00","request_id":"c01295bb-3542-4145-a055-4d8434e086b8","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":6.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:26.880269+00:00","request_id":"6d91d755-9147-4e12-83c0-7520ed05fcbe","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":50.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:26.894000+00:00","request_id":"ce84b358-6f69-49e2-acf4-329732092557","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":7.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.062463+00:00","request_id":"a76ca58f-01c7-4176-8ae6-1a022b09fa5f","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":4.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.081104+00:00","request_id":"8f6b89d4-8b9d-4386-8511-9eafbe432c09","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":5.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.097537+00:00","request_id":"5ac99ce1-e4de-44d4-b970-6782e37e48e7","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":3.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.107987+00:00","request_id":"41d60d99-c7a3-4fd0-b959-3fdc47a66478","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":0.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.110562+00:00","request_id":"80c2836b-9466-4b29-bcc7-51770ea8ce66","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":0.48}
+  ✓   8 [chromium] › e2e/digital-human.spec.ts:136:1 › fake TTS preview is adopted into a published digital human and plays independently (5.1s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.230330+00:00","request_id":"7410caee-6f1b-4c5e-afdb-b588314beff1","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.234714+00:00","request_id":"f7f93e51-67d5-47a6-8017-a988cf3f936e","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.277521+00:00","request_id":"778324d0-f0d5-4208-8f84-e5f93db03f7c","method":"POST","route":"/api/auth/login","status":204,"duration_ms":40.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.293324+00:00","request_id":"5abf2db5-8770-412c-8c85-87bd064fb2c9","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":10.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.307950+00:00","request_id":"0d5ee0a1-1189-4eec-97f2-2771e1e26291","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.325637+00:00","request_id":"7176e095-70b7-4e52-9f7d-bdbc6f483027","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":10.97}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.338416+00:00","request_id":"8e83aa01-7960-42e0-a46b-b7b669889c28","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":7.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.347973+00:00","request_id":"4a1763d1-56bc-4081-875a-4064b0e3ad1e","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":4.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.568885+00:00","request_id":"cbd6d8c3-fdae-4799-8d47-5652836888bc","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":2.67}
+  ✓   9 [chromium] › e2e/digital-human.spec.ts:188:1 › digital human embed commands report status and reject unknown components (564ms)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.769152+00:00","request_id":"d0a05de9-1354-4e17-bf65-c5f11c3dee1b","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.773401+00:00","request_id":"96e53a53-ac0d-404f-951a-5e719ab3bd6b","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.817755+00:00","request_id":"05c40bad-5d48-4c9d-b4e9-95bc0474cc58","method":"POST","route":"/api/auth/login","status":204,"duration_ms":41.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.834707+00:00","request_id":"a4ae6932-c8b3-4f40-b712-014fbc4861b7","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":9.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.847973+00:00","request_id":"9cc46d54-76f1-4e71-90aa-72519ba96c01","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.864313+00:00","request_id":"117a187a-7efe-4db7-8194-627c6d2c863b","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":10.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.880300+00:00","request_id":"947fcf04-4b5d-4289-9052-9a97be2caa60","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":8.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:27.888928+00:00","request_id":"62a87c0d-7216-4e94-99ef-25d3182e83fa","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":3.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.101705+00:00","request_id":"5d0f4ded-8c19-4931-8c41-4054799616e8","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":2.51}
+  ✓  10 [chromium] › e2e/digital-human.spec.ts:222:1 › cross-origin embed host loads the published digital human (513ms)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.313034+00:00","request_id":"7d4259c2-4545-43c3-9b87-5177fdc02336","method":"GET","route":"/api/auth/status","status":200,"duration_ms":0.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.316737+00:00","request_id":"43f79b3f-5833-4782-a324-2c591a324766","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.356454+00:00","request_id":"e3135d61-f5d0-4bcf-9e9c-d78d1d56fb61","method":"POST","route":"/api/auth/login","status":204,"duration_ms":37.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.372005+00:00","request_id":"43ac75df-a3c2-49c8-9781-4a3260892427","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":9.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.383376+00:00","request_id":"3abbcdf0-a696-4557-be08-879fa85671b2","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.399201+00:00","request_id":"45b2a18d-d8c0-4ebe-b74c-49ebb407bed9","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":8.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.416683+00:00","request_id":"59593fd0-2bbe-4dec-922f-8425d64e06aa","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":5.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.425561+00:00","request_id":"e7bbfc47-b951-4f2e-bf50-be1a12e03ab2","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":3.89}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.630925+00:00","request_id":"0e92fcca-7679-4972-b382-a0cd421d51b3","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":2.88}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.721588+00:00","request_id":"90a1cd34-23c7-4824-b8e5-62117b182758","method":"PATCH","route":"/api/admin/screens/{screen_id}/access-policy","status":200,"duration_ms":7.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.729571+00:00","request_id":"fa47e1f3-6d5f-4df4-a0d4-9c8eb26b2ca1","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":3.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.737569+00:00","request_id":"b48ba171-24f7-4559-a894-05efefa27d38","method":"GET","route":"/api/embed/screens/{screen_id}","status":403,"duration_ms":1.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.751111+00:00","request_id":"82bf61ba-35ea-4819-9f67-fedb4778dd6f","method":"PATCH","route":"/api/admin/screens/{screen_id}/access-policy","status":200,"duration_ms":6.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.759145+00:00","request_id":"213e4445-db91-471b-afa1-0c8f11ca94eb","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":2.66}
+  ✓  11 [chromium] › e2e/digital-human.spec.ts:243:1 › embed access revocation blocks and then restores an existing ticket (577ms)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.879100+00:00","request_id":"d4450631-a702-407f-8c41-76b0dd97867e","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.882813+00:00","request_id":"21710d7b-2923-4cb5-b460-839803c8e7b5","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:28.925527+00:00","request_id":"ea195d33-a202-457c-aeac-70b0d16dc16b","method":"POST","route":"/api/auth/login","status":204,"duration_ms":40.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.616294+00:00","request_id":"5328b959-dfa5-43ec-8d0d-149cd0589e5b","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":466.91}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.632468+00:00","request_id":"581719a4-0909-45e8-a2e9-3a9fc5d98292","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":11.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.653066+00:00","request_id":"3be0b337-0580-407e-a5d7-9f573b6c1a89","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":9.43}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.667934+00:00","request_id":"e568f430-95a6-4bfb-bea0-5a8a261e1b2d","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.694443+00:00","request_id":"86f80d0a-567a-455b-8bf2-92b7323d385b","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":10.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.714664+00:00","request_id":"b2187eba-9512-4976-940f-910dc10dfcf7","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":7.94}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.893983+00:00","request_id":"8610dd83-6cf6-4f7a-8a0b-61bd90101292","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.944154+00:00","request_id":"c96114b8-f097-40ce-bede-ed26c32ac869","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":4.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:29.959150+00:00","request_id":"a698294d-3706-48e3-86af-3af63a6c4f02","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":5.74}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.677815+00:00","request_id":"108dd23b-5c64-4e0e-b4a1-3d557ce40b20","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.714278+00:00","request_id":"c5e562fe-52b1-4869-a281-2080d3b75fe2","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.739838+00:00","request_id":"b94a7774-f78b-49ae-b01a-d659d311a547","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":12.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.775791+00:00","request_id":"6e9f1b47-ff3d-4031-a5a1-db06e72f6b1e","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":21.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.795413+00:00","request_id":"e3e62fb5-4eec-4fe5-8643-433b1b2ad363","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":23.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.803030+00:00","request_id":"a0757ed7-9e1a-42de-a6b0-84df2848e9ed","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":9.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.817648+00:00","request_id":"cdf502a0-1f14-4cb9-a304-f79f16b1d5b3","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":59.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.835534+00:00","request_id":"ce0a613d-0e18-4dc0-8795-1efc771cf7b1","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":16.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.856987+00:00","request_id":"68b59683-1902-47e1-918b-211b85c89948","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":13.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.863098+00:00","request_id":"5c29cfd3-0fc2-4651-9a70-6fa27750137f","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":14.21}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.866487+00:00","request_id":"1573bc60-87ad-43a2-b0ef-a048740b3944","method":"GET","route":"/api/admin/digital-human/provider-directory","status":200,"duration_ms":16.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.869505+00:00","request_id":"c427ef84-0873-4513-8ada-f9de4b2c52a4","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":21.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:32.928271+00:00","request_id":"2bcda3e8-21f2-4441-86e3-3899d33ff4f4","method":"GET","route":"/api/admin/assets/{asset_id}","status":206,"duration_ms":4.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.058570+00:00","request_id":"a7a442fc-32d4-4a99-b55a-33fb281b42a2","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":9.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.067265+00:00","request_id":"ac5f42ad-c7ee-44b1-ac0f-3b325ae60765","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.080660+00:00","request_id":"a1191d78-9de0-4420-84e5-c94fde261a83","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":12.58}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.087025+00:00","request_id":"20492e97-50bc-491d-b6e2-8a8928ffaa92","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":16.91}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.094842+00:00","request_id":"b4b2eb20-7c72-4d52-9e08-f5b0b79d65b8","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.223873+00:00","request_id":"7524aace-0ddd-4afc-a5ec-2fc1c0ede006","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.502677+00:00","request_id":"187bac73-263d-4552-910d-cccb879028d2","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.868789+00:00","request_id":"3dc07c26-c074-46c4-8e0c-f08b82d9f6ba","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":15.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.880838+00:00","request_id":"bfa65c7e-2f65-469f-a258-0d1c79528333","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.892776+00:00","request_id":"76f36365-6c49-48a1-a6e0-e080fb4c15e8","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":8.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.902232+00:00","request_id":"3a18ddcb-6ca9-4720-b9d5-ea579ad31009","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:33.910475+00:00","request_id":"5248795f-b5df-4b3a-8ee3-e50504d20a22","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:34.024628+00:00","request_id":"16e31ca3-42ca-4742-9aff-8c8b7d28c0dc","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.08}
+  ✓  12 [chromium] › e2e/digital-human.spec.ts:291:1 › confirmed video broadcasts use real audio and subtitle clocks across pause and mute (5.3s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:34.224195+00:00","request_id":"2560ee59-6205-4cc7-ba85-5edb94a3a6fe","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:34.227931+00:00","request_id":"54463b35-ad63-4b7a-bc88-7f057b36c3bf","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:34.301156+00:00","request_id":"079c366c-b7f5-490a-85e7-00b0de418d7d","method":"POST","route":"/api/auth/login","status":204,"duration_ms":71.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.331608+00:00","request_id":"cd48eaab-97a2-4aa2-8664-bc6fc6f83f1b","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":884.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.358274+00:00","request_id":"15ff98de-74d8-485e-bcd1-dc0a78e83fa3","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":20.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.374483+00:00","request_id":"555b59a9-4c8d-4f7f-bc59-2d52af320e50","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.414979+00:00","request_id":"72844a5c-9e36-4bb7-b306-fafd53bc9986","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":17.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.605253+00:00","request_id":"caf33e96-4af8-4618-b0c6-d02f226070bd","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.637248+00:00","request_id":"33d1bd25-829f-4786-87f1-b75362825152","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.654442+00:00","request_id":"f4be309a-1162-45e2-98ea-67dbbb04abcc","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.702446+00:00","request_id":"2c088882-17b2-4a31-9f61-c224a10e2b38","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.706237+00:00","request_id":"12536ad9-f618-43d4-94c4-4f1087c0cb28","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":4.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.724450+00:00","request_id":"1925d1a4-36ed-4420-8dec-d75cd170cb32","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":8.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.769563+00:00","request_id":"6188de19-7d45-4325-b3e4-3fd623f2029c","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.801834+00:00","request_id":"24ed0b6a-c80f-4ca4-b650-c6d51c9e5919","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":6.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.803627+00:00","request_id":"4d7cd60b-2723-4d25-ba0a-053b59502216","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":11.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.816065+00:00","request_id":"e4bde2e0-72fd-4e6a-8be4-598fc36e80c1","method":"GET","route":"/api/admin/digital-human/provider-directory","status":200,"duration_ms":21.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.906959+00:00","request_id":"e8be1d51-8ceb-4d66-a46d-8b549d8ef066","method":"GET","route":"/api/admin/assets/usage","status":200,"duration_ms":16.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.909200+00:00","request_id":"a7c688c7-b352-460a-afdf-95e8c09b3cb3","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":19.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.910699+00:00","request_id":"9979d2aa-4237-4cde-ac8a-b33427e1604c","method":"GET","route":"/api/admin/assets/expiring","status":200,"duration_ms":19.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.921638+00:00","request_id":"10c50fd0-7ef3-4e2f-b47e-86526c9b1e3a","method":"GET","route":"/api/admin/assets/{asset_id}/metadata","status":200,"duration_ms":30.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.934523+00:00","request_id":"6e47b92a-4636-42a7-93c7-6c6ba8a33995","method":"GET","route":"/api/admin/assets/{asset_id}/thumbnail","status":200,"duration_ms":7.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.941396+00:00","request_id":"31f527ba-f14d-4ccf-b4a7-f8c80caf4644","method":"GET","route":"/api/admin/assets/{asset_id}/thumbnail","status":200,"duration_ms":15.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.953837+00:00","request_id":"95a0c098-1924-4a5f-9952-2dee15a6e791","method":"GET","route":"/api/admin/assets/{asset_id}/references","status":200,"duration_ms":10.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:35.956554+00:00","request_id":"3fc92054-5380-490e-a764-ca969fc3e690","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":11.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.087287+00:00","request_id":"a32234bb-1943-4628-8c68-8d26ca751819","method":"PATCH","route":"/api/admin/assets/{asset_id}/metadata","status":200,"duration_ms":10.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.100096+00:00","request_id":"bba8a4fe-a547-4ce1-9f48-42ad1c6348e3","method":"GET","route":"/api/admin/assets/{asset_id}/references","status":200,"duration_ms":7.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.108653+00:00","request_id":"fde38d7b-b973-4b52-9cb8-1ec8ba358590","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":5.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.118282+00:00","request_id":"2910323d-6fbc-4e21-b2ed-503956923e15","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":5.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.943931+00:00","request_id":"6201e73f-2174-489a-a577-b89d811310bb","method":"POST","route":"/api/admin/assets/{asset_id}/versions","status":201,"duration_ms":804.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.955989+00:00","request_id":"587a115f-3d42-4e84-b246-81076f35add8","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":7.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.961811+00:00","request_id":"0011c27a-ce03-48d1-889e-23aee74b4b47","method":"GET","route":"/api/admin/assets/{asset_id}/references","status":200,"duration_ms":14.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.970180+00:00","request_id":"e18bc59f-fa9a-43a8-8592-261e33c620ef","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":4.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.977042+00:00","request_id":"bea8d185-d7f3-4bff-9860-738a0a9128cb","method":"GET","route":"/api/admin/assets/usage","status":200,"duration_ms":3.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.987093+00:00","request_id":"c99748c7-3d42-47b8-a7b3-8c2b897455c8","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":6.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:36.991091+00:00","request_id":"d578f502-8d14-4584-95af-2ffb1405415a","method":"GET","route":"/api/admin/assets/{asset_id}/thumbnail","status":200,"duration_ms":6.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.639336+00:00","request_id":"2726e5ea-cd2d-4ced-8976-51a9a3d8153c","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":5.88}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.656892+00:00","request_id":"c6715bca-2bfd-4017-b1d6-2bb5498306b8","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.686489+00:00","request_id":"7b2ea84a-f2ee-4f49-8859-2f0a10713e1b","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.695197+00:00","request_id":"8c1993f6-c8f4-46c1-b054-f20bd4832da4","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":3.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.728914+00:00","request_id":"038a52a0-f5e2-49a2-a883-3f8ba952c62b","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":9.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.741787+00:00","request_id":"70959a11-08ff-4e0a-ad05-b46125b9c944","method":"GET","route":"/api/admin/assets/expiring","status":200,"duration_ms":20.77}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:37.750467+00:00","request_id":"323a2755-06b4-47ef-a876-800cb11cf195","method":"GET","route":"/api/admin/assets/usage","status":200,"duration_ms":30.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.042546+00:00","request_id":"5571a4a4-c454-451d-a6bc-b63bf2bb6a50","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":236.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.053202+00:00","request_id":"a636c5b8-3cc5-4fa7-bb54-58fccddd5e59","method":"GET","route":"/api/admin/assets/{asset_id}/references","status":200,"duration_ms":8.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.066834+00:00","request_id":"726a0c37-3da2-4208-8fdf-5eac0efd2da8","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":7.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.081186+00:00","request_id":"c78d1deb-2818-44fd-b471-5059c1241625","method":"GET","route":"/api/admin/assets/usage","status":200,"duration_ms":10.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.091094+00:00","request_id":"59359499-6efe-4d4f-876f-490c3a365db9","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":5.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.199314+00:00","request_id":"0a7a890d-72f8-4186-931a-b445fe6ae02e","method":"GET","route":"/api/admin/assets/{asset_id}/preview","status":200,"duration_ms":144.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.333143+00:00","request_id":"fe4746e0-bc3c-41d4-857b-8f04ad7dece9","method":"GET","route":"/api/admin/assets","status":200,"duration_ms":9.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.414027+00:00","request_id":"5158c00f-905f-4c71-b0d3-4674e1f6d3d1","method":"GET","route":"/api/admin/assets/{asset_id}/references","status":200,"duration_ms":22.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.415094+00:00","request_id":"55f8633f-f39a-4a62-9b59-f9f3f3c461c9","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":22.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.444406+00:00","request_id":"4f51115d-c9d6-44f1-900b-e59b4ece2dfd","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":12.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.462626+00:00","request_id":"40d78a0b-885e-4898-9389-15ce2e88b10f","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":13.62}
+  ✓  13 [chromium] › e2e/digital-human.spec.ts:384:1 › asset library preserves published versions and previews real media (4.3s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.541923+00:00","request_id":"7e588f78-87a1-43da-b969-63e4ffb05f3f","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.545505+00:00","request_id":"11ad2aa7-e2b9-453a-9049-1e4c7fdbc32a","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.593907+00:00","request_id":"f727bd5c-72ec-4b0a-8b67-89bf0e585584","method":"POST","route":"/api/auth/login","status":204,"duration_ms":45.94}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.606505+00:00","request_id":"2cc86822-1f4f-451d-a2de-7feb9c9c847f","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":4.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.621039+00:00","request_id":"ce5797ff-31da-41c5-a826-246c63799a29","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":9.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.807463+00:00","request_id":"0bad5f40-6be9-4693-b1e6-8ddd81f95281","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.839778+00:00","request_id":"4535f781-d52e-4380-87fa-21db828a3286","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:38.887725+00:00","request_id":"8fe0a11f-c69c-4a60-81b3-a2776ba01ec1","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":3.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.008308+00:00","request_id":"e86b9079-5d32-4a2b-bbc1-8cf032c31d82","method":"POST","route":"/api/admin/ecosystem/packages","status":201,"duration_ms":11.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.015485+00:00","request_id":"5a6d15c1-c528-4f1d-b142-e058ee8b1e50","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":4.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.049521+00:00","request_id":"09591381-a46d-45ae-8bac-c410a78eb2f6","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":8.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.187707+00:00","request_id":"77f08fbf-5933-46cf-9ef7-0afb27d8252b","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.220247+00:00","request_id":"903cebb6-b881-494d-ae47-f5dc354d5c7c","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.236101+00:00","request_id":"849e7d5c-2489-4a53-900b-37b2a048c7f0","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.250506+00:00","request_id":"c568f7b6-e76c-4353-af62-0c5440b213d4","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":4.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.267927+00:00","request_id":"db79fe13-78ed-424f-aecd-f3b836acd4b6","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":6.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.347903+00:00","request_id":"d88f3f51-ebdf-4029-989b-8453783e69a4","method":"GET","route":"/api/admin/ecosystem/packages/{kind}/{package_id}/{version}","status":200,"duration_ms":4.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.352423+00:00","request_id":"0b621d22-c06d-48f0-8b32-33edaa40fde6","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.366900+00:00","request_id":"cb9b83f8-4e9f-4812-a8b6-79442c4f7952","method":"GET","route":"/api/admin/ecosystem/packages/plugin/{package_id}/{version}/files/{file_path:path}","status":200,"duration_ms":5.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.436604+00:00","request_id":"5d86a7f0-5f98-409f-be91-310bbd367f40","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.549747+00:00","request_id":"a7b3278b-9c61-4806-a1ff-256c9f940a48","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:39.829014+00:00","request_id":"52bdff43-2f8c-4eb0-8114-0c4f2fa5a5e3","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.235354+00:00","request_id":"e698727e-217a-47bf-b865-6fc7ba874d04","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":11.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.352106+00:00","request_id":"f7d2b12d-07d1-41b4-ad3b-6dda5f48779f","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":13.99}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.364020+00:00","request_id":"258d86a9-85dd-486a-9fb5-740c9dda230f","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.378482+00:00","request_id":"c5372244-1084-4ce5-8e4d-33b9ca98a002","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":8.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.409849+00:00","request_id":"8ecaef97-f4a2-4c63-a213-6113c5a800fe","method":"POST","route":"/api/admin/screens/{screen_id}/query","status":200,"duration_ms":25.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.432806+00:00","request_id":"a02fc308-30e8-4ccd-ba46-a52083b830af","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":13.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.449816+00:00","request_id":"ab9876db-c876-4edb-b68d-eed4d29bd201","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":7.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.592686+00:00","request_id":"83b0bc06-d34f-45aa-a6cd-0e96525ead6e","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.600674+00:00","request_id":"63c8d6af-71ff-4dd2-9b71-2aca7892470f","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":5.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.615630+00:00","request_id":"7dc922fe-6b5e-46f4-8287-25c63046c1e0","method":"GET","route":"/api/player/screens/{screen_id}/plugins","status":200,"duration_ms":6.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.624206+00:00","request_id":"d9147d95-4bee-4dda-af4c-414cea46f98f","method":"GET","route":"/api/player/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":5.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.655940+00:00","request_id":"885d4712-9d36-4b65-bea1-194b42388cab","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":18.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.706513+00:00","request_id":"8d5f50cf-a45d-46cc-8ddf-e55a15bbb773","method":"DELETE","route":"/api/admin/ecosystem/packages/{kind}/{package_id}/{version}","status":409,"duration_ms":8.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:40.854986+00:00","request_id":"8e7889f9-8b9e-4a13-b1f8-22515369214f","method":"POST","route":"/api/admin/ecosystem/packages","status":201,"duration_ms":14.41}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.023203+00:00","request_id":"dbd755b9-ae4c-4ee1-9d1a-0b46ae96b0a1","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":17.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.037982+00:00","request_id":"cb35b8e7-f808-47ae-94a9-3d44564646e9","method":"GET","route":"/api/player/screens/{screen_id}/plugins","status":200,"duration_ms":8.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.053017+00:00","request_id":"1e5d6fe9-29de-4e3c-b784-c0537f1a228b","method":"GET","route":"/api/player/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":11.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.097823+00:00","request_id":"cff5c878-ea94-4c4a-b8f0-8e3b3c5e96a0","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":28.88}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.129323+00:00","request_id":"148afe07-a96c-4823-bb8f-df0b4415c00c","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":13.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.147838+00:00","request_id":"a8f4088b-164c-461a-973d-ceee77bec081","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":4.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.264104+00:00","request_id":"9f3272f7-f9b8-44a5-bd7a-a5aed9e730cc","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":6.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.321328+00:00","request_id":"c7fe91f2-491c-4d6f-b587-dde72d0c4ad1","method":"GET","route":"/api/embed/screens/{screen_id}/plugins","status":200,"duration_ms":6.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.363402+00:00","request_id":"c0352769-8dcb-4722-ad1c-24b0a43120b5","method":"GET","route":"/api/embed/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":32.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.428786+00:00","request_id":"3205fb35-95a4-48cb-a805-5f18470724dc","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":40.75}
+  ✓  14 [chromium] › e2e/ecosystem.spec.ts:43:1 › offline plugin installs, configures, queries and keeps its published version in player and Embed (3.0s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.541923+00:00","request_id":"0d898775-9db5-4aba-8e1f-4ec80e946513","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.546106+00:00","request_id":"a1bd3a13-3bd2-4105-8de8-3714c19aff71","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.590549+00:00","request_id":"17a73363-7a8b-4545-bf42-4e0f540bb37d","method":"POST","route":"/api/auth/login","status":204,"duration_ms":41.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.779832+00:00","request_id":"2dba3b68-1f05-466a-8f84-326af3aa2bc3","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.811937+00:00","request_id":"e485429e-eabc-45fb-8181-dd3cd9e1855b","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:41.831914+00:00","request_id":"4456abe3-501d-4c1b-8df3-4aae1fb6c15a","method":"GET","route":"/api/admin/files","status":200,"duration_ms":5.7}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:43.148459+00:00","request_id":"8c025eba-27ec-41c9-bdab-c52e93a9f580","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1254.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:44.413563+00:00","request_id":"9d013884-f3a0-4127-a30d-304583a1cbbf","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1261.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:45.997903+00:00","request_id":"e463f2ad-cd6f-42ac-b640-058c42461b52","method":"POST","route":"/api/admin/datasets/files","status":201,"duration_ms":1241.0}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:46.036309+00:00","request_id":"e63a8ab9-b595-4b2a-92d4-99c900b07051","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":6.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:46.042930+00:00","request_id":"6a784c83-e73b-4870-a17c-6c2508015bf6","method":"GET","route":"/api/admin/files","status":200,"duration_ms":4.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:46.050820+00:00","request_id":"2fecb004-82f8-4c13-b7f3-f25c168b95e6","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:47.300201+00:00","request_id":"1809f00d-6836-4061-860d-e756abde994e","method":"PATCH","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":1163.99}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:48.660805+00:00","request_id":"9321bc87-b115-43f2-bfd1-9e1b6b822c17","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":1215.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:48.867471+00:00","request_id":"52d63278-2656-4f15-b7c7-ac6f1f2b9b72","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:48.901499+00:00","request_id":"ae62bdaf-e6ef-4108-b2bc-463e13175063","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:48.916789+00:00","request_id":"47886503-e68c-4747-8872-fa860ff1d32c","method":"GET","route":"/api/admin/files","status":200,"duration_ms":5.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:48.963205+00:00","request_id":"a64296c6-2be4-4d24-b71e-63c836a7d94e","method":"DELETE","route":"/api/admin/files/{asset_id}","status":409,"duration_ms":7.54}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.124736+00:00","request_id":"a626abce-8d90-4b02-b0ca-31a771b3f316","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.132145+00:00","request_id":"ee989317-e062-4532-b5ca-bde0a9279a26","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.151772+00:00","request_id":"91779467-d0ec-4902-b8d4-2711383507dc","method":"GET","route":"/api/admin/datasets/{dataset_id}","status":200,"duration_ms":4.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.174181+00:00","request_id":"d92f244f-61f2-429a-8a2f-33e5b298bd91","method":"GET","route":"/api/admin/files","status":200,"duration_ms":3.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.181052+00:00","request_id":"fd251d1e-f034-49fd-b47c-7c925cbe5227","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":3.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.242879+00:00","request_id":"32aa8ac4-d601-4731-b142-2725885f5a3f","method":"DELETE","route":"/api/admin/datasets/{dataset_id}","status":204,"duration_ms":11.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.256100+00:00","request_id":"da893e2d-ad46-4da9-83bb-57b509c1e296","method":"GET","route":"/api/admin/files","status":200,"duration_ms":7.89}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.259135+00:00","request_id":"c28c8eac-2faa-48ee-9fd1-f6eced756a09","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":12.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.266798+00:00","request_id":"10cd7365-bd7c-4f78-b1fa-4af31d4119a5","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":18.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.294891+00:00","request_id":"779608e2-c463-4258-973a-48b1754079a0","method":"GET","route":"/api/admin/files","status":200,"duration_ms":6.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:49.350540+00:00","request_id":"92002594-445d-4f45-a924-ee1357d9a46a","method":"DELETE","route":"/api/admin/files/{asset_id}","status":500,"duration_ms":12.21}
+[WebServer] ERROR:    Exception in ASGI application
+[WebServer]   + Exception Group Traceback (most recent call last):
+[WebServer]   |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 85, in create_collapsing_task_group
+[WebServer]   |     async with anyio.create_task_group() as tg:
+[WebServer]   |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+[WebServer]   |     raise BaseExceptionGroup(
+[WebServer]   |         "unhandled errors in a TaskGroup", self._exceptions
+[WebServer]   |     ) from None
+[WebServer]   | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+[WebServer]   +-+---------------- 1 ----------------
+[WebServer]     | Traceback (most recent call last):
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+[WebServer]     |     result = await app(  # type: ignore[func-returns-value]
+[WebServer]     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |         self.scope, self.receive, self.send
+[WebServer]     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |     )
+[WebServer]     |     ^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+[WebServer]     |     return await self.app(scope, receive, send)
+[WebServer]     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+[WebServer]     |     await super().__call__(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+[WebServer]     |     await self.middleware_stack(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+[WebServer]     |     raise exc
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+[WebServer]     |     await self.app(scope, receive, _send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 193, in __call__
+[WebServer]     |     response = await self.dispatch_func(request, call_next)
+[WebServer]     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/app.py", line 59, in embed_cors_errors
+[WebServer]     |     response = await call_next(request)
+[WebServer]     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 168, in call_next
+[WebServer]     |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+[WebServer]     |     await self.app(scope, receive_or_disconnect, send_no_error)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 193, in __call__
+[WebServer]     |     response = await self.dispatch_func(request, call_next)
+[WebServer]     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/app.py", line 55, in embed_cors_preflight
+[WebServer]     |     return await call_next(request)
+[WebServer]     |            ^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 168, in call_next
+[WebServer]     |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+[WebServer]     |     await self.app(scope, receive_or_disconnect, send_no_error)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 193, in __call__
+[WebServer]     |     response = await self.dispatch_func(request, call_next)
+[WebServer]     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/errors.py", line 75, in request_id_middleware
+[WebServer]     |     response = await call_next(request)
+[WebServer]     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 168, in call_next
+[WebServer]     |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+[WebServer]     |     await self.app(scope, receive_or_disconnect, send_no_error)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+[WebServer]     |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+[WebServer]     |     raise exc
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+[WebServer]     |     await app(scope, receive, sender)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+[WebServer]     |     await self.app(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+[WebServer]     |     await self.middleware_stack(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2697, in app
+[WebServer]     |     await route.handle(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1778, in handle
+[WebServer]     |     await self.original_router.handle(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2752, in handle
+[WebServer]     |     await included_router._handle_selected(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1798, in _handle_selected
+[WebServer]     |     await original_route.handle(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1277, in handle
+[WebServer]     |     await app(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+[WebServer]     |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+[WebServer]     |     raise exc
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+[WebServer]     |     await app(scope, receive, sender)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+[WebServer]     |     response = await f(request)
+[WebServer]     |                ^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 704, in app
+[WebServer]     |     raw_response = await run_endpoint_function(
+[WebServer]     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |     ...<3 lines>...
+[WebServer]     |     )
+[WebServer]     |     ^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 350, in run_endpoint_function
+[WebServer]     |     return await dependant.call(**values)
+[WebServer]     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/api.py", line 115, in delete_file
+[WebServer]     |     await request.app.state.file_asset_service.delete(asset_id)
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/service.py", line 134, in delete
+[WebServer]     |     self._storage.delete(asset_id)
+[WebServer]     |     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/storage.py", line 163, in delete
+[WebServer]     |     child.unlink(missing_ok=True)
+[WebServer]     |     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[WebServer]     |   File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/pathlib/_local.py", line 746, in unlink
+[WebServer]     |     os.unlink(self)
+[WebServer]     |     ~~~~~~~~~^^^^^^
+[WebServer]     | PermissionError: [Errno 1] Operation not permitted: '/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/datapulse-e2e-6384qdmz/files/7bc3ee09-05d2-4eb7-8801-f72492ad7f5b/.parse-bmhrk8kr'
+[WebServer]     +------------------------------------
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
+[WebServer]     result = await app(  # type: ignore[func-returns-value]
+[WebServer]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         self.scope, self.receive, self.send
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+[WebServer]     return await self.app(scope, receive, send)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1163, in __call__
+[WebServer]     await super().__call__(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+[WebServer]     await self.middleware_stack(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+[WebServer]     raise exc
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+[WebServer]     await self.app(scope, receive, _send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 193, in __call__
+[WebServer]     response = await self.dispatch_func(request, call_next)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/app.py", line 59, in embed_cors_errors
+[WebServer]     response = await call_next(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 168, in call_next
+[WebServer]     raise app_exc from app_exc.__cause__ or app_exc.__context__
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+[WebServer]     await self.app(scope, receive_or_disconnect, send_no_error)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 193, in __call__
+[WebServer]     response = await self.dispatch_func(request, call_next)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/app.py", line 55, in embed_cors_preflight
+[WebServer]     return await call_next(request)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 168, in call_next
+[WebServer]     raise app_exc from app_exc.__cause__ or app_exc.__context__
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+[WebServer]     await self.app(scope, receive_or_disconnect, send_no_error)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 193, in __call__
+[WebServer]     response = await self.dispatch_func(request, call_next)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/errors.py", line 75, in request_id_middleware
+[WebServer]     response = await call_next(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 168, in call_next
+[WebServer]     raise app_exc from app_exc.__cause__ or app_exc.__context__
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/base.py", line 144, in coro
+[WebServer]     await self.app(scope, receive_or_disconnect, send_no_error)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+[WebServer]     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+[WebServer]     raise exc
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+[WebServer]     await app(scope, receive, sender)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+[WebServer]     await self.app(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+[WebServer]     await self.middleware_stack(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2697, in app
+[WebServer]     await route.handle(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1778, in handle
+[WebServer]     await self.original_router.handle(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 2752, in handle
+[WebServer]     await included_router._handle_selected(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1798, in _handle_selected
+[WebServer]     await original_route.handle(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1277, in handle
+[WebServer]     await app(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 156, in app
+[WebServer]     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+[WebServer]     raise exc
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+[WebServer]     await app(scope, receive, sender)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 142, in app
+[WebServer]     response = await f(request)
+[WebServer]                ^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 704, in app
+[WebServer]     raw_response = await run_endpoint_function(
+[WebServer]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     ...<3 lines>...
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 350, in run_endpoint_function
+[WebServer]     return await dependant.call(**values)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/api.py", line 115, in delete_file
+[WebServer]     await request.app.state.file_asset_service.delete(asset_id)
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/service.py", line 134, in delete
+[WebServer]     self._storage.delete(asset_id)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/sync/code/open/DataPulse/apps/server/src/datapulse/filedata/storage.py", line 163, in delete
+[WebServer]     child.unlink(missing_ok=True)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[WebServer]   File "/Users/dundundebaba/.local/share/uv/python/cpython-3.13.13-macos-aarch64-none/lib/python3.13/pathlib/_local.py", line 746, in unlink
+[WebServer]     os.unlink(self)
+[WebServer]     ~~~~~~~~~^^^^^^
+[WebServer] PermissionError: [Errno 1] Operation not permitted: '/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/datapulse-e2e-6384qdmz/files/7bc3ee09-05d2-4eb7-8801-f72492ad7f5b/.parse-bmhrk8kr'
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:50.177667+00:00","request_id":"b33ec802-f1a5-408b-957f-006109bd82fd","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1258.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:50.457986+00:00","request_id":"040df3c6-50b1-4749-87bb-a4a43190e6a3","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1160.49}
+  ✘  15 [chromium] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset (16.1s)
+(node:60412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:58.606207+00:00","request_id":"2098f1ef-3e88-488b-9944-c9b93f8d5589","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:58.617687+00:00","request_id":"153d5ade-1b3f-48b6-8c9a-ee19304019c4","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:58.675038+00:00","request_id":"c533e49b-0e16-49eb-b481-d11fc085cc67","method":"POST","route":"/api/auth/login","status":204,"duration_ms":52.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:58.894389+00:00","request_id":"3d88dd55-e18e-44d7-bdef-4b0fe7bcab89","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:58.927390+00:00","request_id":"31ae992f-279d-47a3-b065-d27fc7caad1d","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:21:58.943101+00:00","request_id":"3eaf9d02-4d77-4912-b70c-8b88c2c13fae","method":"GET","route":"/api/admin/files","status":200,"duration_ms":5.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:00.255845+00:00","request_id":"ff34add3-b275-4dda-877f-be980aa40cae","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1240.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:02.944284+00:00","request_id":"5b93ccfe-b602-4f56-a09d-159165a87021","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":2684.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:05.908538+00:00","request_id":"4fc0d2e2-d79d-465b-bcd4-11288f7e1eae","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":2547.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:07.333232+00:00","request_id":"2634f055-1c78-4b9e-b8eb-79790a4c005e","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1137.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:08.783686+00:00","request_id":"3cc55dd4-173a-4fe1-a5d9-daa98743aec6","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1446.81}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:10.441587+00:00","request_id":"b3e60434-f4b5-41ff-a44a-068140cd5e18","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1404.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:11.846599+00:00","request_id":"71c19d94-e748-4d96-9708-35ca199898c7","method":"GET","route":"/api/admin/files/{asset_id}/preview","status":200,"duration_ms":1400.49}
+  ✓  16 [chromium] › e2e/file-dataset.spec.ts:59:1 › administrator previews Excel sheets, JSON, and Parquet files (13.9s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:12.515719+00:00","request_id":"f4c940b8-6676-4330-bca7-d49bf807d027","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.46}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:12.521560+00:00","request_id":"0b9d9b88-bd07-465b-b6c8-6f3a5daa6214","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:12.595540+00:00","request_id":"c50b62d8-f6f2-4a8a-9b7c-708e869ccd0d","method":"POST","route":"/api/auth/login","status":204,"duration_ms":69.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:12.853955+00:00","request_id":"451e743b-f08a-47b8-a9b8-4fba3e31aff8","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.25}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:12.887552+00:00","request_id":"f484581f-66b0-4d51-854a-032de8e1a8d5","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:12.924223+00:00","request_id":"caccd523-8525-474c-aeb2-fd97814b4111","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":14.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.274968+00:00","request_id":"845af5ac-5f3e-4f15-904f-b123d011c439","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":70.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.304656+00:00","request_id":"02ece7f9-e187-45b8-a643-68f5d6f5ea74","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":18.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.389775+00:00","request_id":"1af75479-4b2e-4ad2-a50c-51180b999c23","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":65.91}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.395056+00:00","request_id":"cfbdd32b-2d2f-4aa6-b8eb-ff0995760d65","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":51.08}
+  ✓  17 [chromium] › e2e/first-stage-creation.spec.ts:14:1 › template creation enters the shared screen editor (1.0s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.539209+00:00","request_id":"e0fa965d-d945-42fc-9b02-62a09b092777","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.99}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.552239+00:00","request_id":"99f90525-b87a-4319-ab9f-a96f12ac2c9b","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.649509+00:00","request_id":"2cca4d2d-7e78-43ad-8a03-c13ae444da18","method":"POST","route":"/api/auth/login","status":204,"duration_ms":85.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.920771+00:00","request_id":"a621d93f-1eb0-4f35-b57b-17d3beceec05","method":"GET","route":"/api/auth/status","status":200,"duration_ms":3.99}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:13.970271+00:00","request_id":"df1a2735-6a0a-4728-bf3a-7509cc056058","method":"GET","route":"/api/auth/session","status":200,"duration_ms":6.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.000341+00:00","request_id":"769e8516-71ff-45c2-92f2-e31727c9f486","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":10.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.222824+00:00","request_id":"e01f527b-d72a-41b9-ab1a-25a64039f718","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":26.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.243378+00:00","request_id":"bff2be3f-4bca-4449-9bae-0276d4ff95e2","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":11.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.262885+00:00","request_id":"122ed387-12fb-4054-a8d6-78b55c887bc8","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":9.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.286168+00:00","request_id":"43d525a3-2cfa-4a9c-aa5d-934a754a135c","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":16.97}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.339693+00:00","request_id":"bc34562c-1f95-4a01-bc43-957c9acbe7be","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":25.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.526200+00:00","request_id":"116b5e24-dfd5-407e-93e2-d478a244a492","method":"POST","route":"/api/admin/ai/edit","status":200,"duration_ms":41.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:14.794096+00:00","request_id":"a63e2b30-0eb8-4141-baf4-8d0b33b3d4f2","method":"POST","route":"/api/admin/ai/edit","status":200,"duration_ms":14.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:15.679658+00:00","request_id":"ef48a800-6d93-4582-8ecf-a270a2ce7486","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":21.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.283265+00:00","request_id":"f972b6ad-49ed-4ad3-8112-88b2d1264752","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":23.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.319762+00:00","request_id":"75a25250-6ab3-4a5e-b351-e137436f246a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.339130+00:00","request_id":"d1271f8c-053f-43be-9ce0-56b16c228a93","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":9.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.566553+00:00","request_id":"8e0f2e61-08b0-46f0-8279-9e99c4766a0a","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":7.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.614548+00:00","request_id":"e7f46179-7712-4c33-bb4a-96c55d298cc5","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":27.69}
+  ✓  18 [chromium] › e2e/first-stage-creation.spec.ts:30:1 › blank creation supports hand editing, AI preview, confirmation, undo, redo, and playback (3.2s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.719993+00:00","request_id":"b02ca1d7-3ee5-4347-ae38-770e1cdc2fa6","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.726816+00:00","request_id":"de9db807-1d3e-490c-9e5f-c55c891a7949","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:16.784876+00:00","request_id":"23704e99-82d3-4fde-88fc-0e2b896d9e49","method":"POST","route":"/api/auth/login","status":204,"duration_ms":53.54}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.027705+00:00","request_id":"a7fe73b5-81d6-4d5e-856a-9b821cb81384","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.064350+00:00","request_id":"1ebdebf0-7c93-408f-98c7-db4f674c416c","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.130088+00:00","request_id":"1f6c1788-a96b-458a-9e03-1997c849a726","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":45.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.328425+00:00","request_id":"8d105484-120f-4aba-8fae-e015a7dfcba5","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":48.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.348697+00:00","request_id":"74917ada-6737-4dbc-a80c-12a0a0f5b054","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.384020+00:00","request_id":"c2ffa29a-c89c-49d2-a9d2-35635e82e6ec","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":21.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.399758+00:00","request_id":"0cfbd96f-6ba0-4dbe-9703-abab7db3ad03","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":22.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.538344+00:00","request_id":"880c4fab-12e0-479b-8b96-98bd3b3ce48a","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":77.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.611794+00:00","request_id":"1613142d-f5a9-4093-993f-d9eb1dad5da3","method":"PATCH","route":"/api/admin/screens/{screen_id}/access-policy","status":200,"duration_ms":16.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.646183+00:00","request_id":"6d1cc307-c8ab-4060-a1dd-a020f11365b1","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":6.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.829642+00:00","request_id":"bfa14b57-c25c-499d-88ee-868aabe266c8","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.866849+00:00","request_id":"c3085fb7-d949-4d85-a6f5-cef3558ec54e","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.889946+00:00","request_id":"acb64653-bd81-4ff7-ab2c-a26624f84985","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.904266+00:00","request_id":"c4168702-15ca-40da-ae22-b2f8e108a065","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":5.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.921350+00:00","request_id":"ad1222aa-00f5-4acb-9127-eb3792ad949b","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":12.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.938952+00:00","request_id":"f39a018d-e2b0-46a8-af3d-cc8cbb5b2c2f","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.959806+00:00","request_id":"5d0b81f3-ad3c-4173-903d-13667413f02e","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":11.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.973894+00:00","request_id":"24a01849-70ce-432c-a6e2-b2bdd53ffc76","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":7.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.981328+00:00","request_id":"616b9faf-29a2-4f74-85b3-16fffd392a5c","method":"POST","route":"/api/player/screens/{screen_id}/session","status":403,"duration_ms":1.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:17.989081+00:00","request_id":"c9a69efb-e901-4a70-9a98-07de2b458b77","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.003216+00:00","request_id":"0b6f4b8f-6305-45d6-8e09-bba5a4294207","method":"PATCH","route":"/api/admin/screens/{screen_id}/access-policy","status":200,"duration_ms":8.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.014368+00:00","request_id":"afd7967d-4db8-494e-b879-22bd9b51cf69","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.029387+00:00","request_id":"1be2b198-f794-4847-b4df-b1a810e12f56","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":8.87}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.040501+00:00","request_id":"eb2a3a7d-d831-4d48-985d-ef746d1618a7","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":5.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.055607+00:00","request_id":"23ee55d4-b691-4f88-aec4-a6a11f3e45ec","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":5.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.241241+00:00","request_id":"19223adb-95b1-438b-8533-882cdec4ca2c","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":8.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.267582+00:00","request_id":"64c67084-e0f4-482b-8473-60a1e981f063","method":"GET","route":"/embed/{screen_id}","status":403,"duration_ms":8.77}
+  ✓  19 [chromium] › e2e/first-stage-creation.spec.ts:136:1 › screen access policy controls direct and embed authorization (1.6s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.394276+00:00","request_id":"14d7b95c-976c-4466-82c4-932eb26a9c8b","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.399134+00:00","request_id":"5559d74a-7576-42a3-8f1e-8c6cb08bf7e0","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.454417+00:00","request_id":"8996a202-805e-4693-8831-e5f5ce808541","method":"POST","route":"/api/auth/login","status":204,"duration_ms":51.21}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.650510+00:00","request_id":"3b5b6393-80c4-4ae7-9e7f-0c3759a80477","method":"GET","route":"/api/auth/status","status":200,"duration_ms":3.34}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.705791+00:00","request_id":"466bcd32-00b8-4fc7-84c5-b7e60f8d02de","method":"GET","route":"/api/auth/session","status":200,"duration_ms":18.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.739537+00:00","request_id":"0ab28fc1-d101-4e71-824f-dcef059d3568","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":14.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.941177+00:00","request_id":"f493f1b1-b64b-4885-b25e-907b011d19b8","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":44.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.959219+00:00","request_id":"08f8a2f8-6930-4665-a01c-36bddbf26d0a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:18.979369+00:00","request_id":"10eefe31-3281-4a6c-9675-f9689a455ce0","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":8.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.000465+00:00","request_id":"80eea1b9-713d-47d3-abaa-feeb1c6a9046","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":15.3}
+  ✓  20 [chromium] › e2e/first-stage-creation.spec.ts:260:1 › editor remains usable on a narrow viewport and publish dialog closes with Escape (769ms)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.144839+00:00","request_id":"bd238d86-edc9-4ae0-81ff-d9234b8360c1","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.149530+00:00","request_id":"3207d102-1ec7-4b9b-b603-fd3149d768b7","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.192733+00:00","request_id":"f64186f1-be5a-4440-ad15-13beed57ed55","method":"POST","route":"/api/auth/login","status":204,"duration_ms":39.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.409425+00:00","request_id":"24d489e3-d8dd-4574-bb00-15f748d8b005","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.425105+00:00","request_id":"0aac34c0-88d6-4bd6-b697-11332fc4f2f6","method":"GET","route":"/api/auth/session","status":200,"duration_ms":12.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.480055+00:00","request_id":"3073a78a-470e-444d-8a7e-cbcece8cb1a9","method":"GET","route":"/api/admin/users","status":200,"duration_ms":6.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.652833+00:00","request_id":"ac8b2d0a-fef2-4d67-aaa0-27c8643434ea","method":"POST","route":"/api/admin/users","status":201,"duration_ms":68.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.662326+00:00","request_id":"16b0c42c-b79e-4477-8e8c-91b3bfd223cc","method":"GET","route":"/api/admin/users","status":200,"duration_ms":6.54}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.691132+00:00","request_id":"abb73089-0e21-42ac-bc24-1f4b6dd5f755","method":"GET","route":"/api/admin/users","status":200,"duration_ms":4.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.707262+00:00","request_id":"06fb43fc-7fb5-4bb3-a117-e9249427b558","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":10.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.951345+00:00","request_id":"f0e6bc4c-edb8-4cf7-8936-5fd9f68dfb11","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:19.979862+00:00","request_id":"4caf1e34-1946-4d1e-b3bf-2871c1167b92","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.144341+00:00","request_id":"8968da37-62c8-4c06-a1a6-7ad7a606a140","method":"POST","route":"/api/auth/login","status":204,"duration_ms":52.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.151507+00:00","request_id":"399a340f-4ebb-4c20-822a-5b34736b6c20","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.168253+00:00","request_id":"035714ce-7b25-47e5-91cc-49f23e7453b6","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":8.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.189570+00:00","request_id":"9573747d-6466-4f58-b673-f859c4f1aa2d","method":"GET","route":"/api/admin/users","status":403,"duration_ms":4.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.330324+00:00","request_id":"1047e932-5e39-4f0f-8f2d-68db24f40531","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.97}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.363104+00:00","request_id":"a7dbe5a7-edcf-4d04-a68a-f87f1ba38e9d","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.385879+00:00","request_id":"6b0323a2-1be3-41dd-a949-1030cab2ffa9","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":9.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.398781+00:00","request_id":"b80327f8-5f96-417e-b276-378e6fe75b47","method":"GET","route":"/api/admin/screens/{screen_id}","status":404,"duration_ms":7.72}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.527843+00:00","request_id":"ab75cc2b-e416-4757-9426-e9197211b489","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.562720+00:00","request_id":"752d8077-9b72-4fb9-a3cf-7643f23b0de7","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.601812+00:00","request_id":"8ef9b3f5-e531-4089-b05d-5fc498aeddf6","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":13.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.611588+00:00","request_id":"27973af6-3ea9-44ba-a3fc-db8406ffecde","method":"GET","route":"/api/admin/identity/directory","status":200,"duration_ms":6.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.622099+00:00","request_id":"b822172c-2d0f-43b6-8f4f-918b6d509c3a","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":7.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.667076+00:00","request_id":"42e0aa8e-6695-4351-8f50-50ceedde34c7","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":16.62}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.677707+00:00","request_id":"bba9ee6d-8b74-458e-b821-63a85bd6fdb0","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":7.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.830579+00:00","request_id":"e5a8c5a7-093b-4a06-82ea-35feb2b85463","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.838564+00:00","request_id":"a94e132f-f0f5-4380-b630-b8dca682622b","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.859531+00:00","request_id":"baf9bc58-590b-467e-bc85-4e0e135dd6cc","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":10.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.917857+00:00","request_id":"9b9a8007-a457-4ca0-acf7-51889ff6d6ce","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":38.43}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.928686+00:00","request_id":"0abf8e9a-b481-4abd-8c91-fbabc1963779","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":38.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.973208+00:00","request_id":"fcf14f4f-7023-4916-9d71-8dda5fbf75ad","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.980862+00:00","request_id":"e8a1cbd4-2890-4044-aabb-324e06d9c1c6","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:20.996466+00:00","request_id":"1c4676ed-aebf-43b2-b1cc-d5745b0b396e","method":"GET","route":"/api/admin/identity/access/{resource_type}/{resource_id}","status":200,"duration_ms":12.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.017638+00:00","request_id":"562fce84-36ad-4706-bceb-8c0fbc41e6ec","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":14.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.029591+00:00","request_id":"cd8d701e-9cc8-4aab-ad25-635aab07697c","method":"GET","route":"/api/admin/identity/access/{resource_type}/{resource_id}","status":200,"duration_ms":26.21}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.044460+00:00","request_id":"9fc80381-2119-4707-bb7e-f7764504ee8f","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":12.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.049123+00:00","request_id":"69589b98-2d4b-4c10-bda6-af71a6bb2ab6","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":16.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.067809+00:00","request_id":"16e73324-f4f5-4e35-a0e6-b5416ac626d1","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":18.81}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.100000+00:00","request_id":"222b9034-6049-4d64-a4cd-30b97e75822a","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":9.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.149582+00:00","request_id":"9ee56159-bb6b-4500-856f-9567227279aa","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.43}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.266029+00:00","request_id":"44e018a2-b45d-49ae-a58d-79c55b38a135","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.535073+00:00","request_id":"6683f2e9-63bf-4a32-a3c3-5ce61247de16","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":12.15}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:21.948349+00:00","request_id":"ed4b1db4-92fb-41ec-8111-a770e04d27c0","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":16.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:22.050828+00:00","request_id":"67e80133-bf01-467f-8413-8015be08cb7f","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":7.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:22.889752+00:00","request_id":"97650bf9-c4a1-428e-97d5-3b73b36f788a","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":409,"duration_ms":16.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:22.975951+00:00","request_id":"290a2d72-fb75-43aa-88d4-a4f7d219e90c","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":9.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.133322+00:00","request_id":"c35dd05c-11dd-4825-a0f3-747a3595222c","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.218656+00:00","request_id":"87ecf20b-61b4-49b5-bfa3-a99cfe52abc4","method":"GET","route":"/api/auth/session","status":200,"duration_ms":13.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.245407+00:00","request_id":"eb87510a-3c35-4065-9e98-58bd8044442c","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":13.9}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.253376+00:00","request_id":"ae1c3005-8b45-464a-8bda-de9aa50e1f04","method":"GET","route":"/api/admin/identity/directory","status":200,"duration_ms":4.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.263863+00:00","request_id":"d35c4a9f-e9bc-459b-94fe-85cedb7ce2ad","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":7.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.330197+00:00","request_id":"1856dbd8-80f1-4c80-9127-90da4243abcb","method":"DELETE","route":"/api/admin/permissions/{resource_type}/{resource_id}/{user_id}","status":204,"duration_ms":12.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.343323+00:00","request_id":"cb279f86-e884-4bdb-bcdf-60f9502bd961","method":"GET","route":"/api/admin/permissions","status":200,"duration_ms":10.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.367159+00:00","request_id":"b8805451-9d65-4c34-8fad-4cd2663f468c","method":"GET","route":"/api/admin/screens/{screen_id}","status":404,"duration_ms":4.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.379556+00:00","request_id":"c2655f77-dafe-471a-bfe3-f5449c4d5587","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":404,"duration_ms":7.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.519039+00:00","request_id":"b2aa17a1-2b0b-4ddb-990b-6ed67e133205","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.45}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.529360+00:00","request_id":"dd83b0ba-0cdf-418e-b80c-b03395e72340","method":"GET","route":"/api/auth/session","status":200,"duration_ms":7.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.546450+00:00","request_id":"45226517-9056-4752-a7e9-b60f62492e63","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":10.52}
+  ✓  21 [chromium] › e2e/identity.spec.ts:12:1 › two accounts share a draft, reject stale edits, and revoke access (4.6s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.926357+00:00","request_id":"1bad03ff-6330-4f9d-a90a-740335630947","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:23.930607+00:00","request_id":"35332c5f-bf3e-4e8f-b0fb-6f3c25e7f911","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:24.083510+00:00","request_id":"6ccfbb12-84db-4047-b3ce-b2c14907a103","method":"POST","route":"/api/auth/login","status":204,"duration_ms":150.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:24.422005+00:00","request_id":"c255e58d-b19d-4807-9744-353778f7bc73","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":205.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:24.533201+00:00","request_id":"cdf06548-079a-4d05-ba8a-8c194bdc4b93","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":11.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.374082+00:00","request_id":"5edf8bc7-6ae7-4e59-9fb4-6f5bcbf2e2f3","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":832.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.397048+00:00","request_id":"fa8aa60d-1bfb-4f23-9c3c-add45c91ac69","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":14.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.614478+00:00","request_id":"21389707-df30-4da4-8719-b4f7ba461a7f","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.651851+00:00","request_id":"968cc14d-24d8-463f-b272-ee65870aa2e4","method":"GET","route":"/api/auth/session","status":200,"duration_ms":4.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.682331+00:00","request_id":"606a765c-5711-44b6-9543-8d143cda0c5c","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":9.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.875582+00:00","request_id":"77f8cf75-19dc-4159-afe4-d664cc6d2c74","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":23.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.888608+00:00","request_id":"de62bd9b-25f0-48c9-87f2-bd6ef1500d21","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.84}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.913009+00:00","request_id":"8826dc83-1505-414c-8ed7-36542474d04f","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":13.76}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.921801+00:00","request_id":"611b5239-7111-43ff-97cd-213fa71706ad","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":6.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:25.983326+00:00","request_id":"ddaf0d38-cc68-4233-8978-f33ec42e475c","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":14.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.037249+00:00","request_id":"bf2c6f37-e109-4edb-8a3e-d69be6303287","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":8.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.094191+00:00","request_id":"ccad065f-b2ae-4307-a5b4-2a93deb34dc9","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":26.29}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.096889+00:00","request_id":"522f1af8-39a6-43b6-aa7b-acc05c7245b9","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":30.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.105792+00:00","request_id":"a88ab3c3-379a-4069-b448-3fd7ce99d1ff","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":6.07}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.125469+00:00","request_id":"6459a0d4-491f-4279-b78a-babb177ab1cd","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":17.59}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.128538+00:00","request_id":"1b09fc75-0117-4826-9df4-2f0c96f202d0","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":19.44}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.143997+00:00","request_id":"633c283d-7b7d-4e60-b3f5-a21f4ca22d86","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":13.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.158719+00:00","request_id":"b2416ef3-9b23-4728-9912-c664f6f0b027","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":10.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.160568+00:00","request_id":"89668eb6-83e0-4c02-916c-069d17d52099","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":10.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.168416+00:00","request_id":"5dae0d1a-861b-4f2f-bb36-1fff80386982","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.186983+00:00","request_id":"a12414f0-4694-4b8b-bc37-78aee5752317","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":8.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.187950+00:00","request_id":"09be3dc2-710f-45d0-8800-46b323bb7a0a","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":10.0}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.197843+00:00","request_id":"3d2cff22-ecf7-4260-aee0-6300838febd3","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":6.81}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.227523+00:00","request_id":"3ae1f28f-c8b3-48d4-a5f2-646443fd3e4b","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.232749+00:00","request_id":"47fd70cf-c8e9-48ba-8007-ce72d47d8aba","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":11.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.237917+00:00","request_id":"50b6c687-0022-42a6-988a-25a6422eb183","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.263869+00:00","request_id":"aa4f61e5-9051-4c09-845b-66f978851237","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.269062+00:00","request_id":"5843b069-55c7-4b3e-a187-d102ad8e9c7f","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":11.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.274370+00:00","request_id":"53b0a4ee-2626-4aa7-9bc4-861510b83ad3","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.300637+00:00","request_id":"74cda297-de29-4dec-b6b2-79a4b85fa873","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":8.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.305252+00:00","request_id":"a00cec09-cb6e-4f63-88ae-0d364cec2952","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":11.88}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.310056+00:00","request_id":"d3ea7311-d959-4e9e-adf3-e86b8e0cd3bf","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":6.63}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.341629+00:00","request_id":"f290dcd6-abfa-407d-a003-aa4dfd8ca764","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.510107+00:00","request_id":"466a7584-edd6-4a03-a5e9-cd3e269900bb","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":33.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.527399+00:00","request_id":"f4c72169-324b-417d-a1ce-23a6ef24f1ae","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":47.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:26.543989+00:00","request_id":"273e9984-c1c4-40ee-a430-88c0831e119a","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":26.89}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.483125+00:00","request_id":"620f0fcd-f36e-413e-b8a5-9a44dde1a941","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":12.06}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.689181+00:00","request_id":"f066bd99-a767-4098-bf2c-bb1da403ad1f","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.717973+00:00","request_id":"8d12e0ae-ac25-437c-9ad4-4246b3efc7b8","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.733648+00:00","request_id":"2ff0f393-81c0-4100-8de3-cc672b7baf1e","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.6}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.750321+00:00","request_id":"11ae1d3c-4c5d-4315-84b1-5767d8de0cb4","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":6.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.768878+00:00","request_id":"3cb5d708-c3e6-48b8-aca2-a22e1bb20d00","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":14.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.799057+00:00","request_id":"9bc0f26d-e9ec-4792-b290-aeda22be3575","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.39}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.826324+00:00","request_id":"e7bdeab6-35f1-4aab-b0ab-6601d20f6135","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.854568+00:00","request_id":"aceec435-d2fd-4089-80c0-5a2ebe998e43","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":15.71}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:27.994242+00:00","request_id":"447ad00c-a45d-405f-9182-3ddba823d37a","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.007111+00:00","request_id":"08ff817b-98e4-45c3-ad5e-7ce093601d9f","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.022713+00:00","request_id":"d406643a-f0ea-4077-baa3-ca509f9e466a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.039790+00:00","request_id":"46ecb0f8-5b9d-41ba-85e0-e50532560a49","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":6.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.048564+00:00","request_id":"f5fe04bc-360a-43ac-ba6a-bd996f421ce2","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":13.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.074621+00:00","request_id":"c7d03d35-0868-4fb0-af88-cc1c4ae8fd0a","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":37.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.081448+00:00","request_id":"8afb8227-0b5c-4227-9324-e8b9acd84659","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":33.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.113873+00:00","request_id":"7eec4ac4-68dc-4c12-b5d0-eb204eb67b39","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":65.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.163952+00:00","request_id":"5fa8f36e-611b-4feb-81c5-7f8c83bad835","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":84.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.173649+00:00","request_id":"84bc2086-e3f6-4e6f-9f4f-5750fc3d5ae3","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":7.8}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.192766+00:00","request_id":"4a881692-7be4-4f7f-917b-337efb6e0c7e","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":16.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.197044+00:00","request_id":"0d245f60-da49-4168-b503-f71a23f111ce","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":147.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.198364+00:00","request_id":"99ddb39e-0a1a-4cf3-8936-fedee085a687","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":148.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.204793+00:00","request_id":"17237ab8-bb1e-4c7b-b78c-25e13361184c","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":87.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.212747+00:00","request_id":"58830a1e-7e0e-43e1-892b-9b23e9fb6fe0","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":128.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:28.231871+00:00","request_id":"0b53e21e-39de-468a-ad25-7b59ad76b1b8","method":"POST","route":"/api/admin/screens/query-document","status":200,"duration_ms":176.78}
+  ✘  22 [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen (7.2s)
+(node:60876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:32.640235+00:00","request_id":"046de93c-6092-48d7-882a-c545cfd57a96","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.46}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:32.653951+00:00","request_id":"4c17a584-5375-488a-bc56-96ef88ce0ef1","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:32.707624+00:00","request_id":"ba3b592d-19e1-4565-ac6a-22a55bb3a405","method":"POST","route":"/api/auth/login","status":204,"duration_ms":49.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:32.926107+00:00","request_id":"e161df3d-d6c3-4089-b11e-64c5e4d91566","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:32.957693+00:00","request_id":"45c1e3b9-4099-47c6-9886-fbbb8fc028fa","method":"GET","route":"/api/auth/session","status":200,"duration_ms":3.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:32.989485+00:00","request_id":"8ed0336e-2fd6-4246-90ff-8952713fb0e0","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":10.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.343931+00:00","request_id":"6c3d70a3-49e3-4806-b066-25538b9b1894","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":152.81}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.388199+00:00","request_id":"36c1e6ca-24ce-4fff-8328-2e8e8d84ae33","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":31.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.431190+00:00","request_id":"99df11e1-b3b6-4e80-8af6-299cf4a27237","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":28.5}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.450718+00:00","request_id":"7017b652-75d9-45c9-8712-b4341eb8bf36","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":34.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.509559+00:00","request_id":"7c32d99d-302f-42e3-b9b5-de4e6e1ef7ef","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":5.94}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.556347+00:00","request_id":"e923277d-ec15-49a0-b7fc-51b372e20479","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":10.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.563512+00:00","request_id":"608755c4-44b8-4ed6-a972-bac25900971a","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":16.22}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.567647+00:00","request_id":"dcd78731-02d0-4f8f-a1cc-27a37cdfa72f","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":8.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.604907+00:00","request_id":"1cef0ee8-10d4-4f48-af3e-c9acf8e8aa0e","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":7.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:33.641545+00:00","request_id":"b863525c-9742-438c-9d7f-b1c49dd85923","method":"GET","route":"/api/admin/ai/status","status":200,"duration_ms":4.77}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:34.853499+00:00","request_id":"a3ed3381-0e4d-4443-a742-66837ccee0ee","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":24.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:35.549070+00:00","request_id":"8fcf90a7-c777-451a-8a80-fc795e3950fb","method":"GET","route":"/api/auth/status","status":200,"duration_ms":2.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:35.684378+00:00","request_id":"38162129-771d-43cd-b85b-6eb1e44f224f","method":"GET","route":"/api/auth/session","status":200,"duration_ms":21.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:35.935832+00:00","request_id":"df20dc4a-de4b-4aa8-aeaa-12c2072277ab","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":233.58}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.066104+00:00","request_id":"22622a4f-d220-4e65-9e6d-96bbabf90353","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":90.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.070867+00:00","request_id":"bdbf7a9f-8704-4c28-b225-c793a98134c1","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":84.08}
+  ✓  23 [chromium] › e2e/screen-editor.spec.ts:211:1 › multi-selection drags as one group and persists the same canvas delta (3.6s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.543418+00:00","request_id":"0b6428e2-ba17-476a-a1fe-9324f2f6ac9f","method":"GET","route":"/api/auth/status","status":200,"duration_ms":5.14}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.572871+00:00","request_id":"2576de64-d754-4848-afc5-b396c45cbb29","method":"GET","route":"/api/auth/session","status":401,"duration_ms":1.91}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.896740+00:00","request_id":"e5234c57-785a-4e4d-9a99-457bec4786c1","method":"POST","route":"/api/auth/login","status":204,"duration_ms":291.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.924472+00:00","request_id":"00fae852-3013-4c4c-9727-45d0e9646628","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":11.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:36.946674+00:00","request_id":"1842a72c-56ea-4b4b-a4cd-3864c28ae394","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":12.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.291962+00:00","request_id":"e4431aaf-e360-4b12-891a-ac955c66fcb6","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":1325.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.328644+00:00","request_id":"8b93259d-e9ef-476a-9a97-87212ea54d24","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":23.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.362631+00:00","request_id":"c9991052-5382-4d50-abb7-7dbb538db2d7","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":14.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.389095+00:00","request_id":"f0290d11-6d6c-4c3a-be3f-9245f0430c01","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":15.03}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.418101+00:00","request_id":"cb19398d-6e41-4af2-b1ad-aec6d9555c40","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":20.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.446348+00:00","request_id":"ea8eca30-ada4-426f-ac39-78201fbd55ad","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":10.95}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.798267+00:00","request_id":"85e73643-dadf-48c2-8724-dab0cbc0bc7f","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":15.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.835949+00:00","request_id":"7753e2b1-632b-442d-b67d-725a96b75dfb","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":11.0}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.868615+00:00","request_id":"0834303c-284a-4033-963c-4ecca77ddcd8","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":22.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:38.873132+00:00","request_id":"bda52aaf-0103-4278-b983-e12ae3149d54","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":22.87}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.016997+00:00","request_id":"685512fa-87d4-44a0-bbf1-45af1567a018","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":141.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.021767+00:00","request_id":"c0c5e430-1e11-4388-8815-b34840d97720","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":147.11}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.029870+00:00","request_id":"94023d8d-386a-4a85-8bdb-dbc6a43a5593","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":146.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.035968+00:00","request_id":"1c4916c4-21a9-43e5-9c33-04338dcc3278","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":162.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.043928+00:00","request_id":"046f272d-b61e-4113-9fd8-4d3134021179","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":167.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.052326+00:00","request_id":"87f347d4-a456-4acf-8632-d7cfddb06e9a","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":155.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:39.070252+00:00","request_id":"9139fcdc-3fc4-45d2-8b66-484d9811b081","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":49.38}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:40.820568+00:00","request_id":"f1c9b677-dd95-4881-a95d-871547f3a345","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":27.37}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:40.865005+00:00","request_id":"c7d2d2d9-d087-4a3f-98b7-be89026c46dd","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":24.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:40.901090+00:00","request_id":"0ed93da4-fe0d-4583-8ca5-5c6f3f90950a","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":28.97}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.006510+00:00","request_id":"c3cfbbe5-3764-44bd-8c76-b7b0c821bbaf","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":88.09}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.148327+00:00","request_id":"54e90937-88d3-42f8-a4e8-fd007ab4e312","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":10.78}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.250816+00:00","request_id":"26973941-b555-4daa-bff9-742728f8cb17","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":18.54}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.325663+00:00","request_id":"50ff841a-1a44-4782-9822-c17b9f93cba1","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":63.32}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.327822+00:00","request_id":"b333a9e9-35a3-41ce-861c-abd15387fd90","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":63.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.436095+00:00","request_id":"d3963a42-3925-488d-9a34-d208a6cd0e25","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":164.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.446347+00:00","request_id":"de417cf2-b718-47f6-8fa7-605acd697676","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":175.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.457704+00:00","request_id":"bd41ead5-ba51-4188-8ac2-abd32e36d93e","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":189.71}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.462774+00:00","request_id":"57233e74-d906-4396-a90b-467287d46cc0","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":190.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.472547+00:00","request_id":"2871c8d8-3667-423f-b579-eddf7a6a387f","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":129.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.482626+00:00","request_id":"22a24977-d645-4b92-998b-f7d129104232","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":140.96}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:41.530046+00:00","request_id":"c5b49ad6-cc26-4e7b-91f6-e306908879d6","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":88.31}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.244663+00:00","request_id":"371f543b-4c26-48e6-b303-6abe443e3d6b","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":17.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.277966+00:00","request_id":"a4b18dec-fc88-43dd-82b6-a02bbac8a7e5","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":21.63}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.318383+00:00","request_id":"953a0a03-81f7-43fb-8831-9b953c443e61","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":21.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.337595+00:00","request_id":"1e8b401c-3193-4434-a43a-33692381a004","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":9.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.451730+00:00","request_id":"f4771432-dcef-4b7a-8e6a-af89f6006d71","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":10.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.520442+00:00","request_id":"8765719e-2321-400d-80eb-cbebf7f1de95","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":16.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.592102+00:00","request_id":"31e59645-ddff-4173-ba18-39d2f9b81064","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":57.12}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.594385+00:00","request_id":"d1c965cc-722c-49f8-96cf-71b0b75796d6","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":57.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.622835+00:00","request_id":"86192ec7-774e-47a7-b944-367020379062","method":"POST","route":"/api/player/screens/{screen_id}/query","status":422,"duration_ms":68.49}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.661194+00:00","request_id":"685b1f17-84d3-4c38-b48a-094f2904c5d6","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":116.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.669095+00:00","request_id":"f6acfda6-407e-4b30-8204-f2cbbe7807f3","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":123.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.679627+00:00","request_id":"6adf7888-c291-437d-a019-c681e1a7439f","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":133.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.704568+00:00","request_id":"ed006ed2-7bf0-4bfb-a047-da524919de0d","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":100.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.725350+00:00","request_id":"171220b0-c368-48fd-b096-6bfbd78e20cd","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":118.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:43.749643+00:00","request_id":"e8686fa7-88ed-4aaa-8d5d-abf07ff49b64","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":120.46}
+  ✓  24 [chromium] › e2e/screen-playback.spec.ts:33:1 › published screens retain stable dark, light, isolated-error, and letterbox visuals (9.6s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:45.919214+00:00","request_id":"994d3243-33fd-4629-95fb-9e5db1cccaed","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.65}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:45.924177+00:00","request_id":"f0a766a3-387d-41b9-b06a-243fec427bf5","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.36}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:45.970514+00:00","request_id":"d4ae3364-b093-4d19-b948-6f833cd4a63c","method":"POST","route":"/api/auth/login","status":204,"duration_ms":43.64}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:45.985811+00:00","request_id":"720ee15b-0111-459c-a4a6-87e9df0c6158","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":6.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:46.014348+00:00","request_id":"2d8719b7-1361-479f-8593-5753db1caeae","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":19.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.066938+00:00","request_id":"73419871-8ea6-484c-abb6-3bc0d75c5c0c","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":1034.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.087275+00:00","request_id":"ed3c866d-4884-4fbc-b332-657ee21b12e4","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":12.58}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.106840+00:00","request_id":"597a8d51-48e8-4feb-bea7-78f10cfc3ec6","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":11.74}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.128084+00:00","request_id":"66308451-e80d-4d7d-890c-45564fa51502","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":12.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.165913+00:00","request_id":"265543d1-0956-4c11-bace-e1636a0ed8b1","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":17.05}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.180948+00:00","request_id":"1a8007b3-4c16-4477-ab97-32c7d974450f","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":6.24}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.190655+00:00","request_id":"5c268ff8-ebbf-4813-bfc9-d095f22b6d54","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":4.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.458280+00:00","request_id":"1efc9bed-0d8c-4840-80b8-b1222777b944","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":4.27}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.487970+00:00","request_id":"fb72db8b-1570-456b-8912-703aa53f7341","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":6.56}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.491573+00:00","request_id":"34d14ecc-aa36-43ed-b716-0f273d782623","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":6.19}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.515165+00:00","request_id":"8dc7986f-efb1-490d-94ff-2a08acd2070c","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":1.52}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.515372+00:00","request_id":"9164cb49-0c4a-4983-b7e3-8b75c0fee8d2","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":0.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.565136+00:00","request_id":"14742b65-e3bd-436b-8809-b573f1e38642","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":64.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.578363+00:00","request_id":"a31d4391-1800-46b9-ae41-d761e45f85bd","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":75.47}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.582260+00:00","request_id":"5146ccd1-0957-4f0f-932f-a68bb4c974b3","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":79.33}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.591069+00:00","request_id":"fcea577d-c743-4c4e-9fb9-d8f2d8cf7db4","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":88.21}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.613147+00:00","request_id":"f8352751-5432-47e9-aa36-f61c5b5a13b1","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":43.57}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.620817+00:00","request_id":"f62f03d3-e7da-48bf-b7eb-48ac97630c31","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":119.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.632289+00:00","request_id":"452f571c-a923-4a1a-b565-ce64fcc59059","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":129.82}
+  ✓  25 [chromium] › e2e/screen-playback.spec.ts:123:1 › direct iframe embeds load without an instance_id query parameter (2.0s)
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.849298+00:00","request_id":"0a86ffc8-67a6-4334-9c63-28ae66154406","method":"GET","route":"/api/auth/status","status":200,"duration_ms":1.77}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.853438+00:00","request_id":"c5228d69-cd8f-4360-be12-254b7bfa8d63","method":"GET","route":"/api/auth/session","status":401,"duration_ms":0.26}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.901066+00:00","request_id":"6b1a3477-96dc-4229-886c-503a973319d9","method":"POST","route":"/api/auth/login","status":204,"duration_ms":44.43}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.910570+00:00","request_id":"58d5de09-04d2-4a05-8ef1-3e33d7d844e9","method":"GET","route":"/api/admin/datasources","status":200,"duration_ms":4.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:47.923120+00:00","request_id":"206f31b9-3a5f-4878-ab3b-425d372670f7","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":5.74}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.005935+00:00","request_id":"6ba981f0-55d7-40bb-aec2-e427ede70d71","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":1076.69}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.026235+00:00","request_id":"26e08e8b-7c28-4b8b-9a66-c7801d565b18","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":9.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.044807+00:00","request_id":"c117b0de-dde4-472a-95cd-20179f7a0502","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":12.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.078206+00:00","request_id":"a2425f24-4383-456b-b718-5096578435a3","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":19.71}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.103525+00:00","request_id":"746bafa8-e08d-46f9-a811-fe85f95fa7cb","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":16.28}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.125677+00:00","request_id":"e2f478d8-0dd3-4d9d-a754-65aef9ed39a2","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":5.89}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.138592+00:00","request_id":"f06dee58-6a5d-4db8-bd11-2e164a3123fc","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":3.93}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.395968+00:00","request_id":"9dbb788e-cfcf-40a3-a6cb-69e5b5071461","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":3.35}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.436275+00:00","request_id":"73296d6b-5a1f-41ff-9e0e-8d3eab43a767","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":11.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.459459+00:00","request_id":"6b13b030-c62d-4920-8eae-ba4b1da299fe","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":27.13}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.462366+00:00","request_id":"87d93614-d318-48ef-a0f3-a650091f950a","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":1.51}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.482177+00:00","request_id":"b341e58a-d900-4aa9-babf-b91ca88bc026","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":3.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.518469+00:00","request_id":"27e96e03-6bd5-4f4d-bef4-da1cce061739","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":400,"duration_ms":10.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.602346+00:00","request_id":"eec6c40d-d45f-4bdb-9ab1-1f9cc86a4c3f","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":157.01}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.773354+00:00","request_id":"8bc0bfb7-cf06-4746-bfae-a4ab00a2efab","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":322.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.779594+00:00","request_id":"61d45c31-114a-4e3e-b511-18bd738d6a93","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":334.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.801157+00:00","request_id":"2018abab-b7f0-4c8a-b13a-8c2cb534c65a","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":64.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.802967+00:00","request_id":"9f0d0774-b1ab-444c-bca2-3eab178df1b6","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":356.02}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.834110+00:00","request_id":"32df818b-7858-4c05-9ffe-10a69e59083c","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":400,"duration_ms":17.41}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.875060+00:00","request_id":"45b3afe8-479d-4424-ae18-ee629e32f4b8","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":362.85}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.901024+00:00","request_id":"2e763463-4fd6-46ee-9e2f-61a2b6eb02ee","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":389.53}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.913016+00:00","request_id":"36265a9e-2bc3-4671-8b92-bc30c51a8748","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":400.08}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.913813+00:00","request_id":"f3c59d71-cb8a-435d-bfe0-c7c8c14ab042","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":310.73}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.919763+00:00","request_id":"1592803e-5c81-40c2-843a-ed33ef515dbb","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":188.17}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.921195+00:00","request_id":"01aba959-92ea-402e-9d60-6c2b35bb7185","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":407.86}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.928616+00:00","request_id":"57014f97-bd7a-42c0-b007-80c3f30fe374","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":323.87}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.929960+00:00","request_id":"3c97e3a4-7e93-479c-a975-ce447836d673","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":324.48}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.931822+00:00","request_id":"372d46c5-b5ea-4750-bd64-98eeab10b061","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":327.87}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.940451+00:00","request_id":"42928498-d03d-4ce0-ada6-7ea799efb0f5","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":339.04}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.951808+00:00","request_id":"29963149-4867-4083-86b1-2828c1df551a","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":476.68}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.955034+00:00","request_id":"66f6657c-49d6-4b03-9656-2124a66a2679","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":445.16}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.959464+00:00","request_id":"9dfb2e7f-5ae1-43f2-bc1d-cf715f072d19","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":450.98}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:49.971990+00:00","request_id":"35bdd663-7baa-4119-85db-c7781b22bb22","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":4.18}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.050743+00:00","request_id":"d8213019-749e-4d09-bacc-1255ca225fee","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":40.2}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.058942+00:00","request_id":"413a582a-35b2-48b6-82d5-f0c38d7b62fc","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":54.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.063793+00:00","request_id":"4a3b03c2-6790-4113-aaf2-deb9f2e153fe","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":0.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.075650+00:00","request_id":"af37b313-3635-456c-a308-0e5907cd8200","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":401,"duration_ms":2.1}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.080557+00:00","request_id":"1c1c09eb-c9a1-47c1-9611-c956cda8fd0a","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":630.4}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.130054+00:00","request_id":"e43687e0-f9fb-4ce4-a609-58511f6b373d","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":113.79}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.136490+00:00","request_id":"463f9690-66e1-488f-942a-84b2eea68289","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":109.87}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.143913+00:00","request_id":"68d5bce9-765b-45c5-8dcb-8ff6c9032c17","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":118.83}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.146625+00:00","request_id":"257f0f8c-ce46-4c4f-b502-5fc8934d1d91","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":77.3}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.151411+00:00","request_id":"b2b05c40-2091-4645-863c-00bb3e8e56ee","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":127.61}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.166374+00:00","request_id":"8803dedf-dff6-4bc5-87e3-731c18719dee","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":29.75}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.192862+00:00","request_id":"45f0ce5c-4905-4f24-b9f3-34983ed88125","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":130.23}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:50.851314+00:00","request_id":"6411cecd-a251-48fe-9a94-d58fd6844c8f","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":5.67}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:52.259455+00:00","request_id":"58300ce8-f674-4213-a2d5-aee5ec894a8b","method":"GET","route":"/api/embed/screens/{screen_id}","status":401,"duration_ms":0.92}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:52.303878+00:00","request_id":"fe3eddde-c78b-41f3-93f5-da6b8ce9eadc","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":9.42}
+[WebServer] {"event":"http_request","time":"2026-09-21T03:22:52.323920+00:00","request_id":"56576584-4b05-4020-a99e-91d9e6004e5f","method":"POST","route":"/api/embed/tickets","status":401,"duration_ms":2.38}
+  ✓  26 [chromium] › e2e/screen-playback.spec.ts:154:1 › host SDK controls an embedded screen and rejects unsafe access (4.6s)
+
+
+  1) [chromium] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByLabel('已上传文件').getByRole('option', { name: 'file-dataset-zh.csv' })
+    Expected: 0
+    Received: 1
+    Timeout:  8000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 8000ms
+      - waiting for getByLabel('已上传文件').getByRole('option', { name: 'file-dataset-zh.csv' })
+        20 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      54 |       name: "file-dataset-zh.csv",
+      55 |     }),
+    > 56 |   ).toHaveCount(0);
+         |     ^
+      57 | });
+      58 |
+      59 | test("administrator previews Excel sheets, JSON, and Parquet files", async ({
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/file-dataset.spec.ts:56:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-evidence/phase-four/local-20260921/chromium-artifacts/file-dataset-administrator-17f54-moves-a-Chinese-CSV-dataset-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-evidence/phase-four/local-20260921/chromium-artifacts/file-dataset-administrator-17f54-moves-a-Chinese-CSV-dataset-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-evidence/phase-four/local-20260921/chromium-artifacts/file-dataset-administrator-17f54-moves-a-Chinese-CSV-dataset-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../test-evidence/phase-four/local-20260921/chromium-artifacts/file-dataset-administrator-17f54-moves-a-Chinese-CSV-dataset-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen 
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      2062 pixels (ratio 0.01 of all image pixels) are different.
+
+      Snapshot: editor-shell.png
+
+    Call log:
+      - Expect "toHaveScreenshot(editor-shell.png)" with timeout 8000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 15052 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 9842 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 250ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 4196 pixels (ratio 0.01 of all image pixels) are different.
+      - waiting 500ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 2062 pixels (ratio 0.01 of all image pixels) are different.
+
+
+      154 |     ? "editor-shell.png"
+      155 |     : `editor-shell-${testInfo.project.name}.png`;
+    > 156 |   await expect(page).toHaveScreenshot(editorSnapshot, {
+          |                      ^
+      157 |     animations: "disabled",
+      158 |   });
+      159 |
+        at /Users/dundundebaba/sync/code/open/DataPulse/apps/web/e2e/screen-editor.spec.ts:156:22
+
+    attachment #1: editor-shell (image/png) ────────────────────────────────────────────────────────
+    Expected: e2e/snapshots/darwin/editor-shell.png
+    Received: ../../test-evidence/phase-four/local-20260921/chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/editor-shell-actual.png
+    Diff:     ../../test-evidence/phase-four/local-20260921/chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/editor-shell-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../test-evidence/phase-four/local-20260921/chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../test-evidence/phase-four/local-20260921/chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../test-evidence/phase-four/local-20260921/chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace ../../test-evidence/phase-four/local-20260921/chromium-artifacts/screen-editor-administrato-b7823-and-plays-a-complete-screen-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › e2e/file-dataset.spec.ts:5:1 › administrator previews, maintains, and removes a Chinese CSV dataset 
+    [chromium] › e2e/screen-editor.spec.ts:14:1 › administrator builds, previews, publishes, and plays a complete screen 
+  24 passed (1.8m)
+undefined
+/Users/dundundebaba/sync/code/open/DataPulse/apps/web:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: playwright test --config playwright.config.ts --project=chromium --output=../../test-evidence/phase-four/local-20260921/chromium-artifacts
+ ELIFECYCLE  Command failed with exit code 1.

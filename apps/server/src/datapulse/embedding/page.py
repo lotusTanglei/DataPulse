@@ -12,14 +12,17 @@ from datapulse.screen.access import request_origin_from_headers
 
 
 def redact_ticket_url(value: str) -> str:
-    if "ticket=" not in value:
-        return value
     prefix, separator, suffix = value.partition("?")
     if not separator:
         return value
     query, fragment_separator, fragment = suffix.partition("#")
     redacted = [
-        (name, "[REDACTED]" if name == "ticket" else item)
+        (
+            name,
+            "[REDACTED]"
+            if name.lower() in {"ticket", "key", "api_key", "token", "password", "secret"}
+            else item,
+        )
         for name, item in parse_qsl(query, keep_blank_values=True)
     ]
     result = f"{prefix}?{urlencode(redacted)}"
@@ -54,6 +57,17 @@ def _request_origin(request: Request) -> str | None:
     return request_origin_from_headers(
         origin=request.headers.get("origin"),
         referer=request.headers.get("referer"),
+    )
+
+
+def embed_content_security_policy(allowed_origin: str, *, plugins: bool = False) -> str:
+    scripts = "'self' blob:" if plugins else "'self'"
+    return (
+        "default-src 'self'; base-uri 'none'; object-src 'none'; "
+        f"script-src {scripts}; style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' blob: data:; media-src 'self' blob:; "
+        "connect-src 'self'; frame-ancestors "
+        f"{allowed_origin}"
     )
 
 
@@ -98,11 +112,15 @@ async def embed_page_response(
             message="The web application is not built.",
             status_code=404,
         )
+    screen = await request.app.state.screen_service.get(screen_id)
+    plugins = bool(screen.published_document and screen.published_document.plugin_dependencies)
     return FileResponse(
         index,
         headers={
             "Cache-Control": "no-store",
-            "Content-Security-Policy": (f"frame-ancestors {claims.allowed_origin}"),
+            "Content-Security-Policy": embed_content_security_policy(
+                claims.allowed_origin, plugins=plugins
+            ),
             "Referrer-Policy": "no-referrer",
             "X-Content-Type-Options": "nosniff",
         },
@@ -111,6 +129,7 @@ async def embed_page_response(
 
 __all__ = [
     "TicketRedactionFilter",
+    "embed_content_security_policy",
     "embed_page_response",
     "install_ticket_redaction_filter",
     "redact_ticket_url",

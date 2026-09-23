@@ -3,6 +3,7 @@ import { DataPulseEmbed } from "../../../packages/embed-sdk/src/index";
 const query = new URLSearchParams(window.location.search);
 const screenId = query.get("screen");
 const ticket = query.get("ticket");
+const runtimeOriginValue = query.get("runtimeOrigin");
 const status = document.querySelector<HTMLElement>("#host-status");
 const mountPoint = document.querySelector<HTMLElement>("#embed-root");
 
@@ -10,8 +11,12 @@ if (!screenId || !ticket || !status || !mountPoint) {
   throw new Error("Embed host bootstrap parameters are missing.");
 }
 
+const runtimeOrigin = runtimeOriginValue
+  ? new URL(runtimeOriginValue, window.location.href).origin
+  : window.location.origin;
+
 const embedded = DataPulseEmbed.mount(mountPoint, {
-  url: `${window.location.origin}/embed/${encodeURIComponent(screenId)}`,
+  url: `${runtimeOrigin}/embed/${encodeURIComponent(screenId)}`,
   ticket,
   className: "embedded-screen",
 });

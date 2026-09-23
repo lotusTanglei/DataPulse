@@ -27,7 +27,10 @@ _DEFAULT_THEME_IDS = {
     "light": "datapulse-light",
 }
 
-_MAX_COMPONENTS = 12
+_MAX_COMPONENT_COUNT = 40
+_MIN_COMPONENT_WIDTH = 80
+_MIN_COMPONENT_HEIGHT = 48
+_MAX_DENSITY = 0.96
 
 _COMPONENT_VISUALS: dict[str, set[ChartType] | None] = {
     "builtin.alert_list": {ChartType.TABLE},
@@ -56,9 +59,20 @@ _COMPONENT_VISUALS: dict[str, set[ChartType] | None] = {
 _DEFAULT_PROPS: dict[str, dict[str, JsonValue]] = {
     "builtin.text": {"text": "文本", "align": "left", "font_size": 24},
     "builtin.image": {"asset_id": "", "alt": "", "fit": "cover"},
-    "builtin.panel": {"title": "面板标题", "subtitle": "", "frame_variant": "tech", "show_grid": True},
+    "builtin.panel": {
+        "title": "面板标题",
+        "subtitle": "",
+        "frame_variant": "tech",
+        "show_grid": True,
+    },
     "builtin.divider": {"orientation": "horizontal", "label": ""},
-    "builtin.digital_number": {"label": "核心指标", "unit": "", "prefix": "", "precision": 0, "empty_text": "暂无数据"},
+    "builtin.digital_number": {
+        "label": "核心指标",
+        "unit": "",
+        "prefix": "",
+        "precision": 0,
+        "empty_text": "暂无数据",
+    },
     "builtin.kpi": {"label": "指标", "precision": 0, "empty_text": "暂无数据"},
     "builtin.table": {"max_rows": 100, "empty_text": "暂无数据"},
     "builtin.progress": {"label": "进度", "precision": 0, "empty_text": "暂无数据"},
@@ -142,8 +156,37 @@ class _AiScreenDraftResponse(ContractModel):
     warnings: tuple[str, ...] = Field(default_factory=tuple)
 
 
-def _screen_error(code: str = "AI_SCREEN_INVALID") -> AiAnalysisError:
-    return AiAnalysisError(code, "The screen draft is invalid.")
+def _screen_error(
+    code: str = "AI_SCREEN_INVALID",
+    message: str = "The screen draft is invalid.",
+    *,
+    issues: tuple[dict[str, str], ...] = (),
+) -> AiAnalysisError:
+    return AiAnalysisError(code, message, issues=issues)
+
+
+def _issue(
+    component_id: str,
+    field: str,
+    reason: str,
+    expected: str,
+) -> dict[str, str]:
+    return {
+        "component_id": component_id,
+        "field": field,
+        "reason": reason,
+        "expected": expected,
+    }
+
+
+def _component_error(
+    code: str,
+    component_id: str,
+    field: str,
+    reason: str,
+    expected: str,
+) -> AiAnalysisError:
+    return _screen_error(code, issues=(_issue(component_id, field, reason, expected),))
 
 
 def _mapping(value: object, *, code: str = "AI_SCREEN_INVALID") -> dict[str, object]:
@@ -263,6 +306,7 @@ def _sanitize_frame(payload: object) -> dict[str, object]:
 def _validate_chart_spec(
     *,
     component_type: str,
+    component_id: str,
     payload: object,
     datasets_by_id: Mapping[str, DatasetResponse],
     parameter_defaults: Mapping[str, JsonValue],
@@ -279,10 +323,50 @@ def _validate_chart_spec(
         raise _screen_error() from error
 
     if spec.visual.type not in allowed_visuals:
-        raise _screen_error()
+        raise _component_error(
+            "AI_VISUAL_MISMATCH",
+            component_id,
+            "visual.type",
+            "图表类型与组件类型匹配",
+            ", ".join(item.value for item in allowed_visuals),
+        )
     dataset = datasets_by_id.get(spec.dataset_id)
     if dataset is None:
-        raise _screen_error("AI_DATASET_INVALID")
+        raise _component_error(
+            "AI_DATASET_INVALID",
+            component_id,
+            "dataset_id",
+            "数据集不存在或未授权",
+            "请求中的数据集",
+        )
+
+    known_fields = {field.name for field in dataset.definition.fields}
+    for field_name, field_path in (
+        *(
+            (field, f"dimensions[{index}]")
+            for index, field in enumerate(spec.dimensions)
+        ),
+        *(
+            (measure.field, f"measures[{index}].field")
+            for index, measure in enumerate(spec.measures)
+        ),
+        *(
+            (filter_.field, f"filters[{index}].field")
+            for index, filter_ in enumerate(spec.filters)
+        ),
+        *(
+            (sort.field, f"sort[{index}].field")
+            for index, sort in enumerate(spec.sort)
+        ),
+    ):
+        if field_name not in known_fields:
+            raise _component_error(
+                "AI_FIELD_UNKNOWN",
+                component_id,
+                field_path,
+                "字段不存在于数据集",
+                "已声明的数据集字段",
+            )
 
     try:
         if isinstance(dataset.definition.query, SqlQuery):
@@ -297,7 +381,13 @@ def _validate_chart_spec(
                 *(sort.field for sort in spec.sort),
             }
             if not requested_fields <= {field.name for field in dataset.definition.fields}:
-                raise _screen_error("AI_FIELD_UNKNOWN")
+                raise _component_error(
+                    "AI_FIELD_UNKNOWN",
+                    component_id,
+                    "chart_spec",
+                    "字段不存在于数据集",
+                    "已声明的数据集字段",
+                )
         else:
             raise _screen_error()
     except ChartQueryInvalid as error:
@@ -311,6 +401,7 @@ def _validate_chart_spec(
 def _sanitize_data_binding(
     *,
     component_type: str,
+    component_id: str,
     payload: object,
     datasets_by_id: Mapping[str, DatasetResponse],
     parameter_defaults: Mapping[str, JsonValue],
@@ -324,10 +415,17 @@ def _sanitize_data_binding(
     value = _mapping(payload)
     chart_spec = value.get("chart_spec")
     if chart_spec is None:
-        raise _screen_error()
+        raise _component_error(
+            "AI_BINDING_MISSING",
+            component_id,
+            "data_binding.chart_spec",
+            "数据组件缺少图表绑定",
+            "chart_spec",
+        )
     return {
         "chart_spec": _validate_chart_spec(
             component_type=component_type,
+            component_id=component_id,
             payload=chart_spec,
             datasets_by_id=datasets_by_id,
             parameter_defaults=parameter_defaults,
@@ -344,8 +442,17 @@ def _sanitize_component(
 ) -> dict[str, object]:
     value = _mapping(payload)
     component_type = value.get("type")
+    component_id = value.get("id")
+    if not isinstance(component_id, str) or not component_id.strip():
+        component_id = f"ai-component-{index + 2}"
     if not isinstance(component_type, str) or component_type not in _COMPONENT_VISUALS:
-        raise _screen_error()
+        raise _component_error(
+            "AI_COMPONENT_UNKNOWN",
+            component_id,
+            "type",
+            "组件类型不受支持",
+            ", ".join(_COMPONENT_VISUALS),
+        )
     for key in value:
         if key not in _ALLOWED_COMPONENT_KEYS and key in _BANNED_DOCUMENT_KEYS:
             raise _screen_error()
@@ -358,6 +465,7 @@ def _sanitize_component(
         "style": value.get("style") if isinstance(value.get("style"), Mapping) else {},
         "data_binding": _sanitize_data_binding(
             component_type=component_type,
+            component_id=component_id,
             payload=value.get("data_binding"),
             datasets_by_id=datasets_by_id,
             parameter_defaults=parameter_defaults,
@@ -383,17 +491,81 @@ def _validate_component_bounds(document: DashboardDocument) -> None:
             or frame.x + frame.width > canvas.width
             or frame.y + frame.height > canvas.height
         ):
-            raise _screen_error()
+            raise _component_error(
+                "AI_FRAME_OUT_OF_BOUNDS",
+                component.id,
+                "frame",
+                "组件超出画布边界",
+                "x >= 0、y >= 0 且完全位于画布内",
+            )
+        if frame.width < _MIN_COMPONENT_WIDTH or frame.height < _MIN_COMPONENT_HEIGHT:
+            raise _component_error(
+                "AI_SCREEN_INVALID",
+                component.id,
+                "frame",
+                "组件尺寸过小，内容可能不可读",
+                f"至少 {_MIN_COMPONENT_WIDTH}x{_MIN_COMPONENT_HEIGHT}",
+            )
+        text = component.props.get("text")
+        font_size = component.props.get("font_size", 16)
+        if isinstance(text, str) and isinstance(font_size, (int, float)):
+            estimated_width = len(text) * float(font_size) * 0.55
+            if estimated_width > frame.width:
+                raise _component_error(
+                    "AI_SCREEN_INVALID",
+                    component.id,
+                    "props.text",
+                    "文本预计会溢出组件",
+                    "文本宽度不超过组件宽度",
+                )
+
+    for index, first in enumerate(document.components):
+        first_frame = first.frame
+        for second in document.components[index + 1 :]:
+            second_frame = second.frame
+            if (
+                first_frame.x < second_frame.x + second_frame.width
+                and first_frame.x + first_frame.width > second_frame.x
+                and first_frame.y < second_frame.y + second_frame.height
+                and first_frame.y + first_frame.height > second_frame.y
+            ):
+                raise _screen_error(
+                    issues=(
+                        _issue(
+                            first.id,
+                            "frame",
+                            f"与组件 {second.id} 重叠",
+                            "组件之间不应有可见区域重叠",
+                        ),
+                    )
+                )
+
+    occupied_area = sum(
+        component.frame.width * component.frame.height for component in document.components
+    )
+    canvas_area = document.canvas.width * document.canvas.height
+    if canvas_area > 0 and occupied_area / canvas_area > _MAX_DENSITY:
+        raise _screen_error(
+            issues=(
+                _issue(
+                    "screen",
+                    "components",
+                    "组件密度过高，版面缺少安全留白",
+                    f"总占用面积不超过画布的 {_MAX_DENSITY:.0%}",
+                ),
+            )
+        )
 
 
-def validate_ai_document(
+def _normalized_document(
     document: object,
     *,
     allowed_dataset_ids: Mapping[str, DatasetResponse],
     canvas_width: int,
     canvas_height: int,
     requested_theme: str,
-) -> DashboardDocument:
+    tolerate_components: bool = False,
+) -> tuple[DashboardDocument, tuple[dict[str, str], ...]]:
     value = _mapping(document)
     if any(key in _BANNED_DOCUMENT_KEYS for key in value):
         raise _screen_error()
@@ -405,17 +577,65 @@ def validate_ai_document(
         for parameter in raw_parameters
         if isinstance(parameter.get("name"), str)
     }
-    components = [
-        _sanitize_component(
-            item,
-            index=index,
-            datasets_by_id=allowed_dataset_ids,
-            parameter_defaults=parameter_defaults,
+    raw_components = _sequence(value.get("components"))
+    issues: list[dict[str, str]] = []
+    components: list[dict[str, object]] = []
+    for index, item in enumerate(raw_components):
+        try:
+            components.append(
+                _sanitize_component(
+                    item,
+                    index=index,
+                    datasets_by_id=allowed_dataset_ids,
+                    parameter_defaults=parameter_defaults,
+                )
+            )
+        except AiAnalysisError as error:
+            if not tolerate_components:
+                raise
+            component_value = item if isinstance(item, Mapping) else {}
+            component_id = (
+                component_value.get("id")
+                if isinstance(component_value.get("id"), str)
+                else f"ai-component-{index + 1}"
+            )
+            issues.extend(
+                error.issues
+                or (_issue(component_id, "component", str(error), "可渲染的组件定义"),)
+            )
+
+    if len(components) > _MAX_COMPONENT_COUNT:
+        if not tolerate_components:
+            raise _screen_error(
+                issues=(
+                    _issue(
+                        "screen",
+                        "components",
+                        f"组件数量 {len(components)} 超过上限",
+                        f"不超过 {_MAX_COMPONENT_COUNT} 个组件",
+                    ),
+                )
+            )
+        issues.append(
+            _issue(
+                "screen",
+                "components",
+                f"组件数量超过 {_MAX_COMPONENT_COUNT}，已保留前 {_MAX_COMPONENT_COUNT} 个",
+                f"不超过 {_MAX_COMPONENT_COUNT} 个组件",
+            )
         )
-        for index, item in enumerate(_sequence(value.get("components")))
-    ]
-    if len(components) > _MAX_COMPONENTS:
-        raise _screen_error()
+        components = components[:_MAX_COMPONENT_COUNT]
+    if not components:
+        raise _screen_error(
+            issues=(
+                _issue(
+                    "screen",
+                    "components",
+                    "没有可渲染的组件",
+                    "至少保留一个合法组件",
+                ),
+            )
+        )
 
     normalized = {key: value[key] for key in _ALLOWED_DOCUMENT_KEYS if key in value}
     normalized["canvas"] = _sanitize_canvas(
@@ -437,7 +657,50 @@ def validate_ai_document(
         validated = DashboardDocument.model_validate(normalized)
     except (ValidationError, TypeError, ValueError) as error:
         raise _screen_error() from error
-    _validate_component_bounds(validated)
+    if tolerate_components:
+        while True:
+            try:
+                _validate_component_bounds(validated)
+                break
+            except AiAnalysisError as error:
+                if not error.issues:
+                    raise
+                drop_ids = {
+                    issue["component_id"]
+                    for issue in error.issues
+                    if issue.get("component_id") not in {"screen", ""}
+                }
+                if not drop_ids:
+                    raise
+                issues.extend(error.issues)
+                components = [
+                    component for component in components if component["id"] not in drop_ids
+                ]
+                normalized["components"] = components
+                try:
+                    validated = DashboardDocument.model_validate(normalized)
+                except (ValidationError, TypeError, ValueError) as validation_error:
+                    raise _screen_error() from validation_error
+    else:
+        _validate_component_bounds(validated)
+    return validated, tuple(issues)
+
+
+def validate_ai_document(
+    document: object,
+    *,
+    allowed_dataset_ids: Mapping[str, DatasetResponse],
+    canvas_width: int,
+    canvas_height: int,
+    requested_theme: str,
+) -> DashboardDocument:
+    validated, _ = _normalized_document(
+        document,
+        allowed_dataset_ids=allowed_dataset_ids,
+        canvas_width=canvas_width,
+        canvas_height=canvas_height,
+        requested_theme=requested_theme,
+    )
     return validated
 
 
@@ -501,13 +764,24 @@ class ScreenDraftGenerator:
             f"canvas: {request.canvas_width}x{request.canvas_height}\n"
             f"theme: {request.theme}\n"
             f"allowed_component_types: {', '.join(_COMPONENT_VISUALS)}\n"
-            "rules: max 12 components; use only builtin components; do not emit SQL; "
+            "sections: overview, trends, comparison, details; arrange components by section; "
+            "rules: use at most 40 components, keep safe spacing and avoid overlaps; "
+            "use only builtin components; do not emit SQL; "
             "do not emit JavaScript; do not emit image paths or external URLs; "
             "for data components include chart_spec with dataset_id, fields, filters, and visual.\n"
             f"datasets: {json.dumps(datasets_description, ensure_ascii=False)}\n"
             f"contexts: {serialized_contexts}"
         )
         return system, user
+
+    @staticmethod
+    def _repair_prompt(user: str, issues: tuple[dict[str, str], ...]) -> str:
+        return (
+            f"{user}\n"
+            "validation_issues: "
+            f"{json.dumps(list(issues), ensure_ascii=False)}\n"
+            "Repair only the reported components and return a complete editable draft."
+        )
 
     async def generate(
         self,
@@ -521,6 +795,7 @@ class ScreenDraftGenerator:
         contexts = await self._context_service.build(
             request.dataset_ids,
             max_rows=self._max_context_rows,
+            question=request.question,
         )
         system, user = self._prompt(
             request=request,
@@ -528,23 +803,66 @@ class ScreenDraftGenerator:
             contexts=contexts,
             request_id=request_id,
         )
-        response = await self._gateway.complete_json(
-            system=system,
-            user=user,
-            response_model=_AiScreenDraftResponse,
-        )
-        document = validate_ai_document(
-            response.document,
-            allowed_dataset_ids={dataset.id: dataset for dataset in datasets},
-            canvas_width=request.canvas_width,
-            canvas_height=request.canvas_height,
-            requested_theme=request.theme,
-        )
-        return AiScreenResponse(
-            document=document,
-            explanation=response.explanation,
-            warnings=response.warnings,
-        )
+        datasets_by_id = {dataset.id: dataset for dataset in datasets}
+        validation_issues: tuple[dict[str, str], ...] = ()
+        last_response: _AiScreenDraftResponse | None = None
+        last_error: AiAnalysisError | None = None
+        for attempt in range(3):
+            response = await self._gateway.complete_json(
+                system=system,
+                user=self._repair_prompt(user, validation_issues)
+                if validation_issues
+                else user,
+                response_model=_AiScreenDraftResponse,
+            )
+            last_response = response
+            try:
+                document = validate_ai_document(
+                    response.document,
+                    allowed_dataset_ids=datasets_by_id,
+                    canvas_width=request.canvas_width,
+                    canvas_height=request.canvas_height,
+                    requested_theme=request.theme,
+                )
+            except AiAnalysisError as error:
+                previous_issues = validation_issues
+                last_error = error
+                validation_issues = error.issues
+                if attempt < 2 and not (
+                    attempt > 0 and previous_issues and error.issues != previous_issues
+                ):
+                    continue
+                partial, dropped_issues = _normalized_document(
+                    response.document,
+                    allowed_dataset_ids=datasets_by_id,
+                    canvas_width=request.canvas_width,
+                    canvas_height=request.canvas_height,
+                    requested_theme=request.theme,
+                    tolerate_components=True,
+                )
+                warnings = list(response.warnings)
+                for issue in dropped_issues:
+                    component_id = issue.get("component_id", "component")
+                    warnings.append(
+                        f"已跳过组件 {component_id}: {issue.get('reason', '组件校验失败')}"
+                    )
+                return AiScreenResponse(
+                    document=partial,
+                    explanation=response.explanation,
+                    warnings=tuple(dict.fromkeys(warnings)),
+                )
+            else:
+                return AiScreenResponse(
+                    document=document,
+                    explanation=response.explanation,
+                    warnings=response.warnings,
+                )
+
+        if last_error is not None:
+            raise last_error
+        if last_response is None:
+            raise _screen_error()
+        raise _screen_error()
 
 
 __all__ = ["ScreenDraftGenerator", "validate_ai_document"]

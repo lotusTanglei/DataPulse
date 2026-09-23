@@ -16,7 +16,7 @@ from datapulse.display.service import (
 from datapulse.errors import DataPulseError
 from datapulse.query.models import QueryResult
 from datapulse.screen.access import request_origin_from_headers
-from datapulse.screen.assets import AssetNotFound, collect_asset_references
+from datapulse.screen.assets import AssetInvalid, AssetNotFound, collect_asset_references
 from datapulse.screen.models import ScreenResponse
 from datapulse.screen.repository import ScreenNotFound
 from datapulse.screen.runtime import ComponentQueryRequest
@@ -88,6 +88,12 @@ def _raise_display_error(error: Exception) -> NoReturn:
             code="ASSET_NOT_FOUND",
             message="The screen asset does not exist.",
             status_code=404,
+        )
+    elif isinstance(error, AssetInvalid):
+        translated = DataPulseError(
+            code="ASSET_INVALID",
+            message="The screen asset is unavailable for playback.",
+            status_code=422,
         )
     else:
         raise error
@@ -253,7 +259,7 @@ async def get_player_asset(
         ):
             raise AssetNotFound(asset_id)
         asset = await request.app.state.asset_service.get(asset_id)
-    except (AssetNotFound, ScreenNotFound) as error:
+    except (AssetNotFound, AssetInvalid, ScreenNotFound) as error:
         _raise_display_error(error)
     file_response = FileResponse(
         asset.storage_path,

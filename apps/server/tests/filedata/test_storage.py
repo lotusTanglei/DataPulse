@@ -1,5 +1,8 @@
+import asyncio
 import hashlib
 import io
+import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,6 +14,7 @@ from datapulse.filedata.storage import (
     FileTooLarge,
     FileTypeUnsupported,
 )
+from datapulse.operations.scanner import CommandScanner
 from datapulse.settings import Settings
 
 pytestmark = pytest.mark.anyio
@@ -64,6 +68,34 @@ async def test_save_stores_file_inside_generated_asset_directory(
     assert path.name == "source.csv"
     assert ".." not in path.parts
     assert path.read_bytes() == "name,amount\n华东,10\n".encode()
+
+
+async def test_cancelled_real_scanner_reaps_child_and_removes_upload_staging(settings, tmp_path):
+    marker = tmp_path / "scanner.pid"
+    script = (
+        "import os,time; from pathlib import Path; "
+        f"Path({str(marker)!r}).write_text(str(os.getpid())); time.sleep(60)"
+    )
+    scanner = CommandScanner(
+        command=[sys.executable, "-c", script], temporary_dir=tmp_path / "scanner", concurrency=1
+    )
+    storage = FileStorage(settings, id_factory=lambda: "cancelled-scan", scanner=scanner)
+    saving = asyncio.create_task(
+        storage.save(upload(filename="sales.csv", content_type="text/csv", content=b"amount\n12\n"))
+    )
+    try:
+        async with asyncio.timeout(3):
+            while not marker.exists():
+                await asyncio.sleep(0.01)
+        saving.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await saving
+        assert not (settings.resolved_files_dir() / "cancelled-scan").exists()
+        with pytest.raises(ProcessLookupError):
+            os.kill(int(marker.read_text()), 0)
+    finally:
+        saving.cancel()
+        await asyncio.gather(saving, return_exceptions=True)
 
 
 @pytest.mark.parametrize(

@@ -5,6 +5,14 @@ import pytest
 
 from tests.support.app import AppClient, build_test_app
 
+from datapulse.contracts.dashboard_plan import DashboardPlan
+from datapulse.screen.models import (
+    DashboardPlanCompileResponse,
+    DashboardPlanRecompileResponse,
+)
+from datapulse.screen.planning_service import DashboardPlanningService
+from tests.screen.test_planning_service import FakeRepository, plan
+
 
 @pytest.fixture
 def screen_app(tmp_path: Path) -> Iterator[AppClient]:
@@ -150,6 +158,62 @@ def test_screen_create_accepts_initial_document(screen_app: AppClient) -> None:
     assert created["draft_revision"] == 0
     assert created["draft_document"]["canvas"]["width"] == 1440
     assert created["draft_document"]["components"][0]["id"] == "text-1"
+
+
+def test_screen_plan_compile_api_returns_plan_and_deterministic_document(
+    screen_app: AppClient,
+) -> None:
+    setup_admin(screen_app)
+    screen_app.app.state.screen_planning_service = DashboardPlanningService(
+        dataset_repository=FakeRepository(calls=[])
+    )
+
+    response = screen_app.client.post(
+        "/api/admin/screens/plan/compile",
+        json={"plan": plan().model_dump(mode="json"), "canvas_width": 1440, "canvas_height": 900},
+        headers=mutation_headers(screen_app),
+    )
+
+    assert response.status_code == 200
+    payload = DashboardPlanCompileResponse.model_validate(response.json())
+    assert payload.plan == plan()
+    assert payload.document.canvas.width == 1440
+    assert "frame" not in payload.plan.model_dump(mode="json")
+
+
+def test_screen_plan_recompile_api_uses_the_same_planning_service(
+    screen_app: AppClient,
+) -> None:
+    setup_admin(screen_app)
+    screen_app.app.state.screen_planning_service = DashboardPlanningService(
+        dataset_repository=FakeRepository(calls=[])
+    )
+    previous_plan = plan()
+    compiled = screen_app.client.post(
+        "/api/admin/screens/plan/compile",
+        json={"plan": previous_plan.model_dump(mode="json")},
+        headers=mutation_headers(screen_app),
+    ).json()
+    next_payload = previous_plan.model_dump(mode="json")
+    next_payload["widgets"][0]["title"] = "销售额（修订）"
+    next_plan = DashboardPlan.model_validate(next_payload)
+
+    response = screen_app.client.post(
+        "/api/admin/screens/plan/recompile",
+        json={
+            "previous_plan": previous_plan.model_dump(mode="json"),
+            "plan": next_plan.model_dump(mode="json"),
+            "document": compiled["document"],
+            "affected_region_ids": ["summary"],
+        },
+        headers=mutation_headers(screen_app),
+    )
+
+    assert response.status_code == 200
+    payload = DashboardPlanRecompileResponse.model_validate(response.json())
+    assert payload.plan == next_plan
+    assert payload.affected_region_ids == ("summary",)
+    assert payload.document.components[1].props["label"] == "销售额（修订）"
 
 
 def test_screen_publish_requires_csrf_and_matching_revision(

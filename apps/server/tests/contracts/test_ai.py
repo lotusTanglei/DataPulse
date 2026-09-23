@@ -6,6 +6,8 @@ from datapulse.contracts.ai import (
     AiAnalysisResponse,
     AiChartRequest,
     AiChartResponse,
+    AiScreenEditRequest,
+    AiScreenEditResponse,
     AiScreenRequest,
     AiScreenResponse,
     AnalysisPlan,
@@ -258,3 +260,109 @@ def test_ai_screen_response_round_trips_dashboard_document() -> None:
     assert restored == response
     assert response.document.theme.id == "datapulse-dark"
     assert response.document.components[0].type == "builtin.text"
+
+
+def test_ai_screen_edit_contract_round_trips_plan_document_and_scope() -> None:
+    original = AiScreenResponse.model_validate(
+        {
+            "plan": {
+                "title": "销售运营大屏",
+                "audience": "销售负责人",
+                "narrative": "展示销售趋势。",
+                "dataset_ids": ("sales",),
+                "regions": ({"id": "main", "kind": "main"},),
+                "widgets": (
+                    {
+                        "id": "trend",
+                        "title": "销售趋势",
+                        "intent": "展示月度销售趋势",
+                        "region_id": "main",
+                        "dataset_id": "sales",
+                        "chart_type": "line",
+                        "dimensions": ("month",),
+                        "measures": ({"field": "amount", "aggregation": "sum"},),
+                    },
+                ),
+            },
+            "document": {
+                "canvas": {"width": 1920, "height": 1080},
+                "components": (
+                    {
+                        "id": "trend",
+                        "type": "builtin.line",
+                        "frame": {"x": 48, "y": 112, "width": 1824, "height": 900},
+                    },
+                ),
+            },
+            "explanation": "采用趋势布局。",
+        }
+    )
+
+    request = AiScreenEditRequest(
+        question="把趋势图改成柱状图",
+        plan=original.plan,
+        document=original.document,
+        affected_region_ids=("main",),
+    )
+    response = AiScreenEditResponse(
+        plan=original.plan,
+        document=original.document,
+        affected_region_ids=("main",),
+        report={
+            "valid": True,
+            "widget_count": 1,
+            "executed_count": 1,
+            "fallback_count": 0,
+        },
+        explanation="已修改主分析区。",
+    )
+
+    assert AiScreenEditRequest.model_validate_json(request.model_dump_json()) == request
+    assert AiScreenEditResponse.model_validate_json(response.model_dump_json()) == response
+    assert response.report.executed_count == 1
+
+
+def test_ai_screen_edit_contract_rejects_pixel_coordinates_and_excessive_scope() -> None:
+    plan = {
+        "title": "销售运营大屏",
+        "audience": "销售负责人",
+        "narrative": "展示销售趋势。",
+        "dataset_ids": ("sales",),
+        "regions": ({"id": "main", "kind": "main"},),
+        "widgets": (
+            {
+                "id": "trend",
+                "title": "销售趋势",
+                "intent": "展示月度销售趋势",
+                "region_id": "main",
+                "dataset_id": "sales",
+                "chart_type": "line",
+                "dimensions": ("month",),
+                "measures": ({"field": "amount", "aggregation": "sum"},),
+                "frame": {"x": 0, "y": 0, "width": 10, "height": 10},
+            },
+        ),
+    }
+    document = {
+        "canvas": {"width": 1920, "height": 1080},
+        "components": (),
+    }
+
+    with pytest.raises(ValidationError):
+        AiScreenEditRequest(
+            question="调整布局",
+            plan=plan,
+            document=document,
+        )
+
+    valid_plan = dict(plan)
+    valid_plan["widgets"] = (
+        {key: value for key, value in plan["widgets"][0].items() if key != "frame"},
+    )  # type: ignore[index,union-attr]
+    with pytest.raises(ValidationError):
+        AiScreenEditRequest(
+            question="调整布局",
+            plan=valid_plan,
+            document=document,
+            affected_region_ids=tuple(f"region-{index}" for index in range(13)),
+        )

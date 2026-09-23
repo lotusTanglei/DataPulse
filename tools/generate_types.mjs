@@ -1,10 +1,13 @@
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { parseArgs } from "node:util";
 import { compileFromFile } from "json-schema-to-typescript";
 
 const root = resolve(import.meta.dirname, "..");
-const schemaDir = resolve(root, "packages/schema/schemas");
-const outputDir = resolve(root, "packages/schema/src/generated");
+const { values } = parseArgs({ options: { "schema-dir": { type: "string" }, "output-dir": { type: "string" } } });
+const schemaDir = resolve(values["schema-dir"] ?? resolve(root, "packages/schema/schemas"));
+const outputRoot = resolve(values["output-dir"] ?? resolve(root, "packages/schema/src"));
+const outputDir = resolve(outputRoot, "generated");
 
 await mkdir(outputDir, { recursive: true });
 for (const oldFile of await readdir(outputDir).catch(() => [])) {
@@ -26,7 +29,7 @@ for (const file of schemaFiles) {
     bannerComment: "",
   });
   await writeFile(resolve(outputDir, `${name}.d.ts`), output);
-  exports.push(`export type { ${schema.title} } from "./generated/${name}";`);
+  exports.push(`export type { ${schema.title} } from "./generated/${name}.js";`);
 }
 
-await writeFile(resolve(root, "packages/schema/src/index.ts"), `${exports.join("\n")}\n`);
+await writeFile(resolve(outputRoot, "index.ts"), `${exports.join("\n")}\n`);

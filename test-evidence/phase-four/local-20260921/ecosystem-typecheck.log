@@ -1,0 +1,4 @@
+
+> @datapulse/web@ typecheck /Users/dundundebaba/sync/code/open/DataPulse/apps/web
+> vue-tsc --noEmit && tsc -p tsconfig.e2e.json
+

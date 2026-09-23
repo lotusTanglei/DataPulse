@@ -1,0 +1,101 @@
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+{"event":"http_request","time":"2026-09-21T03:51:07.615710+00:00","request_id":"3259441f-e919-402d-a9d8-a49f7d7e880f","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":48.44}
+{"event":"http_request","time":"2026-09-21T03:51:07.665270+00:00","request_id":"30b2d010-3b81-4aa3-ba94-0857004bf585","method":"POST","route":"/api/admin/users","status":201,"duration_ms":47.88}
+{"event":"http_request","time":"2026-09-21T03:51:07.692015+00:00","request_id":"11b930d5-32ec-445a-b260-a7650aa5a2c6","method":"POST","route":"/api/admin/datasources","status":201,"duration_ms":25.4}
+{"event":"http_request","time":"2026-09-21T03:51:07.729548+00:00","request_id":"7b33fa11-a215-47a5-98d0-30377fc1558e","method":"POST","route":"/api/admin/datasets","status":201,"duration_ms":36.34}
+{"event":"http_request","time":"2026-09-21T03:51:08.712197+00:00","request_id":"a3ccfc86-f09b-44c7-b4ac-f89a5ee338b5","method":"POST","route":"/api/admin/files","status":201,"duration_ms":981.22}
+{"event":"http_request","time":"2026-09-21T03:51:09.780792+00:00","request_id":"6c907b20-9529-4132-aebf-6027f71d7185","method":"POST","route":"/api/admin/datasets/files","status":201,"duration_ms":1066.76}
+{"event":"http_request","time":"2026-09-21T03:51:10.488786+00:00","request_id":"b97874fe-4698-454d-b98e-4f23dbe1d89c","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":706.05}
+{"event":"http_request","time":"2026-09-21T03:51:11.296270+00:00","request_id":"99ccebfe-7356-46e3-9748-5ec2a42539fd","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":806.07}
+{"event":"http_request","time":"2026-09-21T03:51:11.592927+00:00","request_id":"b67c1ab4-24a8-44eb-8ab4-d9eacc2425c3","method":"POST","route":"/api/admin/assets","status":201,"duration_ms":294.6}
+{"event":"http_request","time":"2026-09-21T03:51:11.681762+00:00","request_id":"22a6fced-75f6-4aa2-8bfe-11265319f9f1","method":"POST","route":"/api/admin/ecosystem/packages","status":201,"duration_ms":86.91}
+{"event":"http_request","time":"2026-09-21T03:51:11.695831+00:00","request_id":"c283ef79-ee01-459a-af01-1a070a0be98e","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":12.78}
+{"event":"http_request","time":"2026-09-21T03:51:11.715143+00:00","request_id":"df092d58-245f-420c-8faf-5fbafdf34241","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":18.03}
+{"event":"http_request","time":"2026-09-21T03:51:11.725307+00:00","request_id":"67b86e4d-ff6f-4dd0-8097-18fcadc04611","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":8.55}
+{"event":"http_request","time":"2026-09-21T03:51:11.743936+00:00","request_id":"1381538b-9183-4de2-8887-672c8eabc38e","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":17.45}
+{"event":"http_request","time":"2026-09-21T03:51:11.760510+00:00","request_id":"4c4fc9a9-9eb1-490c-a7d5-db3e95fb824c","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":15.37}
+{"event":"http_request","time":"2026-09-21T03:51:11.769703+00:00","request_id":"f4083b1a-b2c4-4777-bbc9-df150671e426","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":7.82}
+{"event":"http_request","time":"2026-09-21T03:51:11.777617+00:00","request_id":"b4132820-71df-4b57-b43b-69a53ded434d","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":6.76}
+{"event":"http_request","time":"2026-09-21T03:51:11.791725+00:00","request_id":"d761d0e1-4084-4fd9-aa83-a43aab5e0e32","method":"PUT","route":"/api/admin/permissions","status":200,"duration_ms":13.0}
+{"event":"http_request","time":"2026-09-21T03:51:11.822708+00:00","request_id":"05d34714-8601-41a5-949a-73203ebe182f","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":29.67}
+{"event":"http_request","time":"2026-09-21T03:51:11.839037+00:00","request_id":"29737dac-3174-4c84-9c08-e24277002482","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":15.09}
+{"event":"http_request","time":"2026-09-21T03:51:11.847134+00:00","request_id":"e219b0ac-ca7a-4642-92c1-e9aa78ce05d5","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":6.48}
+{"event":"http_request","time":"2026-09-21T03:51:16.017668+00:00","request_id":"a25dc5df-1333-4c9b-8ad8-5d1e70c7617b","method":"GET","route":"/api/auth/session","status":401,"duration_ms":3.22}
+{"event":"http_request","time":"2026-09-21T03:51:16.064345+00:00","request_id":"99bd5bae-5d40-45d6-b432-c9227dab8cf4","method":"POST","route":"/api/player/screens/{screen_id}/session","status":401,"duration_ms":45.15}
+{"event":"http_request","time":"2026-09-21T03:51:16.069308+00:00","request_id":"6854afc6-ee33-46d4-a003-a178e8c212c0","method":"POST","route":"/api/embed/tickets","status":401,"duration_ms":3.9}
+{"event":"http_request","time":"2026-09-21T03:51:16.070897+00:00","request_id":"69cd38e1-fff4-4974-b302-5f5dd9a594f2","method":"GET","route":"/api/embed/screens/{screen_id}","status":401,"duration_ms":0.63}
+{"event":"http_request","time":"2026-09-21T03:51:16.115280+00:00","request_id":"82de71ff-f095-4109-9531-b04814be4f6c","method":"POST","route":"/api/auth/login","status":204,"duration_ms":43.53}
+{"event":"http_request","time":"2026-09-21T03:51:16.121577+00:00","request_id":"437641dc-bc38-43dd-8f89-0ccb0bee1f24","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":5.22}
+{"event":"http_request","time":"2026-09-21T03:51:16.138006+00:00","request_id":"91d29a80-f761-482a-8cc0-6eeee104fcc8","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":15.4}
+{"event":"http_request","time":"2026-09-21T03:51:17.318883+00:00","request_id":"642ee2b4-910b-4895-95d2-0b163051947a","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":1179.84}
+{"event":"http_request","time":"2026-09-21T03:51:17.330206+00:00","request_id":"d269d3ef-c85c-4439-9fc9-562814530a45","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":9.73}
+{"event":"http_request","time":"2026-09-21T03:51:17.336915+00:00","request_id":"cb594c16-9b39-4b74-a174-677771b1f75f","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":4.49}
+{"event":"http_request","time":"2026-09-21T03:51:17.342791+00:00","request_id":"617e8417-b9d8-49d3-a03d-e51fe9647285","method":"GET","route":"/api/admin/assets/{asset_id}","status":200,"duration_ms":3.85}
+{"event":"http_request","time":"2026-09-21T03:51:17.348732+00:00","request_id":"5b9286fc-afa1-4005-9335-7943294ae511","method":"GET","route":"/api/admin/ecosystem/packages","status":200,"duration_ms":4.79}
+{"event":"http_request","time":"2026-09-21T03:51:17.388671+00:00","request_id":"4b80a594-0c7b-49f4-a41b-d09ee56f456d","method":"POST","route":"/api/auth/login","status":204,"duration_ms":39.05}
+{"event":"http_request","time":"2026-09-21T03:51:17.392603+00:00","request_id":"4213ea13-8d43-4d2a-993c-314eba19aeff","method":"GET","route":"/api/auth/session","status":200,"duration_ms":2.91}
+{"event":"http_request","time":"2026-09-21T03:51:17.412467+00:00","request_id":"308ea28d-accd-4116-b76b-9e20a554bca5","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":19.02}
+{"event":"http_request","time":"2026-09-21T03:51:17.517314+00:00","request_id":"ae6a413c-7a23-4462-a94e-8d8797401557","method":"PATCH","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":103.72}
+{"event":"http_request","time":"2026-09-21T03:51:17.602678+00:00","request_id":"13b218e3-5a81-4017-af1e-58a337bce6ad","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":83.91}
+{"event":"http_request","time":"2026-09-21T03:51:17.665904+00:00","request_id":"c3d1d325-97d8-43e3-92dc-805c4f854850","method":"POST","route":"/api/auth/login","status":204,"duration_ms":61.98}
+{"event":"http_request","time":"2026-09-21T03:51:17.688887+00:00","request_id":"0d18839c-4413-4aec-8866-bc1b8d2553dd","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":21.69}
+{"event":"http_request","time":"2026-09-21T03:51:17.693367+00:00","request_id":"51b7ee78-2b7b-482a-8c55-987821aab819","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":3.03}
+{"event":"http_request","time":"2026-09-21T03:51:17.698371+00:00","request_id":"f9c0f713-10d9-4e5f-8983-dac1492d2f0b","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":3.98}
+{"event":"http_request","time":"2026-09-21T03:51:17.732564+00:00","request_id":"d14b3cac-b5bd-4ac5-a712-8675a1871527","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":33.11}
+{"event":"http_request","time":"2026-09-21T03:51:17.738430+00:00","request_id":"b5c3bfe8-4ce6-4728-ab29-aeb726d08d7a","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.65}
+{"event":"http_request","time":"2026-09-21T03:51:17.746805+00:00","request_id":"76c0be8c-adc5-4743-9357-24b82766cc3e","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":5.21}
+{"event":"http_request","time":"2026-09-21T03:51:17.754957+00:00","request_id":"a70eb1cd-560e-4e82-945c-855068c193ad","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":6.48}
+{"event":"http_request","time":"2026-09-21T03:51:17.764597+00:00","request_id":"88e29674-15cb-405d-ad44-3a63223815b5","method":"GET","route":"/api/player/screens/{screen_id}/plugins","status":200,"duration_ms":5.9}
+{"event":"http_request","time":"2026-09-21T03:51:17.771855+00:00","request_id":"d118cbab-6d06-4c9b-85c0-8accec2e1722","method":"GET","route":"/api/player/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":5.7}
+{"event":"http_request","time":"2026-09-21T03:51:17.779393+00:00","request_id":"1f88adcc-6396-496e-b4c4-e53f66f4a394","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":6.03}
+{"event":"http_request","time":"2026-09-21T03:51:17.785058+00:00","request_id":"52694486-eca9-432d-ac3d-900ea92eb19d","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":4.27}
+{"event":"http_request","time":"2026-09-21T03:51:17.789495+00:00","request_id":"688458c9-138a-480a-9d42-da88af9824d0","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":3.13}
+{"event":"http_request","time":"2026-09-21T03:51:17.810689+00:00","request_id":"5296f17d-2b28-4715-bffa-f27b4409f50b","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":19.53}
+{"event":"http_request","time":"2026-09-21T03:51:17.816924+00:00","request_id":"7f5294ae-28cc-43b7-a64c-a9e20aab697b","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.74}
+{"event":"http_request","time":"2026-09-21T03:51:17.824255+00:00","request_id":"daf4b875-b75e-48bb-8062-58e62c36237b","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.46}
+{"event":"http_request","time":"2026-09-21T03:51:17.829241+00:00","request_id":"945e8d82-d778-4ac7-bd2d-0aca674072f1","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":3.62}
+{"event":"http_request","time":"2026-09-21T03:51:17.833382+00:00","request_id":"3c2860dc-c0a5-4d3f-b6d2-b0102d4c8f29","method":"GET","route":"/api/embed/screens/{screen_id}/plugins","status":200,"duration_ms":2.49}
+{"event":"http_request","time":"2026-09-21T03:51:17.838250+00:00","request_id":"85024935-5c8a-4f30-b7c1-2c6045a33113","method":"GET","route":"/api/embed/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":3.71}
+{"event":"http_request","time":"2026-09-21T03:51:17.942984+00:00","request_id":"093491cd-f7bc-4591-b2e4-1b2a68aaa23d","method":"POST","route":"/api/auth/login","status":204,"duration_ms":48.02}
+{"event":"http_request","time":"2026-09-21T03:51:17.994186+00:00","request_id":"3a0e0a1a-61fa-48a3-b7f5-d89e623af91a","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":50.0}
+{"event":"http_request","time":"2026-09-21T03:51:18.041824+00:00","request_id":"0117be04-8e80-4793-b1c2-b061872ea238","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":46.36}
+{"event":"http_request","time":"2026-09-21T03:51:18.062164+00:00","request_id":"e584619a-bb93-467c-bef7-08e41a8a9a93","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":18.98}
+{"event":"http_request","time":"2026-09-21T03:51:18.066969+00:00","request_id":"5bca60d6-e49d-4224-9a7f-744645890030","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":3.69}
+{"event":"http_request","time":"2026-09-21T03:51:18.084480+00:00","request_id":"dea34442-b022-4f1c-b058-72bb95341d9b","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":16.34}
+{"event":"http_request","time":"2026-09-21T03:51:18.090167+00:00","request_id":"96508fab-1c20-45ab-a8a8-d2bfb15ccf1e","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.57}
+{"event":"http_request","time":"2026-09-21T03:51:18.097623+00:00","request_id":"0af6692c-c6dd-40b2-a5ec-ff8bd4e17284","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.36}
+{"event":"http_request","time":"2026-09-21T03:51:18.103463+00:00","request_id":"6e7722c1-ece8-44c1-8be1-64f05752eb1c","method":"GET","route":"/api/player/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.46}
+{"event":"http_request","time":"2026-09-21T03:51:18.110704+00:00","request_id":"422f04c6-1bfd-4570-9ee3-c25ca838c7d3","method":"GET","route":"/api/player/screens/{screen_id}/plugins","status":200,"duration_ms":5.85}
+{"event":"http_request","time":"2026-09-21T03:51:18.116227+00:00","request_id":"d063b604-48f4-40bc-8b53-be628da0b8a0","method":"GET","route":"/api/player/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":4.52}
+{"event":"http_request","time":"2026-09-21T03:51:18.122185+00:00","request_id":"107e6e53-498a-4b8a-8a80-b32796dd0fc2","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":4.55}
+{"event":"http_request","time":"2026-09-21T03:51:18.139391+00:00","request_id":"598e334f-99b9-4e83-9f92-bae2ae27810e","method":"POST","route":"/api/embed/screens/{screen_id}/query","status":200,"duration_ms":15.93}
+{"event":"http_request","time":"2026-09-21T03:51:18.144243+00:00","request_id":"e59ea6f0-b766-48e8-b933-ffa3db9323a6","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":3.52}
+{"event":"http_request","time":"2026-09-21T03:51:18.154299+00:00","request_id":"e0c5357a-e194-46c6-bfe7-9a57642cbcae","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":4.26}
+{"event":"http_request","time":"2026-09-21T03:51:18.163167+00:00","request_id":"ced1382c-370c-40ae-9d66-275e5fde16d4","method":"GET","route":"/api/embed/screens/{screen_id}/assets/{asset_id}","status":200,"duration_ms":3.63}
+{"event":"http_request","time":"2026-09-21T03:51:18.169033+00:00","request_id":"15d47795-d9cd-47c2-aeed-80f43b9584f0","method":"GET","route":"/api/embed/screens/{screen_id}/plugins","status":200,"duration_ms":4.37}
+{"event":"http_request","time":"2026-09-21T03:51:18.177030+00:00","request_id":"c3a61983-4a11-48ca-b769-7ea50bf09f8c","method":"GET","route":"/api/embed/screens/{screen_id}/plugins/{plugin_id}/{version}/files/{file_path:path}","status":200,"duration_ms":6.73}
+RESTORE_REHEARSAL {"accounts": 2, "archive_bytes": 300683, "archive_members": 11, "backup_seconds": 0.933, "datasets": 2, "datasources": 1, "digital_human_components": 1, "digital_human_portrait_audio_bytes_verified_after_restart": true, "display_embed_query_media_plugin_verified_after_restart": true, "editor_grants_preserved": true, "file_rows": 2, "independent_master_and_signing_keys": true, "media_assets": 3, "old_credentials_revoked": true, "plugins": 1, "published_screens": 1, "restore_seconds": 1.037, "restored_app_starts": 2, "scope": "local temporary directories; not target deployment acceptance", "sql_rows": 2, "uncompressed_bytes": 296543}
+.
+1 passed in 12.57s

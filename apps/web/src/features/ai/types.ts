@@ -3,6 +3,8 @@ import type {
   AnalysisPlan,
   ChartSpec,
   DashboardDocument,
+  DashboardPlan,
+  GenerationSelfCheckReport,
 } from "../../contracts";
 import type { QueryResult } from "../query/types";
 
@@ -47,7 +49,25 @@ export interface AiScreenRequest {
 }
 
 export interface AiScreenResponse {
+  plan: DashboardPlan;
   document: DashboardDocument;
+  report: GenerationSelfCheckReport;
+  explanation: string;
+  warnings: string[];
+}
+
+export interface AiScreenEditRequest {
+  question: string;
+  plan: DashboardPlan;
+  document: DashboardDocument;
+  affected_region_ids: string[];
+}
+
+export interface AiScreenEditResponse {
+  plan: DashboardPlan;
+  document: DashboardDocument;
+  affected_region_ids: string[];
+  report: GenerationSelfCheckReport;
   explanation: string;
   warnings: string[];
 }

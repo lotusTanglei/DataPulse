@@ -45,7 +45,11 @@ def test_setup_login_session_logout_flow(app_client: AppClient) -> None:
     assert any("datapulse_csrf=" in cookie and "HttpOnly" not in cookie for cookie in cookies)
     assert all("SameSite=lax" in cookie and "Path=/" in cookie for cookie in cookies)
     assert app_client.client.get("/api/auth/status").json() == {"initialized": True}
-    assert app_client.client.get("/api/auth/session").json() == {"username": "admin"}
+    assert app_client.client.get("/api/auth/session").json() == {
+        "id": "admin",
+        "username": "admin",
+        "role": "admin",
+    }
     assert app_client.client.get("/api/admin/probe").json() == {"username": "admin"}
 
     csrf = app_client.client.cookies["datapulse_csrf"]
@@ -63,7 +67,11 @@ def test_setup_login_session_logout_flow(app_client: AppClient) -> None:
         headers={"Origin": app_client.origin},
     )
     assert login.status_code == 204
-    assert app_client.client.get("/api/auth/session").json() == {"username": "admin"}
+    assert app_client.client.get("/api/auth/session").json() == {
+        "id": "admin",
+        "username": "admin",
+        "role": "admin",
+    }
 
 
 def test_setup_rejects_wrong_code_wrong_origin_and_second_setup(

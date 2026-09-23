@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "DigitalHumanCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "operator": {
+          "default": "gt",
+          "enum": [
+            "gt",
+            "gte",
+            "lt",
+            "lte",
+            "eq",
+            "neq",
+            "exists"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/JsonValue",
+          "default": null
+        },
+        "variable": {
+          "pattern": "^[\\w.-]{1,128}$",
+          "title": "Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable"
+      ],
+      "title": "DigitalHumanCondition",
+      "type": "object"
+    },
+    "JsonValue": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "type": "object"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-action.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "asset_id": {
+      "pattern": "^[\\w-]{1,128}$",
+      "title": "Asset Id",
+      "type": "string"
+    },
+    "asset_kind": {
+      "default": "image",
+      "enum": [
+        "image",
+        "video"
+      ],
+      "title": "Asset Kind",
+      "type": "string"
+    },
+    "condition_mode": {
+      "default": "all",
+      "enum": [
+        "all",
+        "any"
+      ],
+      "title": "Condition Mode",
+      "type": "string"
+    },
+    "conditions": {
+      "items": {
+        "$ref": "#/$defs/DigitalHumanCondition"
+      },
+      "maxItems": 20,
+      "title": "Conditions",
+      "type": "array"
+    },
+    "duration_ms": {
+      "default": 1200,
+      "maximum": 10000,
+      "minimum": 100,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "id": {
+      "pattern": "^[\\w.-]{1,64}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "default": "emphasis",
+      "enum": [
+        "nod",
+        "wave",
+        "emphasis"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "priority": {
+      "default": 0,
+      "maximum": 100,
+      "minimum": -100,
+      "title": "Priority",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "asset_id"
+  ],
+  "title": "DigitalHumanAction",
+  "type": "object"
+}

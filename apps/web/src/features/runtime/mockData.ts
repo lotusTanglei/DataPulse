@@ -209,7 +209,7 @@ function geoResult(componentId: string, seed: number): QueryResult {
 }
 
 export function demoDataKindFor(type: string): DemoDataKind {
-  if (["builtin.kpi", "builtin.progress", "builtin.digital_number", "builtin.gauge"].includes(type)) return "single";
+  if (["builtin.kpi", "builtin.progress", "builtin.digital_number", "builtin.gauge", "builtin.digital_human"].includes(type)) return "single";
   if (["builtin.line", "builtin.bar", "builtin.pie", "builtin.heatmap", "builtin.scatter", "builtin.funnel"].includes(type)) return "series";
   if (type === "builtin.radar") return "radar";
   if (type === "builtin.ranking") return "ranking";

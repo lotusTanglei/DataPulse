@@ -25,6 +25,7 @@ import { useScreenEditorStore } from "./store";
   withDefaults(
   defineProps<{
     publishing?: boolean;
+    canPublish?: boolean;
     saveLabel: string;
     zoom: number;
     showGrid?: boolean;
@@ -32,7 +33,7 @@ import { useScreenEditorStore } from "./store";
     selectionCount?: number;
     canUngroup?: boolean;
   }>(),
-  { publishing: false, showGrid: true, snapEnabled: true, selectionCount: 0, canUngroup: false },
+  { publishing: false, canPublish: false, showGrid: true, snapEnabled: true, selectionCount: 0, canUngroup: false },
 );
 const emit = defineEmits<{
   align: [alignment: "left" | "center" | "right" | "top" | "middle" | "bottom"];
@@ -163,7 +164,7 @@ const store = useScreenEditorStore();
       class="primary-button editor-save-button"
       data-action="publish-screen"
       type="button"
-      :disabled="publishing || store.saveState === 'saving' || store.saveState === 'conflict'"
+      :disabled="!canPublish || publishing || store.saveState === 'saving' || store.saveState === 'conflict'"
       @click="emit('publish')"
     >
       <Send :size="14" />

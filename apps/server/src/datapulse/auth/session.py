@@ -62,7 +62,7 @@ class SessionService:
             await self._repository.delete_session(session_hash)
             return None
         admin = await self._repository.get_admin_by_id(record.admin_id)
-        if admin is None:
+        if admin is None or not admin.active:
             return None
         await self._repository.touch_session(session_hash, now)
         return admin

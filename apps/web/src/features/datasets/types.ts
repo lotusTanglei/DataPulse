@@ -9,6 +9,56 @@ export interface DatasetField {
   data_type: ParameterDataType;
 }
 
+export type DatasetFieldRole =
+  | "identifier"
+  | "dimension"
+  | "measure"
+  | "geography"
+  | "temporal"
+  | "text"
+  | "boolean"
+  | "unknown";
+
+export interface DatasetFieldProfile {
+  name: string;
+  data_type: ParameterDataType;
+  role: DatasetFieldRole;
+  nullable: boolean;
+  null_count: number;
+  null_rate?: number;
+  unique_count: number;
+  cardinality: number;
+  uniqueness_ratio: number;
+  min?: JsonValue | null;
+  max?: JsonValue | null;
+  top_values?: Array<{ value: JsonValue; count: number }>;
+  sample_values: JsonValue[];
+  default_aggregation?: DatasetAggregation | null;
+  unit?: string | null;
+  display_name?: string | null;
+}
+
+export type DatasetAggregation = "sum" | "avg" | "min" | "max" | "count";
+
+export interface DatasetProfile {
+  dataset_id: string;
+  name: string;
+  row_count: number;
+  sampled: boolean;
+  fields: DatasetFieldProfile[];
+}
+
+export interface DatasetProfilePatch {
+  fields: Array<{
+    name: string;
+    data_type?: ParameterDataType;
+    role?: DatasetFieldRole;
+    default_aggregation?: DatasetAggregation;
+    unit?: string;
+    display_name?: string;
+  }>;
+}
+
 export interface DatasetParameter {
   name: string;
   data_type: ParameterDataType;
@@ -39,6 +89,14 @@ export interface DatasetDefinition {
         response_path: string | null;
       };
   fields: DatasetField[];
+  profile_overrides?: Array<{
+    name: string;
+    data_type: ParameterDataType | null;
+    role: DatasetFieldRole | null;
+    default_aggregation?: DatasetAggregation | null;
+    unit?: string | null;
+    display_name?: string | null;
+  }>;
   parameters: DatasetParameter[];
   cache: {
     mode: "disabled" | "ttl" | "scheduled";

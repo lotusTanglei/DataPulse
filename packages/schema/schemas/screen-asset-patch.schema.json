@@ -1,0 +1,48 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/screen-asset-patch.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "license_expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "License Expires At"
+    },
+    "license_note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "License Note"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "maxLength": 255,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Name"
+    }
+  },
+  "title": "ScreenAssetPatch",
+  "type": "object"
+}

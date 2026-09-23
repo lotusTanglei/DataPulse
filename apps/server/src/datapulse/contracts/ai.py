@@ -5,6 +5,8 @@ from pydantic import Field
 from datapulse.contracts.chart import ChartSpec, ChartType, Filter, Measure, Sort
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 from datapulse.contracts.dashboard import DashboardDocument
+from datapulse.contracts.dashboard_plan import DashboardPlan
+from datapulse.contracts.generation import GenerationSelfCheckReport
 from datapulse.query.models import QueryResult
 
 
@@ -59,8 +61,35 @@ class AiScreenRequest(ContractModel):
     theme: Literal["dark", "light"] = "dark"
 
 
+class AiScreenPlanResponse(ContractModel):
+    plan: DashboardPlan
+    explanation: NonBlankStr
+    warnings: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class AiScreenResponse(ContractModel):
+    plan: DashboardPlan | None = None
     document: DashboardDocument
+    report: GenerationSelfCheckReport | None = None
+    explanation: NonBlankStr
+    warnings: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class AiScreenEditRequest(ContractModel):
+    question: NonBlankStr = Field(max_length=4000)
+    plan: DashboardPlan
+    document: DashboardDocument
+    affected_region_ids: tuple[NonBlankStr, ...] = Field(
+        default_factory=tuple,
+        max_length=12,
+    )
+
+
+class AiScreenEditResponse(ContractModel):
+    plan: DashboardPlan
+    document: DashboardDocument
+    affected_region_ids: tuple[NonBlankStr, ...] = Field(min_length=1, max_length=12)
+    report: GenerationSelfCheckReport
     explanation: NonBlankStr
     warnings: tuple[str, ...] = Field(default_factory=tuple)
 

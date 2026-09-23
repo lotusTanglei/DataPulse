@@ -137,6 +137,45 @@ test("inspector builds one validated ChartSpec from dataset fields", async () =>
   });
 });
 
+test("inspector displays the selected dataset profile", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url === "/api/admin/datasets") {
+        return Promise.resolve(jsonResponse([dataset]));
+      }
+      if (url === "/api/admin/datasets/sales/profile") {
+        return Promise.resolve(jsonResponse({
+          dataset_id: "sales",
+          name: "销售数据",
+          row_count: 2,
+          sampled: false,
+          fields: [
+            {
+              name: "region",
+              data_type: "string",
+              role: "dimension",
+              nullable: false,
+              null_count: 0,
+              unique_count: 2,
+              cardinality: 2,
+              uniqueness_ratio: 1,
+              sample_values: ["华东"],
+            },
+          ],
+        }));
+      }
+      return Promise.resolve(jsonResponse(screen));
+    }),
+  );
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  expect(wrapper.get("[data-inspector-profile]").text()).toContain("dimension");
+  expect(wrapper.get("[data-inspector-profile]").text()).toContain("2 个值");
+});
+
 test("inspector updates theme, background, and click parameter mapping", () => {
   const store = useScreenEditorStore();
   const wrapper = mount(InspectorPanel);
@@ -189,6 +228,173 @@ test("component properties are rendered from registry metadata", async () => {
     frame_variant: "corner",
     show_grid: false,
   });
+});
+
+test("digital human inspector edits threshold condition groups and mapped recording conditions", async () => {
+  const store = useScreenEditorStore();
+  const current = JSON.parse(JSON.stringify(toRaw(store.document!.components![0]!)));
+  store.dispatch({
+    type: "replace_component",
+    component_id: "bar-1",
+    component: {
+      ...current,
+      type: "builtin.digital_human",
+      props: {
+        speech_template: "当前值 {{value}}",
+        trigger: { kind: "threshold", variable: "value", threshold: 10, conditions: [], condition_mode: "all", priority: 0, debounce_seconds: 0 },
+        recordings: [{ asset_id: "voice-1", sha256: "a".repeat(64), transcript: "当前值", duration_seconds: 2, conditions: [{ variable: "value", operator: "gt", value: 10 }], condition_mode: "all" }],
+      },
+      data_binding: { source: "components", variables: [{ name: "value", component_id: "bar-1", field: "amount", row: 0 }] },
+    },
+  });
+  store.selection = ["bar-1"];
+  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse([]))));
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+  const componentProps = () => store.document!.components!.find((component) => component.id === "bar-1")!.props as any;
+
+  const trigger = wrapper.findAll("details").find((item) => item.text().includes("触发"))!;
+  await trigger.find("select").setValue("threshold");
+  await trigger.find("button").trigger("click");
+  expect(componentProps().trigger).toMatchObject({
+    kind: "threshold",
+    conditions: [{ variable: "value", operator: "gt", value: 0 }],
+  });
+  await trigger.find('[aria-label="条件值"]').setValue("100");
+  await trigger.find('[aria-label="条件值"]').trigger("change");
+  expect(componentProps().trigger.conditions[0].value).toBe("100");
+
+  const sound = wrapper.findAll("details").find((item) => item.text().includes("声音"))!;
+  sound.element.setAttribute("open", "");
+  await sound.trigger("toggle");
+  await flushPromises();
+  const mappedValue = wrapper.find('[aria-label="片段条件值"]');
+  expect(mappedValue.exists()).toBe(true);
+  await mappedValue.setValue("50");
+  await mappedValue.trigger("change");
+  expect(componentProps().recordings[0].conditions[0].value).toBe("50");
+});
+
+test("digital human inspector previews demo, current, and threshold data without changing the draft", async () => {
+  const store = useScreenEditorStore();
+  const current = JSON.parse(JSON.stringify(toRaw(store.document!.components![0]!)));
+  store.dispatch({
+    type: "replace_component",
+    component_id: "bar-1",
+    component: {
+      ...current,
+      type: "builtin.digital_human",
+      props: {
+        speech_template: "当前值 {{value | number}}",
+        trigger: { kind: "threshold", variable: "value", threshold: 10, direction: "above" },
+      },
+      data_binding: {},
+    },
+  });
+  store.selection = ["bar-1"];
+  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse([]))));
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+
+  const preview = wrapper.get("[data-preview-text]");
+  const originalProps = JSON.stringify(store.document?.components?.[0]?.props);
+  expect(preview.text()).toContain("当前值");
+  await wrapper.get("[data-preview-data]").setValue("threshold");
+  expect(preview.text()).toContain("当前值");
+  await wrapper.get("[data-preview-data]").setValue("current");
+  expect(preview.text()).toContain("字段不可用");
+  expect(JSON.stringify(store.document?.components?.[0]?.props)).toBe(originalProps);
+});
+
+test("digital human inspector can generate, audition, and apply a TTS preview", async () => {
+  const store = useScreenEditorStore();
+  const current = JSON.parse(JSON.stringify(toRaw(store.document!.components![0]!)));
+  store.dispatch({
+    type: "replace_component",
+    component_id: "bar-1",
+    component: {
+      ...current,
+      type: "builtin.digital_human",
+      props: { speech_template: "当前值 {{value | number}}" },
+      data_binding: {},
+    },
+  });
+  store.selection = ["bar-1"];
+  const plan = {
+    id: "plan-1", screen_id: screen.id, component_id: "bar-1", text: "当前值 72",
+    language: "zh-CN", provider_id: "provider-1", voice: "alloy", provider_version: "v1",
+    content_hash: "hash", created_at: "2026-09-11T00:00:00Z",
+  };
+  const task = {
+    id: "task-1", plan_id: plan.id, status: "succeeded", provider_id: "provider-1",
+    asset_id: "tts-asset", error_code: null, source: "preview", priority: 0,
+    created_at: "2026-09-11T00:00:00Z", expires_at: null, started_at: null, finished_at: null,
+  };
+  vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url === "/api/admin/digital-human/provider-directory") {
+      return Promise.resolve(jsonResponse([{
+        id: "provider-1", name: "测试 TTS", provider_type: "openai_compatible", base_url: "",
+        default_voice: "alloy", language: "zh-CN", enabled: true, configured: true,
+        cost_per_minute: 0, provider_version: "v1", health_status: "healthy",
+        consecutive_failures: 0, circuit_open_until: null, last_checked_at: null,
+        last_latency_ms: null, last_error_code: null,
+      }]));
+    }
+    if (url === "/api/admin/digital-human/plans/preview") {
+      expect(init?.method).toBe("POST");
+      return Promise.resolve(jsonResponse(plan));
+    }
+    if (url === `/api/admin/digital-human/plans/${plan.id}/tasks`) {
+      return Promise.resolve(jsonResponse(task));
+    }
+    if (url === `/api/admin/digital-human/tasks/${task.id}`) {
+      return Promise.resolve(jsonResponse(task));
+    }
+    if (url === "/api/admin/assets/tts-asset/metadata") {
+      return Promise.resolve(jsonResponse({ id: "tts-asset", sha256: "a".repeat(64), media: { duration_seconds: 1 } }));
+    }
+    return Promise.resolve(jsonResponse([]));
+  }));
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+  await wrapper.get(".speech-inspector__tts select").setValue("provider-1");
+  await wrapper.get(".speech-inspector__tts button").trigger("click");
+  await flushPromises();
+  expect(wrapper.get(".speech-inspector__tts audio").attributes("src")).toContain("tts-asset");
+  await wrapper.get(".speech-inspector__tts button:last-child").trigger("click");
+  await flushPromises();
+  expect(store.document?.components?.[0]?.props).toMatchObject({
+    audio_asset_id: "tts-asset",
+    speech_source: "audio",
+    recording: { asset_id: "tts-asset", transcript: "当前值 72", duration_seconds: 1 },
+  });
+});
+
+test("digital human inspector edits structured speech segments", async () => {
+  const store = useScreenEditorStore();
+  const current = JSON.parse(JSON.stringify(toRaw(store.document!.components![0]!)));
+  store.dispatch({ type: "replace_component", component_id: "bar-1", component: {
+    ...current, type: "builtin.digital_human", props: { speech_template: "开场" }, data_binding: {},
+  } });
+  store.selection = ["bar-1"];
+  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse([]))));
+  const wrapper = mount(InspectorPanel);
+  await flushPromises();
+  const script = wrapper.get(".speech-inspector__script");
+  await script.get("button").trigger("click");
+  await script.get("button:nth-child(2)").trigger("click");
+  await script.get("button:nth-child(3)").trigger("click");
+  expect(store.document?.components?.[0]?.props).toMatchObject({
+    speech_segments: [
+      { kind: "paragraph", text: "开场" },
+      { kind: "pause", duration_ms: 500 },
+      { kind: "emphasis", text: "重点：" },
+    ],
+  });
+  await script.get('textarea[aria-label="话术段落文本 1"]').setValue("新的开场");
+  await script.get('textarea[aria-label="话术段落文本 1"]').trigger("change");
+  expect((store.document?.components?.[0]?.props?.speech_segments as Array<{ text: string }>)[0]?.text).toBe("新的开场");
 });
 
 test("theme inspector persists panel and chart tokens", async () => {

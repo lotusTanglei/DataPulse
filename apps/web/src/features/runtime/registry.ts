@@ -2,6 +2,8 @@ import { markRaw } from "vue";
 
 import AlertListComponent from "./builtins/AlertListComponent.vue";
 import DigitalNumberComponent from "./builtins/DigitalNumberComponent.vue";
+import DigitalHumanComponent from "./builtins/DigitalHumanComponent.vue";
+import { defaultDigitalHumanConfig } from "./builtins/digitalHuman";
 import DividerComponent from "./builtins/DividerComponent.vue";
 import EChartComponent from "./builtins/EChartComponent.vue";
 import GeoMapComponent from "./builtins/GeoMapComponent.vue";
@@ -254,6 +256,36 @@ export const defaultComponentRegistry = new ComponentRegistry()
       ]),
     ],
     component: DigitalNumberComponent,
+  })
+  .register({
+    type: "builtin.digital_human",
+    label: "数字人",
+    category: "基础与装饰",
+    defaultFrame: { width: 320, height: 420 },
+    defaultProps: JSON.parse(JSON.stringify(defaultDigitalHumanConfig)),
+    defaultStyle: surfaceStyle,
+    dataCapability: "single",
+    demoDataKind: "single",
+    propertyGroups: [
+      propertyGroup("identity", "形象与话术", [
+        textProperty("name", "名称", "DataPulse 数字人", { wide: true }),
+        textProperty("role", "身份", "数据播报员", { wide: true }),
+        textProperty("avatar_asset_id", "头像资源 ID", "", { wide: true }),
+        textProperty("speaking_asset_id", "播报形象资源 ID", "", { wide: true }),
+        textProperty("speech_template", "话术模板", "数据播报：{{value}}", { wide: true }),
+      ]),
+      propertyGroup("voice", "声音与字幕", [
+        textProperty("audio_asset_id", "预录音频资源 ID", "", { wide: true }),
+        textProperty("language", "语言", "zh-CN"),
+        numberProperty("rate", "语速", 1, { min: 0.5, max: 2, step: 0.1 }),
+        numberProperty("volume", "音量", 1, { min: 0, max: 1, step: 0.1 }),
+        booleanProperty("auto_play", "数据更新后自动播报", true),
+        booleanProperty("voice_enabled", "启用声音", true),
+        booleanProperty("subtitle_enabled", "显示字幕", true),
+        booleanProperty("muted", "默认静音", true),
+      ]),
+    ],
+    component: DigitalHumanComponent,
   })
   .register({
     type: "builtin.kpi",

@@ -16,10 +16,28 @@ async function createTargetScreen(page: Page, name: string): Promise<string> {
   await authenticate(page);
   const dataset = await ensureAnalyticsDataset(page);
   const assets = await uploadVisualAssets(page);
+  const document = nineComponentDocument(dataset.id, assets, "dark");
+  document.components.push({
+    id: "target-digital-human",
+    type: "builtin.digital_human",
+    frame: { x: 40, y: 690, width: 480, height: 350, z_index: 20 },
+    props: {
+      name: "长期播报员",
+      role: "稳定性门禁",
+      speech_template: "销售总额 {{sales.value | number}} 元。",
+      muted: true,
+      auto_play: false,
+      subtitle_font_size: 22,
+    },
+    data_binding: {
+      source: "components",
+      variables: [{ name: "sales.value", component_id: "component-3", field: "amount" }],
+    },
+  });
   const screen = await createPublishedScreen(
     page,
     name,
-    nineComponentDocument(dataset.id, assets, "dark"),
+    document,
   );
   return screen.id;
 }
@@ -32,7 +50,50 @@ async function openStandalone(page: Page, screenId: string): Promise<void> {
   await expect(page.getByText("正在加载…")).toHaveCount(0, {
     timeout: 12_000,
   });
+  await expect(page.locator("[data-component-id='target-digital-human'] .digital-human__subtitle")).toContainText("销售总额");
 }
+
+test("@display initial state and data subtitle meet playback baselines", async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const screenId = await createTargetScreen(page, "Target Playback Baseline");
+
+  const startedAt = Date.now();
+  const key = await generateDisplayKey(page, screenId);
+  const firstQueryResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/player/screens/") &&
+      response.url().endsWith("/query") &&
+      response.status() >= 200 &&
+      response.status() < 300,
+    { timeout: 10_000 },
+  );
+  await page.goto(`/play/${screenId}?key=${encodeURIComponent(key)}`);
+  await expect(page.locator(".screen-runtime")).toBeVisible();
+  const firstVisibleMs = Date.now() - startedAt;
+  const firstQueryResponse = await firstQueryResponsePromise;
+  const firstQueryResponseAt = Date.now();
+  const subtitle = page.locator(
+    "[data-component-id='target-digital-human'] .digital-human__subtitle",
+  );
+  await expect(subtitle).toContainText("销售总额", { timeout: 5_000 });
+  const subtitleVisibleAt = Date.now();
+  const dataToSubtitleMs = Math.max(0, subtitleVisibleAt - firstQueryResponseAt);
+  const metrics = {
+    firstVisibleMs,
+    subtitleMs: subtitleVisibleAt - startedAt,
+    dataToSubtitleMs,
+    firstQueryResponseObserved: true,
+    firstQueryStatus: firstQueryResponse.status(),
+  };
+  console.log(`PLAYBACK_BASELINE_METRICS ${JSON.stringify(metrics)}`);
+  await attachPageEvidence(page, testInfo, "playback-baseline", metrics);
+  expect(firstVisibleMs).toBeLessThanOrEqual(2_000);
+  expect(metrics.subtitleMs).toBeLessThanOrEqual(5_000);
+  expect(dataToSubtitleMs).toBeLessThanOrEqual(5_000);
+});
 
 function redactUrl(value: string): string {
   try {
@@ -222,23 +283,43 @@ test("@soak published playback refreshes without overlap or stale errors", async
     return memory?.usedJSHeapSize ?? null;
   });
 
-  const heapSamples: Array<{ elapsedSeconds: number; usedJSHeapSize: number | null }> = [
-    { elapsedSeconds: 0, usedJSHeapSize: initialHeap },
-  ];
+  const heapSamples: Array<{
+    elapsedSeconds: number;
+    usedJSHeapSize: number | null;
+    queryStarted: number;
+    queryFinished: number;
+    inFlight: number;
+    resourceTransferBytes: number;
+  }> = [];
+  const sampleRuntimeMetrics = async (elapsed: number): Promise<void> => {
+    const sample = await page.evaluate(() => {
+      const memory = (performance as Performance & {
+        memory?: { usedJSHeapSize: number };
+      }).memory;
+      const resourceTransferBytes = performance
+        .getEntriesByType("resource")
+        .reduce((total, entry) => {
+          const resource = entry as PerformanceResourceTiming;
+          return total + (resource.transferSize || resource.encodedBodySize || 0);
+        }, 0);
+      return { usedJSHeapSize: memory?.usedJSHeapSize ?? null, resourceTransferBytes };
+    });
+    heapSamples.push({
+      elapsedSeconds: elapsed,
+      usedJSHeapSize: sample.usedJSHeapSize,
+      queryStarted,
+      queryFinished,
+      inFlight,
+      resourceTransferBytes: sample.resourceTransferBytes,
+    });
+  };
+  await sampleRuntimeMetrics(0);
   let elapsedSeconds = 0;
   while (elapsedSeconds < durationSeconds) {
     const sampleSeconds = Math.min(60, durationSeconds - elapsedSeconds);
     await page.waitForTimeout(sampleSeconds * 1000);
     elapsedSeconds += sampleSeconds;
-    heapSamples.push({
-      elapsedSeconds,
-      usedJSHeapSize: await page.evaluate(() => {
-        const memory = (performance as Performance & {
-          memory?: { usedJSHeapSize: number };
-        }).memory;
-        return memory?.usedJSHeapSize ?? null;
-      }),
-    });
+    await sampleRuntimeMetrics(elapsedSeconds);
   }
   await expect(page.getByText("正在加载…")).toHaveCount(0, { timeout: 12_000 });
   await expect(page.getByText("数据加载失败")).toHaveCount(0);
@@ -263,6 +344,17 @@ test("@soak published playback refreshes without overlap or stale errors", async
     finalHeap,
     heapGrowth: initialHeap !== null && finalHeap !== null ? finalHeap - initialHeap : null,
     heapSamples,
+    resourceTiming: await page.evaluate(() => {
+      const entries = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+      return {
+        count: entries.length,
+        transferBytes: entries.reduce(
+          (total, entry) => total + (entry.transferSize || entry.encodedBodySize || 0),
+          0,
+        ),
+        failedOrOpaque: entries.filter((entry) => entry.transferSize === 0 && entry.duration > 0).length,
+      };
+    }),
   };
 
   console.log(`SOAK_METRICS ${JSON.stringify(metrics)}`);

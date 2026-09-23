@@ -1,0 +1,70 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-metrics.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "average_synthesis_ms": {
+      "minimum": 0,
+      "title": "Average Synthesis Ms",
+      "type": "number"
+    },
+    "cache_hits": {
+      "minimum": 0,
+      "title": "Cache Hits",
+      "type": "integer"
+    },
+    "collected_at": {
+      "format": "date-time",
+      "title": "Collected At",
+      "type": "string"
+    },
+    "synthesis_attempts": {
+      "minimum": 0,
+      "title": "Synthesis Attempts",
+      "type": "integer"
+    },
+    "synthesis_failures": {
+      "minimum": 0,
+      "title": "Synthesis Failures",
+      "type": "integer"
+    },
+    "synthesis_total_ms": {
+      "minimum": 0,
+      "title": "Synthesis Total Ms",
+      "type": "number"
+    },
+    "tasks_cancelled": {
+      "minimum": 0,
+      "title": "Tasks Cancelled",
+      "type": "integer"
+    },
+    "tasks_failed": {
+      "minimum": 0,
+      "title": "Tasks Failed",
+      "type": "integer"
+    },
+    "tasks_queued": {
+      "minimum": 0,
+      "title": "Tasks Queued",
+      "type": "integer"
+    },
+    "tasks_succeeded": {
+      "minimum": 0,
+      "title": "Tasks Succeeded",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "collected_at",
+    "tasks_queued",
+    "tasks_succeeded",
+    "tasks_failed",
+    "tasks_cancelled",
+    "cache_hits",
+    "synthesis_attempts",
+    "synthesis_failures",
+    "synthesis_total_ms",
+    "average_synthesis_ms"
+  ],
+  "title": "DigitalHumanMetricsResponse",
+  "type": "object"
+}

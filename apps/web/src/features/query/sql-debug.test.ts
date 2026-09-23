@@ -1,5 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { afterEach, expect, test, vi } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { useAuthStore } from "../../stores/auth";
 
 import type { Datasource } from "../datasources/types";
 import SqlDebugView from "./SqlDebugView.vue";
@@ -72,10 +74,33 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+beforeEach(() => {
+  setActivePinia(createPinia());
+  useAuthStore().state = { status: "authenticated", username: "admin", role: "admin" };
+});
+
 afterEach(() => {
   adapterCalls.splice(0);
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+
+test("viewer can query shared data without saving a new dataset", async () => {
+  useAuthStore().state = { status: "authenticated", username: "viewer", role: "viewer" };
+  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse({
+    columns: [], rows: [], row_count: 0, duration_ms: 1, truncated: false, request_id: "query-read",
+  }))));
+  const wrapper = mount(SqlDebugView, {
+    props: { datasource },
+    global: { stubs: { SchemaBrowser: true, SaveDatasetDialog: true } },
+  });
+  await wrapper.get("textarea").setValue("SELECT 1");
+  await wrapper.get('[data-action="run-query"]').trigger("click");
+  await flushPromises();
+  expect(wrapper.text()).toContain("query-read");
+  expect(wrapper.text()).not.toContain("保存为数据集");
+  expect(wrapper.find("save-dataset-dialog-stub").exists()).toBe(false);
+  wrapper.unmount();
 });
 
 test("uses the source dialect and emits one run for either keyboard shortcut", async () => {

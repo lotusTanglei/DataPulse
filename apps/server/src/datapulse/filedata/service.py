@@ -1,10 +1,11 @@
+import asyncio
 from pathlib import Path
 from time import perf_counter
 
 from datapulse.contracts.dataset import FileFormat
 from datapulse.contracts.filedata import FileAssetResponse, FilePreviewResponse
 from datapulse.filedata.parsers import FileParseInvalid, excel_sheet_names, parse_file
-from datapulse.filedata.repository import FileAssetRepository
+from datapulse.filedata.repository import FileAssetNotFound, FileAssetRepository
 from datapulse.filedata.storage import FileStorage
 from datapulse.query.models import QueryColumn, QueryResult
 
@@ -54,11 +55,18 @@ class FileAssetService:
                 row_count=parsed.row_count,
                 fields_json=[field.model_dump(mode="json") for field in parsed.fields],
             )
-        except Exception:
+        except (Exception, asyncio.CancelledError):
             # Parsing and metadata creation are one ingest transaction from the
             # user's perspective; do not leave files that cannot be addressed.
             try:
-                self._storage.delete(stored.asset_id)
+                # A cancellation can arrive just after a metadata commit. Keep
+                # any committed asset's file and clean only unpublished uploads.
+                await asyncio.shield(self._repository.get(stored.asset_id))
+            except FileAssetNotFound:
+                try:
+                    self._storage.delete(stored.asset_id)
+                except Exception:
+                    pass
             except Exception:
                 pass
             raise
@@ -72,6 +80,16 @@ class FileAssetService:
         return await self._repository.get(asset_id)
 
     async def preview(
+        self,
+        asset_id: str,
+        *,
+        sheet_name: str | None,
+        request_id: str,
+    ) -> FilePreviewResponse:
+        async with self._storage.operation_lock(asset_id):
+            return await self._preview(asset_id, sheet_name=sheet_name, request_id=request_id)
+
+    async def _preview(
         self,
         asset_id: str,
         *,
@@ -117,13 +135,14 @@ class FileAssetService:
         )
 
     async def delete(self, asset_id: str) -> None:
-        await self._repository.get(asset_id)
-        if await self._repository.is_referenced(asset_id):
-            from datapulse.filedata.repository import FileInUse
+        async with self._storage.operation_lock(asset_id):
+            await self._repository.get(asset_id)
+            if await self._repository.is_referenced(asset_id):
+                from datapulse.filedata.repository import FileInUse
 
-            raise FileInUse(asset_id)
-        await self._repository.delete(asset_id)
-        self._storage.delete(asset_id)
+                raise FileInUse(asset_id)
+            await self._repository.delete(asset_id)
+            self._storage.delete(asset_id)
 
     async def update_parsed_metadata(
         self,

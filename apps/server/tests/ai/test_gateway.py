@@ -71,6 +71,7 @@ class FakeAsyncClient:
 
 
 async def test_gateway_posts_openai_compatible_json_request() -> None:
+    AiGateway.clear_capability_cache()
     client = FakeAsyncClient(
         responses=(openai_response(AiAnalysisDraft(**ai_response_payload()).model_dump_json()),),
     )
@@ -103,7 +104,14 @@ async def test_gateway_posts_openai_compatible_json_request() -> None:
             {"role": "system", "content": "You are an analyst."},
             {"role": "user", "content": "Question: 按月份汇总销售额"},
         ],
-        "response_format": {"type": "json_object"},
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "aianalysisdraft",
+                "strict": True,
+                "schema": AiAnalysisDraft.model_json_schema(),
+            },
+        },
     }
 
 
@@ -284,3 +292,65 @@ async def test_gateway_closes_owned_client() -> None:
     await gateway.aclose()
 
     assert client.closed is True
+
+
+async def test_gateway_falls_back_from_strict_schema_and_caches_provider_capability() -> None:
+    AiGateway.clear_capability_cache()
+    client = FakeAsyncClient(
+        responses=(
+            httpx.Response(
+                400,
+                request=httpx.Request("POST", "https://llm.test/chat/completions"),
+                json={"error": {"message": "json_schema response_format is not supported"}},
+            ),
+            openai_response(AiAnalysisDraft(**ai_response_payload()).model_dump_json()),
+            openai_response(AiAnalysisDraft(**ai_response_payload()).model_dump_json()),
+        ),
+    )
+    gateway = AiGateway(
+        enabled=True,
+        base_url="https://llm.test",
+        api_key="secret",
+        model="gpt-4.1-mini",
+        timeout_seconds=5,
+        client=client,
+    )
+
+    await gateway.complete_json(system="system", user="first", response_model=AiAnalysisDraft)
+    await gateway.complete_json(system="system", user="second", response_model=AiAnalysisDraft)
+
+    assert client.calls[0]["json"]["response_format"]["type"] == "json_schema"
+    assert client.calls[1]["json"]["response_format"] == {"type": "json_object"}
+    assert client.calls[2]["json"]["response_format"] == {"type": "json_object"}
+
+
+@pytest.mark.parametrize(
+    ("status", "code"),
+    [(429, "AI_RATE_LIMITED"), (400, "AI_PROVIDER_4XX"), (500, "AI_UNAVAILABLE")],
+)
+async def test_gateway_classifies_provider_http_statuses(status: int, code: str) -> None:
+    responses = (
+        httpx.Response(
+            status,
+            request=httpx.Request("POST", "https://llm.test/chat/completions"),
+            json={"error": {"message": "provider failure"}},
+        ),
+        httpx.Response(
+            status,
+            request=httpx.Request("POST", "https://llm.test/chat/completions"),
+            json={"error": {"message": "provider failure"}},
+        ),
+    )
+    gateway = AiGateway(
+        enabled=True,
+        base_url="https://llm.test",
+        api_key="secret",
+        model="gpt-4.1-mini",
+        timeout_seconds=5,
+        client=FakeAsyncClient(responses=responses),
+    )
+
+    with pytest.raises(AiGatewayError) as error:
+        await gateway.complete_json(system="system", user="user", response_model=AiAnalysisDraft)
+
+    assert error.value.code == code

@@ -1,0 +1,109 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/digital-human-settings.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "ai_context_limit": {
+      "default": 100,
+      "maximum": 10000,
+      "minimum": 1,
+      "title": "Ai Context Limit",
+      "type": "integer"
+    },
+    "ai_enabled": {
+      "default": true,
+      "title": "Ai Enabled",
+      "type": "boolean"
+    },
+    "ai_model": {
+      "default": "",
+      "maxLength": 120,
+      "title": "Ai Model",
+      "type": "string"
+    },
+    "cooldown_seconds": {
+      "default": 5,
+      "maximum": 86400,
+      "minimum": 0,
+      "title": "Cooldown Seconds",
+      "type": "number"
+    },
+    "daily_audio_seconds_limit": {
+      "default": 36000,
+      "exclusiveMinimum": 0,
+      "maximum": 10000000,
+      "title": "Daily Audio Seconds Limit",
+      "type": "number"
+    },
+    "daily_task_limit": {
+      "default": 1000,
+      "maximum": 1000000,
+      "minimum": 1,
+      "title": "Daily Task Limit",
+      "type": "integer"
+    },
+    "data_retention_days": {
+      "default": 30,
+      "maximum": 3650,
+      "minimum": 1,
+      "title": "Data Retention Days",
+      "type": "integer"
+    },
+    "default_muted": {
+      "default": false,
+      "title": "Default Muted",
+      "type": "boolean"
+    },
+    "default_subtitles": {
+      "default": true,
+      "title": "Default Subtitles",
+      "type": "boolean"
+    },
+    "enabled": {
+      "default": true,
+      "title": "Enabled",
+      "type": "boolean"
+    },
+    "forbidden_words": {
+      "items": {
+        "maxLength": 120,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 200,
+      "title": "Forbidden Words",
+      "type": "array"
+    },
+    "manual_review_required": {
+      "default": false,
+      "title": "Manual Review Required",
+      "type": "boolean"
+    },
+    "max_speech_seconds": {
+      "default": 30,
+      "exclusiveMinimum": 0,
+      "maximum": 3600,
+      "title": "Max Speech Seconds",
+      "type": "number"
+    },
+    "sensitive_patterns": {
+      "items": {
+        "maxLength": 500,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 50,
+      "title": "Sensitive Patterns",
+      "type": "array"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "updated_at"
+  ],
+  "title": "DigitalHumanSettingsResponse",
+  "type": "object"
+}

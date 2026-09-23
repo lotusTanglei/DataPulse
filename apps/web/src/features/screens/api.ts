@@ -7,6 +7,8 @@ import type {
   ScreenDraftUpdatePayload,
   ScreenAccessPolicy,
   ScreenSummary,
+  DashboardPlanCompilePayload,
+  DashboardPlanCompileResponse,
 } from "./types";
 
 const SCREENS_PATH = "/api/admin/screens";
@@ -27,6 +29,15 @@ export function getScreen(
 
 export function createScreen(payload: ScreenCreatePayload): Promise<Screen> {
   return apiRequest<Screen>(SCREENS_PATH, {
+    method: "POST",
+    json: payload,
+  });
+}
+
+export function compileDashboardPlan(
+  payload: DashboardPlanCompilePayload,
+): Promise<DashboardPlanCompileResponse> {
+  return apiRequest<DashboardPlanCompileResponse>(`${SCREENS_PATH}/plan/compile`, {
     method: "POST",
     json: payload,
   });

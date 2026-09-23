@@ -3,7 +3,12 @@ from datetime import datetime
 from pydantic import Field, model_validator
 
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
-from datapulse.contracts.dataset import DatasetDefinition, DatasetParameter, RestQuery
+from datapulse.contracts.dataset import (
+    DatasetDefinition,
+    DatasetFieldOverride,
+    DatasetParameter,
+    RestQuery,
+)
 
 
 class DatasetCreate(ContractModel):
@@ -27,6 +32,7 @@ class DatasetUpdate(ContractModel):
     sql: NonBlankStr | None = None
     query: RestQuery | None = None
     parameters: tuple[DatasetParameter, ...] | None = None
+    profile_overrides: tuple[DatasetFieldOverride, ...] | None = None
     max_rows: int | None = Field(default=None, ge=1, le=5000)
     timeout_seconds: int | None = Field(default=None, ge=1, le=300)
 
@@ -39,6 +45,7 @@ class DatasetUpdate(ContractModel):
                 self.sql,
                 self.query,
                 self.parameters,
+                self.profile_overrides,
                 self.max_rows,
                 self.timeout_seconds,
             )

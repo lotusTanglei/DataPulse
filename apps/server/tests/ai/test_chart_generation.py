@@ -115,7 +115,9 @@ class FakeContextService:
         dataset_ids: tuple[str, ...],
         *,
         max_rows: int,
+        question: str | None = None,
     ) -> tuple[DatasetContext, ...]:
+        del question
         assert dataset_ids == ("sales",)
         assert max_rows == 100
         return self.contexts

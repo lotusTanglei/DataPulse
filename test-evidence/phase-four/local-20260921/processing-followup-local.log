@@ -1,0 +1,83 @@
+.........................F.............................................. [ 88%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+_ test_delete_waits_for_preview_in_another_service_without_removing_parser_workspace _
+
+tmp_path = PosixPath('/private/var/folders/vn/mfggccds6x1dy3d4pn48_2680000gn/T/pytest-of-dundundebaba/pytest-89/test_delete_waits_for_preview_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x112ec2b50>
+
+    async def test_delete_waits_for_preview_in_another_service_without_removing_parser_workspace(
+        tmp_path, monkeypatch
+    ):
+        migrate_database(tmp_path / "datapulse.db")
+        settings = Settings(data_dir=tmp_path)
+        engine = create_metadata_engine(settings)
+        other_engine = create_metadata_engine(settings)
+        repository = FileAssetRepository(create_session_factory(engine))
+        storage = FileStorage(settings, id_factory=lambda: "preview-delete")
+        service = FileAssetService(repository=repository, storage=storage)
+        other = FileAssetService(
+            repository=FileAssetRepository(create_session_factory(other_engine)),
+            storage=FileStorage(settings),
+        )
+        upload = UploadFile(
+            io.BytesIO(b"region,amount\nEast,12\n"),
+            filename="sales.csv",
+            headers=Headers({"content-type": "text/csv"}),
+        )
+        asset = await service.ingest(upload, request_id="setup")
+        started = asyncio.Event()
+        release = asyncio.Event()
+        original = asyncio.create_subprocess_exec
+    
+        async def capture(*args, **kwargs):
+            process = await original(*args, **kwargs)
+            started.set()
+            await release.wait()
+            return process
+    
+        monkeypatch.setattr(asyncio, "create_subprocess_exec", capture)
+        preview = asyncio.create_task(service.preview(asset.id, sheet_name=None, request_id="preview"))
+        deletion = None
+        try:
+            await asyncio.wait_for(started.wait(), timeout=3)
+            deletion = asyncio.create_task(other.delete(asset.id))
+            await asyncio.sleep(0.1)
+            assert not deletion.done(), "Deletion must wait until the preview releases its source"
+            release.set()
+            result = await asyncio.wait_for(preview, timeout=5)
+            await asyncio.wait_for(deletion, timeout=5)
+>           assert result.result.rows == (("East", 12),)
+E           AssertionError: assert (('East', '12'),) == (('East', 12),)
+E             
+E             At index 0 diff: ('East', '12') != ('East', 12)
+E             Use -v to get more diff
+
+apps/server/tests/filedata/test_service.py:93: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+=========================== short test summary info ============================
+FAILED apps/server/tests/filedata/test_service.py::test_delete_waits_for_preview_in_another_service_without_removing_parser_workspace
+1 failed, 80 passed in 91.81s (0:01:31)

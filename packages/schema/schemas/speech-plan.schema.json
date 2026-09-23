@@ -1,0 +1,85 @@
+{
+  "$id": "https://datapulse.dev/schemas/v1/speech-plan.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "component_id": {
+      "minLength": 1,
+      "title": "Component Id",
+      "type": "string"
+    },
+    "content_hash": {
+      "title": "Content Hash",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "id": {
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "pitch": {
+      "default": 1,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Pitch",
+      "type": "number"
+    },
+    "provider_id": {
+      "title": "Provider Id",
+      "type": "string"
+    },
+    "provider_version": {
+      "title": "Provider Version",
+      "type": "string"
+    },
+    "rate": {
+      "default": 1,
+      "maximum": 2,
+      "minimum": 0.5,
+      "title": "Rate",
+      "type": "number"
+    },
+    "screen_id": {
+      "minLength": 1,
+      "title": "Screen Id",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "voice": {
+      "title": "Voice",
+      "type": "string"
+    },
+    "volume": {
+      "default": 1,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Volume",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "screen_id",
+    "component_id",
+    "text",
+    "language",
+    "provider_id",
+    "voice",
+    "provider_version",
+    "content_hash",
+    "created_at"
+  ],
+  "title": "SpeechPlanResponse",
+  "type": "object"
+}

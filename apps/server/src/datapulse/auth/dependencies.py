@@ -1,6 +1,7 @@
 from fastapi import Request
 
 from datapulse.errors import DataPulseError
+from datapulse.identity.policy import authorize_request
 from datapulse.metadata import AdminAccount
 
 
@@ -34,6 +35,7 @@ async def require_admin(request: Request) -> AdminAccount:
         )
     request.state.admin = admin
     request.state.session_token = session_token
+    await authorize_request(request, admin)
     return admin
 
 
