@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "packs": [
+    {
+      "id": "business",
+      "name": "经营分析",
+      "template_id": "overview-grid",
+      "sample_data": "fixtures/golden/business/data.csv",
+      "field_mapping": {
+        "time": "日期",
+        "dimension": "区域",
+        "measure": "销售额"
+      }
+    },
+    {
+      "id": "operations",
+      "name": "运营监控",
+      "template_id": "analysis-lab",
+      "sample_data": "fixtures/golden/operations/data.csv",
+      "field_mapping": {
+        "time": "日期",
+        "dimension": "渠道",
+        "measure": "活跃用户"
+      }
+    },
+    {
+      "id": "sales",
+      "name": "销售分析",
+      "template_id": "comparison-board",
+      "sample_data": "fixtures/golden/sales/data.csv",
+      "field_mapping": {
+        "time": "成交日期",
+        "dimension": "销售区域",
+        "measure": "成交金额"
+      }
+    },
+    {
+      "id": "equipment",
+      "name": "设备监控",
+      "template_id": "status-wall",
+      "sample_data": "fixtures/golden/equipment/data.csv",
+      "field_mapping": {
+        "time": "采集时间",
+        "dimension": "区域",
+        "measure": "运行时长"
+      }
+    }
+  ]
+}

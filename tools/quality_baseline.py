@@ -279,7 +279,10 @@ def _elapsed_ms(started: float) -> int:
 
 
 def _cost_usd(input_tokens: int, output_tokens: int, model: str) -> float:
-    input_price, output_price = PRICING_USD_PER_MILLION.get(model, (0.0, 0.0))
+    prices = PRICING_USD_PER_MILLION.get(model)
+    if prices is None:
+        raise ValueError(f"pricing is not configured for model: {model}")
+    input_price, output_price = prices
     return round((input_tokens * input_price + output_tokens * output_price) / 1_000_000, 6)
 
 
@@ -302,6 +305,11 @@ def aggregate_results(
         result.chart_type in case.expected_chart_types
         for case, result in zip(cases, results, strict=True)
     )
+    semantic_matches = sum(
+        all(result.bindings.get(field) == field for field in case.expected_bindings)
+        and result.chart_type in case.expected_chart_types
+        for case, result in zip(cases, results, strict=True)
+    )
     failures: dict[str, int] = {}
     for result in results:
         if result.error_code:
@@ -319,6 +327,7 @@ def aggregate_results(
         if expected_binding_count
         else 1.0,
         "field_bindings": {"correct": correct_bindings, "expected": expected_binding_count},
+        "semantic_match_rate": round(semantic_matches / total, 6),
         "chart_type_reasonable_rate": round(reasonable_charts / total, 6),
         "warning_count": sum(result.warning_count for result in results),
         "draft_produced_rate": round(sum(result.draft_produced for result in results) / total, 6),

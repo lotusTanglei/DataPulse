@@ -4,6 +4,11 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "echarts-liquidfill/index.js": ["src/types/echarts-liquidfill.d.ts"],
+      "echarts-wordcloud/index.js": ["src/types/echarts-wordcloud.d.ts"]
+    },
     "strict": true,
     "jsx": "preserve",
     "resolveJsonModule": true,

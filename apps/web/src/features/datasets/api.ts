@@ -5,6 +5,7 @@ import type {
   DatasetPreviewPayload,
   DatasetProfile,
   DatasetProfilePatch,
+  DatasetRecommendations,
   DatasetUpdatePayload,
   QueryResult,
 } from "./types";
@@ -42,6 +43,16 @@ export function updateDatasetProfile(
   return apiRequest<DatasetProfile>(
     `${DATASETS_PATH}/${encodeURIComponent(datasetId)}/profile`,
     { method: "PATCH", json: payload },
+  );
+}
+
+export function getDatasetRecommendations(
+  datasetId: string,
+  signal?: AbortSignal,
+): Promise<DatasetRecommendations> {
+  return apiRequest<DatasetRecommendations>(
+    `${DATASETS_PATH}/${encodeURIComponent(datasetId)}/recommendations`,
+    { signal },
   );
 }
 

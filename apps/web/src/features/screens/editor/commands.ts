@@ -85,11 +85,30 @@ export type EditorCommand =
   | { type: "update_refresh"; refresh: Refresh }
   | { type: "set_parameters"; parameters: DashboardParameter[] };
 
+export interface VersionedEditorCommand {
+  schema_version: 1;
+  command: EditorCommand;
+}
+
 export class EditorCommandError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "EditorCommandError";
   }
+}
+
+export function migrateEditorCommand(
+  value: EditorCommand | VersionedEditorCommand,
+): VersionedEditorCommand {
+  if ("schema_version" in value) {
+    if (value.schema_version !== 1) {
+      throw new EditorCommandError(
+        `Unsupported editor command schema version: ${String(value.schema_version)}`,
+      );
+    }
+    return structuredClone(value);
+  }
+  return { schema_version: 1, command: structuredClone(value) };
 }
 
 function components(document: DashboardDocument): ComponentInstance[] {
@@ -181,8 +200,9 @@ function remapDigitalHumanReferences(
 
 export function applyCommand(
   document: DashboardDocument,
-  command: EditorCommand,
+  value: EditorCommand | VersionedEditorCommand,
 ): DashboardDocument {
+  const command = migrateEditorCommand(value).command;
   const next = structuredClone(document);
   switch (command.type) {
     case "migrate_plugin": {

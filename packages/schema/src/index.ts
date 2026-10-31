@@ -2,6 +2,7 @@ export type { AiEditResponse } from "./generated/ai-edit-response.js";
 export type { AnalysisPlan } from "./generated/analysis-plan.js";
 export type { CatalogPackage } from "./generated/catalog-package.js";
 export type { ChartSpec } from "./generated/chart-spec.js";
+export type { ComponentContract } from "./generated/component-contract.js";
 export type { DashboardDocument } from "./generated/dashboard-document.js";
 export type { DashboardPlan } from "./generated/dashboard-plan.js";
 export type { DatasetDefinition } from "./generated/dataset-definition.js";

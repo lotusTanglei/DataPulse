@@ -77,3 +77,61 @@ def test_dashboard_plan_rejects_duplicate_ids() -> None:
 
     with pytest.raises(ValidationError):
         DashboardPlan.model_validate(payload)
+
+
+def test_dashboard_plan_carries_linkage_time_grain_and_drilldown_without_coordinates() -> None:
+    payload = plan_payload()
+    payload["parameters"] = (
+        {
+            "id": "region",
+            "name": "region",
+            "data_type": "string",
+            "default": "east",
+        },
+        {
+            "id": "time-grain",
+            "name": "time_grain",
+            "data_type": "string",
+            "default": "month",
+            "allowed_values": ["day", "week", "month", "quarter", "year"],
+        },
+        {"id": "geo-level", "name": "geo_level", "data_type": "integer", "default": 0},
+        {
+            "id": "selected-region",
+            "name": "selected_region",
+            "data_type": "string",
+            "default": "east",
+        },
+        {
+            "id": "selected-city",
+            "name": "selected_city",
+            "data_type": "string",
+            "default": "",
+        },
+    )
+    widget = dict(payload["widgets"][0])  # type: ignore[index]
+    widget["dimensions"] = ("month", "region")
+    widget["time_buckets"] = ({"field": "month", "parameter": "time_grain"},)
+    widget["drill_down"] = {
+        "level_parameter": "geo_level",
+        "levels": (
+            {"field": "region", "selection_parameter": "selected_region"},
+            {"field": "city", "selection_parameter": "selected_city"},
+        ),
+    }
+    widget["interactions"] = (
+        {
+            "event": "click",
+            "action": "set_parameter",
+            "parameter": "region",
+            "field": "region",
+        },
+    )
+    payload["widgets"] = (widget,)
+
+    plan = DashboardPlan.model_validate(payload)
+
+    assert plan.widgets[0].time_buckets[0].parameter == "time_grain"
+    assert plan.widgets[0].drill_down.levels[1].field == "city"
+    assert plan.widgets[0].interactions[0].parameter == "region"
+    assert '"frame"' not in json.dumps(plan.model_dump(mode="json"))

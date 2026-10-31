@@ -5,7 +5,6 @@ from typing import NoReturn
 from fastapi import APIRouter, Depends, Query, Request, Response
 from fastapi.responses import PlainTextResponse
 
-from datapulse.ai.models import AiGatewayError
 from datapulse.auth.dependencies import require_admin, require_csrf
 from datapulse.contracts.speech import (
     DigitalHumanAuditResponse,
@@ -125,10 +124,6 @@ def _raise(error: Exception) -> NoReturn:
             code=error.args[0] if error.args else error.code,
             message="The digital human speech quota has been reached.",
             status_code=429,
-        ) from error
-    if isinstance(error, AiGatewayError):
-        raise DataPulseError(
-            code=error.code, message="The AI speech preview is unavailable.", status_code=503
         ) from error
     raise error
 
@@ -351,7 +346,7 @@ async def audit(
 async def draft(payload: SpeechDraftRequest, request: Request) -> SpeechDraftResponse:
     try:
         return await request.app.state.speech_service.draft(payload)
-    except (SpeechProviderUnavailable, AiGatewayError) as error:
+    except SpeechProviderUnavailable as error:
         _raise(error)
 
 

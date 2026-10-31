@@ -86,6 +86,22 @@ test("viewer opens previews and has no create, copy or delete actions", async ()
   expect(wrapper.find('[data-action="delete-screen"]').exists()).toBe(false);
 });
 
+test("hides AI creation while keeping manual and template paths available", async () => {
+  const auth = useAuthStore() as unknown as { aiEnabled: boolean };
+  auth.aiEnabled = false;
+  vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(jsonResponse([]))));
+  const router = testRouter();
+  await router.push("/");
+  await router.isReady();
+
+  const wrapper = mount(ScreenListView, { global: { plugins: [router] } });
+  await flushPromises();
+
+  expect(wrapper.find('[data-action="open-ai-screen"]').exists()).toBe(false);
+  expect(wrapper.find('[data-action="open-template-screen"]').exists()).toBe(true);
+  expect(wrapper.find('[data-action="open-create-screen"]').exists()).toBe(true);
+});
+
 test.each([false, true])("editor screen controls follow server write permission %s", async (write) => {
   useAuthStore().state = { status: "authenticated", username: "editor", role: "editor" };
   vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => Promise.resolve(jsonResponse(
@@ -428,6 +444,7 @@ test("creates an AI draft only after confirmation and does not publish it", asyn
   await flushPromises();
 
   await wrapper.get('[data-action="open-ai-screen"]').trigger("click");
+  await vi.dynamicImportSettled();
   await flushPromises();
   expect(wrapper.get('[role="dialog"]').text()).toContain("AI 生成大屏");
 

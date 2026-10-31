@@ -611,6 +611,8 @@ test("shows the dataset profile and submits a field correction", async () => {
         cardinality: 2,
         uniqueness_ratio: 0.67,
         sample_values: ["2026-01"],
+        format: "YYYY-MM",
+        aliases: ["月份"],
       },
       {
         name: "amount",
@@ -662,6 +664,8 @@ test("shows the dataset profile and submits a field correction", async () => {
   await wrapper.get('[data-profile-aggregation="month"]').setValue("avg");
   await wrapper.get('[data-profile-unit="month"]').setValue("月");
   await wrapper.get('[data-profile-display-name="month"]').setValue("月份");
+  await wrapper.get('[data-profile-format="month"]').setValue("YYYY年MM月");
+  await wrapper.get('[data-profile-aliases="month"]').setValue("月份, 月度");
   await wrapper.get('[data-action="save-profile"]').trigger("click");
   await flushPromises();
 
@@ -673,7 +677,90 @@ test("shows the dataset profile and submits a field correction", async () => {
       default_aggregation: "avg",
       unit: "月",
       display_name: "月份",
+      format: "YYYY年MM月",
+      aliases: ["月份", "月度"],
     }],
   });
   expect((wrapper.get('[data-profile-role="month"]').element as HTMLSelectElement).value).toBe("dimension");
+});
+
+test("shows deterministic recommendations when AI is disabled", async () => {
+  useAuthStore().aiEnabled = false;
+  const profile = {
+    dataset_id: dataset.id,
+    name: dataset.name,
+    row_count: 3,
+    sampled: false,
+    fields: [
+      {
+        name: "month",
+        data_type: "string",
+        role: "temporal",
+        nullable: false,
+        null_count: 0,
+        unique_count: 2,
+        cardinality: 2,
+        uniqueness_ratio: 0.67,
+        sample_values: ["2026-01"],
+      },
+      {
+        name: "amount",
+        data_type: "number",
+        role: "measure",
+        nullable: false,
+        null_count: 0,
+        unique_count: 3,
+        cardinality: 3,
+        uniqueness_ratio: 1,
+        sample_values: [100],
+      },
+    ],
+  };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/admin/datasets/dataset-1" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse(dataset));
+      }
+      if (url === "/api/admin/datasources/source-1" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse({ id: "source-1", config: { type: "sqlite" } }));
+      }
+      if (url === "/api/admin/datasets/dataset-1/profile" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse(profile));
+      }
+      if (url === "/api/admin/datasets/dataset-1/recommendations" && init?.method === "GET") {
+        return Promise.resolve(jsonResponse({
+          dataset_id: dataset.id,
+          fields: [
+            { field: "month", role: "temporal", aggregation: "count" },
+            { field: "amount", role: "measure", aggregation: "sum" },
+          ],
+          charts: [
+            {
+              dataset_id: dataset.id,
+              chart_type: "line",
+              dimensions: ["month"],
+              measures: ["amount"],
+              reason: "时间字段与指标适合趋势分析",
+            },
+          ],
+        }));
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }),
+  );
+  const router = testRouter();
+  await router.push("/studio/datasets/dataset-1");
+  await router.isReady();
+
+  const wrapper = mount(DatasetDetailView, { global: { plugins: [router] } });
+  await flushPromises();
+
+  expect(wrapper.find(".dataset-ai-panel").exists()).toBe(false);
+  expect(wrapper.get('[data-section="rule-recommendations"]').text()).toContain("规则推荐");
+  expect(wrapper.get('[data-recommendation-field="amount"]').text()).toContain("sum");
+  expect(wrapper.get('[data-recommendation-chart="line"]').text()).toContain(
+    "时间字段与指标适合趋势分析",
+  );
 });

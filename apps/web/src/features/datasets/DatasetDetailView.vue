@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { Play, Save, Trash2 } from "@lucide/vue";
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onBeforeUnmount,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
+import { useAuthStore } from "../../stores/auth";
 import InlineNotice from "../../ui/InlineNotice.vue";
 import { useStudioPermissions } from "../identity/permissions";
-import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
 import { getDatasource } from "../datasources/api";
 import { listFileAssets } from "../files/api";
 import type { FileAsset } from "../files/types";
@@ -23,6 +30,7 @@ import {
   deleteDataset,
   getDataset,
   getDatasetProfile,
+  getDatasetRecommendations,
   previewDataset,
   updateDatasetProfile,
   updateDataset,
@@ -33,20 +41,29 @@ import type {
   DatasetFieldProfile,
   DatasetFieldRole,
   DatasetProfile,
+  DatasetRecommendations,
 } from "./types";
 
 const route = useRoute();
 const router = useRouter();
+const auth = useAuthStore();
+const AiAnalysisPanel = defineAsyncComponent(
+  () => import("../ai/AiAnalysisPanel.vue"),
+);
+const aiEnabled = computed(() => auth.aiEnabled);
 const { canCreate, canWriteResource } = useStudioPermissions();
 const canWrite = ref(false);
 const dataset = ref<Dataset | null>(null);
 const profile = ref<DatasetProfile | null>(null);
+const recommendations = ref<DatasetRecommendations | null>(null);
 const profileDraft = ref<Record<string, {
   data_type: string;
   role: DatasetFieldRole;
   default_aggregation: DatasetAggregation | "";
   unit: string;
   display_name: string;
+  format: string;
+  aliases: string;
 }>>({});
 const loading = ref(true);
 const saving = ref(false);
@@ -57,6 +74,7 @@ const loadError = ref<ApiError | null>(null);
 const formError = ref<ApiError | null>(null);
 const previewError = ref<ApiError | null>(null);
 const profileError = ref<ApiError | null>(null);
+const recommendationError = ref<ApiError | null>(null);
 const result = ref<QueryResult | null>(null);
 const fileAsset = ref<FileAsset | null>(null);
 const name = ref("");
@@ -103,6 +121,8 @@ function hydrateProfile(value: DatasetProfile): void {
       default_aggregation: field.default_aggregation ?? "",
       unit: field.unit ?? "",
       display_name: field.display_name ?? field.name,
+      format: field.format ?? "",
+      aliases: (field.aliases ?? []).join(", "),
     }]),
   );
 }
@@ -115,7 +135,9 @@ async function load(id: string): Promise<void> {
   loadError.value = null;
   canWrite.value = false;
   profile.value = null;
+  recommendations.value = null;
   profileError.value = null;
+  recommendationError.value = null;
   try {
     const [loaded, writable] = await Promise.all([
       getDataset(id, controller.signal), canWriteResource("dataset", id),
@@ -151,6 +173,20 @@ async function load(id: string): Promise<void> {
                 message: "暂时无法加载数据画像。",
                 requestId: "",
                 status: 500,
+          });
+        }
+      }
+      try {
+        recommendations.value = await getDatasetRecommendations(id, controller.signal);
+      } catch (reason) {
+        if (!controller.signal.aborted) {
+          recommendationError.value = reason instanceof ApiError
+            ? reason
+            : new ApiError({
+                code: "DATASET_RECOMMENDATIONS_LOAD_FAILED",
+                message: "暂时无法加载规则推荐。",
+                requestId: "",
+                status: 500,
               });
         }
       }
@@ -182,7 +218,7 @@ async function saveProfile(): Promise<void> {
   profileError.value = null;
   try {
     const corrections = profile.value.fields.flatMap((field) => {
-      const draft = profileDraft.value[field.name] ?? field;
+      const draft = profileDraft.value[field.name]!;
       const typeOrRoleChanged =
         draft.data_type !== field.data_type || draft.role !== field.role;
       const aggregationChanged =
@@ -190,7 +226,20 @@ async function saveProfile(): Promise<void> {
       const unitChanged = draft.unit !== (field.unit ?? "");
       const displayNameChanged =
         draft.display_name !== (field.display_name ?? field.name);
-      if (!typeOrRoleChanged && !aggregationChanged && !unitChanged && !displayNameChanged) {
+      const formatChanged = draft.format !== (field.format ?? "");
+      const aliases = draft.aliases
+        .split(/[,，]/)
+        .map((alias) => alias.trim())
+        .filter((alias, index, values) => alias !== "" && values.indexOf(alias) === index);
+      const aliasesChanged = JSON.stringify(aliases) !== JSON.stringify(field.aliases ?? []);
+      if (
+        !typeOrRoleChanged &&
+        !aggregationChanged &&
+        !unitChanged &&
+        !displayNameChanged &&
+        !formatChanged &&
+        !aliasesChanged
+      ) {
         return [];
       }
       const correction: {
@@ -200,6 +249,8 @@ async function saveProfile(): Promise<void> {
         default_aggregation?: DatasetAggregation;
         unit?: string;
         display_name?: string;
+        format?: string;
+        aliases?: string[];
       } = {
         name: field.name,
       };
@@ -215,6 +266,12 @@ async function saveProfile(): Promise<void> {
       }
       if (displayNameChanged && draft.display_name !== "") {
         correction.display_name = draft.display_name;
+      }
+      if (formatChanged && draft.format !== "") {
+        correction.format = draft.format;
+      }
+      if (aliasesChanged) {
+        correction.aliases = aliases;
       }
       return [correction];
     });
@@ -537,7 +594,7 @@ onBeforeUnmount(() => {
         <div class="dataset-profile__table-wrap">
           <table class="dataset-profile__table">
             <thead>
-              <tr><th>字段</th><th>类型</th><th>角色</th><th>聚合</th><th>单位</th><th>显示名</th><th>基数</th><th>空值</th></tr>
+              <tr><th>字段</th><th>类型</th><th>角色</th><th>聚合</th><th>单位</th><th>显示名</th><th>格式</th><th>别名</th><th>基数</th><th>空值</th></tr>
             </thead>
             <tbody>
               <tr v-for="field in profile.fields" :key="field.name">
@@ -605,16 +662,85 @@ onBeforeUnmount(() => {
                   />
                   <span v-else>{{ field.display_name || field.name }}</span>
                 </td>
+                <td>
+                  <input
+                    v-if="canWrite"
+                    :data-profile-format="field.name"
+                    v-model="profileDraft[field.name]!.format"
+                  />
+                  <span v-else>{{ field.format || "-" }}</span>
+                </td>
+                <td>
+                  <input
+                    v-if="canWrite"
+                    :data-profile-aliases="field.name"
+                    v-model="profileDraft[field.name]!.aliases"
+                  />
+                  <span v-else>{{ field.aliases?.join("、") || "-" }}</span>
+                </td>
                 <td>{{ field.cardinality }}</td>
                 <td>{{ field.null_count }}</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <ul
+          v-if="profile.quality_hints?.length"
+          class="dataset-profile__quality"
+          aria-label="数据质量提示"
+        >
+          <li v-for="hint in profile.quality_hints" :key="`${hint.code}:${hint.field ?? ''}`">
+            <strong>{{ hint.field || "数据集" }}</strong>
+            <span>{{ hint.message }}</span>
+          </li>
+        </ul>
+      </section>
+      <section
+        v-if="recommendations"
+        class="dataset-recommendations"
+        data-section="rule-recommendations"
+        aria-labelledby="dataset-recommendations-title"
+      >
+        <div>
+          <p class="page-eyebrow">Rules</p>
+          <h2 id="dataset-recommendations-title">规则推荐</h2>
+        </div>
+        <div class="dataset-recommendations__content">
+          <div>
+            <h3>字段角色与聚合</h3>
+            <ul>
+              <li
+                v-for="item in recommendations.fields"
+                :key="item.field"
+                :data-recommendation-field="item.field"
+              >
+                <code>{{ item.field }}</code>
+                <span>{{ item.role }} · {{ item.aggregation }}</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3>图表建议</h3>
+            <ul>
+              <li
+                v-for="item in recommendations.charts"
+                :key="`${item.chart_type}:${item.dimensions.join(',')}:${item.measures.join(',')}`"
+                :data-recommendation-chart="item.chart_type"
+              >
+                <strong>{{ item.chart_type }}</strong>
+                <span>{{ item.reason }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </section>
       <InlineNotice v-if="profileError" tone="error">
         <p>{{ profileError.message }}</p>
         <code v-if="profileError.requestId">{{ profileError.requestId }}</code>
+      </InlineNotice>
+      <InlineNotice v-if="recommendationError" tone="error">
+        <p>{{ recommendationError.message }}</p>
+        <code v-if="recommendationError.requestId">{{ recommendationError.requestId }}</code>
       </InlineNotice>
 
       <InlineNotice v-if="formError" tone="error">
@@ -627,7 +753,7 @@ onBeforeUnmount(() => {
       </InlineNotice>
 
       <AiAnalysisPanel
-        v-if="canCreate"
+        v-if="canCreate && aiEnabled"
         class="dataset-ai-panel"
         :fixed-dataset-id="dataset.id"
       />
@@ -683,5 +809,42 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid var(--border-color, #d6dde7);
   padding: 8px;
   white-space: nowrap;
+}
+.dataset-recommendations {
+  margin-top: 24px;
+}
+.dataset-recommendations h2,
+.dataset-recommendations h3,
+.dataset-recommendations p,
+.dataset-recommendations ul {
+  margin: 0;
+}
+.dataset-recommendations__content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 12px;
+}
+.dataset-recommendations ul {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.dataset-recommendations h3 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.dataset-recommendations li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color, #d6dde7);
+  padding: 8px 0;
+}
+@media (max-width: 760px) {
+  .dataset-recommendations__content {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

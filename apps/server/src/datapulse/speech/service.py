@@ -10,7 +10,6 @@ from uuid import uuid4
 
 import httpx
 
-from datapulse.ai.gateway import AiGateway
 from datapulse.contracts.speech import (
     DigitalHumanAuditResponse,
     DigitalHumanCacheClearResponse,
@@ -48,6 +47,7 @@ from datapulse.speech.providers import (
     synthesize as provider_synthesize,
 )
 from datapulse.speech.repository import SpeechQuotaRejected, SpeechRepository
+from datapulse.structured_output import StructuredOutputGateway
 
 
 class SpeechProviderUnavailable(RuntimeError):
@@ -84,7 +84,7 @@ class SpeechService:
         clock: Callable[[], datetime] | None = None,
         client: httpx.AsyncClient | None = None,
         timeout_seconds: float = 15,
-        ai_gateway: AiGateway | None = None,
+        ai_gateway: StructuredOutputGateway | None = None,
         asset_service: AssetService | None = None,
     ) -> None:
         self._repository = repository
@@ -939,12 +939,16 @@ class SpeechService:
             f"operation={data.operation}\nlanguage={data.language}\ntone={data.tone}\n"
             f"allowed_variables={variables}\nsource_text={data.source_text.strip()}"
         )
-        result = await self._ai_gateway.complete_json(
-            system=system,
-            user=user,
-            response_model=SpeechDraftResponse,
-            **({"model": settings.ai_model} if settings.ai_model else {}),
-        )
+        try:
+            result = await self._ai_gateway.complete_json(
+                system=system,
+                user=user,
+                response_model=SpeechDraftResponse,
+                **({"model": settings.ai_model} if settings.ai_model else {}),
+            )
+        except Exception as error:
+            code = getattr(error, "code", "SPEECH_AI_UNAVAILABLE")
+            raise SpeechProviderUnavailable(str(code)) from error
         try:
             placeholders = parse_speech_template(result.text)
         except ValueError as error:

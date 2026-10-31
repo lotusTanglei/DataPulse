@@ -31,6 +31,24 @@ export type BuiltinComponentType =
   | "builtin.alert_list"
   | "builtin.timeline"
   | "builtin.geo_map"
+  | "builtin.map_drilldown"
+  | "builtin.flow_map"
+  | "builtin.bubble_map"
+  | "builtin.relation_graph"
+  | "builtin.org_chart"
+  | "builtin.sankey"
+  | "builtin.steps"
+  | "builtin.gantt"
+  | "builtin.calendar_heatmap"
+  | "builtin.kpi_group"
+  | "builtin.metric_comparison"
+  | "builtin.video"
+  | "builtin.iframe"
+  | "builtin.word_cloud"
+  | "builtin.liquid_fill"
+  | "builtin.polar_bar"
+  | "builtin.rich_table"
+  | "builtin.screen_carousel"
   | "builtin.digital_human";
 
 export type DataCapability = "none" | "single" | "table" | "series" | "geo";
@@ -77,6 +95,22 @@ export interface PropertyGroup {
   properties: PropertyDefinition[];
 }
 
+export interface ComponentJsonSchema {
+  type: "object";
+  properties: Record<string, JsonValue>;
+  required?: string[];
+  additionalProperties?: boolean;
+}
+
+export interface ComponentContractDefinition {
+  schema_version: 1;
+  type: string;
+  version: string;
+  category: string;
+  props_schema: ComponentJsonSchema;
+  data_input_schema: ComponentJsonSchema;
+}
+
 export interface ComponentDefinition {
   type: string;
   label: string;
@@ -87,8 +121,13 @@ export interface ComponentDefinition {
   dataCapability: DataCapability;
   demoDataKind?: DemoDataKind;
   propertyGroups?: PropertyGroup[];
+  contract?: ComponentContractDefinition;
   component: Component;
 }
+
+export type VersionedComponentDefinition = ComponentDefinition & {
+  contract: ComponentContractDefinition;
+};
 
 export type QueryComponent = (
   componentId: string,
@@ -110,8 +149,13 @@ export interface ComponentQueryState {
   updatedAt?: number;
 }
 
-export interface RuntimeInteraction {
-  type: "set_parameter";
-  name: string;
-  value: JsonValue;
-}
+export type RuntimeInteraction =
+  | {
+      type: "set_parameter";
+      name: string;
+      value: JsonValue;
+    }
+  | {
+      type: "set_parameters";
+      values: RuntimeParameters;
+    };

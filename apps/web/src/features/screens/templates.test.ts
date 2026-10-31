@@ -4,8 +4,10 @@ import type { Dataset } from "../datasets/types";
 import {
   createTemplateDocument,
   createTemplatePlan,
+  industryScenarioPacks,
   screenTemplates,
 } from "./templates";
+import { migrateTemplateDocument } from "./migrations";
 
 const dataset = {
   id: "sales",
@@ -43,6 +45,20 @@ test("provides five independent dashboard templates", () => {
       expect(component.frame.y + component.frame.height).toBeLessThanOrEqual(1080);
     }
   }
+});
+
+test("provides four industry scenario packs backed by committed fixtures", () => {
+  expect(industryScenarioPacks.map((pack) => pack.id)).toEqual([
+    "business",
+    "operations",
+    "sales",
+    "equipment",
+  ]);
+  expect(
+    industryScenarioPacks.every(
+      (pack) => pack.sampleData.startsWith("fixtures/golden/") && pack.templateId,
+    ),
+  ).toBe(true);
 });
 
 test("returns a fresh document for each template creation", () => {
@@ -98,5 +114,35 @@ test("prefers business measures over numeric time and identifier fields", () => 
   );
   expect(plan.widgets?.map((widget) => widget.chart_type)).not.toContain(
     "radar",
+  );
+});
+
+test("legacy template documents migrate while future versions fail closed", () => {
+  const legacy = {
+    canvas: { width: 1920, height: 1080 },
+    components: [
+      {
+        id: "legacy",
+        type: "builtin.text",
+        frame: { x: 0, y: 0, width: 200, height: 80 },
+      },
+    ],
+  };
+
+  expect(migrateTemplateDocument(legacy)).toMatchObject({
+    schema_version: 1,
+    components: [{ schema_version: 1, contract_version: "1.0.0" }],
+  });
+  expect(() =>
+    migrateTemplateDocument({ ...legacy, schema_version: 2 }),
+  ).toThrow("Unsupported dashboard document schema version: 2");
+  expect(() =>
+    migrateTemplateDocument({
+      ...legacy,
+      components: [{ ...legacy.components[0], contract_version: "2.0.0" }],
+    }),
+  ).toThrow("Unsupported component contract version: 2.0.0");
+  expect(screenTemplates.every((template) => template.schemaVersion === 1)).toBe(
+    true,
   );
 });

@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+} from "vue";
 import { useRoute } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../stores/auth";
 import { getResourceAccess } from "../identity/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
-import AiAnalysisPanel from "../ai/AiAnalysisPanel.vue";
-import AiEditPanel from "../ai/AiEditPanel.vue";
 import type { JsonValue } from "../query/types";
 import { provideEditorPlugins } from "../ecosystem/editorPlugins";
 import { generateDisplayKey, publishScreen, updateScreenAccessPolicy } from "./api";
@@ -23,9 +27,14 @@ import { useScreenEditorStore } from "./editor/store";
 
 const route = useRoute();
 const store = useScreenEditorStore();
+const AiAnalysisPanel = defineAsyncComponent(
+  () => import("../ai/AiAnalysisPanel.vue"),
+);
+const AiEditPanel = defineAsyncComponent(() => import("../ai/AiEditPanel.vue"));
 const componentRegistry = provideEditorPlugins(() => store.document);
 const screenId = computed(() => String(route.params.id));
 const auth = useAuthStore();
+const aiEnabled = computed(() => auth.aiEnabled);
 const publishAllowed = ref(false);
 const canvas = ref<InstanceType<typeof ScreenCanvas> | null>(null);
 const publishConfirmationOpen = ref(false);
@@ -338,30 +347,32 @@ async function saveAccessPolicy(policy: ScreenAccessPolicy): Promise<void> {
         </main>
         <aside class="editor-panel editor-panel--right" aria-label="属性面板">
           <InspectorPanel />
-          <AiEditPanel
-            v-if="store.selection.length > 0 && store.document"
-            :key="`edit-${store.selection.join('-')}`"
-            :document="store.document"
-            :selected-component-ids="store.selection"
-            :dataset-ids="documentDatasetIds"
-            @apply="store.applyAiEdit"
-          />
-          <AiAnalysisPanel
-            v-if="canUseAiPanel && selectedComponent"
-            :key="selectedComponent.id"
-            :initial-dataset-id="selectedDatasetId"
-            :target-component-type="selectedAiTarget ?? undefined"
-            :current-props="selectedCurrentProps"
-            :can-apply="true"
-            apply-label="应用到当前组件"
-            @apply-chart="
-              store.applyChartSuggestion(selectedComponent.id, $event)
-            "
-          />
-          <section v-else class="editor-panel__hint" aria-label="AI 使用说明">
-            <h2>AI 分析</h2>
-            <p>选中一个可绑定数据的组件后，就可以生成图表建议并直接应用。</p>
-          </section>
+          <template v-if="aiEnabled">
+            <AiEditPanel
+              v-if="store.selection.length > 0 && store.document"
+              :key="`edit-${store.selection.join('-')}`"
+              :document="store.document"
+              :selected-component-ids="store.selection"
+              :dataset-ids="documentDatasetIds"
+              @apply="store.applyAiEdit"
+            />
+            <AiAnalysisPanel
+              v-if="canUseAiPanel && selectedComponent"
+              :key="selectedComponent.id"
+              :initial-dataset-id="selectedDatasetId"
+              :target-component-type="selectedAiTarget ?? undefined"
+              :current-props="selectedCurrentProps"
+              :can-apply="true"
+              apply-label="应用到当前组件"
+              @apply-chart="
+                store.applyChartSuggestion(selectedComponent.id, $event)
+              "
+            />
+            <section v-else class="editor-panel__hint" aria-label="AI 使用说明">
+              <h2>AI 分析</h2>
+              <p>选中一个可绑定数据的组件后，就可以生成图表建议并直接应用。</p>
+            </section>
+          </template>
         </aside>
       </div>
 

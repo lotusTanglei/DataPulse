@@ -92,7 +92,10 @@ def _clear_session_cookies(response: Response, request: Request) -> None:
 
 @router.get("/status")
 async def auth_status(request: Request) -> dict[str, bool]:
-    return {"initialized": await request.app.state.auth_repository.has_admin()}
+    return {
+        "initialized": await request.app.state.auth_repository.has_admin(),
+        "ai_enabled": request.app.state.settings.ai_enabled,
+    }
 
 
 @router.post("/setup", status_code=201)

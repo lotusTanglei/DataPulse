@@ -142,7 +142,9 @@ export const useScreenEditorStore = defineStore("screen-editor", () => {
     }
     dispatch({
       type: "batch",
-      commands: commands as unknown as EditorCommand[],
+      commands: commands.map(
+        (command) => structuredClone(toRaw(command)) as EditorCommand,
+      ),
     });
   }
 

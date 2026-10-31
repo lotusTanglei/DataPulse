@@ -203,18 +203,152 @@ function radarResult(componentId: string, seed: number): QueryResult {
 function geoResult(componentId: string, seed: number): QueryResult {
   return result(
     componentId,
-    [column("code", "string"), column("name", "string"), column("value", "number")],
-    regions.map((name, index) => [`region-${index + 1}`, name, Math.round(120 + variation(seed, index, 60))]),
+    [column("code", "string"), column("value", "number")],
+    regions.map((_, index) => [
+      `region-${index + 1}`,
+      Math.round(120 + variation(seed, index, 60)),
+    ]),
+  );
+}
+
+function advancedGeoResult(componentId: string, type: string, seed: number): QueryResult {
+  const points = [
+    ["区域-01", 12, 42],
+    ["区域-02", 40, 44],
+    ["区域-03", 67, 41],
+    ["区域-05", 46, 16],
+  ] as const;
+  if (type === "builtin.bubble_map") {
+    return result(
+      componentId,
+      [column("name", "string"), column("longitude", "number"), column("latitude", "number"), column("value", "number")],
+      points.map(([name, longitude, latitude], index) => [
+        name,
+        longitude,
+        latitude,
+        scaledValue({ value_min: 20, value_max: 180 }, seed, index),
+      ]),
+    );
+  }
+  if (type === "builtin.flow_map") {
+    const [targetName, targetLng, targetLat] = points[0];
+    return result(
+      componentId,
+      [
+        column("source", "string"),
+        column("source_lng", "number"),
+        column("source_lat", "number"),
+        column("target", "string"),
+        column("target_lng", "number"),
+        column("target_lat", "number"),
+        column("value", "number"),
+      ],
+      points.slice(1).map(([name, longitude, latitude], index) => [
+        name,
+        longitude,
+        latitude,
+        targetName,
+        targetLng,
+        targetLat,
+        scaledValue({ value_min: 20, value_max: 180 }, seed, index),
+      ]),
+    );
+  }
+  return geoResult(componentId, seed);
+}
+
+function networkResult(componentId: string, seed: number): QueryResult {
+  const edges = [
+    ["总部", "销售中心"],
+    ["总部", "运营中心"],
+    ["运营中心", "华东区域"],
+    ["运营中心", "华南区域"],
+    ["销售中心", "重点客户"],
+  ];
+  return result(
+    componentId,
+    [column("source", "string"), column("target", "string"), column("value", "number")],
+    edges.map(([source, target], index) => [source!, target!, scaledValue({ value_min: 10, value_max: 100 }, seed, index)]),
+  );
+}
+
+function planningResult(componentId: string, type: string): QueryResult {
+  if (type === "builtin.gantt") {
+    return result(
+      componentId,
+      [column("task", "string"), column("start", "datetime"), column("end", "datetime"), column("progress", "number")],
+      [
+        ["需求确认", "2026-09-01", "2026-09-04", 100],
+        ["方案设计", "2026-09-03", "2026-09-10", 80],
+        ["开发联调", "2026-09-08", "2026-09-20", 55],
+        ["上线验收", "2026-09-19", "2026-09-24", 15],
+      ],
+    );
+  }
+  return result(
+    componentId,
+    [column("title", "string"), column("detail", "string"), column("status", "string")],
+    [
+      ["数据接入", "连接与字段确认", "done"],
+      ["指标校验", "业务口径复核", "active"],
+      ["发布审核", "权限与展示检查", "pending"],
+    ],
+  );
+}
+
+function metricGroupResult(componentId: string, seed: number): QueryResult {
+  return result(
+    componentId,
+    [column("label", "string"), column("value", "number"), column("comparison", "number")],
+    ["销售额", "订单数", "转化率", "客单价"].map((label, index) => {
+      const previous = scaledValue({ value_min: 40, value_max: 120 }, seed, index);
+      return [label, previous + 8 + index * 3, previous];
+    }),
+  );
+}
+
+function calendarResult(componentId: string, seed: number): QueryResult {
+  return result(
+    componentId,
+    [column("date", "date"), column("value", "number")],
+    Array.from({ length: 30 }, (_, index) => [
+      `2026-09-${String(index + 1).padStart(2, "0")}`,
+      scaledValue({ value_min: 0, value_max: 100 }, seed, index),
+    ]),
+  );
+}
+
+function wordCloudResult(componentId: string, seed: number): QueryResult {
+  const words = ["数据治理", "经营分析", "销售增长", "运营效率", "客户服务", "设备监控", "风险预警", "交付质量"];
+  return result(
+    componentId,
+    [column("name", "string"), column("value", "number")],
+    words.map((name, index) => [
+      name,
+      scaledValue({ value_min: 20, value_max: 100 }, seed, index),
+    ]),
+  );
+}
+
+function polarResult(componentId: string, seed: number): QueryResult {
+  const categories = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+  return result(
+    componentId,
+    [column("category", "string"), column("value", "number")],
+    categories.map((category, index) => [
+      category,
+      scaledValue({ value_min: 20, value_max: 100 }, seed, index),
+    ]),
   );
 }
 
 export function demoDataKindFor(type: string): DemoDataKind {
-  if (["builtin.kpi", "builtin.progress", "builtin.digital_number", "builtin.gauge", "builtin.digital_human"].includes(type)) return "single";
-  if (["builtin.line", "builtin.bar", "builtin.pie", "builtin.heatmap", "builtin.scatter", "builtin.funnel"].includes(type)) return "series";
+  if (["builtin.kpi", "builtin.progress", "builtin.digital_number", "builtin.gauge", "builtin.digital_human", "builtin.liquid_fill"].includes(type)) return "single";
+  if (["builtin.line", "builtin.bar", "builtin.pie", "builtin.heatmap", "builtin.scatter", "builtin.funnel", "builtin.calendar_heatmap", "builtin.word_cloud", "builtin.polar_bar"].includes(type)) return "series";
   if (type === "builtin.radar") return "radar";
   if (type === "builtin.ranking") return "ranking";
-  if (["builtin.alert_list", "builtin.timeline", "builtin.status_matrix", "builtin.table"].includes(type)) return "table";
-  if (type === "builtin.geo_map") return "geo";
+  if (["builtin.alert_list", "builtin.timeline", "builtin.status_matrix", "builtin.table", "builtin.relation_graph", "builtin.org_chart", "builtin.sankey", "builtin.steps", "builtin.gantt", "builtin.kpi_group", "builtin.metric_comparison", "builtin.rich_table"].includes(type)) return "table";
+  if (["builtin.geo_map", "builtin.map_drilldown", "builtin.flow_map", "builtin.bubble_map"].includes(type)) return "geo";
   return "none";
 }
 
@@ -278,11 +412,29 @@ export function resolveLocalResult(
   if (source !== "mock" && Object.keys(mockValue).length === 0) return null;
   const config = mockConfig(binding);
   const kind = demoDataKindFor(component.type);
+  if (["builtin.relation_graph", "builtin.org_chart", "builtin.sankey"].includes(component.type)) {
+    return networkResult(component.id, config.seed ?? 42);
+  }
+  if (["builtin.steps", "builtin.gantt"].includes(component.type)) {
+    return planningResult(component.id, component.type);
+  }
+  if (["builtin.kpi_group", "builtin.metric_comparison"].includes(component.type)) {
+    return metricGroupResult(component.id, config.seed ?? 42);
+  }
+  if (component.type === "builtin.calendar_heatmap") {
+    return calendarResult(component.id, config.seed ?? 42);
+  }
+  if (component.type === "builtin.word_cloud") {
+    return wordCloudResult(component.id, config.seed ?? 42);
+  }
+  if (component.type === "builtin.polar_bar") {
+    return polarResult(component.id, config.seed ?? 42);
+  }
   if (kind === "single") return singleResult(component.id, config);
   if (kind === "series") return seriesResult(component.id, config);
   if (kind === "ranking") return rankingResult(component.id, config.seed ?? 42, Math.min(config.category_count ?? 6, config.row_count ?? 8));
   if (kind === "radar") return radarResult(component.id, config.seed ?? 42);
-  if (kind === "geo") return geoResult(component.id, config.seed ?? 42);
+  if (kind === "geo") return advancedGeoResult(component.id, component.type, config.seed ?? 42);
   if (kind === "table") {
     if (component.type === "builtin.alert_list") return alertResult(component.id, config.seed ?? 42, config.row_count ?? 8);
     if (component.type === "builtin.status_matrix") return statusMatrixResult(component.id, config.seed ?? 42, config.row_count ?? 8);

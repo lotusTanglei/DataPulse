@@ -28,6 +28,7 @@ import type { ComponentFrame } from "./commands";
 import { snapToGrid } from "./geometry";
 import { useScreenEditorStore } from "./store";
 import PluginLibrary from "../../ecosystem/PluginLibrary.vue";
+import { CURRENT_COMPONENT_CONTRACT_VERSION } from "../migrations";
 
 const store = useScreenEditorStore();
 const groups = computed(() => {
@@ -149,6 +150,11 @@ function add(type: string): void {
     return;
   }
   const id = crypto.randomUUID();
+  const contractVersion = definition.contract?.version
+    ?? CURRENT_COMPONENT_CONTRACT_VERSION;
+  if (contractVersion !== CURRENT_COMPONENT_CONTRACT_VERSION) {
+    throw new Error(`Unsupported component contract version: ${contractVersion}`);
+  }
   const placement = findPlacement(
     definition.defaultFrame.width,
     definition.defaultFrame.height,
@@ -156,6 +162,7 @@ function add(type: string): void {
   store.dispatch({
     type: "add_component",
     component: {
+      contract_version: contractVersion,
       id,
       type: definition.type,
       frame: {

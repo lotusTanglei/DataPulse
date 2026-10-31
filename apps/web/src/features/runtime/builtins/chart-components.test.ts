@@ -176,6 +176,45 @@ test("chart click emits only a declared parameter interaction", async () => {
   ]);
 });
 
+test("chart drilldown emits the selected level and next depth atomically", async () => {
+  const interactive = chartInstance("builtin.bar", "bar");
+  interactive.data_binding!.chart_spec = {
+    ...interactive.data_binding!.chart_spec as object,
+    drill_down: {
+      level_parameter: "geo_level",
+      levels: [
+        { field: "region", selection_parameter: "selected_region" },
+        { field: "city", selection_parameter: "selected_city" },
+      ],
+    },
+  };
+  const wrapper = mount(EChartComponent, {
+    props: {
+      instance: interactive,
+      result: result(),
+      loading: false,
+      error: null,
+      loadAsset: vi.fn(),
+      theme: {},
+      parameters: { geo_level: 0 },
+    },
+  });
+
+  wrapper.getComponent({ name: "VChart" }).vm.$emit("click", {
+    data: { __row: { region: "east", sales: 120 } },
+  });
+  await wrapper.vm.$nextTick();
+
+  expect(wrapper.emitted("interaction")).toEqual([
+    [
+      {
+        type: "set_parameters",
+        values: { selected_region: "east", geo_level: 1 },
+      },
+    ],
+  ]);
+});
+
 test("GeoJSON map joins query rows by configured region code", () => {
   const geojson: GeoFeatureCollection = {
     type: "FeatureCollection",
@@ -215,13 +254,12 @@ test("GeoJSON map joins query rows by configured region code", () => {
   ]);
 });
 
-test("registers the complete built-in component system", () => {
-  expect(
-    defaultComponentRegistry
-      .list()
-      .map((definition) => definition.type)
-      .sort(),
-  ).toEqual([
+test("registers the base built-in component system", () => {
+  const types = defaultComponentRegistry
+    .list()
+    .map((definition) => definition.type);
+
+  expect(types).toEqual(expect.arrayContaining([
     "builtin.alert_list",
     "builtin.bar",
     "builtin.digital_human",
@@ -244,5 +282,6 @@ test("registers the complete built-in component system", () => {
     "builtin.table",
     "builtin.text",
     "builtin.timeline",
-  ]);
+  ]));
+  expect(types.every((type) => type.startsWith("builtin."))).toBe(true);
 });

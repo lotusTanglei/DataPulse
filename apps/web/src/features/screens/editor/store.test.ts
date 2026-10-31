@@ -1,5 +1,6 @@
 import { flushPromises } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
+import { reactive } from "vue";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import type { ChartSpec } from "../../../contracts";
@@ -238,4 +239,24 @@ test("applies an AI edit batch as one undoable history entry", async () => {
   expect(store.canRedo).toBe(true);
   store.redo();
   expect(store.document?.components?.[0]?.props?.text).toBe("华东销售分析");
+});
+
+test("applies reactive AI response commands as plain editor commands", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.resolve(jsonResponse(screen))),
+  );
+  const store = useScreenEditorStore();
+  await store.load("screen-1");
+  const command = reactive({
+    type: "update_props" as const,
+    component_id: "text-1",
+    patch: { text: "响应式 AI 修改" },
+  });
+
+  store.applyAiEdit([command]);
+
+  expect(store.document?.components?.[0]?.props?.text).toBe("响应式 AI 修改");
+  store.undo();
+  expect(store.document?.components?.[0]?.props?.text).toBe("原始文本");
 });

@@ -17,10 +17,12 @@ import StatusMatrixComponent from "./builtins/StatusMatrixComponent.vue";
 import TableComponent from "./builtins/TableComponent.vue";
 import TextComponent from "./builtins/TextComponent.vue";
 import TimelineComponent from "./builtins/TimelineComponent.vue";
+import { advancedComponentDefinitions } from "./builtins/advancedComponents";
 import type {
   ComponentDefinition,
   PropertyDefinition,
   PropertyGroup,
+  VersionedComponentDefinition,
 } from "./types";
 
 const transparentStyle = {
@@ -128,6 +130,22 @@ export class ComponentRegistry {
     markRaw(definition.component);
     this.#definitions.set(definition.type, definition);
     return this;
+  }
+
+  registerVersioned(definition: VersionedComponentDefinition): this {
+    const contract = definition.contract;
+    if (
+      contract.schema_version !== 1 ||
+      contract.type !== definition.type ||
+      !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(
+        contract.version,
+      ) ||
+      contract.props_schema.type !== "object" ||
+      contract.data_input_schema.type !== "object"
+    ) {
+      throw new Error(`Invalid versioned component contract: ${definition.type}`);
+    }
+    return this.register(definition);
   }
 
   get(type: string): ComponentDefinition | undefined {
@@ -552,3 +570,7 @@ export const defaultComponentRegistry = new ComponentRegistry()
     ],
     component: GeoMapComponent,
   });
+
+for (const definition of advancedComponentDefinitions) {
+  defaultComponentRegistry.registerVersioned(definition);
+}

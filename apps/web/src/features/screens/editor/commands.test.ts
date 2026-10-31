@@ -4,6 +4,7 @@ import { expect, test } from "vitest";
 import {
   applyCommand,
   EditorCommandError,
+  migrateEditorCommand,
   type EditorCommand,
 } from "./commands";
 import { snapToGrid, translateFrame } from "./geometry";
@@ -278,4 +279,21 @@ test("geometry snaps and keeps translated frames inside the canvas", () => {
       { width: 1920, height: 1080 },
     ),
   ).toMatchObject({ x: 1720, y: 980 });
+});
+
+test("legacy editor commands migrate and future command versions fail closed", () => {
+  const legacy: EditorCommand = {
+    type: "update_props",
+    component_id: "text-1",
+    patch: { text: "已迁移" },
+  };
+  const migrated = migrateEditorCommand(legacy);
+
+  expect(migrated).toEqual({ schema_version: 1, command: legacy });
+  expect(applyCommand(documentWithText(), migrated).components?.[0]?.props).toMatchObject({
+    text: "已迁移",
+  });
+  expect(() =>
+    migrateEditorCommand({ schema_version: 2, command: legacy } as never),
+  ).toThrow("Unsupported editor command schema version: 2");
 });

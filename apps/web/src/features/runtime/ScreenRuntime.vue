@@ -181,6 +181,10 @@ function setParameters(
 }
 
 function handleInteraction(interaction: RuntimeInteraction): void {
+  if (interaction.type === "set_parameters") {
+    setParameters(interaction.values);
+    return;
+  }
   setParameter(interaction.name, interaction.value);
 }
 

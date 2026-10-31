@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import Field, HttpUrl, field_validator
+from pydantic import Field, HttpUrl, field_validator, model_validator
 
 from datapulse.contracts.common import ContractModel, JsonValue, NonBlankStr
 
@@ -83,6 +83,125 @@ class DatasetFieldOverride(ContractModel):
     default_aggregation: Literal["sum", "avg", "min", "max", "count"] | None = None
     unit: NonBlankStr | None = None
     display_name: NonBlankStr | None = None
+    format: NonBlankStr | None = None
+    aliases: tuple[NonBlankStr, ...] = Field(default_factory=tuple)
+
+    @field_validator("aliases")
+    @classmethod
+    def _validate_aliases(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("Field aliases must be unique.")
+        return value
+
+
+class CalculationOperator(StrEnum):
+    ADD = "add"
+    SUBTRACT = "subtract"
+    MULTIPLY = "multiply"
+    DIVIDE = "divide"
+
+
+class CalculatedFieldExpression(ContractModel):
+    left_field: NonBlankStr
+    operator: CalculationOperator
+    right_field: NonBlankStr | None = None
+    constant: float | None = None
+
+    @model_validator(mode="after")
+    def require_one_right_operand(self) -> "CalculatedFieldExpression":
+        if (self.right_field is None) == (self.constant is None):
+            raise ValueError("Exactly one right_field or constant is required.")
+        if self.operator is CalculationOperator.DIVIDE and self.constant == 0:
+            raise ValueError("Division by zero is not allowed.")
+        return self
+
+
+class DatasetCalculatedField(ContractModel):
+    name: NonBlankStr
+    label: NonBlankStr
+    data_type: DataType
+    expression: CalculatedFieldExpression
+    unit: NonBlankStr | None = None
+    format: NonBlankStr | None = None
+
+    @model_validator(mode="after")
+    def require_numeric_type(self) -> "DatasetCalculatedField":
+        if self.data_type not in {DataType.INTEGER, DataType.NUMBER}:
+            raise ValueError("Calculated fields must have a numeric data type.")
+        return self
+
+
+class DatasetMetric(ContractModel):
+    name: NonBlankStr
+    label: NonBlankStr
+    source_field: NonBlankStr
+    aggregation: Literal["sum", "avg", "min", "max", "count"]
+    unit: NonBlankStr | None = None
+    format: NonBlankStr | None = None
+    description: NonBlankStr | None = None
+
+
+class DatasetRelationship(ContractModel):
+    name: NonBlankStr
+    target_dataset_id: NonBlankStr
+    local_field: NonBlankStr
+    target_field: NonBlankStr
+    cardinality: Literal["one_to_one", "one_to_many", "many_to_one"]
+
+
+class TimeGrain(StrEnum):
+    YEAR = "year"
+    QUARTER = "quarter"
+    MONTH = "month"
+    WEEK = "week"
+    DAY = "day"
+    HOUR = "hour"
+
+
+class DatasetHierarchyLevel(ContractModel):
+    field: NonBlankStr
+    label: NonBlankStr
+    time_grain: TimeGrain | None = None
+
+
+class DatasetHierarchy(ContractModel):
+    name: NonBlankStr
+    label: NonBlankStr
+    kind: Literal["dimension", "time"]
+    levels: tuple[DatasetHierarchyLevel, ...] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def validate_levels(self) -> "DatasetHierarchy":
+        fields = [level.field for level in self.levels]
+        if len(fields) != len(set(fields)):
+            raise ValueError("Hierarchy fields must be unique.")
+        if self.kind == "time" and any(level.time_grain is None for level in self.levels):
+            raise ValueError("Time hierarchy levels require time_grain.")
+        if self.kind == "dimension" and any(
+            level.time_grain is not None for level in self.levels
+        ):
+            raise ValueError("Dimension hierarchy levels cannot define time_grain.")
+        return self
+
+
+class DatasetSemantics(ContractModel):
+    calculated_fields: tuple[DatasetCalculatedField, ...] = Field(default_factory=tuple)
+    metrics: tuple[DatasetMetric, ...] = Field(default_factory=tuple)
+    relationships: tuple[DatasetRelationship, ...] = Field(default_factory=tuple)
+    hierarchies: tuple[DatasetHierarchy, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="after")
+    def validate_unique_names(self) -> "DatasetSemantics":
+        for values in (
+            self.calculated_fields,
+            self.metrics,
+            self.relationships,
+            self.hierarchies,
+        ):
+            names = [item.name for item in values]
+            if len(names) != len(set(names)):
+                raise ValueError("Semantic definition names must be unique within their kind.")
+        return self
 
 
 class DatasetParameter(ContractModel):
@@ -111,6 +230,7 @@ class DatasetDefinition(ContractModel):
     query: QueryDefinition
     fields: tuple[DatasetField, ...] = Field(default_factory=tuple)
     profile_overrides: tuple[DatasetFieldOverride, ...] = Field(default_factory=tuple)
+    semantics: DatasetSemantics = Field(default_factory=DatasetSemantics)
     parameters: tuple[DatasetParameter, ...] = Field(default_factory=tuple)
     cache: CachePolicy = Field(default_factory=CachePolicy)
     refresh: RefreshPolicy = Field(default_factory=RefreshPolicy)

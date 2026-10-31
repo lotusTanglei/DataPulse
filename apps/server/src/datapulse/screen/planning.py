@@ -115,20 +115,34 @@ class PlanValidator:
                 continue
 
             fields = {field.name: field.data_type for field in dataset.fields}
-            expected_fields = ", ".join(fields)
-            requested = [
+            fields.update(
+                {field.name: field.data_type for field in dataset.semantics.calculated_fields}
+            )
+            metrics = {metric.name: metric for metric in dataset.semantics.metrics}
+            metric_types = {
+                metric.name: fields[metric.source_field]
+                for metric in metrics.values()
+                if metric.source_field in fields
+            }
+            expected_fields = ", ".join((*fields, *metrics))
+            requested_fields = [
                 *((f"dimensions[{index}]", field) for index, field in enumerate(widget.dimensions)),
-                *(
-                    (f"measures[{index}].field", item.field)
-                    for index, item in enumerate(widget.measures)
-                ),
                 *(
                     (f"filters[{index}].field", item.field)
                     for index, item in enumerate(widget.filters)
                 ),
-                *((f"sort[{index}].field", item.field) for index, item in enumerate(widget.sort)),
+                *(
+                    (f"time_buckets[{index}].field", item.field)
+                    for index, item in enumerate(widget.time_buckets)
+                ),
+                *(
+                    (f"drill_down.levels[{index}].field", item.field)
+                    for index, item in enumerate(
+                        widget.drill_down.levels if widget.drill_down is not None else ()
+                    )
+                ),
             ]
-            for path, field in requested:
+            for path, field in requested_fields:
                 if field not in fields:
                     issues.append(
                         _issue(
@@ -139,9 +153,47 @@ class PlanValidator:
                             expected=expected_fields,
                         )
                     )
+            measure_fields = {measure.field for measure in widget.measures}
+            for index, measure in enumerate(widget.measures):
+                if measure.field not in fields and measure.field not in metrics:
+                    issues.append(
+                        _issue(
+                            "PLAN_FIELD_UNKNOWN",
+                            widget_id=widget.id,
+                            field=f"measures[{index}].field",
+                            reason=f"字段 {measure.field} 不存在于数据集 {widget.dataset_id}",
+                            expected=expected_fields,
+                        )
+                    )
+            for index, sort in enumerate(widget.sort):
+                if sort.field not in fields and sort.field not in measure_fields:
+                    issues.append(
+                        _issue(
+                            "PLAN_FIELD_UNKNOWN",
+                            widget_id=widget.id,
+                            field=f"sort[{index}].field",
+                            reason=f"字段 {sort.field} 不存在于数据集 {widget.dataset_id}",
+                            expected=expected_fields,
+                        )
+                    )
 
             for index, measure in enumerate(widget.measures):
-                data_type = fields.get(measure.field)
+                metric = metrics.get(measure.field)
+                if metric is not None and measure.aggregation.value != metric.aggregation:
+                    issues.append(
+                        _issue(
+                            "PLAN_AGGREGATION_INVALID",
+                            widget_id=widget.id,
+                            field=f"measures[{index}].aggregation",
+                            reason=(
+                                f"指标 {measure.field} 固定使用 {metric.aggregation} 聚合，"
+                                f"不能使用 {measure.aggregation.value}"
+                            ),
+                            expected=metric.aggregation,
+                        )
+                    )
+                    continue
+                data_type = metric_types.get(measure.field, fields.get(measure.field))
                 valid_types = {DataType.INTEGER, DataType.NUMBER}
                 if measure.aggregation in {Aggregation.MINIMUM, Aggregation.MAXIMUM}:
                     valid_types |= {DataType.DATE, DataType.DATETIME}

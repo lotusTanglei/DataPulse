@@ -4,6 +4,7 @@ import json
 from collections import Counter
 from enum import StrEnum
 from pathlib import Path
+from statistics import median
 from uuid import uuid4
 
 from pydantic import Field, model_validator
@@ -60,6 +61,16 @@ class DatasetFieldProfile(ContractModel):
     default_aggregation: str | None = None
     unit: str | None = None
     display_name: str | None = None
+    format: str | None = None
+    aliases: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DatasetQualityHint(ContractModel):
+    code: NonBlankStr
+    severity: str
+    field: str | None = None
+    message: NonBlankStr
+    count: int = Field(default=1, ge=1)
 
 
 class DatasetProfile(ContractModel):
@@ -73,6 +84,7 @@ class DatasetProfile(ContractModel):
     candidate_time_fields: tuple[str, ...] = Field(default_factory=tuple)
     measure_candidates: tuple[str, ...] = Field(default_factory=tuple)
     geographic_fields: tuple[str, ...] = Field(default_factory=tuple)
+    quality_hints: tuple[DatasetQualityHint, ...] = Field(default_factory=tuple)
 
 
 class DatasetFieldProfilePatch(ContractModel):
@@ -82,6 +94,8 @@ class DatasetFieldProfilePatch(ContractModel):
     default_aggregation: str | None = None
     unit: NonBlankStr | None = None
     display_name: NonBlankStr | None = None
+    format: NonBlankStr | None = None
+    aliases: tuple[NonBlankStr, ...] | None = None
 
     @model_validator(mode="after")
     def require_override(self) -> DatasetFieldProfilePatch:
@@ -91,6 +105,8 @@ class DatasetFieldProfilePatch(ContractModel):
             and self.default_aggregation is None
             and self.unit is None
             and self.display_name is None
+            and self.format is None
+            and self.aliases is None
         ):
             raise ValueError("At least one field profile override is required.")
         return self
@@ -227,6 +243,103 @@ def _override_map(
     overrides: tuple[DatasetFieldOverride, ...] | tuple[DatasetFieldProfilePatch, ...],
 ) -> dict[str, DatasetFieldOverride | DatasetFieldProfilePatch]:
     return {item.name: item for item in overrides}
+
+
+def _quality_hints(
+    rows: tuple[dict[str, JsonValue], ...],
+    fields: list[DatasetFieldProfile],
+    dataset,
+) -> tuple[DatasetQualityHint, ...]:
+    hints: list[DatasetQualityHint] = []
+    for field in fields:
+        values = [row.get(field.name) for row in rows]
+        non_null = [value for value in values if value is not None]
+        if field.null_count:
+            hints.append(
+                DatasetQualityHint(
+                    code="NULL_VALUES",
+                    severity="warning",
+                    field=field.name,
+                    message=f"字段包含 {field.null_count} 个空值。",
+                    count=field.null_count,
+                )
+            )
+        if field.role is FieldRole.IDENTIFIER and field.unique_count < len(non_null):
+            duplicate_count = len(non_null) - field.unique_count
+            hints.append(
+                DatasetQualityHint(
+                    code="DUPLICATE_IDENTIFIER",
+                    severity="warning",
+                    field=field.name,
+                    message=f"标识字段包含 {duplicate_count} 个重复值。",
+                    count=duplicate_count,
+                )
+            )
+        inferred_types = {infer_type(value) for value in non_null}
+        if inferred_types <= {DataType.INTEGER, DataType.NUMBER}:
+            inferred_types = {DataType.NUMBER} if inferred_types else set()
+        if len(inferred_types) > 1:
+            hints.append(
+                DatasetQualityHint(
+                    code="MIXED_TYPES",
+                    severity="warning",
+                    field=field.name,
+                    message="字段包含混合类型值。",
+                    count=len(inferred_types),
+                )
+            )
+        numeric = [
+            float(value)
+            for value in non_null
+            if isinstance(value, (int, float)) and not isinstance(value, bool)
+        ]
+        if len(numeric) >= 5:
+            center = median(numeric)
+            deviation = median(abs(value - center) for value in numeric)
+            if deviation > 0:
+                outlier_count = sum(
+                    abs(value - center) > deviation * 6 for value in numeric
+                )
+                if outlier_count:
+                    hints.append(
+                        DatasetQualityHint(
+                            code="OUTLIER_VALUES",
+                            severity="warning",
+                            field=field.name,
+                            message=f"字段包含 {outlier_count} 个异常值。",
+                            count=outlier_count,
+                        )
+                    )
+    serialized_rows = [
+        json.dumps(row, ensure_ascii=False, sort_keys=True, default=str) for row in rows
+    ]
+    duplicate_rows = len(serialized_rows) - len(set(serialized_rows))
+    if duplicate_rows:
+        hints.append(
+            DatasetQualityHint(
+                code="DUPLICATE_ROWS",
+                severity="warning",
+                message=f"数据包含 {duplicate_rows} 行重复记录。",
+                count=duplicate_rows,
+            )
+        )
+    overrides = _override_map(dataset.definition.profile_overrides)
+    for metric in dataset.definition.semantics.metrics:
+        override = overrides.get(metric.source_field)
+        if (
+            override is not None
+            and override.default_aggregation is not None
+            and override.default_aggregation != metric.aggregation
+        ):
+            hints.append(
+                DatasetQualityHint(
+                    code="METRIC_AGGREGATION_CONFLICT",
+                    severity="warning",
+                    field=metric.source_field,
+                    message=f"指标 {metric.name} 与字段默认聚合口径冲突。",
+                )
+            )
+    return tuple(sorted(hints, key=lambda item: (item.field or "", item.code)))
 
 
 class DatasetProfileService:
@@ -376,6 +489,8 @@ class DatasetProfileService:
                     display_name=(
                         override.display_name if override is not None else None
                     ) or name,
+                    format=override.format if override is not None else None,
+                    aliases=(override.aliases or ()) if override is not None else (),
                 )
             )
         field_by_name = {field.name: field for field in fields}
@@ -406,6 +521,7 @@ class DatasetProfileService:
             geographic_fields=tuple(
                 field.name for field in fields if field.role is FieldRole.GEOGRAPHY
             ),
+            quality_hints=_quality_hints(rows, fields, dataset),
         )
 
     async def update(
@@ -432,6 +548,12 @@ class DatasetProfileService:
             display_name = item.display_name
             if display_name is None and existing is not None:
                 display_name = existing.display_name
+            format_ = item.format
+            if format_ is None and existing is not None:
+                format_ = existing.format
+            aliases = item.aliases
+            if aliases is None:
+                aliases = existing.aliases if existing is not None else ()
             current[item.name] = DatasetFieldOverride(
                 name=item.name,
                 data_type=data_type,
@@ -439,6 +561,8 @@ class DatasetProfileService:
                 default_aggregation=default_aggregation,
                 unit=unit,
                 display_name=display_name,
+                format=format_,
+                aliases=aliases,
             )
         known = {field.name for field in dataset.definition.fields}
         if any(name not in known for name in current):
@@ -466,5 +590,6 @@ __all__ = [
     "DatasetProfile",
     "DatasetProfilePatch",
     "DatasetProfileService",
+    "DatasetQualityHint",
     "FieldRole",
 ]

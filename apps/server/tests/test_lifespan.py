@@ -5,9 +5,9 @@ from fastapi.testclient import TestClient
 
 from datapulse.ai.gateway import AiGateway
 from datapulse.app import create_app
+from datapulse.operations.maintenance import MaintenanceBusy, maintenance_lease
 from datapulse.settings import Settings
 from datapulse.worker import worker_settings
-from datapulse.operations.maintenance import MaintenanceBusy, maintenance_lease
 from tests.support.app import migrate_database
 
 
@@ -83,6 +83,7 @@ def test_lifespan_closes_ai_gateway(tmp_path: Path, monkeypatch: pytest.MonkeyPa
             data_dir=tmp_path,
             database_url=f"sqlite+aiosqlite:///{database_path}",
             bootstrap_code_override="test-code",
+            ai_enabled=True,
         )
     )
 
@@ -95,7 +96,13 @@ def test_lifespan_closes_ai_gateway(tmp_path: Path, monkeypatch: pytest.MonkeyPa
 def test_running_instance_excludes_offline_backup_and_releases_after_shutdown(tmp_path):
     database_path = tmp_path / "datapulse.db"
     migrate_database(database_path)
-    app = create_app(Settings(environment="test", data_dir=tmp_path, bootstrap_code_override="fixture"))
+    app = create_app(
+        Settings(
+            environment="test",
+            data_dir=tmp_path,
+            bootstrap_code_override="fixture",
+        )
+    )
     with TestClient(app):
         with pytest.raises(MaintenanceBusy):
             with maintenance_lease(tmp_path):

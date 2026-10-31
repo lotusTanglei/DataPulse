@@ -31,6 +31,12 @@
     "ComponentInstance": {
       "additionalProperties": false,
       "properties": {
+        "contract_version": {
+          "const": "1.0.0",
+          "default": "1.0.0",
+          "title": "Contract Version",
+          "type": "string"
+        },
         "data_binding": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
@@ -59,6 +65,12 @@
           },
           "title": "Props",
           "type": "object"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
         },
         "state": {
           "$ref": "#/$defs/ComponentState"

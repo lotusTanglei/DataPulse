@@ -7,6 +7,7 @@ from datapulse.contracts.chart import Aggregation, ChartSpec, ChartType, Measure
 from datapulse.contracts.dataset import (
     DatasetDefinition,
     DatasetField,
+    DatasetSemantics,
     DataType,
     FileFormat,
     FileQuery,
@@ -84,6 +85,70 @@ async def test_query_service_compiles_parameterized_query(
     assert result.columns[0].name == "region"
 
 
+async def test_file_query_executes_calculated_fields_and_fixed_metrics(
+    settings: Settings,
+    source_path: Path,
+) -> None:
+    source_path.write_text(
+        "region,amount,cost\nnorth,10,4\nsouth,20,8\n",
+        encoding="utf-8",
+    )
+    dataset = dataset_definition().model_copy(
+        update={
+            "fields": (
+                DatasetField(name="region", data_type=DataType.STRING),
+                DatasetField(name="amount", data_type=DataType.NUMBER),
+                DatasetField(name="cost", data_type=DataType.NUMBER),
+            ),
+            "semantics": DatasetSemantics.model_validate(
+                {
+                    "calculated_fields": (
+                        {
+                            "name": "profit",
+                            "label": "利润",
+                            "data_type": "number",
+                            "expression": {
+                                "left_field": "amount",
+                                "operator": "subtract",
+                                "right_field": "cost",
+                            },
+                        },
+                    ),
+                    "metrics": (
+                        {
+                            "name": "total_profit",
+                            "label": "利润合计",
+                            "source_field": "profit",
+                            "aggregation": "sum",
+                        },
+                    ),
+                }
+            ),
+        }
+    )
+    spec = ChartSpec(
+        dataset_id="sales",
+        dimensions=("region",),
+        measures=(Measure(field="total_profit", aggregation=Aggregation.SUM),),
+        visual=VisualSpec(type=ChartType.BAR),
+    )
+    service = FileDatasetQueryService(
+        compiler=FileQueryCompiler(),
+        executor=DuckDBExecutor(settings),
+    )
+
+    result = await service.query(
+        dataset=dataset,
+        chart_spec=spec,
+        parameters={},
+        request_id="semantic-file",
+        source_path=source_path,
+    )
+
+    assert result.columns[1].name == "total_profit"
+    assert {row[0]: row[1] for row in result.rows} == {"north": 6.0, "south": 12.0}
+
+
 def test_compiler_rejects_unknown_fields() -> None:
     with pytest.raises(ChartQueryInvalid) as captured:
         FileQueryCompiler().compile(
@@ -94,6 +159,36 @@ def test_compiler_rejects_unknown_fields() -> None:
         )
 
     assert captured.value.code == "CHART_FIELD_UNKNOWN"
+
+
+def test_file_compiler_supports_the_same_time_grain_contract() -> None:
+    dataset = dataset_definition().model_copy(
+        update={
+            "fields": (
+                DatasetField(name="happened_at", data_type=DataType.DATETIME),
+                DatasetField(name="amount", data_type=DataType.NUMBER),
+            )
+        }
+    )
+    spec = ChartSpec.model_validate(
+        {
+            "dataset_id": "sales",
+            "dimensions": ["happened_at"],
+            "measures": [{"field": "amount", "aggregation": "sum"}],
+            "time_buckets": [{"field": "happened_at", "grain": "month"}],
+            "visual": {"type": "line"},
+        }
+    )
+
+    compiled = FileQueryCompiler().compile(
+        spec=spec,
+        dataset=dataset,
+        source_path=Path("/tmp/source.csv"),
+        parameters={},
+    )
+
+    assert "DATE_TRUNC('MONTH', dataset_source.happened_at)" in compiled.sql
+    assert "GROUP BY DATE_TRUNC('MONTH', dataset_source.happened_at)" in compiled.sql
 
 
 async def test_executor_rejects_source_outside_controlled_directory(settings: Settings) -> None:

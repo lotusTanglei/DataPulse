@@ -27,7 +27,10 @@ def setup_admin(app_client: AppClient) -> None:
 
 
 def test_setup_login_session_logout_flow(app_client: AppClient) -> None:
-    assert app_client.client.get("/api/auth/status").json() == {"initialized": False}
+    assert app_client.client.get("/api/auth/status").json() == {
+        "initialized": False,
+        "ai_enabled": False,
+    }
 
     setup = app_client.client.post(
         "/api/auth/setup",
@@ -44,7 +47,10 @@ def test_setup_login_session_logout_flow(app_client: AppClient) -> None:
     assert any("datapulse_session=" in cookie and "HttpOnly" in cookie for cookie in cookies)
     assert any("datapulse_csrf=" in cookie and "HttpOnly" not in cookie for cookie in cookies)
     assert all("SameSite=lax" in cookie and "Path=/" in cookie for cookie in cookies)
-    assert app_client.client.get("/api/auth/status").json() == {"initialized": True}
+    assert app_client.client.get("/api/auth/status").json() == {
+        "initialized": True,
+        "ai_enabled": False,
+    }
     assert app_client.client.get("/api/auth/session").json() == {
         "id": "admin",
         "username": "admin",

@@ -202,6 +202,30 @@ export type DatasetId = string;
  * @maxItems 3
  */
 export type Dimensions = [] | [string] | [string, string] | [string, string, string];
+export type LevelParameter = string;
+/**
+ * @minItems 2
+ * @maxItems 8
+ */
+export type Levels =
+  | [DrillDownLevel, DrillDownLevel]
+  | [DrillDownLevel, DrillDownLevel, DrillDownLevel]
+  | [DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel]
+  | [DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel]
+  | [DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel]
+  | [DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel, DrillDownLevel]
+  | [
+      DrillDownLevel,
+      DrillDownLevel,
+      DrillDownLevel,
+      DrillDownLevel,
+      DrillDownLevel,
+      DrillDownLevel,
+      DrillDownLevel,
+      DrillDownLevel
+    ];
+export type Field = string;
+export type SelectionParameter = string;
 /**
  * @maxItems 12
  */
@@ -219,7 +243,7 @@ export type Filters =
   | [Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter]
   | [Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter]
   | [Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter, Filter];
-export type Field = string;
+export type Field1 = string;
 export type FilterOperator =
   | "equals"
   | "not_equals"
@@ -239,6 +263,47 @@ export type Name1 = string;
 export type Kind2 = "literal";
 export type Id2 = string;
 export type Intent = string;
+/**
+ * @maxItems 8
+ */
+export type Interactions =
+  | []
+  | [ComponentInteraction]
+  | [ComponentInteraction, ComponentInteraction]
+  | [ComponentInteraction, ComponentInteraction, ComponentInteraction]
+  | [ComponentInteraction, ComponentInteraction, ComponentInteraction, ComponentInteraction]
+  | [ComponentInteraction, ComponentInteraction, ComponentInteraction, ComponentInteraction, ComponentInteraction]
+  | [
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction
+    ]
+  | [
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction
+    ]
+  | [
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction,
+      ComponentInteraction
+    ];
+export type Action = "set_parameter";
+export type Event = "click";
+export type Field2 = string;
+export type Parameter = string;
 export type Limit = number;
 /**
  * @maxItems 4
@@ -246,14 +311,21 @@ export type Limit = number;
 export type Measures =
   [] | [Measure] | [Measure, Measure] | [Measure, Measure, Measure] | [Measure, Measure, Measure, Measure];
 export type Aggregation = "sum" | "avg" | "min" | "max" | "count";
-export type Field1 = string;
+export type Field3 = string;
 export type RegionId = string;
 /**
  * @maxItems 4
  */
 export type Sort = [] | [Sort1] | [Sort1, Sort1] | [Sort1, Sort1, Sort1] | [Sort1, Sort1, Sort1, Sort1];
 export type SortDirection = "asc" | "desc";
-export type Field2 = string;
+export type Field4 = string;
+/**
+ * @maxItems 3
+ */
+export type TimeBuckets = [] | [TimeBucket] | [TimeBucket, TimeBucket] | [TimeBucket, TimeBucket, TimeBucket];
+export type Field5 = string;
+export type TimeGrain = "year" | "quarter" | "month" | "week" | "day" | "hour";
+export type Parameter1 = string | null;
 export type Title2 = string;
 
 export interface DashboardPlan {
@@ -300,17 +372,28 @@ export interface PlanWidget {
   chart_type: ChartType;
   dataset_id: DatasetId;
   dimensions?: Dimensions;
+  drill_down?: DrillDownSpec | null;
   filters?: Filters;
   id: Id2;
   intent: Intent;
+  interactions?: Interactions;
   limit?: Limit;
   measures?: Measures;
   region_id: RegionId;
   sort?: Sort;
+  time_buckets?: TimeBuckets;
   title: Title2;
 }
-export interface Filter {
+export interface DrillDownSpec {
+  level_parameter: LevelParameter;
+  levels: Levels;
+}
+export interface DrillDownLevel {
   field: Field;
+  selection_parameter: SelectionParameter;
+}
+export interface Filter {
+  field: Field1;
   operator: FilterOperator;
   value?: Value;
 }
@@ -331,11 +414,22 @@ export interface LiteralValue {
     | number
     | null;
 }
+export interface ComponentInteraction {
+  action: Action;
+  event: Event;
+  field: Field2;
+  parameter: Parameter;
+}
 export interface Measure {
   aggregation: Aggregation;
-  field: Field1;
+  field: Field3;
 }
 export interface Sort1 {
   direction?: SortDirection;
-  field: Field2;
+  field: Field4;
+}
+export interface TimeBucket {
+  field: Field5;
+  grain?: TimeGrain | null;
+  parameter?: Parameter1;
 }

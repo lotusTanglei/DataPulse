@@ -24,6 +24,7 @@ export interface LoginPayload {
 
 interface AuthStatusResponse {
   initialized: boolean;
+  ai_enabled?: boolean;
 }
 
 interface SessionResponse {
@@ -34,6 +35,7 @@ interface SessionResponse {
 
 export const useAuthStore = defineStore("auth", () => {
   const state = ref<AuthState>({ status: "unknown" });
+  const aiEnabled = ref(true);
   let resolving: Promise<AuthState> | null = null;
 
   async function resolve(): Promise<AuthState> {
@@ -54,6 +56,7 @@ export const useAuthStore = defineStore("auth", () => {
         }
         throw error;
       }
+      aiEnabled.value = status.ai_enabled ?? true;
       if (!status.initialized) {
         state.value = { status: "setup-required" };
         return state.value;
@@ -113,6 +116,7 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   return {
+    aiEnabled,
     state,
     resolve,
     setup,

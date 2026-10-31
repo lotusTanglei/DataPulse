@@ -249,6 +249,8 @@ class DocumentCompiler:
                     measures=widget.measures,
                     filters=widget.filters,
                     sort=widget.sort,
+                    time_buckets=widget.time_buckets,
+                    drill_down=widget.drill_down,
                     limit=widget.limit,
                     visual=VisualSpec(type=widget.chart_type, title=widget.title),
                 )
@@ -270,6 +272,7 @@ class DocumentCompiler:
                             "color": theme_tokens["text_primary"],
                         },
                         data_binding={"chart_spec": chart_spec.model_dump(mode="json")},
+                        interactions=widget.interactions,
                     )
                 )
 

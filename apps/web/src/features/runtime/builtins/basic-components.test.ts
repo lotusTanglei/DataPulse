@@ -201,7 +201,9 @@ test("registers all core component types in the shared registry", () => {
 
 test("new component definitions expose category, skin, and demo capability", () => {
   const definitions = defaultComponentRegistry.list();
-  expect(definitions).toHaveLength(22);
+  expect(new Set(definitions.map((definition) => definition.type)).size).toBe(
+    definitions.length,
+  );
   for (const definition of definitions) {
     expect(definition.category).toBeTruthy();
     expect(definition.defaultStyle).toBeTruthy();

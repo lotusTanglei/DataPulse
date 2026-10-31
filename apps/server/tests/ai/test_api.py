@@ -18,7 +18,7 @@ from tests.support.app import AppClient, build_test_app
 
 @pytest.fixture
 def ai_app(tmp_path: Path) -> Iterator[AppClient]:
-    with build_test_app(tmp_path) as app_client:
+    with build_test_app(tmp_path, ai_enabled=True) as app_client:
         yield app_client
 
 

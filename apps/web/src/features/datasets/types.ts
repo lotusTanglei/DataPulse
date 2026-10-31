@@ -36,6 +36,8 @@ export interface DatasetFieldProfile {
   default_aggregation?: DatasetAggregation | null;
   unit?: string | null;
   display_name?: string | null;
+  format?: string | null;
+  aliases?: string[];
 }
 
 export type DatasetAggregation = "sum" | "avg" | "min" | "max" | "count";
@@ -46,6 +48,13 @@ export interface DatasetProfile {
   row_count: number;
   sampled: boolean;
   fields: DatasetFieldProfile[];
+  quality_hints?: Array<{
+    code: string;
+    severity: string;
+    field?: string | null;
+    message: string;
+    count: number;
+  }>;
 }
 
 export interface DatasetProfilePatch {
@@ -56,6 +65,24 @@ export interface DatasetProfilePatch {
     default_aggregation?: DatasetAggregation;
     unit?: string;
     display_name?: string;
+    format?: string;
+    aliases?: string[];
+  }>;
+}
+
+export interface DatasetRecommendations {
+  dataset_id: string;
+  fields: Array<{
+    field: string;
+    role: DatasetFieldRole;
+    aggregation: DatasetAggregation;
+  }>;
+  charts: Array<{
+    dataset_id: string;
+    chart_type: string;
+    dimensions: string[];
+    measures: string[];
+    reason: string;
   }>;
 }
 
@@ -96,6 +123,8 @@ export interface DatasetDefinition {
     default_aggregation?: DatasetAggregation | null;
     unit?: string | null;
     display_name?: string | null;
+    format?: string | null;
+    aliases?: string[];
   }>;
   parameters: DatasetParameter[];
   cache: {

@@ -30,6 +30,52 @@
       "title": "ChartType",
       "type": "string"
     },
+    "DrillDownLevel": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "selection_parameter": {
+          "minLength": 1,
+          "title": "Selection Parameter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "selection_parameter"
+      ],
+      "title": "DrillDownLevel",
+      "type": "object"
+    },
+    "DrillDownSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "level_parameter": {
+          "minLength": 1,
+          "title": "Level Parameter",
+          "type": "string"
+        },
+        "levels": {
+          "items": {
+            "$ref": "#/$defs/DrillDownLevel"
+          },
+          "maxItems": 8,
+          "minItems": 2,
+          "title": "Levels",
+          "type": "array"
+        }
+      },
+      "required": [
+        "level_parameter",
+        "levels"
+      ],
+      "title": "DrillDownSpec",
+      "type": "object"
+    },
     "Filter": {
       "additionalProperties": false,
       "properties": {
@@ -200,6 +246,57 @@
       "title": "SortDirection",
       "type": "string"
     },
+    "TimeBucket": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "grain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeGrain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "parameter": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "TimeBucket",
+      "type": "object"
+    },
+    "TimeGrain": {
+      "enum": [
+        "year",
+        "quarter",
+        "month",
+        "week",
+        "day",
+        "hour"
+      ],
+      "title": "TimeGrain",
+      "type": "string"
+    },
     "VisualSpec": {
       "additionalProperties": false,
       "properties": {
@@ -235,6 +332,17 @@
       "title": "Dimensions",
       "type": "array"
     },
+    "drill_down": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DrillDownSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "filters": {
       "items": {
         "$ref": "#/$defs/Filter"
@@ -267,6 +375,14 @@
         "$ref": "#/$defs/Sort"
       },
       "title": "Sort",
+      "type": "array"
+    },
+    "time_buckets": {
+      "items": {
+        "$ref": "#/$defs/TimeBucket"
+      },
+      "maxItems": 3,
+      "title": "Time Buckets",
       "type": "array"
     },
     "visual": {

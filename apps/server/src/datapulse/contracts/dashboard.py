@@ -11,6 +11,10 @@ from datapulse.contracts.common import (
 )
 from datapulse.contracts.dataset import DataType
 from datapulse.contracts.digital_human import DigitalHumanBinding, DigitalHumanSpec
+from datapulse.contracts.migrations import (
+    migrate_component_payload,
+    migrate_dashboard_document_payload,
+)
 from datapulse.contracts.plugin import PluginManifest
 
 
@@ -42,6 +46,8 @@ class ComponentInteraction(ContractModel):
 
 
 class ComponentInstance(ContractModel):
+    schema_version: Literal[1] = 1
+    contract_version: Literal["1.0.0"] = "1.0.0"
     id: NonBlankStr
     type: NonBlankStr
     frame: Frame
@@ -50,6 +56,11 @@ class ComponentInstance(ContractModel):
     style: dict[str, JsonValue] = Field(default_factory=dict)
     data_binding: dict[str, JsonValue] = Field(default_factory=dict)
     interactions: tuple[ComponentInteraction, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def migrate_schema(cls, value: object) -> object:
+        return migrate_component_payload(value)
 
     @model_validator(mode="after")
     def validate_digital_human(self) -> Self:
@@ -108,6 +119,11 @@ class DashboardDocument(ContractModel):
     parameters: tuple[DashboardParameter, ...] = Field(default_factory=tuple)
     components: tuple[ComponentInstance, ...] = Field(default_factory=tuple)
     plugin_dependencies: tuple[PluginDependency, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def migrate_schema(cls, value: object) -> object:
+        return migrate_dashboard_document_payload(value)
 
     @model_validator(mode="after")
     def validate_document_references(self) -> Self:

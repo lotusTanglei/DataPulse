@@ -152,6 +152,8 @@ async def test_profile_corrections_persist_display_metadata() -> None:
                     "default_aggregation": "avg",
                     "unit": "元",
                     "display_name": "销售额",
+                    "format": "#,##0.00",
+                    "aliases": ["金额", "营收"],
                 }
             ]
         ),
@@ -161,4 +163,66 @@ async def test_profile_corrections_persist_display_metadata() -> None:
     assert amount.default_aggregation == "avg"
     assert amount.unit == "元"
     assert amount.display_name == "销售额"
+    assert amount.format == "#,##0.00"
+    assert amount.aliases == ("金额", "营收")
     assert repository.value.definition.profile_overrides[0].unit == "元"
+
+
+@dataclass
+class QualityDatasource(FakeDatasource):
+    async def query(self, *args, **kwargs) -> QueryResult:
+        return QueryResult(
+            request_id="quality-1",
+            columns=(
+                QueryColumn(name="order_id", data_type="string"),
+                QueryColumn(name="region", data_type="string"),
+                QueryColumn(name="amount", data_type="number"),
+            ),
+            rows=(
+                ("A-1", "华东", 10),
+                ("A-1", "华东", 10),
+                ("A-2", None, 11),
+                ("A-3", "华南", 12),
+                ("A-4", "华南", 1000),
+            ),
+            row_count=5,
+            truncated=False,
+            duration_ms=1,
+        )
+
+
+async def test_profile_reports_null_duplicate_identifier_rows_and_numeric_outliers() -> None:
+    value = dataset()
+    definition_payload = value.definition.model_dump(mode="json")
+    definition_payload["profile_overrides"] = [
+        {"name": "amount", "default_aggregation": "sum"}
+    ]
+    definition_payload["semantics"] = {
+        "metrics": [
+            {
+                "name": "average_amount",
+                "label": "平均金额",
+                "source_field": "amount",
+                "aggregation": "avg",
+            }
+        ]
+    }
+    value = value.model_copy(
+        update={"definition": DatasetDefinition.model_validate(definition_payload)}
+    )
+    service = DatasetProfileService(
+        dataset_repository=FakeRepository(value),
+        datasource_service=QualityDatasource(),
+        registry=FakeRegistry(),
+    )
+
+    profile = await service.profile("sales")
+
+    codes = {hint.code for hint in profile.quality_hints}
+    assert codes == {
+        "NULL_VALUES",
+        "DUPLICATE_IDENTIFIER",
+        "DUPLICATE_ROWS",
+        "OUTLIER_VALUES",
+        "METRIC_AGGREGATION_CONFLICT",
+    }

@@ -2,9 +2,17 @@ from typing import Literal, Self
 
 from pydantic import Field, model_validator
 
-from datapulse.contracts.chart import ChartType, Filter, Measure, Sort
+from datapulse.contracts.chart import (
+    ChartType,
+    DrillDownSpec,
+    Filter,
+    Measure,
+    ParameterRef,
+    Sort,
+    TimeBucket,
+)
 from datapulse.contracts.common import ContractModel, NonBlankStr
-from datapulse.contracts.dashboard import DashboardParameter
+from datapulse.contracts.dashboard import ComponentInteraction, DashboardParameter
 
 
 class PlanLayout(ContractModel):
@@ -38,6 +46,9 @@ class PlanWidget(ContractModel):
     measures: tuple[Measure, ...] = Field(default_factory=tuple, max_length=4)
     filters: tuple[Filter, ...] = Field(default_factory=tuple, max_length=12)
     sort: tuple[Sort, ...] = Field(default_factory=tuple, max_length=4)
+    time_buckets: tuple[TimeBucket, ...] = Field(default_factory=tuple, max_length=3)
+    drill_down: DrillDownSpec | None = None
+    interactions: tuple[ComponentInteraction, ...] = Field(default_factory=tuple, max_length=8)
     limit: int = Field(default=1000, ge=1, le=5000)
 
 
@@ -68,11 +79,35 @@ class DashboardPlan(ContractModel):
 
         known_regions = set(region_ids)
         known_datasets = set(dataset_ids)
+        known_parameters = {parameter.name for parameter in self.parameters}
         for widget in self.widgets:
             if widget.region_id not in known_regions:
                 raise ValueError(f"widget references unknown region {widget.region_id!r}")
             if widget.dataset_id not in known_datasets:
                 raise ValueError(f"widget references unknown dataset {widget.dataset_id!r}")
+            parameter_references = {
+                *(
+                    filter_.value.name
+                    for filter_ in widget.filters
+                    if isinstance(filter_.value, ParameterRef)
+                ),
+                *(interaction.parameter for interaction in widget.interactions),
+                *(
+                    bucket.parameter
+                    for bucket in widget.time_buckets
+                    if bucket.parameter is not None
+                ),
+            }
+            if widget.drill_down is not None:
+                parameter_references.add(widget.drill_down.level_parameter)
+                parameter_references.update(
+                    level.selection_parameter for level in widget.drill_down.levels
+                )
+            unknown_parameters = parameter_references - known_parameters
+            if unknown_parameters:
+                raise ValueError(
+                    f"widget references unknown parameter {sorted(unknown_parameters)[0]!r}"
+                )
         return self
 
 

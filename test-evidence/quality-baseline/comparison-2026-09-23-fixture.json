@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "metrics": [
+    "first_success_rate",
+    "draft_produced_rate",
+    "field_binding_accuracy",
+    "semantic_match_rate",
+    "chart_type_reasonable_rate",
+    "failed_cases",
+    "warning_count",
+    "average_duration_ms",
+    "cost_usd"
+  ],
+  "runs": [
+    {
+      "key": "fixture/gpt-5.6-sol/2026-09-23",
+      "provider": "fixture",
+      "model": "gpt-5.6-sol",
+      "date": "2026-09-23",
+      "values": {
+        "first_success_rate": 1.0,
+        "draft_produced_rate": 1.0,
+        "field_binding_accuracy": 1.0,
+        "semantic_match_rate": 1.0,
+        "chart_type_reasonable_rate": 1.0,
+        "failed_cases": 0,
+        "warning_count": 0,
+        "average_duration_ms": 13.75,
+        "cost_usd": 0.0
+      }
+    },
+    {
+      "key": "fixture/gpt-6-astra/2026-09-23",
+      "provider": "fixture",
+      "model": "gpt-6-astra",
+      "date": "2026-09-23",
+      "values": {
+        "first_success_rate": 1.0,
+        "draft_produced_rate": 1.0,
+        "field_binding_accuracy": 1.0,
+        "semantic_match_rate": 1.0,
+        "chart_type_reasonable_rate": 1.0,
+        "failed_cases": 0,
+        "warning_count": 0,
+        "average_duration_ms": 13.75,
+        "cost_usd": 0.03596
+      }
+    }
+  ]
+}

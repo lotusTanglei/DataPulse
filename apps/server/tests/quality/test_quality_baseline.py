@@ -83,12 +83,20 @@ def test_metrics_include_success_failure_binding_chart_latency_and_cost() -> Non
     assert metrics["first_success_rate"] == 0.5
     assert metrics["failure_distribution"] == {"AI_INVALID_OUTPUT": 1}
     assert metrics["field_binding_accuracy"] == 1.0
+    assert metrics["semantic_match_rate"] == 1.0
     assert metrics["chart_type_reasonable_rate"] == 1.0
     assert metrics["warning_count"] == 0
     assert metrics["duration_ms"]["total"] == 26
     assert metrics["token_cost"]["input_tokens"] > 0
     assert metrics["token_cost"]["output_tokens"] > 0
     assert metrics["token_cost"]["usd"] > 0
+
+
+def test_metrics_reject_unknown_model_pricing() -> None:
+    case = load_golden_cases(GOLDEN_ROOT)[0]
+
+    with pytest.raises(ValueError, match="pricing is not configured"):
+        aggregate_results([case], [FixtureProvider().run(case)], model="unpriced-model")
 
 
 def test_openai_provider_collects_usage_for_metric_cost() -> None:

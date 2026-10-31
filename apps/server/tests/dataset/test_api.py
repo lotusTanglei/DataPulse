@@ -255,6 +255,8 @@ def test_dataset_profile_api_returns_contract_and_persists_field_correction(
                     "default_aggregation": "count",
                     "unit": "月",
                     "display_name": "月份",
+                    "format": "YYYY-MM",
+                    "aliases": ["月份", "月度"],
                 }
             ]
         },
@@ -262,10 +264,10 @@ def test_dataset_profile_api_returns_contract_and_persists_field_correction(
     )
 
     assert corrected.status_code == 200
-    assert next(field for field in corrected.json()["fields"] if field["name"] == "month")["role"] == "text"
     corrected_month = next(
         field for field in corrected.json()["fields"] if field["name"] == "month"
     )
+    assert corrected_month["role"] == "text"
     assert corrected_month["display_name"] == "月份"
     saved = dataset_app.client.get(f"/api/admin/datasets/{created['id']}").json()
     assert saved["definition"]["profile_overrides"] == [
@@ -276,6 +278,90 @@ def test_dataset_profile_api_returns_contract_and_persists_field_correction(
             "default_aggregation": "count",
             "unit": "月",
             "display_name": "月份",
+            "format": "YYYY-MM",
+            "aliases": ["月份", "月度"],
         }
     ]
-    assert next(field for field in saved["definition"]["fields"] if field["name"] == "month")["data_type"] == "date"
+    saved_month = next(
+        field for field in saved["definition"]["fields"] if field["name"] == "month"
+    )
+    assert saved_month["data_type"] == "date"
+
+
+def test_dataset_rule_recommendations_api_uses_profile_without_ai(
+    dataset_app: AppClient,
+) -> None:
+    setup_admin(dataset_app)
+    source_id = create_source(dataset_app)
+    created = dataset_app.client.post(
+        "/api/admin/datasets",
+        json=dataset_payload(source_id),
+        headers=mutation_headers(dataset_app),
+    ).json()
+
+    response = dataset_app.client.get(
+        f"/api/admin/datasets/{created['id']}/recommendations"
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["dataset_id"] == created["id"]
+    assert {item["field"] for item in body["fields"]} == {"month", "amount"}
+    assert body["charts"][0]["dataset_id"] == created["id"]
+    assert body["charts"][0]["chart_type"] in {"bar", "kpi", "line"}
+
+
+def test_dataset_semantics_api_contract_persists_controlled_definitions(
+    dataset_app: AppClient,
+) -> None:
+    setup_admin(dataset_app)
+    source_id = create_source(dataset_app)
+    created = dataset_app.client.post(
+        "/api/admin/datasets",
+        json=dataset_payload(source_id),
+        headers=mutation_headers(dataset_app),
+    ).json()
+    path = f"/api/admin/datasets/{created['id']}/semantics"
+    payload = {
+        "calculated_fields": [
+            {
+                "name": "amount_taxed",
+                "label": "含税金额",
+                "data_type": "number",
+                "expression": {
+                    "left_field": "amount",
+                    "operator": "multiply",
+                    "constant": 1.06,
+                },
+                "unit": "元",
+            }
+        ],
+        "metrics": [
+            {
+                "name": "total_amount_taxed",
+                "label": "含税总额",
+                "source_field": "amount_taxed",
+                "aggregation": "sum",
+                "unit": "元",
+            }
+        ],
+        "relationships": [],
+        "hierarchies": [],
+    }
+
+    updated = dataset_app.client.patch(
+        path,
+        json=payload,
+        headers=mutation_headers(dataset_app),
+    )
+
+    assert updated.status_code == 200
+    body = updated.json()
+    assert body["calculated_fields"][0]["expression"] == {
+        "left_field": "amount",
+        "operator": "multiply",
+        "right_field": None,
+        "constant": 1.06,
+    }
+    assert body["metrics"][0]["source_field"] == "amount_taxed"
+    assert dataset_app.client.get(path).json() == body

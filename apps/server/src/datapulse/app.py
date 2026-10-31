@@ -1,6 +1,7 @@
+from importlib import import_module
+
 from fastapi import FastAPI, Request, Response
 
-from datapulse.ai.api import router as ai_router
 from datapulse.auth.api import router as auth_router
 from datapulse.dataset.api import router as dataset_router
 from datapulse.datasource.api import router as datasource_router
@@ -84,7 +85,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(identity_router)
     app.include_router(ecosystem_router)
     app.include_router(plugin_runtime_router)
-    app.include_router(ai_router)
+    if resolved.ai_enabled:
+        app.include_router(import_module("datapulse.ai.api").router)
     app.include_router(datasource_router)
     app.include_router(dataset_router)
     app.include_router(file_router)

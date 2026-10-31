@@ -40,6 +40,7 @@ def build_test_app(
     app_version: str = "0.1.0",
     signing_key: str | None = None,
     static_dir: Path | None = None,
+    ai_enabled: bool = False,
 ) -> Iterator[AppClient]:
     database_path = tmp_path / "datapulse.db"
     migrate_database(database_path)
@@ -51,6 +52,7 @@ def build_test_app(
         app_version=app_version,
         signing_key=signing_key,
         static_dir=static_dir,
+        ai_enabled=ai_enabled,
     )
     app = create_app(settings)
 

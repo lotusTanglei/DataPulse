@@ -13,7 +13,7 @@ PASSWORD = "identity-test-password"
 
 @pytest.fixture
 def system(tmp_path: Path) -> Iterator[AppClient]:
-    with build_test_app(tmp_path) as value:
+    with build_test_app(tmp_path, ai_enabled=True) as value:
         setup_admin(value)
         yield value
 

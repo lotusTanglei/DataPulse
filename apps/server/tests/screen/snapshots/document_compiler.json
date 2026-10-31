@@ -31,6 +31,8 @@
   "parameters": [],
   "components": [
     {
+      "schema_version": 1,
+      "contract_version": "1.0.0",
       "id": "plan-title",
       "type": "builtin.text",
       "frame": {
@@ -57,6 +59,8 @@
       "interactions": []
     },
     {
+      "schema_version": 1,
+      "contract_version": "1.0.0",
       "id": "revenue",
       "type": "builtin.kpi",
       "frame": {
@@ -94,6 +98,8 @@
           ],
           "filters": [],
           "sort": [],
+          "time_buckets": [],
+          "drill_down": null,
           "limit": 1000,
           "visual": {
             "type": "kpi",
@@ -104,6 +110,8 @@
       "interactions": []
     },
     {
+      "schema_version": 1,
+      "contract_version": "1.0.0",
       "id": "trend",
       "type": "builtin.line",
       "frame": {
@@ -141,6 +149,8 @@
           ],
           "filters": [],
           "sort": [],
+          "time_buckets": [],
+          "drill_down": null,
           "limit": 1000,
           "visual": {
             "type": "line",
@@ -151,6 +161,8 @@
       "interactions": []
     },
     {
+      "schema_version": 1,
+      "contract_version": "1.0.0",
       "id": "ranking",
       "type": "builtin.bar",
       "frame": {
@@ -189,6 +201,8 @@
           ],
           "filters": [],
           "sort": [],
+          "time_buckets": [],
+          "drill_down": null,
           "limit": 1000,
           "visual": {
             "type": "bar",

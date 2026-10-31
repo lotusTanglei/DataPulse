@@ -228,6 +228,151 @@ def test_compiler_emits_aggregation_sort_and_limit() -> None:
     assert compiled.sql.endswith("LIMIT 25")
 
 
+def test_compiler_executes_controlled_calculated_fields_and_metrics() -> None:
+    dataset = DatasetDefinition.model_validate(
+        {
+            "id": "sales",
+            "name": "Sales",
+            "data_source_id": "source-1",
+            "query": {
+                "kind": "sql",
+                "sql": "SELECT month, amount, cost FROM sales",
+            },
+            "fields": (
+                {"name": "month", "data_type": "string"},
+                {"name": "amount", "data_type": "number"},
+                {"name": "cost", "data_type": "number"},
+            ),
+            "semantics": {
+                "calculated_fields": (
+                    {
+                        "name": "profit",
+                        "label": "利润",
+                        "data_type": "number",
+                        "expression": {
+                            "left_field": "amount",
+                            "operator": "subtract",
+                            "right_field": "cost",
+                        },
+                    },
+                ),
+                "metrics": (
+                    {
+                        "name": "total_profit",
+                        "label": "利润合计",
+                        "source_field": "profit",
+                        "aggregation": "sum",
+                    },
+                ),
+            },
+        }
+    )
+    spec = ChartSpec(
+        dataset_id="sales",
+        dimensions=("month",),
+        measures=(Measure(field="total_profit", aggregation=Aggregation.SUM),),
+        filters=(
+            Filter(
+                field="profit",
+                operator=FilterOperator.GREATER_THAN,
+                value=LiteralValue(value=0),
+            ),
+        ),
+        sort=(Sort(field="total_profit", direction=SortDirection.DESCENDING),),
+        visual=VisualSpec(type=ChartType.LINE),
+    )
+
+    compiled = ChartQueryCompiler().compile(spec, dataset, {})
+
+    assert "SUM(dataset_source.amount - dataset_source.cost) AS total_profit" in compiled.sql
+    assert "dataset_source.amount - dataset_source.cost > :chart_filter_0" in compiled.sql
+    assert "ORDER BY SUM(dataset_source.amount - dataset_source.cost) DESC" in compiled.sql
+    assert compiled.parameters["chart_filter_0"] == 0
+
+
+def test_compiler_switches_time_grain_from_a_validated_parameter() -> None:
+    dataset = DatasetDefinition(
+        id="events",
+        name="Events",
+        data_source_id="source-1",
+        query=SqlQuery(sql="SELECT happened_at, amount FROM events"),
+        fields=(
+            DatasetField(name="happened_at", data_type=DataType.DATETIME),
+            DatasetField(name="amount", data_type=DataType.NUMBER),
+        ),
+    )
+    spec = ChartSpec.model_validate(
+        {
+            "dataset_id": "events",
+            "dimensions": ["happened_at"],
+            "measures": [{"field": "amount", "aggregation": "sum"}],
+            "time_buckets": [{"field": "happened_at", "parameter": "time_grain"}],
+            "visual": {"type": "line"},
+        }
+    )
+
+    compiled = ChartQueryCompiler().compile(
+        spec=spec,
+        dataset=dataset,
+        parameters={"time_grain": "month"},
+        dialect="postgresql",
+    )
+
+    assert "DATE_TRUNC('MONTH', dataset_source.happened_at)" in compiled.sql
+    assert "AS happened_at" in compiled.sql
+    assert "GROUP BY DATE_TRUNC('MONTH', dataset_source.happened_at)" in compiled.sql
+
+    with pytest.raises(ChartQueryInvalid) as captured:
+        ChartQueryCompiler().compile(
+            spec=spec,
+            dataset=dataset,
+            parameters={"time_grain": "decade"},
+            dialect="postgresql",
+        )
+    assert captured.value.code == "CHART_TIME_GRAIN_INVALID"
+
+
+def test_compiler_applies_parameter_driven_drilldown_without_cross_dataset_join() -> None:
+    dataset = DatasetDefinition(
+        id="sales",
+        name="Sales",
+        data_source_id="source-1",
+        query=SqlQuery(sql="SELECT region, city, amount FROM sales"),
+        fields=(
+            DatasetField(name="region", data_type=DataType.STRING),
+            DatasetField(name="city", data_type=DataType.STRING),
+            DatasetField(name="amount", data_type=DataType.NUMBER),
+        ),
+    )
+    spec = ChartSpec.model_validate(
+        {
+            "dataset_id": "sales",
+            "dimensions": ["region"],
+            "measures": [{"field": "amount", "aggregation": "sum"}],
+            "drill_down": {
+                "level_parameter": "geo_level",
+                "levels": [
+                    {"field": "region", "selection_parameter": "selected_region"},
+                    {"field": "city", "selection_parameter": "selected_city"},
+                ],
+            },
+            "visual": {"type": "bar"},
+        }
+    )
+
+    compiled = ChartQueryCompiler().compile(
+        spec=spec,
+        dataset=dataset,
+        parameters={"geo_level": 1, "selected_region": "east", "selected_city": None},
+    )
+
+    assert "dataset_source.city" in compiled.sql
+    assert "GROUP BY dataset_source.city" in compiled.sql
+    assert "dataset_source.region = :chart_filter_0" in compiled.sql
+    assert compiled.parameters["chart_filter_0"] == "east"
+    assert " JOIN " not in compiled.sql.upper()
+
+
 @pytest.mark.parametrize(
     ("spec", "parameters", "code"),
     [

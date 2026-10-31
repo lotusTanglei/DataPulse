@@ -30,6 +30,60 @@
       "title": "CachePolicy",
       "type": "object"
     },
+    "CalculatedFieldExpression": {
+      "additionalProperties": false,
+      "properties": {
+        "constant": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Constant"
+        },
+        "left_field": {
+          "minLength": 1,
+          "title": "Left Field",
+          "type": "string"
+        },
+        "operator": {
+          "$ref": "#/$defs/CalculationOperator"
+        },
+        "right_field": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Right Field"
+        }
+      },
+      "required": [
+        "left_field",
+        "operator"
+      ],
+      "title": "CalculatedFieldExpression",
+      "type": "object"
+    },
+    "CalculationOperator": {
+      "enum": [
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ],
+      "title": "CalculationOperator",
+      "type": "string"
+    },
     "DataType": {
       "enum": [
         "boolean",
@@ -41,6 +95,61 @@
       ],
       "title": "DataType",
       "type": "string"
+    },
+    "DatasetCalculatedField": {
+      "additionalProperties": false,
+      "properties": {
+        "data_type": {
+          "$ref": "#/$defs/DataType"
+        },
+        "expression": {
+          "$ref": "#/$defs/CalculatedFieldExpression"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "data_type",
+        "expression"
+      ],
+      "title": "DatasetCalculatedField",
+      "type": "object"
     },
     "DatasetField": {
       "additionalProperties": false,
@@ -64,6 +173,14 @@
     "DatasetFieldOverride": {
       "additionalProperties": false,
       "properties": {
+        "aliases": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
         "data_type": {
           "anyOf": [
             {
@@ -106,6 +223,19 @@
           ],
           "default": null,
           "title": "Display Name"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
         },
         "name": {
           "minLength": 1,
@@ -154,6 +284,155 @@
       "title": "DatasetFieldOverride",
       "type": "object"
     },
+    "DatasetHierarchy": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "dimension",
+            "time"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "levels": {
+          "items": {
+            "$ref": "#/$defs/DatasetHierarchyLevel"
+          },
+          "minItems": 2,
+          "title": "Levels",
+          "type": "array"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "kind",
+        "levels"
+      ],
+      "title": "DatasetHierarchy",
+      "type": "object"
+    },
+    "DatasetHierarchyLevel": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "time_grain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeGrain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "field",
+        "label"
+      ],
+      "title": "DatasetHierarchyLevel",
+      "type": "object"
+    },
+    "DatasetMetric": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation": {
+          "enum": [
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "count"
+          ],
+          "title": "Aggregation",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "source_field": {
+          "minLength": 1,
+          "title": "Source Field",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "source_field",
+        "aggregation"
+      ],
+      "title": "DatasetMetric",
+      "type": "object"
+    },
     "DatasetParameter": {
       "additionalProperties": false,
       "properties": {
@@ -180,6 +459,84 @@
         "data_type"
       ],
       "title": "DatasetParameter",
+      "type": "object"
+    },
+    "DatasetRelationship": {
+      "additionalProperties": false,
+      "properties": {
+        "cardinality": {
+          "enum": [
+            "one_to_one",
+            "one_to_many",
+            "many_to_one"
+          ],
+          "title": "Cardinality",
+          "type": "string"
+        },
+        "local_field": {
+          "minLength": 1,
+          "title": "Local Field",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "target_dataset_id": {
+          "minLength": 1,
+          "title": "Target Dataset Id",
+          "type": "string"
+        },
+        "target_field": {
+          "minLength": 1,
+          "title": "Target Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "target_dataset_id",
+        "local_field",
+        "target_field",
+        "cardinality"
+      ],
+      "title": "DatasetRelationship",
+      "type": "object"
+    },
+    "DatasetSemantics": {
+      "additionalProperties": false,
+      "properties": {
+        "calculated_fields": {
+          "items": {
+            "$ref": "#/$defs/DatasetCalculatedField"
+          },
+          "title": "Calculated Fields",
+          "type": "array"
+        },
+        "hierarchies": {
+          "items": {
+            "$ref": "#/$defs/DatasetHierarchy"
+          },
+          "title": "Hierarchies",
+          "type": "array"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/DatasetMetric"
+          },
+          "title": "Metrics",
+          "type": "array"
+        },
+        "relationships": {
+          "items": {
+            "$ref": "#/$defs/DatasetRelationship"
+          },
+          "title": "Relationships",
+          "type": "array"
+        }
+      },
+      "title": "DatasetSemantics",
       "type": "object"
     },
     "FileFormat": {
@@ -418,6 +775,18 @@
       ],
       "title": "TableQuery",
       "type": "object"
+    },
+    "TimeGrain": {
+      "enum": [
+        "year",
+        "quarter",
+        "month",
+        "week",
+        "day",
+        "hour"
+      ],
+      "title": "TimeGrain",
+      "type": "string"
     }
   },
   "$id": "https://datapulse.dev/schemas/v1/dataset-definition.schema.json",
@@ -510,6 +879,9 @@
       "default": 1,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "semantics": {
+      "$ref": "#/$defs/DatasetSemantics"
     },
     "timeout_seconds": {
       "default": 30,

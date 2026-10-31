@@ -3,8 +3,6 @@ from pathlib import Path
 
 import pytest
 
-from tests.support.app import AppClient, build_test_app
-
 from datapulse.contracts.dashboard_plan import DashboardPlan
 from datapulse.screen.models import (
     DashboardPlanCompileResponse,
@@ -12,6 +10,7 @@ from datapulse.screen.models import (
 )
 from datapulse.screen.planning_service import DashboardPlanningService
 from tests.screen.test_planning_service import FakeRepository, plan
+from tests.support.app import AppClient, build_test_app
 
 
 @pytest.fixture

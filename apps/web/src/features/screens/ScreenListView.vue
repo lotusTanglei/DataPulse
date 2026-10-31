@@ -7,14 +7,13 @@ import {
   Trash2,
   X,
 } from "@lucide/vue";
-import { computed, onBeforeUnmount, ref } from "vue";
+import { computed, defineAsyncComponent, onBeforeUnmount, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 
 import { ApiError } from "../../lib/api";
 import { useAuthStore } from "../../stores/auth";
 import { getResourceAccess } from "../identity/api";
 import InlineNotice from "../../ui/InlineNotice.vue";
-import AiScreenGeneratorDialog from "../ai/AiScreenGeneratorDialog.vue";
 import type { AiScreenResponse } from "../ai/types";
 import type { Dataset } from "../datasets/types";
 import TemplatePickerDialog from "./TemplatePickerDialog.vue";
@@ -30,6 +29,10 @@ import type { ScreenSummary } from "./types";
 
 const router = useRouter();
 const auth = useAuthStore();
+const AiScreenGeneratorDialog = defineAsyncComponent(
+  () => import("../ai/AiScreenGeneratorDialog.vue"),
+);
+const aiEnabled = computed(() => auth.aiEnabled);
 const isAdmin = computed(() => auth.state.status === "authenticated" && auth.state.role === "admin");
 const canCreate = computed(() => auth.state.status === "authenticated" && (auth.state.role === "admin" || auth.state.role === "editor"));
 const writable = ref<Record<string, boolean>>({});
@@ -114,7 +117,7 @@ function closeCreate(): void {
 }
 
 function openAiCreate(): void {
-  if (!canCreate.value) return;
+  if (!canCreate.value || !aiEnabled.value) return;
   aiCreateOpen.value = true;
   actionError.value = null;
 }
@@ -154,7 +157,7 @@ async function submitAiCreate(payload: {
   name: string;
   result: AiScreenResponse;
 }): Promise<void> {
-  if (!canCreate.value) return;
+  if (!canCreate.value || !aiEnabled.value) return;
   aiCreating.value = true;
   actionError.value = null;
   try {
@@ -283,6 +286,7 @@ onBeforeUnmount(() => controller.abort());
           从模板创建
         </button>
         <button
+          v-if="aiEnabled"
           class="secondary-button"
           type="button"
           data-action="open-ai-screen"
@@ -331,6 +335,7 @@ onBeforeUnmount(() => controller.abort());
             从模板开始
           </button>
           <button
+            v-if="aiEnabled"
             class="secondary-button"
             type="button"
             data-action="open-ai-screen"
@@ -478,6 +483,7 @@ onBeforeUnmount(() => controller.abort());
     />
 
     <AiScreenGeneratorDialog
+      v-if="aiEnabled"
       :open="aiCreateOpen"
       :submitting="aiCreating"
       @close="aiCreateOpen = false"

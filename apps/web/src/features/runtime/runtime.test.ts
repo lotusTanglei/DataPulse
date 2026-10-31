@@ -25,6 +25,20 @@ const QueryResultProbe = defineComponent({
   template: '<span data-query-result>{{ result?.request_id ?? "none" }}</span>',
 });
 
+const FilterLinkProbe = defineComponent({
+  emits: ["interaction"],
+  template: `<button data-filter-link @click="$emit('interaction', {
+    type: 'set_parameter', name: 'region', value: 'west'
+  })">筛选</button>`,
+});
+
+const DrillDownProbe = defineComponent({
+  emits: ["interaction"],
+  template: `<button data-drill-down @click="$emit('interaction', {
+    type: 'set_parameters', values: { selected_region: 'east', geo_level: 1 }
+  })">下钻</button>`,
+});
+
 test("fits standard and windowed canvases with density breakpoints", () => {
   expect(
     resolveRuntimeViewport({
@@ -361,6 +375,142 @@ test("loads bound components through one unified screen runtime", async () => {
   expect(wrapper.get(".screen-runtime__canvas").attributes("style")).toContain(
     "background-color: #101828",
   );
+  wrapper.unmount();
+});
+
+test("one filter interaction refreshes components from multiple datasets", () => {
+  const registry = new ComponentRegistry().register({
+    type: "builtin.bar",
+    label: "柱状图",
+    defaultFrame: { width: 240, height: 120 },
+    defaultProps: {},
+    dataCapability: "series",
+    component: FilterLinkProbe,
+  });
+  const document: DashboardDocument = {
+    schema_version: 1,
+    canvas: { width: 1920, height: 1080 },
+    parameters: [
+      {
+        id: "region",
+        name: "region",
+        data_type: "string",
+        default: "east",
+        allowed_values: ["east", "west"],
+      },
+    ],
+    components: ["sales", "targets"].map((datasetId, index) => ({
+      id: `chart-${datasetId}`,
+      type: "builtin.bar" as const,
+      frame: { x: index * 260, y: 0, width: 240, height: 120 },
+      data_binding: { chart_spec: { dataset_id: datasetId } },
+    })),
+  };
+  const queryComponent = vi.fn().mockResolvedValue({
+    request_id: "linked",
+    columns: [],
+    rows: [],
+    row_count: 0,
+    truncated: false,
+    duration_ms: 1,
+  });
+  const wrapper = mount(ScreenRuntime, {
+    props: {
+      document,
+      loadAsset: vi.fn(),
+      mode: "preview",
+      queryComponent,
+      registry,
+    },
+  });
+
+  return flushPromises()
+    .then(() => wrapper.get("[data-filter-link]").trigger("click"))
+    .then(flushPromises)
+    .then(() => {
+      expect(queryComponent).toHaveBeenCalledTimes(4);
+      expect(queryComponent.mock.calls.slice(-2).map((call) => call[1])).toEqual([
+        { region: "west" },
+        { region: "west" },
+      ]);
+      const datasetIds = document.components?.map((component) => {
+        const chartSpec = component.data_binding?.chart_spec;
+        return chartSpec !== null &&
+          typeof chartSpec === "object" &&
+          !Array.isArray(chartSpec)
+          ? chartSpec.dataset_id
+          : undefined;
+      });
+      expect(datasetIds).toEqual(["sales", "targets"]);
+      wrapper.unmount();
+    });
+});
+
+test("applies a drilldown interaction as one parameter batch", async () => {
+  const registry = new ComponentRegistry().register({
+    type: "builtin.bar",
+    label: "柱状图",
+    defaultFrame: { width: 240, height: 120 },
+    defaultProps: {},
+    dataCapability: "series",
+    component: DrillDownProbe,
+  });
+  const document: DashboardDocument = {
+    schema_version: 1,
+    canvas: { width: 1920, height: 1080 },
+    parameters: [
+      {
+        id: "selected_region",
+        name: "selected_region",
+        data_type: "string",
+        default: "",
+      },
+      {
+        id: "geo_level",
+        name: "geo_level",
+        data_type: "integer",
+        default: 0,
+      },
+    ],
+    components: [
+      {
+        id: "regional-sales",
+        type: "builtin.bar",
+        frame: { x: 0, y: 0, width: 240, height: 120 },
+        data_binding: { chart_spec: { dataset_id: "sales" } },
+      },
+    ],
+  };
+  const queryComponent = vi.fn().mockResolvedValue({
+    request_id: "drilldown",
+    columns: [],
+    rows: [],
+    row_count: 0,
+    truncated: false,
+    duration_ms: 1,
+  });
+  const wrapper = mount(ScreenRuntime, {
+    props: {
+      document,
+      loadAsset: vi.fn(),
+      mode: "preview",
+      queryComponent,
+      registry,
+    },
+  });
+  await flushPromises();
+
+  await wrapper.get("[data-drill-down]").trigger("click");
+  await flushPromises();
+
+  expect(queryComponent).toHaveBeenCalledTimes(2);
+  expect(queryComponent.mock.calls[1][1]).toEqual({
+    selected_region: "east",
+    geo_level: 1,
+  });
+  expect(wrapper.emitted("parametersChange")).toEqual([
+    [{ selected_region: "east", geo_level: 1 }],
+  ]);
   wrapper.unmount();
 });
 

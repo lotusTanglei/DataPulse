@@ -1,10 +1,12 @@
 import type { DashboardDocument, DashboardPlan } from "../../contracts";
 import type { Dataset } from "../datasets/types";
 import { createMockBinding } from "../runtime/mockData";
+import { migrateTemplateDocument } from "./migrations";
 
 type TemplateComponent = NonNullable<DashboardDocument["components"]>[number];
 
 export interface ScreenTemplate {
+  schemaVersion: 1;
   id: string;
   planTemplate: NonNullable<DashboardPlan["layout"]>["template"];
   name: string;
@@ -12,6 +14,40 @@ export interface ScreenTemplate {
   category: string;
   createDocument: () => DashboardDocument;
 }
+
+export interface IndustryScenarioPack {
+  id: "business" | "operations" | "sales" | "equipment";
+  name: string;
+  templateId: string;
+  sampleData: string;
+}
+
+export const industryScenarioPacks: readonly IndustryScenarioPack[] = [
+  {
+    id: "business",
+    name: "经营分析",
+    templateId: "overview-grid",
+    sampleData: "fixtures/golden/business/data.csv",
+  },
+  {
+    id: "operations",
+    name: "运营监控",
+    templateId: "analysis-lab",
+    sampleData: "fixtures/golden/operations/data.csv",
+  },
+  {
+    id: "sales",
+    name: "销售分析",
+    templateId: "comparison-board",
+    sampleData: "fixtures/golden/sales/data.csv",
+  },
+  {
+    id: "equipment",
+    name: "设备监控",
+    templateId: "status-wall",
+    sampleData: "fixtures/golden/equipment/data.csv",
+  },
+];
 
 const darkCanvas = {
   width: 1920,
@@ -41,6 +77,7 @@ function component(
     "builtin.divider",
   ].includes(type);
   return {
+    schema_version: 1,
     id,
     type,
     frame,
@@ -172,6 +209,7 @@ function documentOf(components: TemplateComponent[]): DashboardDocument {
 
 const templates: ScreenTemplate[] = [
   {
+    schemaVersion: 1,
     id: "overview-grid",
     planTemplate: "executive-overview",
     name: "总览网格",
@@ -190,6 +228,7 @@ const templates: ScreenTemplate[] = [
       ]),
   },
   {
+    schemaVersion: 1,
     id: "trend-focus",
     planTemplate: "trend-focus",
     name: "趋势聚焦",
@@ -209,6 +248,7 @@ const templates: ScreenTemplate[] = [
       ]),
   },
   {
+    schemaVersion: 1,
     id: "comparison-board",
     planTemplate: "comparison-board",
     name: "对比分析",
@@ -228,6 +268,7 @@ const templates: ScreenTemplate[] = [
       ]),
   },
   {
+    schemaVersion: 1,
     id: "status-wall",
     planTemplate: "status-wall",
     name: "状态墙",
@@ -247,6 +288,7 @@ const templates: ScreenTemplate[] = [
       ]),
   },
   {
+    schemaVersion: 1,
     id: "analysis-lab",
     planTemplate: "analysis-lab",
     name: "分析工作台",
@@ -306,7 +348,7 @@ export function createTemplateDocument(templateId: string): DashboardDocument {
   if (!template) {
     throw new Error(`Unknown screen template: ${templateId}`);
   }
-  return structuredClone(template.createDocument());
+  return migrateTemplateDocument(template.createDocument());
 }
 
 export function createTemplatePlan(

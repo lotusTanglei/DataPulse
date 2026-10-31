@@ -3,6 +3,7 @@ from typing import NoReturn
 from fastapi import APIRouter, Depends, Request, Response
 
 from datapulse.auth.dependencies import require_admin, require_csrf
+from datapulse.contracts.dataset import DatasetSemantics
 from datapulse.contracts.filedata import FileDatasetCreate
 from datapulse.dataset.models import (
     DatasetCreate,
@@ -11,12 +12,14 @@ from datapulse.dataset.models import (
     DatasetUpdate,
 )
 from datapulse.dataset.profile import DatasetProfile, DatasetProfilePatch
+from datapulse.dataset.recommendations import DatasetRecommendations, recommend_dataset
 from datapulse.dataset.repository import (
     DatasetDefinitionInvalid,
     DatasetNameConflict,
     DatasetNotFound,
     DatasetSourceNotFound,
 )
+from datapulse.dataset.semantics import DatasetSemanticsInvalid
 from datapulse.dataset.service import DatasetUpdateInvalid
 from datapulse.datasource.repository import DatasourceNotFound
 from datapulse.errors import DataPulseError
@@ -204,6 +207,18 @@ async def get_dataset_profile(dataset_id: str, request: Request) -> DatasetProfi
         _raise_dataset_error(error)
 
 
+@router.get("/{dataset_id}/recommendations")
+async def get_dataset_recommendations(
+    dataset_id: str,
+    request: Request,
+) -> DatasetRecommendations:
+    try:
+        profile = await request.app.state.dataset_profile_service.profile(dataset_id)
+        return recommend_dataset(profile)
+    except (DatasetNotFound, DatasetDefinitionInvalid) as error:
+        _raise_dataset_error(error)
+
+
 @router.patch(
     "/{dataset_id}/profile",
     dependencies=[Depends(require_csrf)],
@@ -221,6 +236,35 @@ async def update_dataset_profile(
         raise DataPulseError(
             code="DATASET_PROFILE_INVALID",
             message="The dataset profile correction is invalid.",
+            status_code=422,
+        ) from error
+
+
+@router.get("/{dataset_id}/semantics")
+async def get_dataset_semantics(dataset_id: str, request: Request) -> DatasetSemantics:
+    try:
+        return await request.app.state.dataset_semantics_service.get(dataset_id)
+    except (DatasetNotFound, DatasetDefinitionInvalid) as error:
+        _raise_dataset_error(error)
+
+
+@router.patch(
+    "/{dataset_id}/semantics",
+    dependencies=[Depends(require_csrf)],
+)
+async def update_dataset_semantics(
+    dataset_id: str,
+    payload: DatasetSemantics,
+    request: Request,
+) -> DatasetSemantics:
+    try:
+        return await request.app.state.dataset_semantics_service.update(dataset_id, payload)
+    except (DatasetNotFound, DatasetDefinitionInvalid) as error:
+        _raise_dataset_error(error)
+    except DatasetSemanticsInvalid as error:
+        raise DataPulseError(
+            code=error.code,
+            message=str(error),
             status_code=422,
         ) from error
 

@@ -234,6 +234,40 @@ async def test_assert_references_exist_and_delete_unreferenced_asset(
         await asset_service.get(uploaded.id)
 
 
+@pytest.mark.parametrize(
+    "component_type",
+    [
+        "builtin.map_drilldown",
+        "builtin.flow_map",
+        "builtin.bubble_map",
+        "builtin.video",
+    ],
+)
+async def test_advanced_asset_components_reject_wrong_asset_types(
+    asset_service: AssetService,
+    component_type: str,
+) -> None:
+    uploaded = await asset_service.upload(
+        filename="logo.png",
+        content_type="image/png",
+        content=PNG_BYTES,
+    )
+    document = DashboardDocument(
+        canvas={"width": 1920, "height": 1080},
+        components=(
+            ComponentInstance(
+                id="advanced-asset-1",
+                type=component_type,
+                frame=Frame(x=0, y=0, width=640, height=360),
+                props={"asset_id": uploaded.id},
+            ),
+        ),
+    )
+
+    with pytest.raises(AssetInvalid, match="component slot"):
+        await asset_service.assert_references_exist(document)
+
+
 @pytest.fixture
 def asset_app(tmp_path: Path) -> Iterator[AppClient]:
     with build_test_app(tmp_path) as app_client:

@@ -51,6 +51,7 @@ const props = defineProps<{
   loading: boolean;
   error: unknown | null;
   loadAsset: LoadAsset;
+  parameters?: Record<string, JsonValue>;
   theme?: ChartTheme;
 }>();
 
@@ -90,8 +91,65 @@ function rowFromClick(event: ECElementEvent): Record<string, JsonValue> {
   );
 }
 
+function emitDrillDown(row: Record<string, JsonValue>): boolean {
+  const chartSpec = props.instance.data_binding?.chart_spec;
+  if (
+    chartSpec === null ||
+    typeof chartSpec !== "object" ||
+    Array.isArray(chartSpec)
+  ) {
+    return false;
+  }
+  const drillDown = chartSpec.drill_down;
+  if (
+    drillDown === null ||
+    typeof drillDown !== "object" ||
+    Array.isArray(drillDown)
+  ) {
+    return false;
+  }
+  const levelParameter = drillDown.level_parameter;
+  const levels = drillDown.levels;
+  if (typeof levelParameter !== "string" || !Array.isArray(levels)) {
+    return false;
+  }
+  const depth = props.parameters?.[levelParameter];
+  if (
+    typeof depth !== "number" ||
+    !Number.isInteger(depth) ||
+    depth < 0 ||
+    depth >= levels.length - 1
+  ) {
+    return false;
+  }
+  const level = levels[depth];
+  if (level === null || typeof level !== "object" || Array.isArray(level)) {
+    return false;
+  }
+  const field = level.field;
+  const selectionParameter = level.selection_parameter;
+  if (
+    typeof field !== "string" ||
+    typeof selectionParameter !== "string" ||
+    row[field] === undefined
+  ) {
+    return false;
+  }
+  emit("interaction", {
+    type: "set_parameters",
+    values: {
+      [selectionParameter]: row[field],
+      [levelParameter]: depth + 1,
+    },
+  });
+  return true;
+}
+
 function handleClick(event: ECElementEvent): void {
   const row = rowFromClick(event);
+  if (emitDrillDown(row)) {
+    return;
+  }
   for (const interaction of props.instance.interactions ?? []) {
     const value = row[interaction.field];
     if (value !== undefined) {

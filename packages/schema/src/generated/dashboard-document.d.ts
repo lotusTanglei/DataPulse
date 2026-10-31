@@ -9,6 +9,7 @@ export type JsonValue =
   | null;
 export type Height = number;
 export type Width = number;
+export type ContractVersion = "1.0.0";
 export type Height1 = number;
 export type Width1 = number;
 export type X = number;
@@ -20,6 +21,7 @@ export type Event = "click";
 export type Field = string;
 export type Parameter = string;
 export type Interactions = ComponentInteraction[];
+export type SchemaVersion = 1;
 export type GroupId = string | null;
 export type Hidden = boolean;
 export type Locked = boolean;
@@ -36,7 +38,7 @@ export type Version = string;
 export type PluginDependencies = PluginDependency[];
 export type IntervalSeconds = (10 | 30 | 60 | 300) | null;
 export type Mode = "disabled" | "interval";
-export type SchemaVersion = 1;
+export type SchemaVersion1 = 1;
 export type Id3 = string;
 
 export interface DashboardDocument {
@@ -45,7 +47,7 @@ export interface DashboardDocument {
   parameters?: Parameters;
   plugin_dependencies?: PluginDependencies;
   refresh?: ScreenRefreshPolicy;
-  schema_version?: SchemaVersion;
+  schema_version?: SchemaVersion1;
   theme?: Theme;
 }
 export interface Canvas {
@@ -57,11 +59,13 @@ export interface Background {
   [k: string]: JsonValue;
 }
 export interface ComponentInstance {
+  contract_version?: ContractVersion;
   data_binding?: DataBinding;
   frame: Frame;
   id: Id;
   interactions?: Interactions;
   props?: Props;
+  schema_version?: SchemaVersion;
   state?: ComponentState;
   style?: Style;
   type: Type;

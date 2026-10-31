@@ -126,9 +126,11 @@ onErrorCaptured(() => {
       v-bind="
         definition.type === 'builtin.digital_human'
           ? { dataStates, mode, parameters, parameterSource, queryUpdatedAt: queryState.updatedAt }
+          : definition.type === 'builtin.screen_carousel'
+            ? { mode }
           : !definition.type.startsWith('builtin.') || definition.dataCapability === 'series' ||
         definition.dataCapability === 'geo'
-          ? { theme }
+          ? { theme, parameters }
           : {}
       "
       @interaction="emit('interaction', $event)"

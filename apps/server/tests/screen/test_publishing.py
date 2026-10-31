@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
 from contextlib import nullcontext
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -202,6 +202,56 @@ async def test_publish_accepts_new_components_with_demo_data(
 
     assert published.published_document is not None
     assert published.published_document.components[0].type == "builtin.radar"
+
+
+@pytest.mark.parametrize(
+    ("component_type", "preset"),
+    [
+        ("builtin.map_drilldown", "geo"),
+        ("builtin.flow_map", "geo"),
+        ("builtin.bubble_map", "geo"),
+        ("builtin.relation_graph", "table"),
+        ("builtin.org_chart", "table"),
+        ("builtin.sankey", "table"),
+        ("builtin.steps", "table"),
+        ("builtin.gantt", "table"),
+        ("builtin.calendar_heatmap", "series"),
+        ("builtin.kpi_group", "table"),
+        ("builtin.metric_comparison", "table"),
+        ("builtin.video", None),
+        ("builtin.iframe", None),
+        ("builtin.word_cloud", "series"),
+        ("builtin.liquid_fill", "single"),
+        ("builtin.polar_bar", "series"),
+        ("builtin.rich_table", "table"),
+        ("builtin.screen_carousel", None),
+    ],
+)
+async def test_publish_accepts_batch_two_and_three_components(
+    screen_repository: ScreenRepository,
+    component_type: str,
+    preset: str | None,
+) -> None:
+    data_binding = (
+        {"source": "mock", "mock_data": {"preset": preset, "seed": 42}}
+        if preset is not None
+        else {}
+    )
+    created = await screen_repository.create(
+        "Advanced component",
+        document_with_component(
+            component_type=component_type,
+            data_binding=data_binding,
+        ),
+    )
+
+    published = await publishing_service(screen_repository).publish(
+        created.id,
+        expected_revision=0,
+    )
+
+    assert published.published_document is not None
+    assert published.published_document.components[0].type == component_type
 
 
 async def test_publish_rejects_malformed_static_data(

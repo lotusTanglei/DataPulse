@@ -645,8 +645,15 @@ class AssetService:
             slots: dict[str, str] = {}
             if component.type == "builtin.image":
                 slots["asset_id"] = "image"
-            elif component.type == "builtin.geo_map":
+            elif component.type in {
+                "builtin.geo_map",
+                "builtin.map_drilldown",
+                "builtin.flow_map",
+                "builtin.bubble_map",
+            }:
                 slots["asset_id"] = "geojson"
+            elif component.type == "builtin.video":
+                slots["asset_id"] = "video"
             elif component.type == "builtin.digital_human":
                 config = DigitalHumanSpec.model_validate(component.props)
                 recording = config.recording

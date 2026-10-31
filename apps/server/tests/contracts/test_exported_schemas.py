@@ -123,6 +123,13 @@ FIXTURES = {
         "dataset_id": "sales",
         "visual": {"type": "line"},
     },
+    "component-contract": {
+        "type": "builtin.relation_graph",
+        "version": "1.0.0",
+        "category": "chart",
+        "props_schema": {"type": "object", "properties": {}},
+        "data_input_schema": {"type": "object", "properties": {}},
+    },
     "dashboard-document": {
         "canvas": {"width": 1920, "height": 1080},
     },

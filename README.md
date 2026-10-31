@@ -56,12 +56,17 @@ DataPulse 是一个面向私有部署、系统嵌入和 AI 辅助分析的开源
 
 ## 第四阶段使用与运维
 
+- [组件贡献规范](docs/operations/component-contributions.md)：合同版本、单数据源边界、默认样式和测试门槛。
 - [用户、角色与共享权限](docs/operations/identity-permissions.md)：用户管理、授权依赖、会话撤销和编辑冲突。
 - [插件 SDK 与离线目录](docs/operations/ecosystem-plugins.md)：安装包、可信代码、固定版本、升级和回退。
 - [备份恢复](docs/operations/backup-restore.md)：维护窗口、归档校验、独立密钥、空目录恢复和升级回滚。
 - [独立 speech worker](docs/operations/speech-workers.md)：数据库领取、租约心跳、配额和过期任务恢复。
 - [上传安全与容量](docs/operations/security-capacity.md)：扫描器、受限子进程及生产验证边界。
 - [容器、容量与日志预检](docs/operations/local-validation.md)：隔离容器演练工具、固定负载、结构化日志和告警配置。
+- [交付演示](docs/operations/delivery-demo.md)：一键部署仓库样例，以及生成、播报、发布、播放、嵌入和权限闭环。
+- [版本迁移与回滚](docs/operations/version-migrations.md)：文档、组件、模板、编辑命令兼容策略和复跑门禁。
+- [场景案例库](docs/scenarios/README.md)：经营、运营、销售和设备四类固定数据案例。
+- [贡献指南](CONTRIBUTING.md)：合同版本、单数据源边界、测试与评审要求。
 
 ## 环境要求
 

@@ -30,6 +30,39 @@
       "title": "ChartType",
       "type": "string"
     },
+    "ComponentInteraction": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "const": "set_parameter",
+          "title": "Action",
+          "type": "string"
+        },
+        "event": {
+          "const": "click",
+          "title": "Event",
+          "type": "string"
+        },
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "parameter": {
+          "minLength": 1,
+          "title": "Parameter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event",
+        "action",
+        "parameter",
+        "field"
+      ],
+      "title": "ComponentInteraction",
+      "type": "object"
+    },
     "DashboardParameter": {
       "additionalProperties": false,
       "properties": {
@@ -82,6 +115,52 @@
       ],
       "title": "DataType",
       "type": "string"
+    },
+    "DrillDownLevel": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "selection_parameter": {
+          "minLength": 1,
+          "title": "Selection Parameter",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "selection_parameter"
+      ],
+      "title": "DrillDownLevel",
+      "type": "object"
+    },
+    "DrillDownSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "level_parameter": {
+          "minLength": 1,
+          "title": "Level Parameter",
+          "type": "string"
+        },
+        "levels": {
+          "items": {
+            "$ref": "#/$defs/DrillDownLevel"
+          },
+          "maxItems": 8,
+          "minItems": 2,
+          "title": "Levels",
+          "type": "array"
+        }
+      },
+      "required": [
+        "level_parameter",
+        "levels"
+      ],
+      "title": "DrillDownSpec",
+      "type": "object"
     },
     "Filter": {
       "additionalProperties": false,
@@ -331,6 +410,17 @@
           "title": "Dimensions",
           "type": "array"
         },
+        "drill_down": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrillDownSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "filters": {
           "items": {
             "$ref": "#/$defs/Filter"
@@ -348,6 +438,14 @@
           "minLength": 1,
           "title": "Intent",
           "type": "string"
+        },
+        "interactions": {
+          "items": {
+            "$ref": "#/$defs/ComponentInteraction"
+          },
+          "maxItems": 8,
+          "title": "Interactions",
+          "type": "array"
         },
         "limit": {
           "default": 1000,
@@ -375,6 +473,14 @@
           },
           "maxItems": 4,
           "title": "Sort",
+          "type": "array"
+        },
+        "time_buckets": {
+          "items": {
+            "$ref": "#/$defs/TimeBucket"
+          },
+          "maxItems": 3,
+          "title": "Time Buckets",
           "type": "array"
         },
         "title": {
@@ -419,6 +525,57 @@
         "desc"
       ],
       "title": "SortDirection",
+      "type": "string"
+    },
+    "TimeBucket": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "grain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeGrain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "parameter": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "TimeBucket",
+      "type": "object"
+    },
+    "TimeGrain": {
+      "enum": [
+        "year",
+        "quarter",
+        "month",
+        "week",
+        "day",
+        "hour"
+      ],
+      "title": "TimeGrain",
       "type": "string"
     }
   },
