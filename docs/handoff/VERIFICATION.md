@@ -1,5 +1,14 @@
 # 交接验证记录
 
+## 2026-11-10 复跑（main 合并后）
+
+- 代码：`main` / `dbfaf42`（2026-10-31 提交，2026-11-10 快进合并 `codex/batches-10-16` 后复跑）。
+- 命令：仓库根 `pnpm verify`（contracts → test → typecheck → build）。
+- 结果：**退出码 0**。SDK 20 passed；Web 53 文件 / 331 passed；后端 `1016 passed, 15 deselected in 251.12s`；前端 build 8.22s 通过（仅 chunk 体积告警）。
+- 证据：`test-evidence/verify-20261110/env.txt`（提交、环境版本与命令）与 `verify.log`（完整输出与退出码）。
+- 未覆盖：`test:integration`（15 项按配置 deselect）、浏览器 E2E、无 AI 部署、真实模型质量门禁、四阶段目标环境门禁。
+- 结论：批次 10–16 的 verify 声明由此获得归档证据，`test-evidence/` 不再停留在 2026-09-23；M1/M2 真实模型门禁与 P4 环境门禁仍未完成。
+
 ## 2026-10-31 复查
 
 交接记录的 4 个失败已修复，`pnpm verify` 退出码 0：SDK 20、Web 331、后端 1016 通过，15 个 integration 用例按配置 deselect。
