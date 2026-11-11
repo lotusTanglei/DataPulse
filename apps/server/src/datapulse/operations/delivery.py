@@ -3,14 +3,13 @@ from __future__ import annotations
 import base64
 import os
 import secrets
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Protocol
 
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
-
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[5]
 SERVER_ROOT = REPOSITORY_ROOT / "apps" / "server"
@@ -332,9 +331,7 @@ def run_clean_delivery_rehearsal(data_dir: Path) -> dict[str, object]:
             client.post(f"/api/admin/screens/{screen_id}/display-key", headers=headers), 201
         )
         _require(
-            client.post(
-                f"/api/player/screens/{screen_id}/session", json={"key": display["key"]}
-            ),
+            client.post(f"/api/player/screens/{screen_id}/session", json={"key": display["key"]}),
             204,
         )
         player = _require(client.get(f"/api/player/screens/{screen_id}"), 200)

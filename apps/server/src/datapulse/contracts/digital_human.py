@@ -91,8 +91,10 @@ class DigitalHumanTrigger(ContractModel):
             raise ValueError("interval_seconds is required for interval triggers")
         if self.kind != "interval" and self.interval_seconds is not None:
             raise ValueError("interval_seconds is only valid for interval triggers")
-        if self.kind == "threshold" and not self.conditions and (
-            self.threshold is None or self.variable is None
+        if (
+            self.kind == "threshold"
+            and not self.conditions
+            and (self.threshold is None or self.variable is None)
         ):
             raise ValueError("threshold and variable are required for threshold triggers")
         if self.kind in {"ranking_change", "status_change"} and self.variable is None:

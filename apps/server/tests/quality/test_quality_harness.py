@@ -159,9 +159,7 @@ def test_upgrade_gate_blocks_when_case_sets_differ() -> None:
     decision = harness.evaluate_upgrade(baseline, candidate)
 
     assert decision["allowed"] is False
-    assert decision["incompatibilities"] == [
-        "case ids mismatch: ['sales-by-region'] != []"
-    ]
+    assert decision["incompatibilities"] == ["case ids mismatch: ['sales-by-region'] != []"]
 
 
 def test_upgrade_gate_blocks_unsupported_schema_and_missing_fixture() -> None:

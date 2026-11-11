@@ -110,9 +110,7 @@ async def test_upload_exposes_a_rejecting_virus_scan_hook(
         scanner=scanner,
     )
     with pytest.raises(AssetScanRejected, match="virus scan"):
-        await service.upload(
-            filename="avatar.png", content_type="image/png", content=image_bytes()
-        )
+        await service.upload(filename="avatar.png", content_type="image/png", content=image_bytes())
     assert scanned == [("image/png", "avatar.png")]
     assert await service.list() == ()
 
@@ -312,9 +310,7 @@ def test_management_api_is_authenticated_and_keeps_paths_private(tmp_path) -> No
             headers=mutation_headers(app),
         )
         assert updated.status_code == 200 and updated.json()["name"] == "Renamed"
-        expiring = app.client.get(
-            "/api/admin/assets/expiring?within_days=3650&limit=10"
-        )
+        expiring = app.client.get("/api/admin/assets/expiring?within_days=3650&limit=10")
         assert expiring.status_code == 200
         assert [item["id"] for item in expiring.json()] == [asset["id"]]
         assert (

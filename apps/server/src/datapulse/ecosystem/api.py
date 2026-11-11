@@ -87,9 +87,7 @@ async def apply_template(
     user = request.state.admin
     identity = getattr(request.app.state, "identity_service", None)
     if identity is None:
-        raise invalid(
-            "Identity authorization is unavailable.", code="AUTH_UNAVAILABLE", status=503
-        )
+        raise invalid("Identity authorization is unavailable.", code="AUTH_UNAVAILABLE", status=503)
 
     async def authorize(kind: str, identifier: str) -> None:
         await identity.require_access(user, kind, identifier, "read")

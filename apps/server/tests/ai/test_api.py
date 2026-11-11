@@ -342,9 +342,7 @@ def test_ai_screen_edit_api_returns_an_editable_draft_without_publishing(
 ) -> None:
     setup_admin(ai_app)
     response_payload = screen_edit_response()
-    ai_app.client.app.state.ai_service = FakeAiService(
-        screen_edit_response=response_payload
-    )
+    ai_app.client.app.state.ai_service = FakeAiService(screen_edit_response=response_payload)
 
     response = ai_app.client.post(
         "/api/admin/ai/screen/edit",

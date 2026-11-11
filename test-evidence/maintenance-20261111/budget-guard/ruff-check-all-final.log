@@ -1,0 +1,4 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'check', 'apps/server', 'tools']
+All checks passed!
+
+exit_code=0

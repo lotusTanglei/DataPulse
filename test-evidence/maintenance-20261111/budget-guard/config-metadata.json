@@ -1,0 +1,12 @@
+{
+  "project": "/Users/dundundebaba/sync/code/open/DataPulse",
+  "environment_configured": {
+    "DATAPULSE_AI_ENABLED": false,
+    "DATAPULSE_AI_BASE_URL": false,
+    "DATAPULSE_AI_API_KEY": false,
+    "DATAPULSE_AI_MODEL": false
+  },
+  "example_config_present": true,
+  "actual_project_env_present": false,
+  "note": "Metadata only; no configuration values or secrets recorded."
+}

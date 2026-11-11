@@ -32,12 +32,10 @@ _FAKE_MODES = (
 def playwright_arguments(arguments: list[str]) -> list[str]:
     normalized = arguments[1:] if arguments[:1] == ["--"] else list(arguments)
     has_config = any(
-        argument == "--config" or argument.startswith("--config=")
-        for argument in normalized
+        argument == "--config" or argument.startswith("--config=") for argument in normalized
     )
     has_project = any(
-        argument == "--project" or argument.startswith("--project=")
-        for argument in normalized
+        argument == "--project" or argument.startswith("--project=") for argument in normalized
     )
     return [
         *([] if has_config else ["--config", "playwright.config.ts"]),
@@ -56,7 +54,7 @@ def playwright_runs(arguments: list[str]) -> list[tuple[str | None, list[str]]]:
         argument = arguments[index]
         index += 1
         if argument == "--":
-            common.extend(arguments[index - 1:])
+            common.extend(arguments[index - 1 :])
             break
         if argument == "--project" or argument.startswith("--project="):
             if argument.startswith("--project="):
@@ -89,9 +87,16 @@ def playwright_runs(arguments: list[str]) -> list[tuple[str | None, list[str]]]:
         if label in labels:
             label = f"{label}-{len(runs) + 1}"
         labels.add(label)
-        runs.append((label, [
-            f"--project={project}", f"--output={Path(output) / label}", *common,
-        ]))
+        runs.append(
+            (
+                label,
+                [
+                    f"--project={project}",
+                    f"--output={Path(output) / label}",
+                    *common,
+                ],
+            )
+        )
     return runs
 
 
@@ -106,9 +111,7 @@ def project_report_environment(environment: dict[str, str], project: str) -> Non
             path = Path(filename)
             environment[prefix + "FILE"] = str(path.parent / project / path.name)
         elif prefix + "DIR" in environment or prefix + "NAME" in environment:
-            environment[prefix + "DIR"] = str(
-                Path(environment.get(prefix + "DIR", ".")) / project
-            )
+            environment[prefix + "DIR"] = str(Path(environment.get(prefix + "DIR", ".")) / project)
 
 
 def _prompt_value(prompt: str, name: str, fallback: str) -> str:
@@ -384,9 +387,7 @@ def main() -> int:
                     "DATAPULSE_AI_MODEL": "e2e-fake-model",
                     "DATAPULSE_AI_TIMEOUT_SECONDS": "1",
                     # E2E-only key so the server can encrypt the fake provider secret.
-                    "DATAPULSE_MASTER_KEY": (
-                        "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
-                    ),
+                    "DATAPULSE_MASTER_KEY": ("MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="),
                     "DATAPULSE_E2E_TTS_BASE_URL": tts_base_url,
                     "DATAPULSE_E2E_TTS_API_KEY": "e2e-fake-tts-key",
                 }

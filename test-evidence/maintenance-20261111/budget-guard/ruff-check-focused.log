@@ -1,0 +1,15 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'check', 'tools/quality_baseline.py', 'tools/run_quality_baseline.py', 'apps/server/tests/quality/test_quality_baseline.py']
+E501 Line too long (107 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:171:101
+    |
+169 |                     "message": {
+170 |                         "content": content
+171 |                         or '{"success": true, "bindings": {}, "chart_type": "bar", "draft_produced": true}'
+    |                                                                                                     ^^^^^^^
+172 |                     }
+173 |                 }
+    |
+
+Found 1 error.
+
+exit_code=1

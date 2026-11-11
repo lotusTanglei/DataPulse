@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from datapulse.ai.models import DatasetContext
+from datapulse.ai.models import AiAnalysisError, DatasetContext
 from datapulse.ai.plan_generator import ScreenPlanGenerator
 from datapulse.contracts.ai import AiScreenRequest
 from datapulse.contracts.dataset import DatasetDefinition
@@ -137,3 +137,44 @@ async def test_ai_plan_repairs_structured_validation_issues_for_at_most_two_roun
     assert len(gateway.calls) == 2
     assert "PLAN_FIELD_UNKNOWN" in str(gateway.calls[1]["user"])
     assert "Repair the plan" in str(gateway.calls[1]["user"])
+
+
+async def test_ai_plan_repairs_unused_dataset_outside_requested_scope() -> None:
+    invalid = response_payload()
+    invalid["plan"]["dataset_ids"] = ("sales", "private")  # type: ignore[index]
+    gateway = FakeGateway([invalid, response_payload()])
+    generator = ScreenPlanGenerator(
+        gateway=gateway,
+        context_service=FakeContextService(),
+        dataset_repository=FakeDatasetRepository(),
+    )
+
+    response = await generator.generate(
+        AiScreenRequest(question="生成销售趋势大屏", dataset_ids=("sales",)),
+        request_id="plan-dataset-repair",
+    )
+
+    assert response.plan.dataset_ids == ("sales",)
+    assert len(gateway.calls) == 2
+    assert "PLAN_DATASET_UNAUTHORIZED" in str(gateway.calls[1]["user"])
+    assert "dataset_ids[1]" in str(gateway.calls[1]["user"])
+
+
+async def test_ai_plan_rejects_persistent_unused_dataset_outside_requested_scope() -> None:
+    invalid = response_payload()
+    invalid["plan"]["dataset_ids"] = ("sales", "private")  # type: ignore[index]
+    gateway = FakeGateway([invalid, invalid, invalid])
+    generator = ScreenPlanGenerator(
+        gateway=gateway,
+        context_service=FakeContextService(),
+        dataset_repository=FakeDatasetRepository(),
+    )
+
+    with pytest.raises(AiAnalysisError) as raised:
+        await generator.generate(
+            AiScreenRequest(question="生成销售趋势大屏", dataset_ids=("sales",)),
+            request_id="plan-dataset-reject",
+        )
+
+    assert raised.value.code == "AI_SCREEN_INVALID"
+    assert len(gateway.calls) == 3

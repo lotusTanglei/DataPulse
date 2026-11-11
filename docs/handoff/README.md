@@ -5,16 +5,16 @@
 
 ## 先看当前状态
 
-**历史交接基线为 `main@63d74c7`；2026-11-11 验证时的代码基线为 `main@7464c4e`，当时工作区干净且领先 `origin/main` 1 个提交。后续维护文档提交见 `git log -1` 与本轮执行记录。本次补充了当前 `pnpm verify` 和 M1/M2 真实模型阻塞证据；真实模型与目标环境门禁仍未通过。**
+**历史交接基线为 `main@63d74c7`；2026-11-11 首轮验证代码基线为 `main@7464c4e`。本轮维护从 `main@ed5ec70`、领先远端 4 个提交的干净工作树继续，修复评测预算保护、Plan 数据集声明边界和既有 Ruff 门禁；最终命令结果见本轮执行记录。用户已要求真实模型配置“先等等吧”，本轮不发起供应商请求；M1/M2 和 P4 均未通过。提交 hash 以 `git log -1` 及执行记录为准。**
 
 | 项目 | 交接时事实 |
 | --- | --- |
 | 仓库 | `/Users/dundundebaba/sync/code/open/DataPulse` |
 | Remote | `https://github.com/lotusTanglei/DataPulse.git` |
 | 当前分支 | `main` |
-| 代码验证基线 | `7464c4e`（2026-11-11 证据化收尾）；后续文档提交以 `git log -1` 为准 |
-| 本地 main / origin/main | 验证开工时有 1 个本地提交；最新数量用 `git log --oneline origin/main..main` 复核 |
-| 工作树 | 验证开工时干净；本次维护仅补充 `test-evidence/maintenance-20261111/` 和交接记录 |
+| 代码验证基线 | 首轮 `7464c4e`；本轮维护开工 `ed5ec70`，最终工作树验证见 `verify-budget-plan-final.log.gz` |
+| 本地 main / origin/main | 首轮开工领先 1 个；本轮 `ed5ec70` 开工领先 4 个；最新数量用 `git log --oneline origin/main..main` 复核 |
+| 工作树 | 本轮开工干净；本轮包含预算保护、Plan 边界修复、回归、Ruff 安全修复与证据文档 |
 | 文件清单 | 1,432 个跟踪或未忽略文件；包括 91 份 Markdown 文档 |
 | 本次运行 | `pnpm test:e2e`：28 passed，退出码 0；集成数据库项 1 passed、12 skipped（缺少测试 URL） |
 | 最近开发进度答复 | 2026-09-23 主会话估计整体约 85%；这是当时人工估计，不是验收比例 |
@@ -35,13 +35,15 @@
 - `pnpm test:e2e`：退出码 0；Chromium 28 项通过。期间修复文件数据集保存按钮的非精确定位，并更新组件注册表扩展后的 Darwin 视觉基线；更新理由与 diff 复核见 `e2e.log` 和提交差异。
 - 未执行真实模型质量门禁（M1/M2）及八项目标环境门禁；这些仍是待验收项。
 
-### 2026-11-11 当前工作树复核
+### 2026-11-11 首轮工作树复核与本轮维护
 
-- **有证据**：`git status --short --branch`、`git log -1 --oneline`、`git log --oneline origin/main..main` 显示 `main@7464c4e`，工作区干净，领先远端 1 个提交。
+- **有证据**：首轮复核的 `git status --short --branch`、`git log -1 --oneline`、`git log --oneline origin/main..main` 显示 `main@7464c4e`，当时工作区干净，领先远端 1 个提交。本轮维护开工基线另为 `ed5ec70`，见上表与执行记录。
 - **有证据**：`pnpm verify` 退出码 0；完整输出与计数见 `test-evidence/maintenance-20261111/verify-current-rerun.log`。
 - **有证据**：固定 `gpt-6-astra` / `golden-v1` fixture 评测退出码 0，但真实 OpenAI-compatible 评测因缺少 `DATAPULSE_AI_BASE_URL`、`DATAPULSE_AI_API_KEY` 退出码 2，记录为 BLOCKED；不得把 fixture 报告当作 M1/M2 真实证据。详见 `test-evidence/maintenance-20261111/README.md`。
-- **文档声明**：真实评测准备计划固定单次完整八 case 预算上限为 USD 1.00；当前 runner 无硬限额及 `max_tokens`，专用供应商账号必须先设置不高于 USD 1.00 的硬限额，并确认可核对模型版本才解除阻塞。该 runner 只评测结构化绑定摘要，不能独立关闭完整 M1/M2；完整阈值和未覆盖项见上述执行记录。
+- **有证据**：本轮运行器增加 `--budget-usd 1.00`、`--max-output-tokens 512`、请求前保留最坏计价、最多八次且不重试，以及未知 usage 保留预算并停止。实现与红绿回归见 `test-evidence/maintenance-20261111/budget-guard/README.md`；该保护依赖供应商 token/计价约束，不能宣称任意供应商的财务硬限额。此前“无预算参数/必须账号硬限额”的描述已由本轮实现和条件说明取代。
+- **文档声明**：真实模型配置已由用户要求“先等等吧”；同时项目凭据仍缺失。恢复需用户继续指令、批准凭据、可核对模型版本/价格和 token 上限行为，不要求供应商账号必须支持货币硬限额。该 runner 只评测结构化绑定摘要，不能独立关闭完整 M1/M2；完整阈值和未覆盖项见上述执行记录。
 - **文档声明**：P4 八项目标环境仍按 `docs/PHASE_FOUR_TARGET_ENVIRONMENT.md` 阻塞，不执行伪验收。
+- **有证据**：本轮预算/Plan/静态维护工作树的 `pnpm verify` 退出 0（SDK 20、Web 331、后端 1045 passed/15 deselected，类型和构建通过）；全仓 Ruff check 与 format 均退出 0。最终日志是 `test-evidence/maintenance-20261111/verify-budget-plan-final.log.gz`；失败回归、中间静态失败和源码哈希见维护记录。它替代旧基线作为本轮新增源码证据。
 
 ## 交接材料
 

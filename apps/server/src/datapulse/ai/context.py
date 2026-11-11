@@ -148,11 +148,7 @@ class DatasetContextService:
             field_names = tuple(field.name for field in field_limit)
             sample_rows = (
                 tuple(
-                    {
-                        name: row.get(name)
-                        for name in field_names
-                        if name in row
-                    }
+                    {name: row.get(name) for name in field_names if name in row}
                     for row in _rows(preview)[:max_rows]
                 )
                 if preview is not None
@@ -168,10 +164,7 @@ class DatasetContextService:
                 DatasetContext(
                     dataset_id=dataset.id,
                     name=dataset.name,
-                    fields=tuple(
-                        _context_field(field)
-                        for field in field_limit
-                    ),
+                    fields=tuple(_context_field(field) for field in field_limit),
                     sample_rows=sample_rows,
                     summary=(
                         f"{len(field_limit)} fields; "
@@ -219,12 +212,11 @@ def _fit_budget(
         selected_fields.pop()
         allowed = {field.name for field in selected_fields}
         selected_rows = [
-            {name: value for name, value in row.items() if name in allowed}
-            for row in selected_rows
+            {name: value for name, value in row.items() if name in allowed} for row in selected_rows
         ]
         clipped = True
     while serialized_size() > max_chars and profile_summary:
-        profile_summary = profile_summary[:- max(1, len(profile_summary) // 5)]
+        profile_summary = profile_summary[: -max(1, len(profile_summary) // 5)]
         clipped = True
     return tuple(selected_fields), tuple(selected_rows), profile_summary, clipped
 

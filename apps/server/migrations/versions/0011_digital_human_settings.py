@@ -21,9 +21,7 @@ def upgrade() -> None:
         sa.Column("max_speech_seconds", sa.Float(), nullable=False, server_default="30"),
         sa.Column("cooldown_seconds", sa.Float(), nullable=False, server_default="5"),
         sa.Column("daily_task_limit", sa.Integer(), nullable=False, server_default="1000"),
-        sa.Column(
-            "daily_audio_seconds_limit", sa.Float(), nullable=False, server_default="36000"
-        ),
+        sa.Column("daily_audio_seconds_limit", sa.Float(), nullable=False, server_default="36000"),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
     )
     op.execute(

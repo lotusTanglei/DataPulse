@@ -134,9 +134,7 @@ def test_speech_metrics_migration_preserves_legacy_usage(tmp_path: Path) -> None
         )
     command.upgrade(config, "0018_speech_metrics_timing")
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute(
-            f"SELECT {columns} FROM digital_human_usage"
-        ).fetchone() == legacy
+        assert connection.execute(f"SELECT {columns} FROM digital_human_usage").fetchone() == legacy
         assert connection.execute(
             "SELECT synthesis_attempts, synthesis_failures, synthesis_total_ms "
             "FROM digital_human_usage"
@@ -147,9 +145,7 @@ def test_speech_metrics_migration_preserves_legacy_usage(tmp_path: Path) -> None
         )
     command.downgrade(config, previous)
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute(
-            f"SELECT {columns} FROM digital_human_usage"
-        ).fetchone() == legacy
+        assert connection.execute(f"SELECT {columns} FROM digital_human_usage").fetchone() == legacy
     assert "synthesis_total_ms" not in inspect_sqlite_columns(database_path, "digital_human_usage")
     command.upgrade(config, "head")
     assert "synthesis_total_ms" in inspect_sqlite_columns(database_path, "digital_human_usage")

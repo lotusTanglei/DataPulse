@@ -1,0 +1,4 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'format', 'tools/quality_baseline.py', 'tools/run_quality_baseline.py', 'apps/server/tests/quality/test_quality_baseline.py']
+3 files reformatted
+
+exit_code=0

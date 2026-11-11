@@ -68,12 +68,15 @@ def fixture_runner(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> list[Path
     return prepared
 
 
-@pytest.mark.parametrize("projects", [
-    ["--project=firefox", "--project=webkit"],
-    ["--project", "firefox", "--project", "webkit"],
-    ["--project", "firefox", "webkit"],
-    ["--project=firefox", "e2e/identity.spec.ts", "--project=webkit"],
-])
+@pytest.mark.parametrize(
+    "projects",
+    [
+        ["--project=firefox", "--project=webkit"],
+        ["--project", "firefox", "--project", "webkit"],
+        ["--project", "firefox", "webkit"],
+        ["--project=firefox", "e2e/identity.spec.ts", "--project=webkit"],
+    ],
+)
 def test_browser_runs_isolate_mutable_state_and_preserve_failed_evidence(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, projects: list[str]
 ) -> None:
@@ -81,10 +84,21 @@ def test_browser_runs_isolate_mutable_state_and_preserve_failed_evidence(
     output = tmp_path / "artifacts"
     monkeypatch.setenv("PLAYWRIGHT_HTML_OUTPUT_DIR", str(tmp_path / "html"))
     monkeypatch.setenv("PLAYWRIGHT_JSON_OUTPUT_FILE", str(tmp_path / "json" / "results.json"))
-    monkeypatch.setattr(sys, "argv", [
-        "run_e2e", "--", "e2e/screen-editor.spec.ts", *projects,
-        "--output", str(output), "--grep", "builds a screen", "--retries=0",
-    ])
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_e2e",
+            "--",
+            "e2e/screen-editor.spec.ts",
+            *projects,
+            "--output",
+            str(output),
+            "--grep",
+            "builds a screen",
+            "--retries=0",
+        ],
+    )
     calls: list[tuple[list[str], dict[str, str]]] = []
     data_dirs: list[Path] = []
 
@@ -104,7 +118,8 @@ def test_browser_runs_isolate_mutable_state_and_preserve_failed_evidence(
         calls.append((command, env))
         output_option = next((item for item in command if item.startswith("--output=")), None)
         evidence_dir = Path(
-            output_option.removeprefix("--output=") if output_option
+            output_option.removeprefix("--output=")
+            if output_option
             else command[command.index("--output") + 1]
         )
         evidence_dir.mkdir(parents=True)
@@ -138,8 +153,11 @@ def test_single_target_project_retains_its_arguments_and_output(
 ) -> None:
     prepared = fixture_runner(monkeypatch, tmp_path)
     arguments = [
-        "--config=playwright.target.config.ts", "--grep", "@soak",
-        "--output=target-artifacts", "--reporter=line",
+        "--config=playwright.target.config.ts",
+        "--grep",
+        "@soak",
+        "--output=target-artifacts",
+        "--reporter=line",
     ]
     monkeypatch.setattr(sys, "argv", ["run_e2e", *arguments])
     commands: list[list[str]] = []
@@ -150,10 +168,18 @@ def test_single_target_project_retains_its_arguments_and_output(
 
     monkeypatch.setattr(run_e2e.subprocess, "run", launch)
     assert run_e2e.main() == 3
-    assert commands == [[
-        "pnpm", "--filter", "@datapulse/web", "exec", "playwright", "test",
-        "--project=chromium", *arguments,
-    ]]
+    assert commands == [
+        [
+            "pnpm",
+            "--filter",
+            "@datapulse/web",
+            "exec",
+            "playwright",
+            "test",
+            "--project=chromium",
+            *arguments,
+        ]
+    ]
     assert len(prepared) == 1
     assert not prepared[0].exists()
 

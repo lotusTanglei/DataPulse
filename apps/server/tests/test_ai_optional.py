@@ -17,9 +17,7 @@ def test_core_python_modules_do_not_import_ai_package() -> None:
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
-                "datapulse.ai"
-            ):
+            if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("datapulse.ai"):
                 violations.append(f"{path.relative_to(REPOSITORY_ROOT)}:{node.lineno}")
             if isinstance(node, ast.Import):
                 violations.extend(

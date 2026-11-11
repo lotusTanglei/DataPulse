@@ -169,14 +169,25 @@ def test_backup_detaches_deleted_terminal_speech_cache_only_in_snapshot(source, 
 
     engine = create_engine(f"sqlite:///{source.data_dir / 'datapulse.db'}")
     with Session(engine) as session, session.begin():
-        session.add(SpeechPlanRecord(
-            id="plan", screen_id="screen", component_id="speaker", text="Hello",
-            language="en", content_hash="f" * 64,
-        ))
-        session.add(SpeechTaskRecord(
-            id="finished", plan_id="plan", status=status, asset_id="poster",
-            finished_at=utc_now(),
-        ))
+        session.add(
+            SpeechPlanRecord(
+                id="plan",
+                screen_id="screen",
+                component_id="speaker",
+                text="Hello",
+                language="en",
+                content_hash="f" * 64,
+            )
+        )
+        session.add(
+            SpeechTaskRecord(
+                id="finished",
+                plan_id="plan",
+                status=status,
+                asset_id="poster",
+                finished_at=utc_now(),
+            )
+        )
     engine.dispose()
     create_backup(source, tmp_path / "with-cache.zip", maintenance=True)
     with sqlite3.connect(source.data_dir / "datapulse.db") as connection:
@@ -228,10 +239,13 @@ def test_template_document_and_exact_dependencies_are_verified(source, tmp_path,
     document = {
         "canvas": {"width": 1920, "height": 1080},
         "plugin_dependencies": [{"id": "org.example.metrics", "version": "1.0.0"}],
-        "components": [{
-            "id": "metric", "type": "org.example.metric",
-            "frame": {"x": 0, "y": 0, "width": 100, "height": 100},
-        }],
+        "components": [
+            {
+                "id": "metric",
+                "type": "org.example.metric",
+                "frame": {"x": 0, "y": 0, "width": 100, "height": 100},
+            }
+        ],
     }
     service.install(template_archive(document))
     create_backup(source, tmp_path / "valid-template.zip", maintenance=True)
@@ -582,9 +596,7 @@ def test_missing_nested_chart_dataset_reference_rejected(source, tmp_path, docum
                 },
             }
         )
-        connection.execute(
-            f"UPDATE screen SET {document_column}=?", (json.dumps(document),)
-        )
+        connection.execute(f"UPDATE screen SET {document_column}=?", (json.dumps(document),))
     create_backup(source, tmp_path / "valid.zip", maintenance=True)
     with sqlite3.connect(source.data_dir / "datapulse.db") as connection:
         connection.execute("DELETE FROM dataset WHERE id='sales'")

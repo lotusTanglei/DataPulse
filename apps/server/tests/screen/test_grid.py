@@ -15,9 +15,7 @@ def test_grid_maps_cells_with_safe_margin_and_gutters(columns: int) -> None:
     )
 
     first = grid.frame(GridCell(column=0, row=0, column_span=columns // 2, row_span=3))
-    second = grid.frame(
-        GridCell(column=columns // 2, row=0, column_span=columns // 2, row_span=3)
-    )
+    second = grid.frame(GridCell(column=columns // 2, row=0, column_span=columns // 2, row_span=3))
 
     assert first.x == 48
     assert first.y == 48

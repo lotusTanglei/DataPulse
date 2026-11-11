@@ -1,0 +1,4 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'format', 'apps/server', 'tools']
+45 files reformatted, 282 files left unchanged
+
+exit_code=0

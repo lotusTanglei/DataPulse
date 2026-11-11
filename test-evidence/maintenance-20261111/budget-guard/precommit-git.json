@@ -1,0 +1,32 @@
+{
+  "status": {
+    "command": [
+      "git",
+      "status",
+      "--short",
+      "--branch"
+    ],
+    "exit_code": 0,
+    "output": "## main...origin/main [ahead 4]\n M apps/server/migrations/versions/0011_digital_human_settings.py\n M apps/server/migrations/versions/0016_speech_task_metadata.py\n M apps/server/src/datapulse/ai/context.py\n M apps/server/src/datapulse/ai/screen_generator.py\n M apps/server/src/datapulse/contracts/chart.py\n M apps/server/src/datapulse/contracts/dataset.py\n M apps/server/src/datapulse/contracts/digital_human.py\n M apps/server/src/datapulse/contracts/migrations.py\n M apps/server/src/datapulse/contracts/speech.py\n M apps/server/src/datapulse/dataset/profile.py\n M apps/server/src/datapulse/ecosystem/api.py\n M apps/server/src/datapulse/ecosystem/service.py\n M apps/server/src/datapulse/filedata/parsers.py\n M apps/server/src/datapulse/filedata/query.py\n M apps/server/src/datapulse/operations/delivery.py\n M apps/server/src/datapulse/screen/assets.py\n M apps/server/src/datapulse/screen/chart_query.py\n M apps/server/src/datapulse/screen/planning.py\n M apps/server/src/datapulse/screen/service.py\n M apps/server/tests/ai/test_api.py\n M apps/server/tests/ai/test_plan_generator.py\n M apps/server/tests/dataset/test_api.py\n M apps/server/tests/dataset/test_profile.py\n M apps/server/tests/embedding/test_api.py\n M apps/server/tests/filedata/test_api.py\n M apps/server/tests/filedata/test_parsers.py\n M apps/server/tests/metadata/test_migrations.py\n M apps/server/tests/operations/test_backup.py\n M apps/server/tests/operations/test_delivery_demo.py\n M apps/server/tests/operations/test_evolution_guides.py\n M apps/server/tests/quality/test_quality_baseline.py\n M apps/server/tests/quality/test_quality_harness.py\n M apps/server/tests/screen/test_asset_management.py\n M apps/server/tests/screen/test_digital_human.py\n M apps/server/tests/screen/test_grid.py\n M apps/server/tests/screen/test_plan_validator.py\n M apps/server/tests/screen/test_planning_service.py\n M apps/server/tests/screen/test_runtime_file_capacity.py\n M apps/server/tests/screen/test_service.py\n M apps/server/tests/speech/test_api.py\n M apps/server/tests/speech/test_service.py\n M apps/server/tests/test_ai_optional.py\n M apps/server/tests/test_e2e_fake_ai.py\n M apps/server/tests/test_run_e2e.py\n M docs/handoff/README.md\n M docs/handoff/VERIFICATION.md\n M test-evidence/maintenance-20261111/README.md\n M test-evidence/maintenance-20261111/commands.md\n M test-evidence/quality-baseline/README.md\n M tools/check_generated.py\n M tools/deploy_demo.py\n M tools/quality_baseline.py\n M tools/quality_harness.py\n M tools/run_e2e.py\n M tools/run_quality_baseline.py\n M tools/verify_no_ai_deployment.py\n?? test-evidence/maintenance-20261111/budget-guard/\n?? test-evidence/maintenance-20261111/plan-dataset-boundary/\n?? test-evidence/maintenance-20261111/verify-budget-plan-final.log\n"
+  },
+  "head": {
+    "command": [
+      "git",
+      "log",
+      "-1",
+      "--oneline"
+    ],
+    "exit_code": 0,
+    "output": "ed5ec70 docs(datapulse): preserve verification wrapper limitation\n"
+  },
+  "ahead": {
+    "command": [
+      "git",
+      "log",
+      "--oneline",
+      "origin/main..main"
+    ],
+    "exit_code": 0,
+    "output": "ed5ec70 docs(datapulse): preserve verification wrapper limitation\nb31ec0c docs(datapulse): clarify model budget and gate boundaries\n19c7708 docs(datapulse): record current model gate evidence\n7464c4e test: close DataPulse maintenance evidence gates\n"
+  }
+}

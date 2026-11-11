@@ -253,12 +253,7 @@ class ScreenAssetRepository:
             records = await session.execute(
                 select(ScreenAssetRecord.storage_path, ScreenAssetRecord.thumbnail_path)
             )
-        return {
-            str(path)
-            for record in records.all()
-            for path in record
-            if path
-        }
+        return {str(path) for record in records.all() for path in record if path}
 
     @staticmethod
     async def _references(session: AsyncSession, asset_id: str) -> tuple[ScreenAssetReference, ...]:
@@ -550,7 +545,11 @@ class AssetService:
         visible_ids: set[str] | None = None,
     ) -> tuple[StoredScreenAsset, ...]:
         return await self._repository.list(
-            offset=offset, limit=limit, search=search, asset_type=asset_type, family_id=family_id,
+            offset=offset,
+            limit=limit,
+            search=search,
+            asset_type=asset_type,
+            family_id=family_id,
             visible_ids=visible_ids,
         )
 
@@ -592,10 +591,7 @@ class AssetService:
                     ):
                         continue
                     resolved = candidate.resolve(strict=False)
-                    if (
-                        not resolved.is_relative_to(self._assets_dir)
-                        or str(resolved) in referenced
-                    ):
+                    if not resolved.is_relative_to(self._assets_dir) or str(resolved) in referenced:
                         continue
                     try:
                         if candidate.lstat().st_mtime > cutoff:

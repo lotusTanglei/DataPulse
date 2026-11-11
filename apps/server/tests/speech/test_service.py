@@ -322,6 +322,7 @@ async def test_task_cancellation_handles_background_task_from_another_event_loop
             service._background_tasks.pop(speech_task.id, None)
         if background_task is not None:
             background_task.cancel()
+
             def drain_foreign_task() -> None:
                 asyncio.set_event_loop(foreign_loop)
                 foreign_loop.run_until_complete(

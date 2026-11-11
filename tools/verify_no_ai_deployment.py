@@ -54,8 +54,7 @@ def main() -> int:
             "screen_route_available": "/api/admin/screens" in paths,
         }
         ai_loaded = any(
-            name == "datapulse.ai" or name.startswith("datapulse.ai.")
-            for name in sys.modules
+            name == "datapulse.ai" or name.startswith("datapulse.ai.") for name in sys.modules
         )
         result = {
             "status": "ok" if all(checks.values()) and not ai_loaded else "failed",

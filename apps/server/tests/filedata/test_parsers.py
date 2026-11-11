@@ -191,11 +191,15 @@ async def test_file_formats_share_scalar_inference_semantics(tmp_path: Path) -> 
     expected = {"amount": "integer", "enabled": "boolean", "day": "date"}
     assert {field.name: field.data_type.value for field in json_result.fields} == expected
     assert {field.name: field.data_type.value for field in excel_result.fields} == expected
-    assert json_result.sample_rows[0] == excel_result.sample_rows[0] == {
-        "amount": 10,
-        "enabled": True,
-        "day": "2026-09-22",
-    }
+    assert (
+        json_result.sample_rows[0]
+        == excel_result.sample_rows[0]
+        == {
+            "amount": 10,
+            "enabled": True,
+            "day": "2026-09-22",
+        }
+    )
 
 
 async def test_all_file_formats_share_scalar_inference_semantics(tmp_path: Path) -> None:

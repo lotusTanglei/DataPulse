@@ -26,6 +26,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--base-url", default=defaults["base_url"])
     parser.add_argument("--api-key", default=defaults["api_key"])
     parser.add_argument("--date", default=default_run_date())
+    parser.add_argument(
+        "--budget-usd",
+        default="1.00",
+        help="Maximum reserved cost in USD, greater than 0 and at most 1.00 (real provider only).",
+    )
+    parser.add_argument(
+        "--max-output-tokens",
+        type=int,
+        default=512,
+        help="Per-request max_tokens limit (1-4096, real provider only).",
+    )
     parser.add_argument("--output", type=Path)
     arguments = list(argv) if argv is not None else sys.argv[1:]
     if arguments[:1] == ["--"]:
@@ -39,6 +50,8 @@ def main(argv: list[str] | None = None) -> int:
             run_date=args.date,
             base_url=args.base_url,
             api_key=args.api_key,
+            budget_usd=args.budget_usd,
+            max_output_tokens=args.max_output_tokens,
         )
     except ValueError as error:
         parser.error(str(error))
@@ -47,7 +60,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     write_report(report, output)
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
-    return 0
+    return 1 if report.get("budget", {}).get("halted_reason") else 0
 
 
 if __name__ == "__main__":

@@ -100,7 +100,8 @@ def test_plan_validator_rejects_partition_capacity_overflow() -> None:
     payload = deepcopy(plan_payload())
     widget = payload["widgets"][0]  # type: ignore[index]
     payload["widgets"] = tuple(
-        {**widget, "id": f"trend-{index}"} for index in range(17)  # type: ignore[arg-type]
+        {**widget, "id": f"trend-{index}"}
+        for index in range(17)  # type: ignore[arg-type]
     )
 
     result = validate(payload)
@@ -131,6 +132,45 @@ def test_plan_validator_locates_unknown_widget_dataset_separately_from_authoriza
         "reason": "数据集 missing 不存在",
         "expected": "已登记的数据集",
     }
+
+
+def test_plan_validator_rejects_unused_unauthorized_dataset_declaration() -> None:
+    payload = plan_payload()
+    payload["dataset_ids"] = ("sales", "private")
+
+    result = validate(payload)
+
+    assert result.valid is False
+    assert [(issue.code, issue.widget_id, issue.field) for issue in result.issues] == [
+        ("PLAN_DATASET_UNAUTHORIZED", None, "dataset_ids[1]"),
+    ]
+
+
+def test_plan_validator_checks_existence_of_unused_authorized_dataset() -> None:
+    payload = plan_payload()
+    payload["dataset_ids"] = ("sales", "missing")
+
+    result = validate(payload, authorized={"sales", "missing"})
+
+    assert result.valid is False
+    assert [(issue.code, issue.widget_id, issue.field) for issue in result.issues] == [
+        ("PLAN_DATASET_UNKNOWN", None, "dataset_ids[1]"),
+    ]
+
+
+def test_plan_validator_preserves_unused_authorized_existing_dataset() -> None:
+    payload = plan_payload()
+    payload["dataset_ids"] = ("sales", "other")
+    dataset = DatasetDefinition.model_validate(dataset_payload())
+
+    result = PlanValidator().validate(
+        DashboardPlan.model_validate(payload),
+        datasets={"sales": dataset, "other": dataset.model_copy(update={"id": "other"})},
+        authorized_dataset_ids={"sales", "other"},
+    )
+
+    assert result.valid is True
+    assert result.issues == ()
 
 
 def test_plan_validator_reports_unknown_time_bucket_field() -> None:

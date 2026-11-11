@@ -1,0 +1,1451 @@
+{
+  "baseline": "working tree before Ruff repair; includes six authorized maintenance files",
+  "changed_file_count": 46,
+  "non_import_ast_changes": [],
+  "files": {
+    "apps/server/migrations/versions/0011_digital_human_settings.py": {
+      "before": {
+        "source_sha256": "dd9d3509ab0c029501e5dcdd03bda94bea2ff0d70a07796ed97c3a37f9a7ec64",
+        "ast_without_top_level_imports_sha256": "4de79c31079c803d81e30588ef773b9c59c414897a227946952c4d656d5c790e",
+        "top_level_imports": [
+          "Import(names=[alias(name='sqlalchemy', asname='sa')])",
+          "ImportFrom(module='alembic', names=[alias(name='op')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Sequence')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "f34f22a632db57931745a13d8fa6fc551a074dcd5a10d7808958125a3b7f5a0c",
+        "ast_without_top_level_imports_sha256": "4de79c31079c803d81e30588ef773b9c59c414897a227946952c4d656d5c790e",
+        "top_level_imports": [
+          "Import(names=[alias(name='sqlalchemy', asname='sa')])",
+          "ImportFrom(module='alembic', names=[alias(name='op')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Sequence')], level=0)"
+        ]
+      }
+    },
+    "apps/server/migrations/versions/0016_speech_task_metadata.py": {
+      "before": {
+        "source_sha256": "2c8ee97b5bd112304457fef8a1eea5a3b4fc49d430428c2045ad74d6291e8822",
+        "ast_without_top_level_imports_sha256": "cd1b88998a86c8fc6384fa189714d6b724cff30d4c835fa4e4ca8169381382ee",
+        "top_level_imports": [
+          "Import(names=[alias(name='sqlalchemy', asname='sa')])",
+          "ImportFrom(module='alembic', names=[alias(name='op')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Sequence')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "a5ab30bec6418771c17bba7a7816b99c0ddebca5cfd4a2752ba77a70b31a3604",
+        "ast_without_top_level_imports_sha256": "cd1b88998a86c8fc6384fa189714d6b724cff30d4c835fa4e4ca8169381382ee",
+        "top_level_imports": [
+          "Import(names=[alias(name='sqlalchemy', asname='sa')])",
+          "ImportFrom(module='alembic', names=[alias(name='op')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Sequence')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/ai/context.py": {
+      "before": {
+        "source_sha256": "d9a5fd2e416914b7ed8bf5d7ba6987a0d5f9d8e01df1677a84dce1edcebe9073",
+        "ast_without_top_level_imports_sha256": "48a1277408c6e927085d7bde5e382256cdbe846f9bab0817f736accc16f07369",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='datapulse.ai.models', names=[alias(name='DatasetContext'), alias(name='DatasetContextField')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetField'), alias(name='FileQuery'), alias(name='RestQuery'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.dataset.profile', names=[alias(name='DatasetFieldProfile'), alias(name='DatasetProfile'), alias(name='DatasetProfileService')], level=0)",
+          "ImportFrom(module='datapulse.dataset.repository', names=[alias(name='DatasetRepository')], level=0)",
+          "ImportFrom(module='datapulse.datasource.registry', names=[alias(name='ConnectorRegistry')], level=0)",
+          "ImportFrom(module='datapulse.datasource.service', names=[alias(name='DatasourceService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.parsers', names=[alias(name='parse_file')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileDatasetQueryService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.repository', names=[alias(name='FileAssetRepository')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryRequest'), alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.query.safety', names=[alias(name='validate_read_only_sql')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "cc379037ea4c6676e0adc8d57ea01eea98bea584eed938f1b9457c9f09c325a8",
+        "ast_without_top_level_imports_sha256": "48a1277408c6e927085d7bde5e382256cdbe846f9bab0817f736accc16f07369",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='datapulse.ai.models', names=[alias(name='DatasetContext'), alias(name='DatasetContextField')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetField'), alias(name='FileQuery'), alias(name='RestQuery'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.dataset.profile', names=[alias(name='DatasetFieldProfile'), alias(name='DatasetProfile'), alias(name='DatasetProfileService')], level=0)",
+          "ImportFrom(module='datapulse.dataset.repository', names=[alias(name='DatasetRepository')], level=0)",
+          "ImportFrom(module='datapulse.datasource.registry', names=[alias(name='ConnectorRegistry')], level=0)",
+          "ImportFrom(module='datapulse.datasource.service', names=[alias(name='DatasourceService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.parsers', names=[alias(name='parse_file')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileDatasetQueryService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.repository', names=[alias(name='FileAssetRepository')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryRequest'), alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.query.safety', names=[alias(name='validate_read_only_sql')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/ai/screen_generator.py": {
+      "before": {
+        "source_sha256": "f88bbc7add47d383c344a3c53143195d80e0491b041421c6fabec9c6d8bf4cd4",
+        "ast_without_top_level_imports_sha256": "bed45e1e9c298211e4f3b1c075494f5fe49368ce55fc0095cb80ed1329c757b3",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='datapulse.ai.context', names=[alias(name='DatasetContextService')], level=0)",
+          "ImportFrom(module='datapulse.ai.gateway', names=[alias(name='AiGateway')], level=0)",
+          "ImportFrom(module='datapulse.ai.models', names=[alias(name='AiAnalysisError')], level=0)",
+          "ImportFrom(module='datapulse.contracts.ai', names=[alias(name='AiScreenRequest'), alias(name='AiScreenResponse')], level=0)",
+          "ImportFrom(module='datapulse.contracts.chart', names=[alias(name='ChartSpec'), alias(name='ChartType')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='FileQuery'), alias(name='RestQuery'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.dataset.repository', names=[alias(name='DatasetDefinitionInvalid'), alias(name='DatasetNotFound'), alias(name='DatasetRepository')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileQueryCompiler')], level=0)",
+          "ImportFrom(module='datapulse.screen.chart_query', names=[alias(name='ChartQueryCompiler'), alias(name='ChartQueryInvalid')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='ValidationError')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "6ba5f01f8ad5a7ff78a3acd8a0ff9f936ff1686d85c6c3d9dca13e5e19b8ca16",
+        "ast_without_top_level_imports_sha256": "bed45e1e9c298211e4f3b1c075494f5fe49368ce55fc0095cb80ed1329c757b3",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='datapulse.ai.context', names=[alias(name='DatasetContextService')], level=0)",
+          "ImportFrom(module='datapulse.ai.gateway', names=[alias(name='AiGateway')], level=0)",
+          "ImportFrom(module='datapulse.ai.models', names=[alias(name='AiAnalysisError')], level=0)",
+          "ImportFrom(module='datapulse.contracts.ai', names=[alias(name='AiScreenRequest'), alias(name='AiScreenResponse')], level=0)",
+          "ImportFrom(module='datapulse.contracts.chart', names=[alias(name='ChartSpec'), alias(name='ChartType')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='FileQuery'), alias(name='RestQuery'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.dataset.repository', names=[alias(name='DatasetDefinitionInvalid'), alias(name='DatasetNotFound'), alias(name='DatasetRepository')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileQueryCompiler')], level=0)",
+          "ImportFrom(module='datapulse.screen.chart_query', names=[alias(name='ChartQueryCompiler'), alias(name='ChartQueryInvalid')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='ValidationError')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/contracts/chart.py": {
+      "before": {
+        "source_sha256": "f739ddd5c5ba337823f2d01b3bd7bd1ca1c401ff05dcb4f9fd2a3d29c6968761",
+        "ast_without_top_level_imports_sha256": "9e459318ea54383a635c91c62c4cc36695fb22170f1614462c9ebbbb7067cb8b",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='TimeGrain')], level=0)",
+          "ImportFrom(module='enum', names=[alias(name='StrEnum')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal'), alias(name='Self')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "12a7d8fc1213c531682a5454d4a802ba003f917302a328f35fe88abb4e887b7b",
+        "ast_without_top_level_imports_sha256": "9e459318ea54383a635c91c62c4cc36695fb22170f1614462c9ebbbb7067cb8b",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='TimeGrain')], level=0)",
+          "ImportFrom(module='enum', names=[alias(name='StrEnum')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal'), alias(name='Self')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/contracts/dataset.py": {
+      "before": {
+        "source_sha256": "6d800fa1dd05f3b10d2c3ce1e1e85a329c85d5c9c490e08de3d1becf0f85899d",
+        "ast_without_top_level_imports_sha256": "e0cdcb0acc36d2dfb9eaa8a3d95129aac73a597d9dfd7dfbbcaaf513c8128d9b",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='enum', names=[alias(name='StrEnum')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='HttpUrl'), alias(name='field_validator'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "bbd71b8ad2c6cb3474a56e1a76a19727f6a24f6f7d38203ede5bca0bc8612a86",
+        "ast_without_top_level_imports_sha256": "e0cdcb0acc36d2dfb9eaa8a3d95129aac73a597d9dfd7dfbbcaaf513c8128d9b",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='enum', names=[alias(name='StrEnum')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='HttpUrl'), alias(name='field_validator'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/contracts/digital_human.py": {
+      "before": {
+        "source_sha256": "0174e1de681759df6f73e92ce77ccc19d15a4b445668abbd6a9dc3b3f0601b80",
+        "ast_without_top_level_imports_sha256": "6d82bd1f69d3906dd01b2ade7948c70065012d67a3123293c89885bfa2ad3839",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='SubtitleCue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.speech_template', names=[alias(name='parse_speech_template'), alias(name='sensitive_speech_field')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='StringConstraints'), alias(name='field_validator'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal'), alias(name='Self')], level=0)",
+          "ImportFrom(module='zoneinfo', names=[alias(name='ZoneInfo'), alias(name='ZoneInfoNotFoundError')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "8f4f2e9149d4fc6424caf869dfe6e4871cd475e54850d378611a06f8b38bd6c9",
+        "ast_without_top_level_imports_sha256": "6d82bd1f69d3906dd01b2ade7948c70065012d67a3123293c89885bfa2ad3839",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='SubtitleCue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.speech_template', names=[alias(name='parse_speech_template'), alias(name='sensitive_speech_field')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='StringConstraints'), alias(name='field_validator'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal'), alias(name='Self')], level=0)",
+          "ImportFrom(module='zoneinfo', names=[alias(name='ZoneInfo'), alias(name='ZoneInfoNotFoundError')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/contracts/migrations.py": {
+      "before": {
+        "source_sha256": "9c3e4042ea1c1564f8f22d21d16a05e4818d3480195c504c5d67837e55a3840c",
+        "ast_without_top_level_imports_sha256": "928659185ebec58a78a4a99ed11939de5ac1ef1c6d40ebc6425689d4ca59552a",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "1f5ca5a70c50b705a8e9932bf5368547aec4f5afd0def04372ccfd3aa58c81d2",
+        "ast_without_top_level_imports_sha256": "928659185ebec58a78a4a99ed11939de5ac1ef1c6d40ebc6425689d4ca59552a",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/contracts/speech.py": {
+      "before": {
+        "source_sha256": "ecdf15cac615a68172221ac5efc9906e5d0bb3fa542eeb5c7d6df1220c95a4c8",
+        "ast_without_top_level_imports_sha256": "19f728794b485eb8d60fb10c305aa6c9c7b1cff665060fc8714e0fbc9bd41ee9",
+        "top_level_imports": [
+          "Import(names=[alias(name='re')])",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='datetime')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='SecretStr'), alias(name='StringConstraints'), alias(name='field_validator'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "d758238c6c7e52960864582b624da79dbbb2657f9c300d727e74115b973e437a",
+        "ast_without_top_level_imports_sha256": "19f728794b485eb8d60fb10c305aa6c9c7b1cff665060fc8714e0fbc9bd41ee9",
+        "top_level_imports": [
+          "Import(names=[alias(name='re')])",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='datetime')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='SecretStr'), alias(name='StringConstraints'), alias(name='field_validator'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated'), alias(name='Literal')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/dataset/profile.py": {
+      "before": {
+        "source_sha256": "be600e17ce16c6e6177372717d84bb4e40914617f3c16e5f3c553d325d2f220f",
+        "ast_without_top_level_imports_sha256": "96ff2eb2eb85d2c486e844ac2f1ecbe7db3609f3dff592ecd8f1583c51655746",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections', names=[alias(name='Counter')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetFieldOverride'), alias(name='DataType'), alias(name='FileQuery'), alias(name='RestQuery'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.repository', names=[alias(name='DatasetRepository')], level=0)",
+          "ImportFrom(module='datapulse.datasource.registry', names=[alias(name='ConnectorRegistry')], level=0)",
+          "ImportFrom(module='datapulse.datasource.service', names=[alias(name='DatasourceService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.inference', names=[alias(name='infer_type'), alias(name='infer_value'), alias(name='merge_types')], level=0)",
+          "ImportFrom(module='datapulse.filedata.parsers', names=[alias(name='parse_file')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileDatasetQueryService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.repository', names=[alias(name='FileAssetRepository')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryColumn'), alias(name='QueryRequest'), alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.query.safety', names=[alias(name='validate_read_only_sql')], level=0)",
+          "ImportFrom(module='enum', names=[alias(name='StrEnum')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='statistics', names=[alias(name='median')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "89da64834e15926465d55e5afc20ddcd59aea944c4b3c0a315be95ce5b1cdbbe",
+        "ast_without_top_level_imports_sha256": "96ff2eb2eb85d2c486e844ac2f1ecbe7db3609f3dff592ecd8f1583c51655746",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections', names=[alias(name='Counter')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='ContractModel'), alias(name='JsonValue'), alias(name='NonBlankStr')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetFieldOverride'), alias(name='DataType'), alias(name='FileQuery'), alias(name='RestQuery'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.repository', names=[alias(name='DatasetRepository')], level=0)",
+          "ImportFrom(module='datapulse.datasource.registry', names=[alias(name='ConnectorRegistry')], level=0)",
+          "ImportFrom(module='datapulse.datasource.service', names=[alias(name='DatasourceService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.inference', names=[alias(name='infer_type'), alias(name='infer_value'), alias(name='merge_types')], level=0)",
+          "ImportFrom(module='datapulse.filedata.parsers', names=[alias(name='parse_file')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileDatasetQueryService')], level=0)",
+          "ImportFrom(module='datapulse.filedata.repository', names=[alias(name='FileAssetRepository')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryColumn'), alias(name='QueryRequest'), alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.query.safety', names=[alias(name='validate_read_only_sql')], level=0)",
+          "ImportFrom(module='enum', names=[alias(name='StrEnum')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='Field'), alias(name='model_validator')], level=0)",
+          "ImportFrom(module='statistics', names=[alias(name='median')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/ecosystem/api.py": {
+      "before": {
+        "source_sha256": "f4e4a222b4b1dc0c52bdd22dff2036a8fcf6039143434cb848057a0095d85c39",
+        "ast_without_top_level_imports_sha256": "6b48b66b110459f6fc407824cc36c7ed4aee504148fd4bc2147ba59b92c3ae51",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.auth.dependencies', names=[alias(name='require_admin'), alias(name='require_csrf')], level=0)",
+          "ImportFrom(module='datapulse.ecosystem.models', names=[alias(name='CatalogPackage'), alias(name='PackageKind'), alias(name='TemplateApply')], level=0)",
+          "ImportFrom(module='datapulse.ecosystem.service', names=[alias(name='MAX_ARCHIVE_BYTES'), alias(name='invalid')], level=0)",
+          "ImportFrom(module='datapulse.metadata', names=[alias(name='AdminAccount')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='ScreenResponse')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenNameConflict')], level=0)",
+          "ImportFrom(module='fastapi', names=[alias(name='APIRouter'), alias(name='Depends'), alias(name='Request'), alias(name='Response'), alias(name='UploadFile')], level=0)",
+          "ImportFrom(module='fastapi.responses', names=[alias(name='FileResponse')], level=0)",
+          "ImportFrom(module='starlette.concurrency', names=[alias(name='run_in_threadpool')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "cc8a12ab435ce3001c305ab582cfd2c24236e5909e4b55679061eb6ae16b7402",
+        "ast_without_top_level_imports_sha256": "6b48b66b110459f6fc407824cc36c7ed4aee504148fd4bc2147ba59b92c3ae51",
+        "top_level_imports": [
+          "ImportFrom(module='datapulse.auth.dependencies', names=[alias(name='require_admin'), alias(name='require_csrf')], level=0)",
+          "ImportFrom(module='datapulse.ecosystem.models', names=[alias(name='CatalogPackage'), alias(name='PackageKind'), alias(name='TemplateApply')], level=0)",
+          "ImportFrom(module='datapulse.ecosystem.service', names=[alias(name='MAX_ARCHIVE_BYTES'), alias(name='invalid')], level=0)",
+          "ImportFrom(module='datapulse.metadata', names=[alias(name='AdminAccount')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='ScreenResponse')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenNameConflict')], level=0)",
+          "ImportFrom(module='fastapi', names=[alias(name='APIRouter'), alias(name='Depends'), alias(name='Request'), alias(name='Response'), alias(name='UploadFile')], level=0)",
+          "ImportFrom(module='fastapi.responses', names=[alias(name='FileResponse')], level=0)",
+          "ImportFrom(module='starlette.concurrency', names=[alias(name='run_in_threadpool')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Annotated')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/ecosystem/service.py": {
+      "before": {
+        "source_sha256": "8fe870c2ff7850bff2c1d3b5382366af4bc7b696b6d6ce4faa5aca3b54d9372e",
+        "ast_without_top_level_imports_sha256": "3c41f818937d621f4875d8805ac71f263adc8de5f8481c32f20582952f253f56",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='hashlib')])",
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='re')])",
+          "Import(names=[alias(name='shutil')])",
+          "Import(names=[alias(name='stat')])",
+          "Import(names=[alias(name='tempfile')])",
+          "Import(names=[alias(name='zipfile')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.plugin', names=[alias(name='PluginManifest')], level=0)",
+          "ImportFrom(module='datapulse.ecosystem.models', names=[alias(name='CatalogPackage'), alias(name='PackageFile'), alias(name='TemplateManifest')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='filelock', names=[alias(name='FileLock')], level=0)",
+          "ImportFrom(module='packaging.specifiers', names=[alias(name='SpecifierSet')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path'), alias(name='PurePosixPath')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='ValidationError')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "bf87d50cf076bf0610dc465283e0406549e0e6680c0f2a70f34a0cdc075b0ef8",
+        "ast_without_top_level_imports_sha256": "3c41f818937d621f4875d8805ac71f263adc8de5f8481c32f20582952f253f56",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='hashlib')])",
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='re')])",
+          "Import(names=[alias(name='shutil')])",
+          "Import(names=[alias(name='stat')])",
+          "Import(names=[alias(name='tempfile')])",
+          "Import(names=[alias(name='zipfile')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.plugin', names=[alias(name='PluginManifest')], level=0)",
+          "ImportFrom(module='datapulse.ecosystem.models', names=[alias(name='CatalogPackage'), alias(name='PackageFile'), alias(name='TemplateManifest')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='filelock', names=[alias(name='FileLock')], level=0)",
+          "ImportFrom(module='packaging.specifiers', names=[alias(name='SpecifierSet')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path'), alias(name='PurePosixPath')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='ValidationError')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/filedata/parsers.py": {
+      "before": {
+        "source_sha256": "d77c28530d28f58ea6ba2832ee6bd08a0d7b5cd916521d33decc04cd3f567853",
+        "ast_without_top_level_imports_sha256": "34e175d925a68ec9b566a53da583b9233f563c492ecc09fc6309692ae5e3a48b",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='csv')])",
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='openpyxl')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='pyarrow', asname='pa')])",
+          "Import(names=[alias(name='pyarrow.parquet', asname='pq')])",
+          "Import(names=[alias(name='shutil')])",
+          "Import(names=[alias(name='stat')])",
+          "ImportFrom(module='collections', names=[alias(name='OrderedDict')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterable')], level=0)",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetField'), alias(name='DataType'), alias(name='FileFormat')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datapulse.filedata.inference', names=[alias(name='coerce_rows'), alias(name='fields_from_rows'), alias(name='infer_type'), alias(name='merge_types')], level=0)",
+          "ImportFrom(module='datapulse.operations.processing', names=[alias(name='ProcessorBusy'), alias(name='ProcessorFailed'), alias(name='complete_cleanup'), alias(name='run_json_worker')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='date'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='decimal', names=[alias(name='Decimal')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='BaseModel'), alias(name='ConfigDict')], level=0)",
+          "ImportFrom(module='tempfile', names=[alias(name='TemporaryDirectory')], level=0)",
+          "ImportFrom(module='weakref', names=[alias(name='WeakKeyDictionary')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "261ecb8b1de36f500117babee66e671be69ae6fada98ee330511f063dd497eb0",
+        "ast_without_top_level_imports_sha256": "34e175d925a68ec9b566a53da583b9233f563c492ecc09fc6309692ae5e3a48b",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='csv')])",
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='openpyxl')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='pyarrow', asname='pa')])",
+          "Import(names=[alias(name='pyarrow.parquet', asname='pq')])",
+          "Import(names=[alias(name='shutil')])",
+          "Import(names=[alias(name='stat')])",
+          "ImportFrom(module='collections', names=[alias(name='OrderedDict')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterable')], level=0)",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetField'), alias(name='DataType'), alias(name='FileFormat')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datapulse.filedata.inference', names=[alias(name='coerce_rows'), alias(name='fields_from_rows'), alias(name='infer_type'), alias(name='merge_types')], level=0)",
+          "ImportFrom(module='datapulse.operations.processing', names=[alias(name='ProcessorBusy'), alias(name='ProcessorFailed'), alias(name='complete_cleanup'), alias(name='run_json_worker')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='date'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='decimal', names=[alias(name='Decimal')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='pydantic', names=[alias(name='BaseModel'), alias(name='ConfigDict')], level=0)",
+          "ImportFrom(module='tempfile', names=[alias(name='TemporaryDirectory')], level=0)",
+          "ImportFrom(module='weakref', names=[alias(name='WeakKeyDictionary')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/filedata/query.py": {
+      "before": {
+        "source_sha256": "d8cfd248aa7d50b4b7349703bded923a9b06c37774b40281dd48087dda92c4fa",
+        "ast_without_top_level_imports_sha256": "a1c0283d6f22e6d5a33441722dda78da2707f7ae1b240061b8c0f78de91b3a2b",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping')], level=0)",
+          "ImportFrom(module='datapulse.contracts.chart', names=[alias(name='Aggregation'), alias(name='ChartSpec')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetDefinition'), alias(name='FileQuery')], level=0)",
+          "ImportFrom(module='datapulse.filedata.duckdb_executor', names=[alias(name='DuckDBExecutor')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.screen.chart_query', names=[alias(name='ChartQueryInvalid'), alias(name='_aggregate'), alias(name='_dimension_expressions'), alias(name='_effective_dimensions_and_filters'), alias(name='_field_expressions'), alias(name='_FilterCompiler'), alias(name='_validate_visual')], level=0)",
+          "ImportFrom(module='sqlglot', names=[alias(name='exp')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='NamedTuple')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "0f3267c24b280fc031d1f4b43c829fbd78af3d47db3cae8d546953dfd18d6c15",
+        "ast_without_top_level_imports_sha256": "a1c0283d6f22e6d5a33441722dda78da2707f7ae1b240061b8c0f78de91b3a2b",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping')], level=0)",
+          "ImportFrom(module='datapulse.contracts.chart', names=[alias(name='Aggregation'), alias(name='ChartSpec')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetDefinition'), alias(name='FileQuery')], level=0)",
+          "ImportFrom(module='datapulse.filedata.duckdb_executor', names=[alias(name='DuckDBExecutor')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.screen.chart_query', names=[alias(name='ChartQueryInvalid'), alias(name='_aggregate'), alias(name='_dimension_expressions'), alias(name='_effective_dimensions_and_filters'), alias(name='_field_expressions'), alias(name='_FilterCompiler'), alias(name='_validate_visual')], level=0)",
+          "ImportFrom(module='sqlglot', names=[alias(name='exp')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='NamedTuple')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/operations/delivery.py": {
+      "before": {
+        "source_sha256": "5dd971f25eac41d350f330044194e0436536e896082e4768f2d9d9afcd4d5279",
+        "ast_without_top_level_imports_sha256": "7cb5aba11b59654d3ee2f2c118ef02dad2d37708ed2d4ba6fc87dc9f9e820dea",
+        "top_level_imports": [
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='secrets')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='fastapi.testclient', names=[alias(name='TestClient')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any'), alias(name='Protocol')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "7764b3e493a565c959a308dcff8d55880606cdd1025cad53a7bd8dc7f5fa7635",
+        "ast_without_top_level_imports_sha256": "7cb5aba11b59654d3ee2f2c118ef02dad2d37708ed2d4ba6fc87dc9f9e820dea",
+        "top_level_imports": [
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='secrets')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Sequence')], level=0)",
+          "ImportFrom(module='fastapi.testclient', names=[alias(name='TestClient')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any'), alias(name='Protocol')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/screen/assets.py": {
+      "before": {
+        "source_sha256": "769dbc6963c6c76eaf6516fc389236140468e4f6541bdd63ac91e4eac67b4b30",
+        "ast_without_top_level_imports_sha256": "a34f0b8ef7b449eba3ece6f493cd4679f3de4cfe8dd0c2ff55bd31263174e3da",
+        "top_level_imports": [
+          "Import(names=[alias(name='hashlib')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Awaitable'), alias(name='Callable'), alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.digital_human', names=[alias(name='DigitalHumanSpec')], level=0)",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='AssetMediaMetadata'), alias(name='AssetType'), alias(name='ScreenAssetPatch'), alias(name='ScreenAssetReference'), alias(name='ScreenAssetResponse'), alias(name='ScreenAssetUsage')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datapulse.metadata', names=[alias(name='DigitalHumanAuditRecord'), alias(name='ScreenAssetRecord'), alias(name='ScreenRecord')], level=0)",
+          "ImportFrom(module='datapulse.metadata.models', names=[alias(name='utc_now')], level=0)",
+          "ImportFrom(module='datapulse.screen.media', names=[alias(name='InspectedMedia'), alias(name='MediaBusy'), alias(name='MediaInspector'), alias(name='MediaInvalid')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime'), alias(name='timedelta')], level=0)",
+          "ImportFrom(module='filelock', names=[alias(name='AsyncFileLock'), alias(name='Timeout')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path'), alias(name='PurePosixPath'), alias(name='PureWindowsPath')], level=0)",
+          "ImportFrom(module='sqlalchemy', names=[alias(name='select')], level=0)",
+          "ImportFrom(module='sqlalchemy.ext.asyncio', names=[alias(name='AsyncSession'), alias(name='async_sessionmaker')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "5bd85a1304e5258e945a5d8a2fd6ae19a36b8554a0db9a63418dd75beeadde36",
+        "ast_without_top_level_imports_sha256": "a34f0b8ef7b449eba3ece6f493cd4679f3de4cfe8dd0c2ff55bd31263174e3da",
+        "top_level_imports": [
+          "Import(names=[alias(name='hashlib')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Awaitable'), alias(name='Callable'), alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.digital_human', names=[alias(name='DigitalHumanSpec')], level=0)",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='AssetMediaMetadata'), alias(name='AssetType'), alias(name='ScreenAssetPatch'), alias(name='ScreenAssetReference'), alias(name='ScreenAssetResponse'), alias(name='ScreenAssetUsage')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datapulse.metadata', names=[alias(name='DigitalHumanAuditRecord'), alias(name='ScreenAssetRecord'), alias(name='ScreenRecord')], level=0)",
+          "ImportFrom(module='datapulse.metadata.models', names=[alias(name='utc_now')], level=0)",
+          "ImportFrom(module='datapulse.screen.media', names=[alias(name='InspectedMedia'), alias(name='MediaBusy'), alias(name='MediaInspector'), alias(name='MediaInvalid')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime'), alias(name='timedelta')], level=0)",
+          "ImportFrom(module='filelock', names=[alias(name='AsyncFileLock'), alias(name='Timeout')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path'), alias(name='PurePosixPath'), alias(name='PureWindowsPath')], level=0)",
+          "ImportFrom(module='sqlalchemy', names=[alias(name='select')], level=0)",
+          "ImportFrom(module='sqlalchemy.ext.asyncio', names=[alias(name='AsyncSession'), alias(name='async_sessionmaker')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/screen/chart_query.py": {
+      "before": {
+        "source_sha256": "196cf7e109f6cce0ef2ca02493cf889a1e670302e6f793d4119c517477883be2",
+        "ast_without_top_level_imports_sha256": "1090a6ad46ecdae277c6d35b84c44e437af27b828276dfc7203fd5bfb9fdef56",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='datapulse.contracts.chart', names=[alias(name='Aggregation'), alias(name='ChartSpec'), alias(name='ChartType'), alias(name='Filter'), alias(name='FilterOperator'), alias(name='LiteralValue'), alias(name='ParameterRef'), alias(name='TimeBucket')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='CalculationOperator'), alias(name='DatasetDefinition'), alias(name='SqlQuery'), alias(name='TimeGrain')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryRequest')], level=0)",
+          "ImportFrom(module='sqlglot', names=[alias(name='exp')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "c3eebbc1b3117665f623b4844a1f103f371da1bf07efa1ec9899a15cc79aa69f",
+        "ast_without_top_level_imports_sha256": "1090a6ad46ecdae277c6d35b84c44e437af27b828276dfc7203fd5bfb9fdef56",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Mapping'), alias(name='Sequence')], level=0)",
+          "ImportFrom(module='datapulse.contracts.chart', names=[alias(name='Aggregation'), alias(name='ChartSpec'), alias(name='ChartType'), alias(name='Filter'), alias(name='FilterOperator'), alias(name='LiteralValue'), alias(name='ParameterRef'), alias(name='TimeBucket')], level=0)",
+          "ImportFrom(module='datapulse.contracts.common', names=[alias(name='JsonValue')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='CalculationOperator'), alias(name='DatasetDefinition'), alias(name='SqlQuery'), alias(name='TimeGrain')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryRequest')], level=0)",
+          "ImportFrom(module='sqlglot', names=[alias(name='exp')], level=0)"
+        ]
+      }
+    },
+    "apps/server/src/datapulse/screen/service.py": {
+      "before": {
+        "source_sha256": "c7b2994e5415907e2748a4be05cb419da86e337540a389b6204948cd99970962",
+        "ast_without_top_level_imports_sha256": "cb61923efab9d725e816bc156e675c24921bc9d3e107885cfbf46dfe125ed602",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Callable')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.digital_human', names=[alias(name='DigitalHumanBinding')], level=0)",
+          "ImportFrom(module='datapulse.screen.access', names=[alias(name='ScreenAccessPolicy')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='ScreenCreate'), alias(name='ScreenDraftUpdate'), alias(name='ScreenResponse'), alias(name='ScreenSummary')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenRepository')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "b1f4d2b7f0291aee19be8e741db3790057e8a90a3b7fc55148e53ac5ad76d270",
+        "ast_without_top_level_imports_sha256": "cb61923efab9d725e816bc156e675c24921bc9d3e107885cfbf46dfe125ed602",
+        "top_level_imports": [
+          "ImportFrom(module='collections.abc', names=[alias(name='Callable')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.digital_human', names=[alias(name='DigitalHumanBinding')], level=0)",
+          "ImportFrom(module='datapulse.screen.access', names=[alias(name='ScreenAccessPolicy')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='ScreenCreate'), alias(name='ScreenDraftUpdate'), alias(name='ScreenResponse'), alias(name='ScreenSummary')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenRepository')], level=0)",
+          "ImportFrom(module='uuid', names=[alias(name='uuid4')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/ai/test_api.py": {
+      "before": {
+        "source_sha256": "39651abe7205e23b141e8e745f0187a40614323eda8197d91236dc65ee095add",
+        "ast_without_top_level_imports_sha256": "714f681ee14b4ac2d69920df5de84d0dbab88f7822c1794632a6dba681efe6b5",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)",
+          "ImportFrom(module='datapulse.ai.models', names=[alias(name='AiAnalysisError'), alias(name='AiGatewayError'), alias(name='AiHealth')], level=0)",
+          "ImportFrom(module='datapulse.contracts.ai', names=[alias(name='AiAnalysisResponse'), alias(name='AiChartResponse'), alias(name='AiScreenEditResponse'), alias(name='AiScreenResponse')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "4d6e533a0c843077e80afe09cfd9a9ce13f06bd72a73bf4d8fea6c0e9b104576",
+        "ast_without_top_level_imports_sha256": "714f681ee14b4ac2d69920df5de84d0dbab88f7822c1794632a6dba681efe6b5",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass'), alias(name='field')], level=0)",
+          "ImportFrom(module='datapulse.ai.models', names=[alias(name='AiAnalysisError'), alias(name='AiGatewayError'), alias(name='AiHealth')], level=0)",
+          "ImportFrom(module='datapulse.contracts.ai', names=[alias(name='AiAnalysisResponse'), alias(name='AiChartResponse'), alias(name='AiScreenEditResponse'), alias(name='AiScreenResponse')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/dataset/test_api.py": {
+      "before": {
+        "source_sha256": "7e131ba6ccf25546426d6cad0016d96fbfd13b0dad62388d77ac096e7c2e43e0",
+        "ast_without_top_level_imports_sha256": "d367de307ab565d56bda93792256e65cc4a7a58e436593a17ac7aa42757b9ecf",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "8662fbf4507ca9ec37303c400f4478b0c26a4225e92d3dee55d6364fefbf56aa",
+        "ast_without_top_level_imports_sha256": "d367de307ab565d56bda93792256e65cc4a7a58e436593a17ac7aa42757b9ecf",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/dataset/test_profile.py": {
+      "before": {
+        "source_sha256": "f671dabbdcee9abf84e8a62f86b4a437eac58d97091a569868c53a2564cc32f5",
+        "ast_without_top_level_imports_sha256": "1080ece3064cfc51cb5e44b88d40333db9460cd6d32429b2f8552d714a48d037",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='CachePolicy'), alias(name='DatasetDefinition'), alias(name='DatasetField'), alias(name='DataType'), alias(name='RefreshPolicy'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.dataset.profile', names=[alias(name='DatasetProfilePatch'), alias(name='DatasetProfileService'), alias(name='FieldRole')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryColumn'), alias(name='QueryResult')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "8a563474fd123dc57983417b436f7ade235242291404bab48526b04072bdc2e5",
+        "ast_without_top_level_imports_sha256": "1080ece3064cfc51cb5e44b88d40333db9460cd6d32429b2f8552d714a48d037",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='CachePolicy'), alias(name='DatasetDefinition'), alias(name='DatasetField'), alias(name='DataType'), alias(name='RefreshPolicy'), alias(name='SqlQuery')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.dataset.profile', names=[alias(name='DatasetProfilePatch'), alias(name='DatasetProfileService'), alias(name='FieldRole')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryColumn'), alias(name='QueryResult')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/embedding/test_api.py": {
+      "before": {
+        "source_sha256": "a6a7ffb1c1564bbac5848227a0a93aa2f89d19771cc1c191b799423b991bfd97",
+        "ast_without_top_level_imports_sha256": "3f14ac3b04d42cd6d4a711fdabb35e436f3dd498fd5e0d424c0fb8ae82bf5b59",
+        "top_level_imports": [
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='logging')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='datapulse.embedding.page', names=[alias(name='TicketRedactionFilter'), alias(name='embed_content_security_policy')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)",
+          "ImportFrom(module='tests.support.media', names=[alias(name='image_bytes')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "09c23eb237a40c4c370b97976e6cabd5714b5769a8a50f4fdeb06015ef9357e6",
+        "ast_without_top_level_imports_sha256": "3f14ac3b04d42cd6d4a711fdabb35e436f3dd498fd5e0d424c0fb8ae82bf5b59",
+        "top_level_imports": [
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='logging')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='datapulse.embedding.page', names=[alias(name='TicketRedactionFilter'), alias(name='embed_content_security_policy')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)",
+          "ImportFrom(module='tests.support.media', names=[alias(name='image_bytes')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/filedata/test_api.py": {
+      "before": {
+        "source_sha256": "eec19e37902d127844ddea355601c10d81a9e2993b3ec6e2da556693429ad0ee",
+        "ast_without_top_level_imports_sha256": "bc191af8381e11a2561646c407442efc76d07a8b3224b9dbdafc37f93cc9611b",
+        "top_level_imports": [
+          "Import(names=[alias(name='openpyxl')])",
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='io', names=[alias(name='BytesIO')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "fdd5ef0b477d6111e23d1fb78c292e44e836cad9f7dc2d83049ceb4d5b34f0e1",
+        "ast_without_top_level_imports_sha256": "bc191af8381e11a2561646c407442efc76d07a8b3224b9dbdafc37f93cc9611b",
+        "top_level_imports": [
+          "Import(names=[alias(name='openpyxl')])",
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='io', names=[alias(name='BytesIO')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/filedata/test_parsers.py": {
+      "before": {
+        "source_sha256": "0a96cf638ca3df13e2ae07af7990942e38641ffc97d7f9d9402af6598a6f6564",
+        "ast_without_top_level_imports_sha256": "7e31899f6ca6bd591c03a67a4ac4c0f7d18225ddaa379920668900a45b5e15c2",
+        "top_level_imports": [
+          "Import(names=[alias(name='openpyxl')])",
+          "Import(names=[alias(name='pyarrow', asname='pa')])",
+          "Import(names=[alias(name='pyarrow.parquet', asname='pq')])",
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='FileFormat')], level=0)",
+          "ImportFrom(module='datapulse.filedata.parsers', names=[alias(name='FileParseInvalid'), alias(name='excel_sheet_names'), alias(name='parse_file')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='date')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "fe66e96d86638ba3173a4237ddc88fc2b28038ea813d42abd21b5ffee9d609fe",
+        "ast_without_top_level_imports_sha256": "7e31899f6ca6bd591c03a67a4ac4c0f7d18225ddaa379920668900a45b5e15c2",
+        "top_level_imports": [
+          "Import(names=[alias(name='openpyxl')])",
+          "Import(names=[alias(name='pyarrow', asname='pa')])",
+          "Import(names=[alias(name='pyarrow.parquet', asname='pq')])",
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='FileFormat')], level=0)",
+          "ImportFrom(module='datapulse.filedata.parsers', names=[alias(name='FileParseInvalid'), alias(name='excel_sheet_names'), alias(name='parse_file')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='date')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/metadata/test_migrations.py": {
+      "before": {
+        "source_sha256": "c6385ce35793a4ddea6f3b1bd59706c50f3b8ff19318feff043653c16b5e39e9",
+        "ast_without_top_level_imports_sha256": "ba3bdbe608abb8b6ea4be82028679aba6a2fc4b1382a334e8c4382df143f9912",
+        "top_level_imports": [
+          "Import(names=[alias(name='sqlite3')])",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "a840b18f0c5f7b265ad3798ad07db73e651357eb21ca5c4c6310b3476de51869",
+        "ast_without_top_level_imports_sha256": "ba3bdbe608abb8b6ea4be82028679aba6a2fc4b1382a334e8c4382df143f9912",
+        "top_level_imports": [
+          "Import(names=[alias(name='sqlite3')])",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/operations/test_backup.py": {
+      "before": {
+        "source_sha256": "b627c1fc684d62104185e593f872117a0cb565ed0be634fbf596eb4a357093da",
+        "ast_without_top_level_imports_sha256": "de7b1277042a8a7c197804a413c86b792acda157d5140ec84b89056156d16f03",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='hashlib')])",
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "Import(names=[alias(name='stat')])",
+          "Import(names=[alias(name='zipfile')])",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='datapulse.datasource.secrets', names=[alias(name='SecretBox'), alias(name='SecretEnvelope')], level=0)",
+          "ImportFrom(module='datapulse.metadata.models', names=[alias(name='AdminAccount'), alias(name='AdminSession'), alias(name='DatasetRecord'), alias(name='DataSourceRecord'), alias(name='DisplayAccessRecord'), alias(name='EmbedAccessRecord'), alias(name='FileAssetRecord'), alias(name='ScreenAssetRecord'), alias(name='ScreenRecord'), alias(name='SpeechPlanRecord'), alias(name='SpeechTaskRecord'), alias(name='SystemState'), alias(name='utc_now')], level=0)",
+          "ImportFrom(module='datapulse.settings', names=[alias(name='Settings')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='sqlalchemy', names=[alias(name='create_engine')], level=0)",
+          "ImportFrom(module='sqlalchemy.orm', names=[alias(name='Session')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "389987abfeea35e944704caf14cdacba193165a520dc3c346c29a32f3fabf473",
+        "ast_without_top_level_imports_sha256": "de7b1277042a8a7c197804a413c86b792acda157d5140ec84b89056156d16f03",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='hashlib')])",
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "Import(names=[alias(name='stat')])",
+          "Import(names=[alias(name='zipfile')])",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='datapulse.datasource.secrets', names=[alias(name='SecretBox'), alias(name='SecretEnvelope')], level=0)",
+          "ImportFrom(module='datapulse.metadata.models', names=[alias(name='AdminAccount'), alias(name='AdminSession'), alias(name='DatasetRecord'), alias(name='DataSourceRecord'), alias(name='DisplayAccessRecord'), alias(name='EmbedAccessRecord'), alias(name='FileAssetRecord'), alias(name='ScreenAssetRecord'), alias(name='ScreenRecord'), alias(name='SpeechPlanRecord'), alias(name='SpeechTaskRecord'), alias(name='SystemState'), alias(name='utc_now')], level=0)",
+          "ImportFrom(module='datapulse.settings', names=[alias(name='Settings')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='sqlalchemy', names=[alias(name='create_engine')], level=0)",
+          "ImportFrom(module='sqlalchemy.orm', names=[alias(name='Session')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/operations/test_delivery_demo.py": {
+      "before": {
+        "source_sha256": "40df15abee42c9d7922d1edd7ccdda4985e243fa759b6d57d34fbcf61edf6c26",
+        "ast_without_top_level_imports_sha256": "ddb2cf340cff2f0fd801e217f96aed4669ae906be381754a4adbe619396d0ee3",
+        "top_level_imports": [
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='stat')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.operations.delivery', names=[alias(name='build_compose_command'), alias(name='build_demo_document'), alias(name='run_clean_delivery_rehearsal'), alias(name='write_demo_environment')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "984dd7ad47865bbf7e11bf323100d37b22fe7af9ed63dc19cd5054140af4abb8",
+        "ast_without_top_level_imports_sha256": "ddb2cf340cff2f0fd801e217f96aed4669ae906be381754a4adbe619396d0ee3",
+        "top_level_imports": [
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='stat')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.operations.delivery', names=[alias(name='build_compose_command'), alias(name='build_demo_document'), alias(name='run_clean_delivery_rehearsal'), alias(name='write_demo_environment')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/operations/test_evolution_guides.py": {
+      "before": {
+        "source_sha256": "e5615702beb257eeab81bef8d3f3d4e1e6a610228dc8e05476e1ea06c14f7d75",
+        "ast_without_top_level_imports_sha256": "a8fa17f068abcddfe23ff66d860e659d954430b70ee3aa4f628fe9ef681bdc42",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "d2310efd7f0669d0baf01e7d474655649fad93d599c5bcfe04994021c4c2354e",
+        "ast_without_top_level_imports_sha256": "a8fa17f068abcddfe23ff66d860e659d954430b70ee3aa4f628fe9ef681bdc42",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/quality/test_quality_harness.py": {
+      "before": {
+        "source_sha256": "bc921ca42846370449330edc1d261e5dc901a7d10014d640d4c3aa4fbb07df58",
+        "ast_without_top_level_imports_sha256": "5b6c9e53110b9e22efd27a1c12430c7bcf9d968578dfdc9b4e82294caed7113b",
+        "top_level_imports": [
+          "Import(names=[alias(name='importlib')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "8ced388f913d69826437f14f2afb29e8184f6b4cc905752a6fd9ac400bac6d84",
+        "ast_without_top_level_imports_sha256": "5b6c9e53110b9e22efd27a1c12430c7bcf9d968578dfdc9b4e82294caed7113b",
+        "top_level_imports": [
+          "Import(names=[alias(name='importlib')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_asset_management.py": {
+      "before": {
+        "source_sha256": "a2331381c5343e1d26007e609c7c08611767c12c3c006e2260b8e510bd07a902",
+        "ast_without_top_level_imports_sha256": "fa7abcbc2838a7132be22ced2560df606c4f5b2c3da730849a1ec7a44a81a839",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='ScreenAssetPatch')], level=0)",
+          "ImportFrom(module='datapulse.metadata', names=[alias(name='ScreenAssetRecord')], level=0)",
+          "ImportFrom(module='datapulse.screen.assets', names=[alias(name='AssetInUse'), alias(name='AssetInvalid'), alias(name='AssetLimits'), alias(name='AssetNotFound'), alias(name='AssetQuotaExceeded'), alias(name='AssetScanRejected'), alias(name='AssetService'), alias(name='ScreenAssetRepository')], level=0)",
+          "ImportFrom(module='datapulse.screen.media', names=[alias(name='MediaBusy'), alias(name='MediaInspector'), alias(name='MediaLimits')], level=0)",
+          "ImportFrom(module='datapulse.screen.publishing', names=[alias(name='PublishingService')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='sqlalchemy', names=[alias(name='update')], level=0)",
+          "ImportFrom(module='tests.screen.test_assets', names=[alias(name='mutation_headers'), alias(name='setup_admin')], level=0)",
+          "ImportFrom(module='tests.screen.test_publishing', names=[alias(name='DatasetLookup')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='build_test_app')], level=0)",
+          "ImportFrom(module='tests.support.media', names=[alias(name='image_bytes'), alias(name='wav_bytes')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "25539ff60837499271e811a0bdcb7bd874f7f2d171e88797a95bee944af38337",
+        "ast_without_top_level_imports_sha256": "fa7abcbc2838a7132be22ced2560df606c4f5b2c3da730849a1ec7a44a81a839",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='ScreenAssetPatch')], level=0)",
+          "ImportFrom(module='datapulse.metadata', names=[alias(name='ScreenAssetRecord')], level=0)",
+          "ImportFrom(module='datapulse.screen.assets', names=[alias(name='AssetInUse'), alias(name='AssetInvalid'), alias(name='AssetLimits'), alias(name='AssetNotFound'), alias(name='AssetQuotaExceeded'), alias(name='AssetScanRejected'), alias(name='AssetService'), alias(name='ScreenAssetRepository')], level=0)",
+          "ImportFrom(module='datapulse.screen.media', names=[alias(name='MediaBusy'), alias(name='MediaInspector'), alias(name='MediaLimits')], level=0)",
+          "ImportFrom(module='datapulse.screen.publishing', names=[alias(name='PublishingService')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='sqlalchemy', names=[alias(name='update')], level=0)",
+          "ImportFrom(module='tests.screen.test_assets', names=[alias(name='mutation_headers'), alias(name='setup_admin')], level=0)",
+          "ImportFrom(module='tests.screen.test_publishing', names=[alias(name='DatasetLookup')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='build_test_app')], level=0)",
+          "ImportFrom(module='tests.support.media', names=[alias(name='image_bytes'), alias(name='wav_bytes')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_digital_human.py": {
+      "before": {
+        "source_sha256": "b735078155c70fd7d441c2ad826a9f917cfea1dee65562ebc272e9041417fe7e",
+        "ast_without_top_level_imports_sha256": "8deefebd0882684def688152be70b917f8067645a34e5439f11201d134c06505",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.screen.assets', names=[alias(name='AssetInUse'), alias(name='AssetService'), alias(name='ScreenAssetRepository'), alias(name='collect_asset_references')], level=0)",
+          "ImportFrom(module='datapulse.screen.publishing', names=[alias(name='PublishingService'), alias(name='PublishValidationError')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenRepository')], level=0)",
+          "ImportFrom(module='tests.screen.test_publishing', names=[alias(name='DatasetLookup')], level=0)",
+          "ImportFrom(module='tests.support.media', names=[alias(name='image_bytes'), alias(name='wav_bytes')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "4a16a9a4ab59b20b186e8278fe5ff978a08d224c9b78a8809aa99b4836e44ba3",
+        "ast_without_top_level_imports_sha256": "8deefebd0882684def688152be70b917f8067645a34e5439f11201d134c06505",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='DashboardDocument')], level=0)",
+          "ImportFrom(module='datapulse.screen.assets', names=[alias(name='AssetInUse'), alias(name='AssetService'), alias(name='ScreenAssetRepository'), alias(name='collect_asset_references')], level=0)",
+          "ImportFrom(module='datapulse.screen.publishing', names=[alias(name='PublishingService'), alias(name='PublishValidationError')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenRepository')], level=0)",
+          "ImportFrom(module='tests.screen.test_publishing', names=[alias(name='DatasetLookup')], level=0)",
+          "ImportFrom(module='tests.support.media', names=[alias(name='image_bytes'), alias(name='wav_bytes')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_grid.py": {
+      "before": {
+        "source_sha256": "92d618b7feee5866be5065bbb3feee6833b7a0c8ec2c807b64b8fc322f0c4b72",
+        "ast_without_top_level_imports_sha256": "de32e7a7b47078d8753ae5285979a0fdfa46566ef5e3e60b33e605632921f5de",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.screen.grid', names=[alias(name='GridCell'), alias(name='GridSystem')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "5f5f87d696891772de04eb03fd78bf3ae471a227ec58ef7ca521c6047153530d",
+        "ast_without_top_level_imports_sha256": "de32e7a7b47078d8753ae5285979a0fdfa46566ef5e3e60b33e605632921f5de",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.screen.grid', names=[alias(name='GridCell'), alias(name='GridSystem')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_plan_validator.py": {
+      "before": {
+        "source_sha256": "d29c38d6b407e9484f0354bcba833fe79d057394be929e9b10d84c6a7db5676d",
+        "ast_without_top_level_imports_sha256": "462483c7d0ef300da43808bcbda237918a81081ead6dc4ece69eaac92533ad03",
+        "top_level_imports": [
+          "ImportFrom(module='copy', names=[alias(name='deepcopy')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard_plan', names=[alias(name='DashboardPlan')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetDefinition')], level=0)",
+          "ImportFrom(module='datapulse.screen.planning', names=[alias(name='PlanValidator')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "f4ed3067cf3f4d2ba7dd3ed95163e4fc9a0f42004ab27673a692b3e42c9ba85e",
+        "ast_without_top_level_imports_sha256": "462483c7d0ef300da43808bcbda237918a81081ead6dc4ece69eaac92533ad03",
+        "top_level_imports": [
+          "ImportFrom(module='copy', names=[alias(name='deepcopy')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard_plan', names=[alias(name='DashboardPlan')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetDefinition')], level=0)",
+          "ImportFrom(module='datapulse.screen.planning', names=[alias(name='PlanValidator')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_planning_service.py": {
+      "before": {
+        "source_sha256": "21fab404b2b4f17a5face85412e38097e3e1257829edb7318a0566fa58a66cf2",
+        "ast_without_top_level_imports_sha256": "b055b4088a350be8f6763c1c035457baf1a38b251dbaf873a4c1263c6d422c6c",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard_plan', names=[alias(name='DashboardPlan')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetDefinition')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='DashboardPlanCompileRequest'), alias(name='DashboardPlanRecompileRequest')], level=0)",
+          "ImportFrom(module='datapulse.screen.planning_service', names=[alias(name='DashboardPlanningService')], level=0)",
+          "ImportFrom(module='datapulse.screen.runtime', names=[alias(name='ScreenDocumentQueryRequest')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "96bafffceef4486de0733a3e1af2a2d0ee2f382a82847a91a186eb31755b74c8",
+        "ast_without_top_level_imports_sha256": "b055b4088a350be8f6763c1c035457baf1a38b251dbaf873a4c1263c6d422c6c",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='dataclasses', names=[alias(name='dataclass')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dashboard_plan', names=[alias(name='DashboardPlan')], level=0)",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='DatasetDefinition')], level=0)",
+          "ImportFrom(module='datapulse.dataset.models', names=[alias(name='DatasetResponse')], level=0)",
+          "ImportFrom(module='datapulse.query.models', names=[alias(name='QueryResult')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='DashboardPlanCompileRequest'), alias(name='DashboardPlanRecompileRequest')], level=0)",
+          "ImportFrom(module='datapulse.screen.planning_service', names=[alias(name='DashboardPlanningService')], level=0)",
+          "ImportFrom(module='datapulse.screen.runtime', names=[alias(name='ScreenDocumentQueryRequest')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_runtime_file_capacity.py": {
+      "before": {
+        "source_sha256": "7017670ee1a9318f1a73c34718c47e04e6ed6cad9c1fd9ce9116cb3f5f779ad0",
+        "ast_without_top_level_imports_sha256": "3fd7e6fe0a56101a03f83da1515a7a7963aa69db9ef50ed1d172416137e0183f",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='FileFormat')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datapulse.filedata.duckdb_executor', names=[alias(name='DuckDBExecutor')], level=0)",
+          "ImportFrom(module='datapulse.filedata.models', names=[alias(name='StoredFileAsset')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileDatasetQueryService'), alias(name='FileQueryCompiler')], level=0)",
+          "ImportFrom(module='datapulse.operations.processing', names=[alias(name='run_processor')], level=0)",
+          "ImportFrom(module='datapulse.screen.runtime', names=[alias(name='ScreenDocumentQueryRequest'), alias(name='ScreenRuntimeService')], level=0)",
+          "ImportFrom(module='datapulse.settings', names=[alias(name='Settings')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='tests.screen.test_runtime', names=[alias(name='FakeDatasetRepository'), alias(name='FakeDatasourceService'), alias(name='FakeFileAssetRepository'), alias(name='chart_spec'), alias(name='file_dataset_response'), alias(name='query_result'), alias(name='screen_document')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "e68f92906eda8671ff9d56217e831f2d378565f0b5196583b01e01c04da9cf42",
+        "ast_without_top_level_imports_sha256": "3fd7e6fe0a56101a03f83da1515a7a7963aa69db9ef50ed1d172416137e0183f",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.contracts.dataset', names=[alias(name='FileFormat')], level=0)",
+          "ImportFrom(module='datapulse.errors', names=[alias(name='DataPulseError')], level=0)",
+          "ImportFrom(module='datapulse.filedata.duckdb_executor', names=[alias(name='DuckDBExecutor')], level=0)",
+          "ImportFrom(module='datapulse.filedata.models', names=[alias(name='StoredFileAsset')], level=0)",
+          "ImportFrom(module='datapulse.filedata.query', names=[alias(name='FileDatasetQueryService'), alias(name='FileQueryCompiler')], level=0)",
+          "ImportFrom(module='datapulse.operations.processing', names=[alias(name='run_processor')], level=0)",
+          "ImportFrom(module='datapulse.screen.runtime', names=[alias(name='ScreenDocumentQueryRequest'), alias(name='ScreenRuntimeService')], level=0)",
+          "ImportFrom(module='datapulse.settings', names=[alias(name='Settings')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='tests.screen.test_runtime', names=[alias(name='FakeDatasetRepository'), alias(name='FakeDatasourceService'), alias(name='FakeFileAssetRepository'), alias(name='chart_spec'), alias(name='file_dataset_response'), alias(name='query_result'), alias(name='screen_document')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/screen/test_service.py": {
+      "before": {
+        "source_sha256": "f617924219f7910d24ea4d8bfaaabc27fd75b08b9ff1473579c2cb40655334e3",
+        "ast_without_top_level_imports_sha256": "66645f90462fb8ac194e39ddab027b29dddff9983a0afc92e1c598a2c381d47e",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='ComponentInstance'), alias(name='DashboardDocument'), alias(name='Frame')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='ScreenCreate'), alias(name='ScreenDraftUpdate')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenRepository'), alias(name='ScreenRevisionConflict')], level=0)",
+          "ImportFrom(module='datapulse.screen.service', names=[alias(name='ScreenService')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "a794a74c588f8a4dfb53f9d340e11823d851529308a55542be4e434516c6eb56",
+        "ast_without_top_level_imports_sha256": "66645f90462fb8ac194e39ddab027b29dddff9983a0afc92e1c598a2c381d47e",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.dashboard', names=[alias(name='ComponentInstance'), alias(name='DashboardDocument'), alias(name='Frame')], level=0)",
+          "ImportFrom(module='datapulse.screen.models', names=[alias(name='ScreenCreate'), alias(name='ScreenDraftUpdate')], level=0)",
+          "ImportFrom(module='datapulse.screen.repository', names=[alias(name='ScreenRepository'), alias(name='ScreenRevisionConflict')], level=0)",
+          "ImportFrom(module='datapulse.screen.service', names=[alias(name='ScreenService')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/speech/test_api.py": {
+      "before": {
+        "source_sha256": "5c73bdd116f79f06d5926ae62d369c05ec4789d998c0946cfcfb07210d2caf68",
+        "ast_without_top_level_imports_sha256": "27877b03c2e43c82aa96dc82da09cf023dedcdadb81942101c30f67b07474599",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='datapulse.contracts.speech', names=[alias(name='DigitalHumanPlaybackDiagnosticResponse')], level=0)",
+          "ImportFrom(module='datapulse.speech.service', names=[alias(name='SpeechProviderUnavailable')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "b56710c0db1c4e69894a6d598e8f4aab7dde82739e33688fc96133855448834b",
+        "ast_without_top_level_imports_sha256": "27877b03c2e43c82aa96dc82da09cf023dedcdadb81942101c30f67b07474599",
+        "top_level_imports": [
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='datapulse.contracts.speech', names=[alias(name='DigitalHumanPlaybackDiagnosticResponse')], level=0)",
+          "ImportFrom(module='datapulse.speech.service', names=[alias(name='SpeechProviderUnavailable')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tests.support.app', names=[alias(name='AppClient'), alias(name='build_test_app')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/speech/test_service.py": {
+      "before": {
+        "source_sha256": "166dad9465f3621d39599a39450bf3ec0009b2784db524907c18e2a2e98026f2",
+        "ast_without_top_level_imports_sha256": "5535f8aedc80dd926e43466a2d292ff9b2a8dd5feb421c6463e87513de64dd62",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='httpx')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='AssetMediaMetadata')], level=0)",
+          "ImportFrom(module='datapulse.contracts.speech', names=[alias(name='DigitalHumanProviderCreate'), alias(name='DigitalHumanProviderUpdate'), alias(name='DigitalHumanSettingsUpdate'), alias(name='SpeechDraftRequest'), alias(name='SpeechPlanRequest')], level=0)",
+          "ImportFrom(module='datapulse.datasource.secrets', names=[alias(name='SecretBox')], level=0)",
+          "ImportFrom(module='datapulse.speech.service', names=[alias(name='SpeechProviderUnavailable'), alias(name='SpeechQuotaExceeded'), alias(name='SpeechService')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime'), alias(name='timedelta')], level=0)",
+          "ImportFrom(module='types', names=[alias(name='SimpleNamespace')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "68b090e101646de004ca5ba3b63072f3d7de2c8559035373159b604d93abcbfc",
+        "ast_without_top_level_imports_sha256": "5535f8aedc80dd926e43466a2d292ff9b2a8dd5feb421c6463e87513de64dd62",
+        "top_level_imports": [
+          "Import(names=[alias(name='asyncio')])",
+          "Import(names=[alias(name='base64')])",
+          "Import(names=[alias(name='httpx')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "ImportFrom(module='datapulse.contracts.screen_asset', names=[alias(name='AssetMediaMetadata')], level=0)",
+          "ImportFrom(module='datapulse.contracts.speech', names=[alias(name='DigitalHumanProviderCreate'), alias(name='DigitalHumanProviderUpdate'), alias(name='DigitalHumanSettingsUpdate'), alias(name='SpeechDraftRequest'), alias(name='SpeechPlanRequest')], level=0)",
+          "ImportFrom(module='datapulse.datasource.secrets', names=[alias(name='SecretBox')], level=0)",
+          "ImportFrom(module='datapulse.speech.service', names=[alias(name='SpeechProviderUnavailable'), alias(name='SpeechQuotaExceeded'), alias(name='SpeechService')], level=0)",
+          "ImportFrom(module='datetime', names=[alias(name='UTC'), alias(name='datetime'), alias(name='timedelta')], level=0)",
+          "ImportFrom(module='types', names=[alias(name='SimpleNamespace')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/test_ai_optional.py": {
+      "before": {
+        "source_sha256": "250ba97b7743839a9a661ff92cdea6429c0a3087e62f822122aa7ae615b6bfb0",
+        "ast_without_top_level_imports_sha256": "96cdcaf1852b8605871612c2e5462e334c1431b2cfd336945c7b7dc169565592",
+        "top_level_imports": [
+          "Import(names=[alias(name='ast')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.app', names=[alias(name='create_app')], level=0)",
+          "ImportFrom(module='datapulse.settings', names=[alias(name='Settings')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "ccd2690a746f0499e7b62153cbf985a5d318780e60d2b81208fb4e30eb4c5bcf",
+        "ast_without_top_level_imports_sha256": "96cdcaf1852b8605871612c2e5462e334c1431b2cfd336945c7b7dc169565592",
+        "top_level_imports": [
+          "Import(names=[alias(name='ast')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='datapulse.app', names=[alias(name='create_app')], level=0)",
+          "ImportFrom(module='datapulse.settings', names=[alias(name='Settings')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/test_e2e_fake_ai.py": {
+      "before": {
+        "source_sha256": "b5665e49f0b5b82a5a35401d60c37c876b08806d3991429656bce3b37fe337bf",
+        "ast_without_top_level_imports_sha256": "b2659e9b87fcce18b5e680d760cbe1ae4e0032c649ae1a5849ac1c7993c1c6b5",
+        "top_level_imports": [
+          "Import(names=[alias(name='httpx')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "f68d46cc8ee83f4cadc979e0b156227c5eb805dc01b6695e066e150f6044836a",
+        "ast_without_top_level_imports_sha256": "b2659e9b87fcce18b5e680d760cbe1ae4e0032c649ae1a5849ac1c7993c1c6b5",
+        "top_level_imports": [
+          "Import(names=[alias(name='httpx')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "apps/server/tests/test_run_e2e.py": {
+      "before": {
+        "source_sha256": "2919bef5c7e4327bbdb29ad1b109e87a8ffc75e122b0ef2052cf30c362431de3",
+        "ast_without_top_level_imports_sha256": "482bf8fdd33c97cf45e01fa2ce3a8eca8f7fbfbb776d4bc079a6bf7aee924464",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='contextlib', names=[alias(name='nullcontext')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tools', names=[alias(name='run_e2e')], level=0)",
+          "ImportFrom(module='tools.prepare_e2e', names=[alias(name='cleanup_run'), alias(name='prepare')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "a1dfa372d5158135fb5477b523ed62a1b83e9fc7b70c80b3e50f60faffb6a218",
+        "ast_without_top_level_imports_sha256": "482bf8fdd33c97cf45e01fa2ce3a8eca8f7fbfbb776d4bc079a6bf7aee924464",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='pytest')])",
+          "Import(names=[alias(name='sqlite3')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='contextlib', names=[alias(name='nullcontext')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tools', names=[alias(name='run_e2e')], level=0)",
+          "ImportFrom(module='tools.prepare_e2e', names=[alias(name='cleanup_run'), alias(name='prepare')], level=0)"
+        ]
+      }
+    },
+    "tools/check_generated.py": {
+      "before": {
+        "source_sha256": "7be35594324efec1edea0526aae6341458f0986fabd46ba5cdde3c89c49227df",
+        "ast_without_top_level_imports_sha256": "05ea7080ae4d98ab13cd7afcda1acecabd020a0d11447f045394de02ba4081ca",
+        "top_level_imports": [
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tempfile', names=[alias(name='TemporaryDirectory')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "776bc528ae0e6342a7a3a7509fdcd96dd339106ef3c971cb043009be90c88bfa",
+        "ast_without_top_level_imports_sha256": "05ea7080ae4d98ab13cd7afcda1acecabd020a0d11447f045394de02ba4081ca",
+        "top_level_imports": [
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tempfile', names=[alias(name='TemporaryDirectory')], level=0)"
+        ]
+      }
+    },
+    "tools/deploy_demo.py": {
+      "before": {
+        "source_sha256": "3ecd48d31f9dae9be336834cd4a084922be1c02bc0e0590dbc145cfa652f4b97",
+        "ast_without_top_level_imports_sha256": "035922a7a71e5fd57cc931528206bf6b947bc8bce01dfb5ed61819fa393f82c4",
+        "top_level_imports": [
+          "Import(names=[alias(name='argparse')])",
+          "Import(names=[alias(name='httpx')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='re')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='time')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='datapulse.operations.delivery', names=[alias(name='REPOSITORY_ROOT'), alias(name='authenticate_demo'), alias(name='build_compose_command'), alias(name='seed_demo'), alias(name='write_demo_environment')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "45abfe472665804c38663d5a45f923663b3c76b6bbfd20a913d538152d782f60",
+        "ast_without_top_level_imports_sha256": "035922a7a71e5fd57cc931528206bf6b947bc8bce01dfb5ed61819fa393f82c4",
+        "top_level_imports": [
+          "Import(names=[alias(name='argparse')])",
+          "Import(names=[alias(name='httpx')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='re')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='time')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='datapulse.operations.delivery', names=[alias(name='REPOSITORY_ROOT'), alias(name='authenticate_demo'), alias(name='build_compose_command'), alias(name='seed_demo'), alias(name='write_demo_environment')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)"
+        ]
+      }
+    },
+    "tools/quality_harness.py": {
+      "before": {
+        "source_sha256": "bfcc4eed94fa541aac8c44baf0a834b68b84e670ccbd3d93b692df5c88701cb2",
+        "ast_without_top_level_imports_sha256": "0e09abf934aa6a030937b1925605c36e2f94458e4f1b779a4c8d778f108738d5",
+        "top_level_imports": [
+          "Import(names=[alias(name='html')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='re')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "e88368bfedbde3dfad74c79a8762c20b2b5e8302daa8a897525c8937809979e1",
+        "ast_without_top_level_imports_sha256": "0e09abf934aa6a030937b1925605c36e2f94458e4f1b779a4c8d778f108738d5",
+        "top_level_imports": [
+          "Import(names=[alias(name='html')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='re')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      }
+    },
+    "tools/run_e2e.py": {
+      "before": {
+        "source_sha256": "6f0c52efb8a1c27cf487c5fefde5a1dd9c9473d2ebd5559a0cf4c438c419ce87",
+        "ast_without_top_level_imports_sha256": "16cbd221bfaa9197e2f9a9566afc95f7bdffeb5c2fd5042076df6feba86a487b",
+        "top_level_imports": [
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='math')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='re')])",
+          "Import(names=[alias(name='struct')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "Import(names=[alias(name='threading')])",
+          "Import(names=[alias(name='time')])",
+          "Import(names=[alias(name='wave')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='contextlib', names=[alias(name='contextmanager')], level=0)",
+          "ImportFrom(module='http.server', names=[alias(name='BaseHTTPRequestHandler'), alias(name='ThreadingHTTPServer')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tools.prepare_e2e', names=[alias(name='REPOSITORY_ROOT'), alias(name='cleanup_run'), alias(name='prepare')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "e9271a9982ef50bd997bed8a63e8d482e00b5d7bc558368bb4f4f03ec4c9589f",
+        "ast_without_top_level_imports_sha256": "16cbd221bfaa9197e2f9a9566afc95f7bdffeb5c2fd5042076df6feba86a487b",
+        "top_level_imports": [
+          "Import(names=[alias(name='io')])",
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='math')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='re')])",
+          "Import(names=[alias(name='struct')])",
+          "Import(names=[alias(name='subprocess')])",
+          "Import(names=[alias(name='sys')])",
+          "Import(names=[alias(name='threading')])",
+          "Import(names=[alias(name='time')])",
+          "Import(names=[alias(name='wave')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='collections.abc', names=[alias(name='Iterator')], level=0)",
+          "ImportFrom(module='contextlib', names=[alias(name='contextmanager')], level=0)",
+          "ImportFrom(module='http.server', names=[alias(name='BaseHTTPRequestHandler'), alias(name='ThreadingHTTPServer')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tools.prepare_e2e', names=[alias(name='REPOSITORY_ROOT'), alias(name='cleanup_run'), alias(name='prepare')], level=0)",
+          "ImportFrom(module='typing', names=[alias(name='Any')], level=0)"
+        ]
+      }
+    },
+    "tools/verify_no_ai_deployment.py": {
+      "before": {
+        "source_sha256": "f64e51b73069e0f224538ec402d19e8121a1ea40c66a1666ab59734acde80718",
+        "ast_without_top_level_imports_sha256": "c57d011a6e982739dc60ae30119c1302dbd8de75e037129bf90ed09229367fc6",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='fastapi.testclient', names=[alias(name='TestClient')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tempfile', names=[alias(name='TemporaryDirectory')], level=0)"
+        ]
+      },
+      "after": {
+        "source_sha256": "71c28f55e958e25b9c02faffd7a3c49762a7415c92fe97058fd9de67a8ff6076",
+        "ast_without_top_level_imports_sha256": "c57d011a6e982739dc60ae30119c1302dbd8de75e037129bf90ed09229367fc6",
+        "top_level_imports": [
+          "Import(names=[alias(name='json')])",
+          "Import(names=[alias(name='os')])",
+          "Import(names=[alias(name='sys')])",
+          "ImportFrom(module='__future__', names=[alias(name='annotations')], level=0)",
+          "ImportFrom(module='alembic', names=[alias(name='command')], level=0)",
+          "ImportFrom(module='alembic.config', names=[alias(name='Config')], level=0)",
+          "ImportFrom(module='fastapi.testclient', names=[alias(name='TestClient')], level=0)",
+          "ImportFrom(module='pathlib', names=[alias(name='Path')], level=0)",
+          "ImportFrom(module='tempfile', names=[alias(name='TemporaryDirectory')], level=0)"
+        ]
+      }
+    }
+  }
+}

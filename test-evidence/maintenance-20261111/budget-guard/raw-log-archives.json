@@ -1,0 +1,49 @@
+{
+  "lossless_roundtrip_verified": true,
+  "initial_archive_wrapper": {
+    "exit_code": 1,
+    "error": "IndexError: list index out of range",
+    "reason": "Case-sensitive exit_code parser did not match one existing EXIT_CODE line; corrected case-insensitive matching without changing log bytes."
+  },
+  "archives": [
+    {
+      "path": "budget-guard/focused-red.log.gz",
+      "original_path": "budget-guard/focused-red.log",
+      "uncompressed_sha256": "a0a7ad80c706d29d4db248de8325e83f9e026cfec01507975d8e6db60e1764bc",
+      "compressed_sha256": "875fdee38c860813a4d6a5d9940a4690f542429c766ed26d007b6e7feadf9781",
+      "uncompressed_bytes": 27276,
+      "exit_code": 1,
+      "read_command": [
+        "gzip",
+        "-cd",
+        "test-evidence/maintenance-20261111/budget-guard/focused-red.log.gz"
+      ]
+    },
+    {
+      "path": "plan-dataset-boundary/focused-red.log.gz",
+      "original_path": "plan-dataset-boundary/focused-red.log",
+      "uncompressed_sha256": "f7bfbedd7e5d06d337260b8b70d466b5c5cbff8c4912c688ccbab7ba2fcf11ad",
+      "compressed_sha256": "a8811d89a9488fb517ba4e19b7b4c45c207610e907be63bd17921ae3c1c27d13",
+      "uncompressed_bytes": 3617,
+      "exit_code": 1,
+      "read_command": [
+        "gzip",
+        "-cd",
+        "test-evidence/maintenance-20261111/plan-dataset-boundary/focused-red.log.gz"
+      ]
+    },
+    {
+      "path": "verify-budget-plan-final.log.gz",
+      "original_path": "verify-budget-plan-final.log",
+      "uncompressed_sha256": "a84ae06e3860dae6655b39537118e2ac465d28d53c313237b3fa66210dd6b351",
+      "compressed_sha256": "6f6c0ae2b55c16494d55016bbe032f15e7b5f8f5d176c2eade4e89c35eb92e90",
+      "uncompressed_bytes": 20555,
+      "exit_code": 0,
+      "read_command": [
+        "gzip",
+        "-cd",
+        "test-evidence/maintenance-20261111/verify-budget-plan-final.log.gz"
+      ]
+    }
+  ]
+}

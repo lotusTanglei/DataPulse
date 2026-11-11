@@ -1,0 +1,15 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'check', '--fix', 'apps/server', 'tools']
+E501 Line too long (109 > 100)
+  --> apps/server/migrations/versions/0016_speech_task_metadata.py:16:101
+   |
+14 | def upgrade() -> None:
+15 |     with op.batch_alter_table("speech_task") as batch:
+16 |         batch.add_column(sa.Column("source", sa.String(length=64), nullable=False, server_default="runtime"))
+   |                                                                                                     ^^^^^^^^^
+17 |         batch.add_column(sa.Column("priority", sa.Integer(), nullable=False, server_default="0"))
+18 |         batch.add_column(sa.Column("expires_at", sa.DateTime(timezone=True), nullable=True))
+   |
+
+Found 7 errors (6 fixed, 1 remaining).
+
+exit_code=1

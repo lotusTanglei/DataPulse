@@ -297,9 +297,7 @@ def _quality_hints(
             center = median(numeric)
             deviation = median(abs(value - center) for value in numeric)
             if deviation > 0:
-                outlier_count = sum(
-                    abs(value - center) > deviation * 6 for value in numeric
-                )
+                outlier_count = sum(abs(value - center) > deviation * 6 for value in numeric)
                 if outlier_count:
                     hints.append(
                         DatasetQualityHint(
@@ -384,8 +382,7 @@ class DatasetProfileService:
                 dataset.data_source_id,
                 query=query,
                 parameters={
-                    parameter.name: parameter.default
-                    for parameter in dataset.definition.parameters
+                    parameter.name: parameter.default for parameter in dataset.definition.parameters
                 },
                 max_rows=min(max_rows, dataset.definition.max_rows),
                 timeout_seconds=dataset.definition.timeout_seconds,
@@ -486,9 +483,7 @@ class DatasetProfileService:
                         override.default_aggregation if override is not None else None
                     ),
                     unit=override.unit if override is not None else None,
-                    display_name=(
-                        override.display_name if override is not None else None
-                    ) or name,
+                    display_name=(override.display_name if override is not None else None) or name,
                     format=override.format if override is not None else None,
                     aliases=(override.aliases or ()) if override is not None else (),
                 )

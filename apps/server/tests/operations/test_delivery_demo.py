@@ -12,7 +12,6 @@ from datapulse.operations.delivery import (
     write_demo_environment,
 )
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
 
 
@@ -108,15 +107,11 @@ def test_delivery_demo_command_and_operator_guide_are_repeatable(tmp_path: Path)
     assert report["status"] == "ok"
     assert '"status": "ok"' in result.stdout
 
-    scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))[
-        "scripts"
-    ]
+    scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))["scripts"]
     assert scripts["demo:verify"].endswith("tools/run_delivery_demo.py")
     assert scripts["demo:deploy"].endswith("tools/deploy_demo.py")
 
-    guide = (REPOSITORY_ROOT / "docs/operations/delivery-demo.md").read_text(
-        encoding="utf-8"
-    )
+    guide = (REPOSITORY_ROOT / "docs/operations/delivery-demo.md").read_text(encoding="utf-8")
     for required in (
         "pnpm demo:deploy",
         "pnpm demo:verify",

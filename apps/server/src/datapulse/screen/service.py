@@ -91,8 +91,7 @@ class ScreenService:
             copy_name = f"{base_name} {suffix}"
             suffix += 1
         component_ids = {
-            component.id: self._id_factory()
-            for component in source.draft_document.components
+            component.id: self._id_factory() for component in source.draft_document.components
         }
         copied_components = []
         for component in source.draft_document.components:

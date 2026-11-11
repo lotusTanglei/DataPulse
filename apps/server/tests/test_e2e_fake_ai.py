@@ -66,9 +66,7 @@ def test_fake_ai_server_exposes_deterministic_modes() -> None:
         )
 
         assert json.loads(valid.json()["choices"][0]["message"]["content"])["narrative"]
-        screen_plan = json.loads(screen.json()["choices"][0]["message"]["content"])[
-            "plan"
-        ]
+        screen_plan = json.loads(screen.json()["choices"][0]["message"]["content"])["plan"]
         assert screen_plan["widgets"][0]["dataset_id"] == "dataset-1"
         assert "unknown_field" in invalid.json()["choices"][0]["message"]["content"]
         assert malformed.json()["choices"][0]["message"]["content"] == "{"

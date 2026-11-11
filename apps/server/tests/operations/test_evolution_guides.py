@@ -1,23 +1,18 @@
 import json
 from pathlib import Path
 
-
 REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_upgrade_rollback_verification_command_and_guide_are_complete() -> None:
-    scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))[
-        "scripts"
-    ]
+    scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))["scripts"]
     assert scripts["verify:upgrade-rollback"] == (
         "uv run --package datapulse-server pytest "
         "apps/server/tests/metadata/test_migrations.py "
         "apps/server/tests/contracts/test_version_migrations.py "
         "apps/server/tests/operations/test_restore_rehearsal.py"
     )
-    guide = (REPOSITORY_ROOT / "docs/operations/version-migrations.md").read_text(
-        encoding="utf-8"
-    )
+    guide = (REPOSITORY_ROOT / "docs/operations/version-migrations.md").read_text(encoding="utf-8")
     for required in (
         "pnpm verify:upgrade-rollback",
         "文档版本",
@@ -50,9 +45,9 @@ def test_each_scenario_pack_has_a_documented_repository_case() -> None:
 
 def test_contribution_workflow_enforces_component_quality_gates() -> None:
     contributing = (REPOSITORY_ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
-    pull_request = (
-        REPOSITORY_ROOT / ".github/pull_request_template.md"
-    ).read_text(encoding="utf-8")
+    pull_request = (REPOSITORY_ROOT / ".github/pull_request_template.md").read_text(
+        encoding="utf-8"
+    )
     combined = contributing + pull_request
 
     for required in (

@@ -121,9 +121,7 @@ async def test_manual_compile_preflights_charts_and_returns_self_check_report() 
     assert response.report.executed_count == 1
     assert response.report.fallback_count == 1
     assert response.document.components[1].type == "builtin.panel"
-    assert response.warnings == (
-        "组件 total 已降级为占位：图表查询结果为空",
-    )
+    assert response.warnings == ("组件 total 已降级为占位：图表查询结果为空",)
 
 
 async def test_manual_recompile_uses_same_core_planning_service() -> None:

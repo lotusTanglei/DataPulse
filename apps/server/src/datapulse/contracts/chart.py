@@ -139,9 +139,6 @@ class ChartSpec(ContractModel):
             raise ValueError("Time bucket fields must be unique.")
         if not set(bucket_fields) <= set(self.dimensions):
             raise ValueError("Time buckets must reference chart dimensions.")
-        if (
-            self.drill_down is not None
-            and self.drill_down.levels[0].field not in self.dimensions
-        ):
+        if self.drill_down is not None and self.drill_down.levels[0].field not in self.dimensions:
             raise ValueError("The first drill-down field must be a chart dimension.")
         return self

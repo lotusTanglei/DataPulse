@@ -13,7 +13,9 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     with op.batch_alter_table("speech_task") as batch:
-        batch.add_column(sa.Column("source", sa.String(length=64), nullable=False, server_default="runtime"))
+        batch.add_column(
+            sa.Column("source", sa.String(length=64), nullable=False, server_default="runtime")
+        )
         batch.add_column(sa.Column("priority", sa.Integer(), nullable=False, server_default="0"))
         batch.add_column(sa.Column("expires_at", sa.DateTime(timezone=True), nullable=True))
 

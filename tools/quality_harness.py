@@ -79,18 +79,12 @@ def _metric_values(report: dict[str, Any]) -> dict[str, int | float]:
     total = _number(metrics.get("total_cases"), "total_cases")
     successful = _number(metrics.get("successful_cases"), "successful_cases")
     values = {
-        "first_success_rate": _number(
-            metrics.get("first_success_rate"), "first_success_rate"
-        ),
-        "draft_produced_rate": _number(
-            metrics.get("draft_produced_rate"), "draft_produced_rate"
-        ),
+        "first_success_rate": _number(metrics.get("first_success_rate"), "first_success_rate"),
+        "draft_produced_rate": _number(metrics.get("draft_produced_rate"), "draft_produced_rate"),
         "field_binding_accuracy": _number(
             metrics.get("field_binding_accuracy"), "field_binding_accuracy"
         ),
-        "semantic_match_rate": _number(
-            metrics.get("semantic_match_rate"), "semantic_match_rate"
-        ),
+        "semantic_match_rate": _number(metrics.get("semantic_match_rate"), "semantic_match_rate"),
         "chart_type_reasonable_rate": _number(
             metrics.get("chart_type_reasonable_rate"), "chart_type_reasonable_rate"
         ),
@@ -149,9 +143,7 @@ def _case_expectations(
     return expectations
 
 
-def _comparability_issues(
-    baseline: dict[str, Any], candidate: dict[str, Any]
-) -> list[str]:
+def _comparability_issues(baseline: dict[str, Any], candidate: dict[str, Any]) -> list[str]:
     issues: list[str] = []
     baseline_schema = baseline.get("schema_version")
     candidate_schema = candidate.get("schema_version")
@@ -188,9 +180,7 @@ def _comparability_issues(
     return issues
 
 
-def evaluate_upgrade(
-    baseline: dict[str, Any], candidate: dict[str, Any]
-) -> dict[str, Any]:
+def evaluate_upgrade(baseline: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
     baseline_provider, baseline_model, baseline_date = _report_identity(baseline)
     candidate_provider, candidate_model, candidate_date = _report_identity(candidate)
     baseline_values = _metric_values(baseline)
@@ -289,8 +279,8 @@ def render_dashboard(trend: dict[str, Any]) -> str:
             f"{cells}</tr>"
         )
     return (
-        "<!doctype html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
-        "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+        '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
         "<title>DataPulse 质量趋势</title><style>"
         "body{font-family:system-ui,sans-serif;margin:24px;color:#18212b;background:#f7f8fa}"
         "h1{font-size:24px;letter-spacing:0}table{width:100%;border-collapse:collapse;background:#fff}"

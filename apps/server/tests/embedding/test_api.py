@@ -194,9 +194,7 @@ def test_existing_ticket_is_revoked_when_screen_origin_policy_changes(
     ticket = issue_ticket(embed_app, api_key=api_key, screen_id=screen_id)
     bearer = {"Authorization": f"Bearer {ticket}"}
 
-    allowed = embed_app.client.get(
-        f"/api/embed/screens/{screen_id}", headers=bearer
-    )
+    allowed = embed_app.client.get(f"/api/embed/screens/{screen_id}", headers=bearer)
     assert allowed.status_code == 200
 
     restricted = embed_app.client.patch(
@@ -206,9 +204,7 @@ def test_existing_ticket_is_revoked_when_screen_origin_policy_changes(
     )
     assert restricted.status_code == 200
 
-    revoked = embed_app.client.get(
-        f"/api/embed/screens/{screen_id}", headers=bearer
-    )
+    revoked = embed_app.client.get(f"/api/embed/screens/{screen_id}", headers=bearer)
     assert revoked.status_code == 403
     assert revoked.json()["error"]["code"] == "EMBED_ORIGIN_DENIED"
 
@@ -218,9 +214,7 @@ def test_existing_ticket_is_revoked_when_screen_origin_policy_changes(
         headers=headers,
     )
     assert restored.status_code == 200
-    usable_again = embed_app.client.get(
-        f"/api/embed/screens/{screen_id}", headers=bearer
-    )
+    usable_again = embed_app.client.get(f"/api/embed/screens/{screen_id}", headers=bearer)
     assert usable_again.status_code == 200
 
 

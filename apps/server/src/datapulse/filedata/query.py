@@ -65,10 +65,7 @@ class FileQueryCompiler:
             metric = metrics.get(measure.field)
             if metric is None and measure.field not in field_expressions:
                 raise ChartQueryInvalid("CHART_FIELD_UNKNOWN")
-            if (
-                metric is not None
-                and measure.aggregation.value != metric.aggregation
-            ):
+            if metric is not None and measure.aggregation.value != metric.aggregation:
                 raise ChartQueryInvalid("CHART_METRIC_AGGREGATION_INVALID")
         measure_fields = {measure.field for measure in spec.measures}
         if any(
@@ -96,14 +93,11 @@ class FileQueryCompiler:
             field_expressions=field_expressions,
         )
 
-        calculated_names = {
-            field.name for field in dataset.semantics.calculated_fields
-        }
+        calculated_names = {field.name for field in dataset.semantics.calculated_fields}
 
         selections: list[exp.Expression] = [
             exp.alias_(dimension_expressions[field].copy(), field)
-            if field
-            in {bucket.field for bucket in spec.time_buckets} | calculated_names
+            if field in {bucket.field for bucket in spec.time_buckets} | calculated_names
             else dimension_expressions[field].copy()
             for field in dimensions
         ]
@@ -127,16 +121,12 @@ class FileQueryCompiler:
                 condition = exp.and_(condition, next_condition)
             query = query.where(condition)
         if spec.measures and dimensions:
-            query = query.group_by(
-                *(dimension_expressions[field].copy() for field in dimensions)
-            )
+            query = query.group_by(*(dimension_expressions[field].copy() for field in dimensions))
         for sort in spec.sort:
             sort_expression = (
                 measure_expressions[sort.field].copy()
                 if sort.field in measure_expressions
-                else dimension_expressions.get(
-                    sort.field, field_expressions[sort.field]
-                ).copy()
+                else dimension_expressions.get(sort.field, field_expressions[sort.field]).copy()
             )
             query = query.order_by(
                 exp.Ordered(

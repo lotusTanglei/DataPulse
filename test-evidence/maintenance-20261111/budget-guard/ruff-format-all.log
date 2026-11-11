@@ -1,0 +1,923 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'format', '--check', 'apps/server', 'tools']
+unformatted: File would be reformatted
+  --> apps/server/migrations/versions/0011_digital_human_settings.py:1:1
+   |
+23 |         sa.Column("daily_task_limit", sa.Integer(), nullable=False, server_default="1000"),
+   -         sa.Column(
+   -             "daily_audio_seconds_limit", sa.Float(), nullable=False, server_default="36000"
+   -         ),
+24 +         sa.Column("daily_audio_seconds_limit", sa.Float(), nullable=False, server_default="36000"),
+25 |         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
+   |
+
+unformatted: File would be reformatted
+  --> apps/server/migrations/versions/0016_speech_task_metadata.py:1:1
+   |
+15 |     with op.batch_alter_table("speech_task") as batch:
+   -         batch.add_column(sa.Column("source", sa.String(length=64), nullable=False, server_default="runtime"))
+16 +         batch.add_column(
+17 +             sa.Column("source", sa.String(length=64), nullable=False, server_default="runtime")
+18 +         )
+19 |         batch.add_column(sa.Column("priority", sa.Integer(), nullable=False, server_default="0"))
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/ai/context.py:1:1
+    |
+150 |                 tuple(
+    -                     {
+    -                         name: row.get(name)
+    -                         for name in field_names
+    -                         if name in row
+    -                     }
+151 +                     {name: row.get(name) for name in field_names if name in row}
+152 |                     for row in _rows(preview)[:max_rows]
+--------------------------------------------------------------------------------
+166 |                     name=dataset.name,
+    -                     fields=tuple(
+    -                         _context_field(field)
+    -                         for field in field_limit
+    -                     ),
+167 +                     fields=tuple(_context_field(field) for field in field_limit),
+168 |                     sample_rows=sample_rows,
+--------------------------------------------------------------------------------
+214 |         selected_rows = [
+    -             {name: value for name, value in row.items() if name in allowed}
+    -             for row in selected_rows
+215 +             {name: value for name, value in row.items() if name in allowed} for row in selected_rows
+216 |         ]
+217 |         clipped = True
+218 |     while serialized_size() > max_chars and profile_summary:
+    -         profile_summary = profile_summary[:- max(1, len(profile_summary) // 5)]
+219 +         profile_summary = profile_summary[: -max(1, len(profile_summary) // 5)]
+220 |         clipped = True
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/ai/screen_generator.py:1:1
+    |
+344 |     for field_name, field_path in (
+345 +         *((field, f"dimensions[{index}]") for index, field in enumerate(spec.dimensions)),
+346 |         *(
+    -             (field, f"dimensions[{index}]")
+    -             for index, field in enumerate(spec.dimensions)
+    -         ),
+    -         *(
+347 |             (measure.field, f"measures[{index}].field")
+348 |             for index, measure in enumerate(spec.measures)
+349 |         ),
+    -         *(
+    -             (filter_.field, f"filters[{index}].field")
+    -             for index, filter_ in enumerate(spec.filters)
+    -         ),
+    -         *(
+    -             (sort.field, f"sort[{index}].field")
+    -             for index, sort in enumerate(spec.sort)
+    -         ),
+350 +         *((filter_.field, f"filters[{index}].field") for index, filter_ in enumerate(spec.filters)),
+351 +         *((sort.field, f"sort[{index}].field") for index, sort in enumerate(spec.sort)),
+352 |     ):
+--------------------------------------------------------------------------------
+593 |             issues.extend(
+    -                 error.issues
+    -                 or (_issue(component_id, "component", str(error), "可渲染的组件定义"),)
+594 +                 error.issues or (_issue(component_id, "component", str(error), "可渲染的组件定义"),)
+595 |             )
+--------------------------------------------------------------------------------
+802 |                 system=system,
+    -                 user=self._repair_prompt(user, validation_issues)
+    -                 if validation_issues
+    -                 else user,
+803 +                 user=self._repair_prompt(user, validation_issues) if validation_issues else user,
+804 |                 response_model=_AiScreenDraftResponse,
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/contracts/chart.py:1:1
+    |
+141 |             raise ValueError("Time buckets must reference chart dimensions.")
+    -         if (
+    -             self.drill_down is not None
+    -             and self.drill_down.levels[0].field not in self.dimensions
+    -         ):
+142 +         if self.drill_down is not None and self.drill_down.levels[0].field not in self.dimensions:
+143 |             raise ValueError("The first drill-down field must be a chart dimension.")
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/contracts/dataset.py:1:1
+    |
+72  |     data_type: DataType | None = None
+    -     role: Literal[
+    -         "identifier",
+    -         "dimension",
+    -         "measure",
+    -         "geography",
+    -         "temporal",
+    -         "text",
+    -         "boolean",
+    -         "unknown",
+    -     ] | None = None
+73  +     role: (
+74  +         Literal[
+75  +             "identifier",
+76  +             "dimension",
+77  +             "measure",
+78  +             "geography",
+79  +             "temporal",
+80  +             "text",
+81  +             "boolean",
+82  +             "unknown",
+83  +         ]
+84  +         | None
+85  +     ) = None
+86  |     default_aggregation: Literal["sum", "avg", "min", "max", "count"] | None = None
+--------------------------------------------------------------------------------
+182 |             raise ValueError("Time hierarchy levels require time_grain.")
+    -         if self.kind == "dimension" and any(
+    -             level.time_grain is not None for level in self.levels
+    -         ):
+183 +         if self.kind == "dimension" and any(level.time_grain is not None for level in self.levels):
+184 |             raise ValueError("Dimension hierarchy levels cannot define time_grain.")
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/contracts/digital_human.py:1:1
+   |
+93 |             raise ValueError("interval_seconds is only valid for interval triggers")
+   -         if self.kind == "threshold" and not self.conditions and (
+   -             self.threshold is None or self.variable is None
+94 +         if (
+95 +             self.kind == "threshold"
+96 +             and not self.conditions
+97 +             and (self.threshold is None or self.variable is None)
+98 |         ):
+   |
+
+unformatted: File would be reformatted
+  --> apps/server/src/datapulse/contracts/migrations.py:1:1
+   |
+26 |     migrated = dict(payload)
+   -     contract_version = migrated.get(
+   -         "contract_version", CURRENT_COMPONENT_CONTRACT_VERSION
+   -     )
+27 +     contract_version = migrated.get("contract_version", CURRENT_COMPONENT_CONTRACT_VERSION)
+28 |     if contract_version != CURRENT_COMPONENT_CONTRACT_VERSION:
+   -         raise ValueError(
+   -             f"Unsupported component contract version: {contract_version}"
+   -         )
+29 +         raise ValueError(f"Unsupported component contract version: {contract_version}")
+30 |     migrated["contract_version"] = CURRENT_COMPONENT_CONTRACT_VERSION
+   |
+
+unformatted: File would be reformatted
+  --> apps/server/src/datapulse/contracts/speech.py:1:1
+   |
+11 | SpeechDraftOperation = Literal["generate", "rewrite", "shorten", "translate"]
+   - ProviderHealthStatus = Literal[
+   -     "unconfigured", "disabled", "healthy", "degraded", "open"
+   - ]
+12 + ProviderHealthStatus = Literal["unconfigured", "disabled", "healthy", "degraded", "open"]
+13 | GovernanceWord = Annotated[
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/dataset/profile.py:1:1
+    |
+299 |             if deviation > 0:
+    -                 outlier_count = sum(
+    -                     abs(value - center) > deviation * 6 for value in numeric
+    -                 )
+300 +                 outlier_count = sum(abs(value - center) > deviation * 6 for value in numeric)
+301 |                 if outlier_count:
+--------------------------------------------------------------------------------
+384 |                 parameters={
+    -                     parameter.name: parameter.default
+    -                     for parameter in dataset.definition.parameters
+385 +                     parameter.name: parameter.default for parameter in dataset.definition.parameters
+386 |                 },
+--------------------------------------------------------------------------------
+485 |                     unit=override.unit if override is not None else None,
+    -                     display_name=(
+    -                         override.display_name if override is not None else None
+    -                     ) or name,
+486 +                     display_name=(override.display_name if override is not None else None) or name,
+487 |                     format=override.format if override is not None else None,
+    |
+
+unformatted: File would be reformatted
+  --> apps/server/src/datapulse/ecosystem/api.py:1:1
+   |
+89 |     if identity is None:
+   -         raise invalid(
+   -             "Identity authorization is unavailable.", code="AUTH_UNAVAILABLE", status=503
+   -         )
+90 +         raise invalid("Identity authorization is unavailable.", code="AUTH_UNAVAILABLE", status=503)
+91 |
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/ecosystem/service.py:1:1
+    |
+403 |             history.mkdir(parents=True, exist_ok=True)
+    -             (history / f"{version}.json").write_text(
+    -                 package.model_dump_json(), encoding="utf-8"
+    -             )
+404 +             (history / f"{version}.json").write_text(package.model_dump_json(), encoding="utf-8")
+405 |             removed = self._staging / f"removed-{uuid4().hex}"
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/filedata/parsers.py:1:1
+    |
+278 |     sample_rows = tuple(
+    -         {key: _normalize_value(value) for key, value in row.items()}
+    -         for row in rows[:max_rows]
+279 +         {key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]
+280 |     )
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/filedata/query.py:1:1
+    |
+67  |                 raise ChartQueryInvalid("CHART_FIELD_UNKNOWN")
+    -             if (
+    -                 metric is not None
+    -                 and measure.aggregation.value != metric.aggregation
+    -             ):
+68  +             if metric is not None and measure.aggregation.value != metric.aggregation:
+69  |                 raise ChartQueryInvalid("CHART_METRIC_AGGREGATION_INVALID")
+--------------------------------------------------------------------------------
+95  |
+    -         calculated_names = {
+    -             field.name for field in dataset.semantics.calculated_fields
+    -         }
+96  +         calculated_names = {field.name for field in dataset.semantics.calculated_fields}
+97  |
+98  |         selections: list[exp.Expression] = [
+99  |             exp.alias_(dimension_expressions[field].copy(), field)
+    -             if field
+    -             in {bucket.field for bucket in spec.time_buckets} | calculated_names
+100 +             if field in {bucket.field for bucket in spec.time_buckets} | calculated_names
+101 |             else dimension_expressions[field].copy()
+--------------------------------------------------------------------------------
+123 |         if spec.measures and dimensions:
+    -             query = query.group_by(
+    -                 *(dimension_expressions[field].copy() for field in dimensions)
+    -             )
+124 +             query = query.group_by(*(dimension_expressions[field].copy() for field in dimensions))
+125 |         for sort in spec.sort:
+126 |             sort_expression = (
+127 |                 measure_expressions[sort.field].copy()
+128 |                 if sort.field in measure_expressions
+    -                 else dimension_expressions.get(
+    -                     sort.field, field_expressions[sort.field]
+    -                 ).copy()
+129 +                 else dimension_expressions.get(sort.field, field_expressions[sort.field]).copy()
+130 |             )
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/operations/delivery.py:1:1
+    |
+334 |         _require(
+    -             client.post(
+    -                 f"/api/player/screens/{screen_id}/session", json={"key": display["key"]}
+    -             ),
+335 +             client.post(f"/api/player/screens/{screen_id}/session", json={"key": display["key"]}),
+336 |             204,
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/screen/assets.py:1:1
+    |
+255 |             )
+    -         return {
+    -             str(path)
+    -             for record in records.all()
+    -             for path in record
+    -             if path
+    -         }
+256 +         return {str(path) for record in records.all() for path in record if path}
+257 |
+--------------------------------------------------------------------------------
+547 |         return await self._repository.list(
+    -             offset=offset, limit=limit, search=search, asset_type=asset_type, family_id=family_id,
+548 +             offset=offset,
+549 +             limit=limit,
+550 +             search=search,
+551 +             asset_type=asset_type,
+552 +             family_id=family_id,
+553 |             visible_ids=visible_ids,
+--------------------------------------------------------------------------------
+593 |                     resolved = candidate.resolve(strict=False)
+    -                     if (
+    -                         not resolved.is_relative_to(self._assets_dir)
+    -                         or str(resolved) in referenced
+    -                     ):
+594 +                     if not resolved.is_relative_to(self._assets_dir) or str(resolved) in referenced:
+595 |                         continue
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/src/datapulse/screen/chart_query.py:1:1
+    |
+144 |     current_field = spec.drill_down.levels[raw_level].field
+    -     dimensions = tuple(
+    -         current_field if field == root_field else field for field in spec.dimensions
+    -     )
+145 +     dimensions = tuple(current_field if field == root_field else field for field in spec.dimensions)
+146 |     drill_filters = tuple(
+--------------------------------------------------------------------------------
+345 |
+    -         calculated_names = {
+    -             field.name for field in dataset.semantics.calculated_fields
+    -         }
+346 +         calculated_names = {field.name for field in dataset.semantics.calculated_fields}
+347 |
+--------------------------------------------------------------------------------
+371 |         if spec.measures and dimensions:
+    -             query = query.group_by(
+    -                 *(dimension_expressions[field].copy() for field in dimensions)
+    -             )
+372 +             query = query.group_by(*(dimension_expressions[field].copy() for field in dimensions))
+373 |
+--------------------------------------------------------------------------------
+377 |                 if sort.field in measure_expressions
+    -                 else dimension_expressions.get(
+    -                     sort.field, field_expressions[sort.field]
+    -                 ).copy()
+378 +                 else dimension_expressions.get(sort.field, field_expressions[sort.field]).copy()
+379 |             )
+    |
+
+unformatted: File would be reformatted
+  --> apps/server/src/datapulse/screen/service.py:1:1
+   |
+93 |         component_ids = {
+   -             component.id: self._id_factory()
+   -             for component in source.draft_document.components
+94 +             component.id: self._id_factory() for component in source.draft_document.components
+95 |         }
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/ai/test_api.py:1:1
+    |
+344 |     response_payload = screen_edit_response()
+    -     ai_app.client.app.state.ai_service = FakeAiService(
+    -         screen_edit_response=response_payload
+    -     )
+345 +     ai_app.client.app.state.ai_service = FakeAiService(screen_edit_response=response_payload)
+346 |
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/dataset/test_api.py:1:1
+    |
+284 |     ]
+    -     saved_month = next(
+    -         field for field in saved["definition"]["fields"] if field["name"] == "month"
+    -     )
+285 +     saved_month = next(field for field in saved["definition"]["fields"] if field["name"] == "month")
+286 |     assert saved_month["data_type"] == "date"
+--------------------------------------------------------------------------------
+299 |
+    -     response = dataset_app.client.get(
+    -         f"/api/admin/datasets/{created['id']}/recommendations"
+    -     )
+300 +     response = dataset_app.client.get(f"/api/admin/datasets/{created['id']}/recommendations")
+301 |
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/dataset/test_profile.py:1:1
+    |
+196 |     definition_payload = value.definition.model_dump(mode="json")
+    -     definition_payload["profile_overrides"] = [
+    -         {"name": "amount", "default_aggregation": "sum"}
+    -     ]
+197 +     definition_payload["profile_overrides"] = [{"name": "amount", "default_aggregation": "sum"}]
+198 |     definition_payload["semantics"] = {
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/embedding/test_api.py:1:1
+    |
+196 |
+    -     allowed = embed_app.client.get(
+    -         f"/api/embed/screens/{screen_id}", headers=bearer
+    -     )
+197 +     allowed = embed_app.client.get(f"/api/embed/screens/{screen_id}", headers=bearer)
+198 |     assert allowed.status_code == 200
+--------------------------------------------------------------------------------
+206 |
+    -     revoked = embed_app.client.get(
+    -         f"/api/embed/screens/{screen_id}", headers=bearer
+    -     )
+207 +     revoked = embed_app.client.get(f"/api/embed/screens/{screen_id}", headers=bearer)
+208 |     assert revoked.status_code == 403
+--------------------------------------------------------------------------------
+216 |     assert restored.status_code == 200
+    -     usable_again = embed_app.client.get(
+    -         f"/api/embed/screens/{screen_id}", headers=bearer
+    -     )
+217 +     usable_again = embed_app.client.get(f"/api/embed/screens/{screen_id}", headers=bearer)
+218 |     assert usable_again.status_code == 200
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/filedata/test_api.py:1:1
+    |
+195 |         "/api/admin/files",
+    -         files={"file": ("broken.json", b"[{\"region\":", "application/json")},
+196 +         files={"file": ("broken.json", b'[{"region":', "application/json")},
+197 |         headers={**mutation_headers(file_app), "X-Request-ID": "bad-json-1"},
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/filedata/test_parsers.py:1:1
+    |
+193 |     assert {field.name: field.data_type.value for field in excel_result.fields} == expected
+    -     assert json_result.sample_rows[0] == excel_result.sample_rows[0] == {
+    -         "amount": 10,
+    -         "enabled": True,
+    -         "day": "2026-09-22",
+    -     }
+194 +     assert (
+195 +         json_result.sample_rows[0]
+196 +         == excel_result.sample_rows[0]
+197 +         == {
+198 +             "amount": 10,
+199 +             "enabled": True,
+200 +             "day": "2026-09-22",
+201 +         }
+202 +     )
+203 |
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/metadata/test_migrations.py:1:1
+    |
+136 |     with sqlite3.connect(database_path) as connection:
+    -         assert connection.execute(
+    -             f"SELECT {columns} FROM digital_human_usage"
+    -         ).fetchone() == legacy
+137 +         assert connection.execute(f"SELECT {columns} FROM digital_human_usage").fetchone() == legacy
+138 |         assert connection.execute(
+--------------------------------------------------------------------------------
+147 |     with sqlite3.connect(database_path) as connection:
+    -         assert connection.execute(
+    -             f"SELECT {columns} FROM digital_human_usage"
+    -         ).fetchone() == legacy
+148 +         assert connection.execute(f"SELECT {columns} FROM digital_human_usage").fetchone() == legacy
+149 |     assert "synthesis_total_ms" not in inspect_sqlite_columns(database_path, "digital_human_usage")
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/operations/test_backup.py:1:1
+    |
+171 |     with Session(engine) as session, session.begin():
+    -         session.add(SpeechPlanRecord(
+    -             id="plan", screen_id="screen", component_id="speaker", text="Hello",
+    -             language="en", content_hash="f" * 64,
+    -         ))
+    -         session.add(SpeechTaskRecord(
+    -             id="finished", plan_id="plan", status=status, asset_id="poster",
+    -             finished_at=utc_now(),
+    -         ))
+172 +         session.add(
+173 +             SpeechPlanRecord(
+174 +                 id="plan",
+175 +                 screen_id="screen",
+176 +                 component_id="speaker",
+177 +                 text="Hello",
+178 +                 language="en",
+179 +                 content_hash="f" * 64,
+180 +             )
+181 +         )
+182 +         session.add(
+183 +             SpeechTaskRecord(
+184 +                 id="finished",
+185 +                 plan_id="plan",
+186 +                 status=status,
+187 +                 asset_id="poster",
+188 +                 finished_at=utc_now(),
+189 +             )
+190 +         )
+191 |     engine.dispose()
+--------------------------------------------------------------------------------
+241 |         "plugin_dependencies": [{"id": "org.example.metrics", "version": "1.0.0"}],
+    -         "components": [{
+    -             "id": "metric", "type": "org.example.metric",
+    -             "frame": {"x": 0, "y": 0, "width": 100, "height": 100},
+    -         }],
+242 +         "components": [
+243 +             {
+244 +                 "id": "metric",
+245 +                 "type": "org.example.metric",
+246 +                 "frame": {"x": 0, "y": 0, "width": 100, "height": 100},
+247 +             }
+248 +         ],
+249 |     }
+--------------------------------------------------------------------------------
+598 |         )
+    -         connection.execute(
+    -             f"UPDATE screen SET {document_column}=?", (json.dumps(document),)
+    -         )
+599 +         connection.execute(f"UPDATE screen SET {document_column}=?", (json.dumps(document),))
+600 |     create_backup(source, tmp_path / "valid.zip", maintenance=True)
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/operations/test_delivery_demo.py:1:1
+    |
+110 |
+    -     scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))[
+    -         "scripts"
+    -     ]
+111 +     scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))["scripts"]
+112 |     assert scripts["demo:verify"].endswith("tools/run_delivery_demo.py")
+113 |     assert scripts["demo:deploy"].endswith("tools/deploy_demo.py")
+114 |
+    -     guide = (REPOSITORY_ROOT / "docs/operations/delivery-demo.md").read_text(
+    -         encoding="utf-8"
+    -     )
+115 +     guide = (REPOSITORY_ROOT / "docs/operations/delivery-demo.md").read_text(encoding="utf-8")
+116 |     for required in (
+    |
+
+unformatted: File would be reformatted
+  --> apps/server/tests/operations/test_evolution_guides.py:1:1
+   |
+8  | def test_upgrade_rollback_verification_command_and_guide_are_complete() -> None:
+   -     scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))[
+   -         "scripts"
+   -     ]
+9  +     scripts = json.loads((REPOSITORY_ROOT / "package.json").read_text(encoding="utf-8"))["scripts"]
+10 |     assert scripts["verify:upgrade-rollback"] == (
+--------------------------------------------------------------------------------
+15 |     )
+   -     guide = (REPOSITORY_ROOT / "docs/operations/version-migrations.md").read_text(
+   -         encoding="utf-8"
+   -     )
+16 +     guide = (REPOSITORY_ROOT / "docs/operations/version-migrations.md").read_text(encoding="utf-8")
+17 |     for required in (
+--------------------------------------------------------------------------------
+48 |     contributing = (REPOSITORY_ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+   -     pull_request = (
+   -         REPOSITORY_ROOT / ".github/pull_request_template.md"
+   -     ).read_text(encoding="utf-8")
+49 +     pull_request = (REPOSITORY_ROOT / ".github/pull_request_template.md").read_text(
+50 +         encoding="utf-8"
+51 +     )
+52 |     combined = contributing + pull_request
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/quality/test_quality_harness.py:1:1
+    |
+161 |     assert decision["allowed"] is False
+    -     assert decision["incompatibilities"] == [
+    -         "case ids mismatch: ['sales-by-region'] != []"
+    -     ]
+162 +     assert decision["incompatibilities"] == ["case ids mismatch: ['sales-by-region'] != []"]
+163 |
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/screen/test_asset_management.py:1:1
+    |
+112 |     with pytest.raises(AssetScanRejected, match="virus scan"):
+    -         await service.upload(
+    -             filename="avatar.png", content_type="image/png", content=image_bytes()
+    -         )
+113 +         await service.upload(filename="avatar.png", content_type="image/png", content=image_bytes())
+114 |     assert scanned == [("image/png", "avatar.png")]
+--------------------------------------------------------------------------------
+312 |         assert updated.status_code == 200 and updated.json()["name"] == "Renamed"
+    -         expiring = app.client.get(
+    -             "/api/admin/assets/expiring?within_days=3650&limit=10"
+    -         )
+313 +         expiring = app.client.get("/api/admin/assets/expiring?within_days=3650&limit=10")
+314 |         assert expiring.status_code == 200
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/screen/test_digital_human.py:1:1
+    |
+231 |     )
+    -     low = await assets.upload(
+    -         filename="low.wav", content_type="audio/wav", content=wav_bytes(1)
+    -     )
+232 +     low = await assets.upload(filename="low.wav", content_type="audio/wav", content=wav_bytes(1))
+233 |     high = await assets.upload(
+    |
+
+unformatted: File would be reformatted
+  --> apps/server/tests/screen/test_grid.py:1:1
+   |
+17 |     first = grid.frame(GridCell(column=0, row=0, column_span=columns // 2, row_span=3))
+   -     second = grid.frame(
+   -         GridCell(column=columns // 2, row=0, column_span=columns // 2, row_span=3)
+   -     )
+18 +     second = grid.frame(GridCell(column=columns // 2, row=0, column_span=columns // 2, row_span=3))
+19 |
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/screen/test_plan_validator.py:1:1
+    |
+102 |     payload["widgets"] = tuple(
+    -         {**widget, "id": f"trend-{index}"} for index in range(17)  # type: ignore[arg-type]
+103 +         {**widget, "id": f"trend-{index}"}
+104 +         for index in range(17)  # type: ignore[arg-type]
+105 |     )
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/screen/test_planning_service.py:1:1
+    |
+123 |     assert response.document.components[1].type == "builtin.panel"
+    -     assert response.warnings == (
+    -         "组件 total 已降级为占位：图表查询结果为空",
+    -     )
+124 +     assert response.warnings == ("组件 total 已降级为占位：图表查询结果为空",)
+125 |
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/screen/test_runtime_file_capacity.py:1:1
+    |
+134 |         asyncio.create_task(
+    -                 isolated_processor(
+    -                     [sys.executable, "-c", "import time; time.sleep(60)"], directory=tmp_path
+    -                 )
+135 +             isolated_processor(
+136 +                 [sys.executable, "-c", "import time; time.sleep(60)"], directory=tmp_path
+137 +             )
+138 |         )
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/screen/test_service.py:1:1
+    |
+188 |     assert (
+    -         original.draft_document.components[1].data_binding["variables"][0]["component_id"]
+    -         == "kpi"
+189 +         original.draft_document.components[1].data_binding["variables"][0]["component_id"] == "kpi"
+190 |     )
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/speech/test_api.py:1:1
+    |
+192 |     assert speech_app.client.get(endpoint).status_code == 401
+    -     assert speech_app.client.get(
+    -         endpoint, headers={"Authorization": "Bearer wrong"}
+    -     ).status_code == 401
+193 +     assert (
+194 +         speech_app.client.get(endpoint, headers={"Authorization": "Bearer wrong"}).status_code
+195 +         == 401
+196 +     )
+197 |     response = speech_app.client.get(
+    |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/speech/test_service.py:1:1
+    |
+324 |             background_task.cancel()
+325 +
+326 |             def drain_foreign_task() -> None:
+    |
+
+unformatted: File would be reformatted
+  --> apps/server/tests/test_ai_optional.py:1:1
+   |
+19 |         for node in ast.walk(tree):
+   -             if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
+   -                 "datapulse.ai"
+   -             ):
+20 +             if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("datapulse.ai"):
+21 |                 violations.append(f"{path.relative_to(REPOSITORY_ROOT)}:{node.lineno}")
+   |
+
+unformatted: File would be reformatted
+  --> apps/server/tests/test_e2e_fake_ai.py:1:1
+   |
+68 |         assert json.loads(valid.json()["choices"][0]["message"]["content"])["narrative"]
+   -         screen_plan = json.loads(screen.json()["choices"][0]["message"]["content"])[
+   -             "plan"
+   -         ]
+69 +         screen_plan = json.loads(screen.json()["choices"][0]["message"]["content"])["plan"]
+70 |         assert screen_plan["widgets"][0]["dataset_id"] == "dataset-1"
+   |
+
+unformatted: File would be reformatted
+   --> apps/server/tests/test_run_e2e.py:1:1
+    |
+70  |
+    - @pytest.mark.parametrize("projects", [
+    -     ["--project=firefox", "--project=webkit"],
+    -     ["--project", "firefox", "--project", "webkit"],
+    -     ["--project", "firefox", "webkit"],
+    -     ["--project=firefox", "e2e/identity.spec.ts", "--project=webkit"],
+    - ])
+71  + @pytest.mark.parametrize(
+72  +     "projects",
+73  +     [
+74  +         ["--project=firefox", "--project=webkit"],
+75  +         ["--project", "firefox", "--project", "webkit"],
+76  +         ["--project", "firefox", "webkit"],
+77  +         ["--project=firefox", "e2e/identity.spec.ts", "--project=webkit"],
+78  +     ],
+79  + )
+80  | def test_browser_runs_isolate_mutable_state_and_preserve_failed_evidence(
+--------------------------------------------------------------------------------
+86  |     monkeypatch.setenv("PLAYWRIGHT_JSON_OUTPUT_FILE", str(tmp_path / "json" / "results.json"))
+    -     monkeypatch.setattr(sys, "argv", [
+    -         "run_e2e", "--", "e2e/screen-editor.spec.ts", *projects,
+    -         "--output", str(output), "--grep", "builds a screen", "--retries=0",
+    -     ])
+87  +     monkeypatch.setattr(
+88  +         sys,
+89  +         "argv",
+90  +         [
+91  +             "run_e2e",
+92  +             "--",
+93  +             "e2e/screen-editor.spec.ts",
+94  +             *projects,
+95  +             "--output",
+96  +             str(output),
+97  +             "--grep",
+98  +             "builds a screen",
+99  +             "--retries=0",
+100 +         ],
+101 +     )
+102 |     calls: list[tuple[list[str], dict[str, str]]] = []
+--------------------------------------------------------------------------------
+120 |         evidence_dir = Path(
+    -             output_option.removeprefix("--output=") if output_option
+121 +             output_option.removeprefix("--output=")
+122 +             if output_option
+123 |             else command[command.index("--output") + 1]
+--------------------------------------------------------------------------------
+155 |     arguments = [
+    -         "--config=playwright.target.config.ts", "--grep", "@soak",
+    -         "--output=target-artifacts", "--reporter=line",
+156 +         "--config=playwright.target.config.ts",
+157 +         "--grep",
+158 +         "@soak",
+159 +         "--output=target-artifacts",
+160 +         "--reporter=line",
+161 |     ]
+--------------------------------------------------------------------------------
+170 |     assert run_e2e.main() == 3
+    -     assert commands == [[
+    -         "pnpm", "--filter", "@datapulse/web", "exec", "playwright", "test",
+    -         "--project=chromium", *arguments,
+    -     ]]
+171 +     assert commands == [
+172 +         [
+173 +             "pnpm",
+174 +             "--filter",
+175 +             "@datapulse/web",
+176 +             "exec",
+177 +             "playwright",
+178 +             "test",
+179 +             "--project=chromium",
+180 +             *arguments,
+181 +         ]
+182 +     ]
+183 |     assert len(prepared) == 1
+    |
+
+unformatted: File would be reformatted
+  --> tools/check_generated.py:1:1
+   |
+26 |         run(
+   -             "node", "tools/generate_types.mjs",
+   -             "--schema-dir", str(generated / "schemas"),
+   -             "--output-dir", str(generated / "src"),
+27 +             "node",
+28 +             "tools/generate_types.mjs",
+29 +             "--schema-dir",
+30 +             str(generated / "schemas"),
+31 +             "--output-dir",
+32 +             str(generated / "src"),
+33 |         )
+34 |         expected = generated_files(generated)
+35 |         actual = generated_files(ROOT / "packages/schema")
+36 |         differences = sorted(
+   -             name for name in expected.keys() | actual.keys()
+37 +             name
+38 +             for name in expected.keys() | actual.keys()
+39 |             if expected.get(name) != actual.get(name)
+   |
+
+unformatted: File would be reformatted
+   --> tools/quality_harness.py:1:1
+    |
+81  |     values = {
+    -         "first_success_rate": _number(
+    -             metrics.get("first_success_rate"), "first_success_rate"
+    -         ),
+    -         "draft_produced_rate": _number(
+    -             metrics.get("draft_produced_rate"), "draft_produced_rate"
+    -         ),
+82  +         "first_success_rate": _number(metrics.get("first_success_rate"), "first_success_rate"),
+83  +         "draft_produced_rate": _number(metrics.get("draft_produced_rate"), "draft_produced_rate"),
+84  |         "field_binding_accuracy": _number(
+85  |             metrics.get("field_binding_accuracy"), "field_binding_accuracy"
+    -         ),
+    -         "semantic_match_rate": _number(
+    -             metrics.get("semantic_match_rate"), "semantic_match_rate"
+86  |         ),
+87  +         "semantic_match_rate": _number(metrics.get("semantic_match_rate"), "semantic_match_rate"),
+88  |         "chart_type_reasonable_rate": _number(
+--------------------------------------------------------------------------------
+145 |
+    - def _comparability_issues(
+    -     baseline: dict[str, Any], candidate: dict[str, Any]
+    - ) -> list[str]:
+146 + def _comparability_issues(baseline: dict[str, Any], candidate: dict[str, Any]) -> list[str]:
+147 |     issues: list[str] = []
+--------------------------------------------------------------------------------
+182 |
+    - def evaluate_upgrade(
+    -     baseline: dict[str, Any], candidate: dict[str, Any]
+    - ) -> dict[str, Any]:
+183 + def evaluate_upgrade(baseline: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
+184 |     baseline_provider, baseline_model, baseline_date = _report_identity(baseline)
+--------------------------------------------------------------------------------
+281 |     return (
+    -         "<!doctype html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
+    -         "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+282 +         '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+283 +         '<meta name="viewport" content="width=device-width,initial-scale=1">'
+284 |         "<title>DataPulse 质量趋势</title><style>"
+    |
+
+unformatted: File would be reformatted
+   --> tools/run_e2e.py:1:1
+    |
+34  |     has_config = any(
+    -         argument == "--config" or argument.startswith("--config=")
+    -         for argument in normalized
+35  +         argument == "--config" or argument.startswith("--config=") for argument in normalized
+36  |     )
+37  |     has_project = any(
+    -         argument == "--project" or argument.startswith("--project=")
+    -         for argument in normalized
+38  +         argument == "--project" or argument.startswith("--project=") for argument in normalized
+39  |     )
+--------------------------------------------------------------------------------
+56  |         if argument == "--":
+    -             common.extend(arguments[index - 1:])
+57  +             common.extend(arguments[index - 1 :])
+58  |             break
+--------------------------------------------------------------------------------
+89  |         labels.add(label)
+    -         runs.append((label, [
+    -             f"--project={project}", f"--output={Path(output) / label}", *common,
+    -         ]))
+90  +         runs.append(
+91  +             (
+92  +                 label,
+93  +                 [
+94  +                     f"--project={project}",
+95  +                     f"--output={Path(output) / label}",
+96  +                     *common,
+97  +                 ],
+98  +             )
+99  +         )
+100 |     return runs
+--------------------------------------------------------------------------------
+113 |         elif prefix + "DIR" in environment or prefix + "NAME" in environment:
+    -             environment[prefix + "DIR"] = str(
+    -                 Path(environment.get(prefix + "DIR", ".")) / project
+    -             )
+114 +             environment[prefix + "DIR"] = str(Path(environment.get(prefix + "DIR", ".")) / project)
+115 |
+--------------------------------------------------------------------------------
+389 |                     # E2E-only key so the server can encrypt the fake provider secret.
+    -                     "DATAPULSE_MASTER_KEY": (
+    -                         "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
+    -                     ),
+390 +                     "DATAPULSE_MASTER_KEY": ("MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="),
+391 |                     "DATAPULSE_E2E_TTS_BASE_URL": tts_base_url,
+    |
+
+unformatted: File would be reformatted
+  --> tools/verify_no_ai_deployment.py:1:1
+   |
+56 |         ai_loaded = any(
+   -             name == "datapulse.ai" or name.startswith("datapulse.ai.")
+   -             for name in sys.modules
+57 +             name == "datapulse.ai" or name.startswith("datapulse.ai.") for name in sys.modules
+58 |         )
+   |
+
+45 files would be reformatted, 282 files already formatted
+
+exit_code=1

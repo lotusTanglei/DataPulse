@@ -190,9 +190,10 @@ def test_internal_metrics_requires_configured_bearer_token(
 
     monkeypatch.setattr(speech_app.app.state.speech_service, "metrics_snapshot", fake_metrics)
     assert speech_app.client.get(endpoint).status_code == 401
-    assert speech_app.client.get(
-        endpoint, headers={"Authorization": "Bearer wrong"}
-    ).status_code == 401
+    assert (
+        speech_app.client.get(endpoint, headers={"Authorization": "Bearer wrong"}).status_code
+        == 401
+    )
     response = speech_app.client.get(
         endpoint,
         headers={"Authorization": "Bearer metrics-test-token"},

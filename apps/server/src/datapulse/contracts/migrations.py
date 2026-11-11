@@ -1,7 +1,6 @@
 from collections.abc import Mapping
 from typing import Any
 
-
 CURRENT_SCHEMA_VERSION = 1
 CURRENT_COMPONENT_CONTRACT_VERSION = "1.0.0"
 
@@ -24,13 +23,9 @@ def migrate_component_payload(value: Any) -> Any:
     if not isinstance(payload, Mapping):
         return payload
     migrated = dict(payload)
-    contract_version = migrated.get(
-        "contract_version", CURRENT_COMPONENT_CONTRACT_VERSION
-    )
+    contract_version = migrated.get("contract_version", CURRENT_COMPONENT_CONTRACT_VERSION)
     if contract_version != CURRENT_COMPONENT_CONTRACT_VERSION:
-        raise ValueError(
-            f"Unsupported component contract version: {contract_version}"
-        )
+        raise ValueError(f"Unsupported component contract version: {contract_version}")
     migrated["contract_version"] = CURRENT_COMPONENT_CONTRACT_VERSION
     return migrated
 

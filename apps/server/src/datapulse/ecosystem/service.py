@@ -401,9 +401,7 @@ class EcosystemService:
             # Preserve identity even after uninstall, so reinstall cannot change old content.
             history = self.root / "history" / kind / package_id
             history.mkdir(parents=True, exist_ok=True)
-            (history / f"{version}.json").write_text(
-                package.model_dump_json(), encoding="utf-8"
-            )
+            (history / f"{version}.json").write_text(package.model_dump_json(), encoding="utf-8")
             removed = self._staging / f"removed-{uuid4().hex}"
             directory.rename(removed)
             shutil.rmtree(removed)

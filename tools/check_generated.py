@@ -24,14 +24,18 @@ def main() -> int:
         generated = Path(temporary)
         run(sys.executable, "tools/export_schemas.py", "--output-dir", str(generated / "schemas"))
         run(
-            "node", "tools/generate_types.mjs",
-            "--schema-dir", str(generated / "schemas"),
-            "--output-dir", str(generated / "src"),
+            "node",
+            "tools/generate_types.mjs",
+            "--schema-dir",
+            str(generated / "schemas"),
+            "--output-dir",
+            str(generated / "src"),
         )
         expected = generated_files(generated)
         actual = generated_files(ROOT / "packages/schema")
         differences = sorted(
-            name for name in expected.keys() | actual.keys()
+            name
+            for name in expected.keys() | actual.keys()
             if expected.get(name) != actual.get(name)
         )
         if differences:

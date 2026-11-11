@@ -70,16 +70,19 @@ class DatasetField(ContractModel):
 class DatasetFieldOverride(ContractModel):
     name: NonBlankStr
     data_type: DataType | None = None
-    role: Literal[
-        "identifier",
-        "dimension",
-        "measure",
-        "geography",
-        "temporal",
-        "text",
-        "boolean",
-        "unknown",
-    ] | None = None
+    role: (
+        Literal[
+            "identifier",
+            "dimension",
+            "measure",
+            "geography",
+            "temporal",
+            "text",
+            "boolean",
+            "unknown",
+        ]
+        | None
+    ) = None
     default_aggregation: Literal["sum", "avg", "min", "max", "count"] | None = None
     unit: NonBlankStr | None = None
     display_name: NonBlankStr | None = None
@@ -177,9 +180,7 @@ class DatasetHierarchy(ContractModel):
             raise ValueError("Hierarchy fields must be unique.")
         if self.kind == "time" and any(level.time_grain is None for level in self.levels):
             raise ValueError("Time hierarchy levels require time_grain.")
-        if self.kind == "dimension" and any(
-            level.time_grain is not None for level in self.levels
-        ):
+        if self.kind == "dimension" and any(level.time_grain is not None for level in self.levels):
             raise ValueError("Dimension hierarchy levels cannot define time_grain.")
         return self
 

@@ -9,9 +9,7 @@ from datapulse.contracts.common import ContractModel, NonBlankStr
 ProviderType = Literal["openai_compatible", "azure", "custom"]
 SpeechTaskStatus = Literal["queued", "running", "succeeded", "failed", "cancelled"]
 SpeechDraftOperation = Literal["generate", "rewrite", "shorten", "translate"]
-ProviderHealthStatus = Literal[
-    "unconfigured", "disabled", "healthy", "degraded", "open"
-]
+ProviderHealthStatus = Literal["unconfigured", "disabled", "healthy", "degraded", "open"]
 GovernanceWord = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)
 ]

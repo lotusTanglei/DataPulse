@@ -132,9 +132,9 @@ async def test_runtime_unrelated_processor_saturation_returns_429_and_reaps_work
     monkeypatch.setattr(asyncio, "create_subprocess_exec", capture)
     occupied = [
         asyncio.create_task(
-                isolated_processor(
-                    [sys.executable, "-c", "import time; time.sleep(60)"], directory=tmp_path
-                )
+            isolated_processor(
+                [sys.executable, "-c", "import time; time.sleep(60)"], directory=tmp_path
+            )
         )
         for _ in range(2)
     ]

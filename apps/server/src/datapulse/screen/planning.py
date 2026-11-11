@@ -226,6 +226,32 @@ class PlanValidator:
                     )
                 )
 
+        # Widgets above already validate their datasets. Declarations without
+        # widgets must satisfy the same boundary before a plan is returned.
+        widget_dataset_ids = {widget.dataset_id for widget in plan.widgets}
+        for index, dataset_id in enumerate(plan.dataset_ids):
+            if dataset_id in widget_dataset_ids:
+                continue
+            if dataset_id not in authorized_dataset_ids:
+                code = "PLAN_DATASET_UNAUTHORIZED"
+                reason = f"数据集 {dataset_id} 不存在或未授权"
+                expected = "当前用户可访问的数据集"
+            elif dataset_id not in datasets:
+                code = "PLAN_DATASET_UNKNOWN"
+                reason = f"数据集 {dataset_id} 不存在"
+                expected = "已登记的数据集"
+            else:
+                continue
+            issues.append(
+                _issue(
+                    code,
+                    widget_id=None,
+                    field=f"dataset_ids[{index}]",
+                    reason=reason,
+                    expected=expected,
+                )
+            )
+
         return PlanValidationResult(valid=not issues, issues=tuple(issues))
 
     def validate_or_raise(

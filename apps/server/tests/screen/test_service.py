@@ -186,6 +186,5 @@ async def test_copy_rewrites_digital_human_component_references(
     assert copied_speaker.id == "speaker-copy"
     assert copied_speaker.data_binding["variables"][0]["component_id"] == "kpi-copy"
     assert (
-        original.draft_document.components[1].data_binding["variables"][0]["component_id"]
-        == "kpi"
+        original.draft_document.components[1].data_binding["variables"][0]["component_id"] == "kpi"
     )

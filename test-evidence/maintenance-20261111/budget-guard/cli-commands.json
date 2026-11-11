@@ -1,0 +1,44 @@
+[
+  {
+    "name": "fixture-cli",
+    "command": [
+      "pnpm",
+      "quality:baseline",
+      "--",
+      "--model",
+      "gpt-6-astra",
+      "--date",
+      "2026-11-11",
+      "--budget-usd",
+      "1.00",
+      "--max-output-tokens",
+      "512",
+      "--provider",
+      "fixture",
+      "--output",
+      "test-evidence/maintenance-20261111/budget-guard/fixture.json"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "real-blocked",
+    "command": [
+      "pnpm",
+      "quality:baseline",
+      "--",
+      "--model",
+      "gpt-6-astra",
+      "--date",
+      "2026-11-11",
+      "--budget-usd",
+      "1.00",
+      "--max-output-tokens",
+      "512",
+      "--provider",
+      "openai",
+      "--output",
+      "test-evidence/maintenance-20261111/budget-guard/real.json"
+    ],
+    "exit_code": 2
+  }
+]

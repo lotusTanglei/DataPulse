@@ -1,0 +1,405 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'format', '--check', 'tools/quality_baseline.py', 'tools/run_quality_baseline.py', 'apps/server/tests/quality/test_quality_baseline.py']
+unformatted: File would be reformatted
+   --> apps/server/tests/quality/test_quality_baseline.py:1:1
+    |
+154 |     return OpenAICompatibleProvider(
+    -         base_url="https://provider.example/v1", api_key="test-key", model="gpt-6-astra",
+    -         client=httpx.Client(transport=httpx.MockTransport(handler)), **options,
+155 +         base_url="https://provider.example/v1",
+156 +         api_key="test-key",
+157 +         model="gpt-6-astra",
+158 +         client=httpx.Client(transport=httpx.MockTransport(handler)),
+159 +         **options,
+160 |     )
+161 |
+162 |
+163 | def _valid_response(request, *, usage=None, content=None):
+    -     return httpx.Response(200, json={
+    -         "choices": [{"message": {"content": content or '{"success": true, "bindings": {}, "chart_type": "bar", "draft_produced": true}'}}],
+    -         "usage": usage if usage is not None else {"prompt_tokens": 100, "completion_tokens": 20},
+    -     }, request=request)
+164 +     return httpx.Response(
+165 +         200,
+166 +         json={
+167 +             "choices": [
+168 +                 {
+169 +                     "message": {
+170 +                         "content": content
+171 +                         or '{"success": true, "bindings": {}, "chart_type": "bar", "draft_produced": true}'
+172 +                     }
+173 +                 }
+174 +             ],
+175 +             "usage": usage
+176 +             if usage is not None
+177 +             else {"prompt_tokens": 100, "completion_tokens": 20},
+178 +         },
+179 +         request=request,
+180 +     )
+181 |
+182 |
+183 | def test_budget_rejects_unknown_price_before_any_request() -> None:
+184 |     with pytest.raises(ValueError, match="pricing is not configured"):
+    -         OpenAICompatibleProvider(base_url="https://provider.example/v1", api_key="test-key", model="unpriced-model")
+185 +         OpenAICompatibleProvider(
+186 +             base_url="https://provider.example/v1", api_key="test-key", model="unpriced-model"
+187 +         )
+188 |
+--------------------------------------------------------------------------------
+197 |     calls = []
+198 +
+199 |     def handler(request):
+200 |         calls.append(request)
+201 |         return _valid_response(request)
+202 +
+203 |     provider = _budget_provider(handler, budget_usd="0.001")
+--------------------------------------------------------------------------------
+215 |     calls = []
+216 +
+217 |     def handler(request):
+218 |         calls.append(request)
+219 |         assert json.loads(request.content)["max_tokens"] == 128
+220 |         return _valid_response(request)
+221 +
+222 |     provider = _budget_provider(handler, max_output_tokens=128)
+--------------------------------------------------------------------------------
+232 |
+    - @pytest.mark.parametrize("usage", [None, {}, {"prompt_tokens": True, "completion_tokens": 1}, {"prompt_tokens": "100", "completion_tokens": 1}, {"prompt_tokens": -1, "completion_tokens": 1}, {"prompt_tokens": 1}, {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 999}])
+233 + @pytest.mark.parametrize(
+234 +     "usage",
+235 +     [
+236 +         None,
+237 +         {},
+238 +         {"prompt_tokens": True, "completion_tokens": 1},
+239 +         {"prompt_tokens": "100", "completion_tokens": 1},
+240 +         {"prompt_tokens": -1, "completion_tokens": 1},
+241 +         {"prompt_tokens": 1},
+242 +         {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 999},
+243 +     ],
+244 + )
+245 | def test_missing_or_invalid_usage_halts_and_keeps_reserved_cost(usage) -> None:
+246 |     calls = []
+247 +
+248 |     def handler(request):
+--------------------------------------------------------------------------------
+256 |         return httpx.Response(200, json=payload, request=request)
+257 +
+258 |     provider = _budget_provider(handler)
+--------------------------------------------------------------------------------
+271 |
+    - @pytest.mark.parametrize("usage", [{"prompt_tokens": 1_000_000, "completion_tokens": 1}, {"prompt_tokens": 100, "completion_tokens": 513}])
+272 + @pytest.mark.parametrize(
+273 +     "usage",
+274 +     [
+275 +         {"prompt_tokens": 1_000_000, "completion_tokens": 1},
+276 +         {"prompt_tokens": 100, "completion_tokens": 513},
+277 +     ],
+278 + )
+279 | def test_provider_usage_above_reserved_limits_is_audited_and_stops_followups(usage) -> None:
+280 |     calls = []
+281 +
+282 |     def handler(request):
+283 |         calls.append(request)
+284 |         return _valid_response(request, usage=usage)
+285 +
+286 |     provider = _budget_provider(handler)
+--------------------------------------------------------------------------------
+313 |     calls = []
+314 +
+315 |     def handler(request):
+316 |         calls.append(request)
+317 |         return _valid_response(request)
+318 +
+319 |     provider = _budget_provider(handler)
+--------------------------------------------------------------------------------
+329 |     calls = []
+330 +
+331 |     def handler(request):
+332 |         calls.append(request)
+333 |         return httpx.Response(500, request=request)
+334 +
+335 |     provider = _budget_provider(handler)
+--------------------------------------------------------------------------------
+348 |     calls = []
+349 +
+350 |     def handler(request):
+351 |         calls.append(request)
+352 |         return _valid_response(request, usage={"prompt_tokens": 100, "completion_tokens": 512})
+353 +
+354 |     provider = _budget_provider(handler, budget_usd="0.06")
+--------------------------------------------------------------------------------
+367 |     calls = []
+368 +
+369 |     def handler(request):
+370 |         calls.append(request)
+371 |         raise httpx.ReadTimeout("test timeout", request=request)
+372 +
+373 |     provider = _budget_provider(handler)
+--------------------------------------------------------------------------------
+385 | def test_real_report_keeps_unknown_charges_as_reservations_not_zero(monkeypatch) -> None:
+    -     client = httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(429, request=request)))
+386 +     client = httpx.Client(
+387 +         transport=httpx.MockTransport(lambda request: httpx.Response(429, request=request))
+388 +     )
+389 |     monkeypatch.setattr("tools.quality_baseline.httpx.Client", lambda **kwargs: client)
+    -     report = run_baseline(provider_name="openai", fixture_root=GOLDEN_ROOT, model="gpt-6-astra", run_date="2026-11-11", base_url="https://provider.example/v1", api_key="test-key")
+390 +     report = run_baseline(
+391 +         provider_name="openai",
+392 +         fixture_root=GOLDEN_ROOT,
+393 +         model="gpt-6-astra",
+394 +         run_date="2026-11-11",
+395 +         base_url="https://provider.example/v1",
+396 +         api_key="test-key",
+397 +     )
+398 |     assert report["budget"]["requests_attempted"] == 1
+--------------------------------------------------------------------------------
+407 |     from tools.run_quality_baseline import main
+408 +
+409 |     calls = []
+410 +
+411 |     def handler(request):
+412 |         calls.append(request)
+413 |         return _valid_response(request)
+414 +
+415 |     client = httpx.Client(transport=httpx.MockTransport(handler))
+416 |     monkeypatch.setattr("tools.quality_baseline.httpx.Client", lambda **kwargs: client)
+417 |     output = tmp_path / "blocked.json"
+    -     result = main(["--provider", "openai", "--model", "gpt-6-astra", "--base-url", "https://provider.example/v1", "--api-key", "test-key", "--budget-usd", "0.0001", "--date", "2026-11-11", "--output", str(output)])
+418 +     result = main(
+419 +         [
+420 +             "--provider",
+421 +             "openai",
+422 +             "--model",
+423 +             "gpt-6-astra",
+424 +             "--base-url",
+425 +             "https://provider.example/v1",
+426 +             "--api-key",
+427 +             "test-key",
+428 +             "--budget-usd",
+429 +             "0.0001",
+430 +             "--date",
+431 +             "2026-11-11",
+432 +             "--output",
+433 +             str(output),
+434 +         ]
+435 +     )
+436 |     assert result == 1
+--------------------------------------------------------------------------------
+495 |     report_path = (
+    -         REPOSITORY_ROOT
+    -         / "test-evidence"
+    -         / "quality-baseline"
+    -         / "baseline-2026-09-22.json"
+496 +         REPOSITORY_ROOT / "test-evidence" / "quality-baseline" / "baseline-2026-09-22.json"
+497 |     )
+    |
+
+unformatted: File would be reformatted
+   --> tools/quality_baseline.py:1:1
+    |
+79  | class EvaluationProvider(Protocol):
+    -     def run(self, case: GoldenCase) -> ProviderResult:
+    -         ...
+80  +     def run(self, case: GoldenCase) -> ProviderResult: ...
+81  |
+--------------------------------------------------------------------------------
+215 |         self._input_price, self._output_price = (Decimal(str(price)) for price in prices)
+    -         if any(not price.is_finite() or price < 0 for price in (self._input_price, self._output_price)):
+216 +         if any(
+217 +             not price.is_finite() or price < 0 for price in (self._input_price, self._output_price)
+218 +         ):
+219 |             raise ValueError(f"invalid pricing for model: {model}")
+--------------------------------------------------------------------------------
+276 |             "framing_token_allowance": INPUT_FRAMING_TOKEN_ALLOWANCE,
+    -             "pricing_usd_per_million": {"input": float(self._input_price), "output": float(self._output_price)},
+277 +             "pricing_usd_per_million": {
+278 +                 "input": float(self._input_price),
+279 +                 "output": float(self._output_price),
+280 +             },
+281 |             "accounted_usd": float(self._accounted),
+--------------------------------------------------------------------------------
+290 |     def _audited(
+    -         self, result: ProviderResult, *, requested: bool, input_bound: int = 0,
+    -         reservation: Decimal = Decimal(0), actual_cost: Decimal | None = None,
+291 +         self,
+292 +         result: ProviderResult,
+293 +         *,
+294 +         requested: bool,
+295 +         input_bound: int = 0,
+296 +         reservation: Decimal = Decimal(0),
+297 +         actual_cost: Decimal | None = None,
+298 |     ) -> ProviderResult:
+    -         return replace(result, cost_audit={
+    -             "requested": requested, "input_token_upper_bound": input_bound,
+    -             "max_output_tokens": self._max_output_tokens,
+    -             "reserved_usd": float(reservation),
+    -             "reported_cost_usd": float(actual_cost) if actual_cost is not None else None,
+    -             "usage_status": "reported" if actual_cost is not None else ("unknown" if requested else "not_requested"),
+    -             "accounted_usd_after_case": float(self._accounted),
+    -             "remaining_usd_after_case": float(self._budget - self._accounted),
+    -         })
+299 +         return replace(
+300 +             result,
+301 +             cost_audit={
+302 +                 "requested": requested,
+303 +                 "input_token_upper_bound": input_bound,
+304 +                 "max_output_tokens": self._max_output_tokens,
+305 +                 "reserved_usd": float(reservation),
+306 +                 "reported_cost_usd": float(actual_cost) if actual_cost is not None else None,
+307 +                 "usage_status": "reported"
+308 +                 if actual_cost is not None
+309 +                 else ("unknown" if requested else "not_requested"),
+310 +                 "accounted_usd_after_case": float(self._accounted),
+311 +                 "remaining_usd_after_case": float(self._budget - self._accounted),
+312 +             },
+313 +         )
+314 |
+315 |     def run(self, case: GoldenCase) -> ProviderResult:
+316 |         started = time.perf_counter()
+317 |         if self._halted_reason:
+    -             return self._audited(_error_result("AI_BUDGET_HALTED", _elapsed_ms(started)), requested=False)
+318 +             return self._audited(
+319 +                 _error_result("AI_BUDGET_HALTED", _elapsed_ms(started)), requested=False
+320 +             )
+321 |         if self._request_count >= MAX_REAL_REQUESTS:
+322 |             self._halted_reason = "AI_REQUEST_LIMIT"
+    -             return self._audited(_error_result("AI_REQUEST_LIMIT", _elapsed_ms(started)), requested=False)
+    -         body = json.dumps(self._request_payload(case), ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+323 +             return self._audited(
+324 +                 _error_result("AI_REQUEST_LIMIT", _elapsed_ms(started)), requested=False
+325 +             )
+326 +         body = json.dumps(
+327 +             self._request_payload(case), ensure_ascii=False, separators=(",", ":"), allow_nan=False
+328 +         ).encode("utf-8")
+329 |         input_bound = len(body) + INPUT_FRAMING_TOKEN_ALLOWANCE
+330 |         reservation = self._cost(input_bound, self._max_output_tokens)
+331 |         if reservation > self._budget - self._accounted:
+332 |             self._halted_reason = "AI_BUDGET_EXCEEDED"
+    -             return self._audited(_error_result("AI_BUDGET_EXCEEDED", _elapsed_ms(started)), requested=False, input_bound=input_bound)
+333 +             return self._audited(
+334 +                 _error_result("AI_BUDGET_EXCEEDED", _elapsed_ms(started)),
+335 +                 requested=False,
+336 +                 input_bound=input_bound,
+337 +             )
+338 |         self._accounted += reservation
+--------------------------------------------------------------------------------
+345 |             self._halted_reason = code
+    -             return self._audited(_error_result(code, _elapsed_ms(started)), requested=True, input_bound=input_bound, reservation=reservation)
+346 +             return self._audited(
+347 +                 _error_result(code, _elapsed_ms(started)),
+348 +                 requested=True,
+349 +                 input_bound=input_bound,
+350 +                 reservation=reservation,
+351 +             )
+352 |
+--------------------------------------------------------------------------------
+375 |             return uncertain("AI_USAGE_INVALID")
+    -         if "total_tokens" in usage and (type(usage["total_tokens"]) is not int or usage["total_tokens"] != input_tokens + output_tokens):
+376 +         if "total_tokens" in usage and (
+377 +             type(usage["total_tokens"]) is not int
+378 +             or usage["total_tokens"] != input_tokens + output_tokens
+379 +         ):
+380 |             return uncertain("AI_USAGE_INVALID")
+--------------------------------------------------------------------------------
+385 |         def audited(result: ProviderResult) -> ProviderResult:
+    -             return self._audited(result, requested=True, input_bound=input_bound, reservation=reservation, actual_cost=actual_cost)
+386 +             return self._audited(
+387 +                 result,
+388 +                 requested=True,
+389 +                 input_bound=input_bound,
+390 +                 reservation=reservation,
+391 +                 actual_cost=actual_cost,
+392 +             )
+393 |
+394 |         if input_tokens > input_bound or output_tokens > self._max_output_tokens:
+395 |             self._halted_reason = "AI_USAGE_EXCEEDS_RESERVATION"
+    -             return audited(_error_result(self._halted_reason, _elapsed_ms(started), input_tokens=input_tokens, output_tokens=output_tokens))
+396 +             return audited(
+397 +                 _error_result(
+398 +                     self._halted_reason,
+399 +                     _elapsed_ms(started),
+400 +                     input_tokens=input_tokens,
+401 +                     output_tokens=output_tokens,
+402 +                 )
+403 +             )
+404 |         try:
+--------------------------------------------------------------------------------
+409 |         except (KeyError, IndexError, TypeError, ValueError):
+    -             return audited(_error_result("AI_INVALID_OUTPUT", _elapsed_ms(started), input_tokens=input_tokens, output_tokens=output_tokens))
+410 +             return audited(
+411 +                 _error_result(
+412 +                     "AI_INVALID_OUTPUT",
+413 +                     _elapsed_ms(started),
+414 +                     input_tokens=input_tokens,
+415 +                     output_tokens=output_tokens,
+416 +                 )
+417 +             )
+418 |         bindings = payload.get("bindings", {})
+419 |         if not isinstance(bindings, dict):
+420 |             bindings = {}
+    -         return audited(ProviderResult(
+    -             success=bool(payload.get("success", True)),
+    -             bindings={str(key): str(value) for key, value in bindings.items()},
+    -             chart_type=str(payload["chart_type"]) if payload.get("chart_type") else None,
+    -             warning_count=_safe_int(payload.get("warning_count", 0)),
+    -             duration_ms=_elapsed_ms(started),
+    -             input_tokens=input_tokens,
+    -             output_tokens=output_tokens,
+    -             error_code=str(payload["error_code"]) if payload.get("error_code") else None,
+    -             draft_produced=bool(payload.get("draft_produced", False)),
+    -         ))
+421 +         return audited(
+422 +             ProviderResult(
+423 +                 success=bool(payload.get("success", True)),
+424 +                 bindings={str(key): str(value) for key, value in bindings.items()},
+425 +                 chart_type=str(payload["chart_type"]) if payload.get("chart_type") else None,
+426 +                 warning_count=_safe_int(payload.get("warning_count", 0)),
+427 +                 duration_ms=_elapsed_ms(started),
+428 +                 input_tokens=input_tokens,
+429 +                 output_tokens=output_tokens,
+430 +                 error_code=str(payload["error_code"]) if payload.get("error_code") else None,
+431 +                 draft_produced=bool(payload.get("draft_produced", False)),
+432 +             )
+433 +         )
+434 |
+--------------------------------------------------------------------------------
+593 |         report["budget"] = provider.budget_summary()
+    -         report["metrics"]["token_cost"].update({
+    -             "usd": report["budget"]["accounted_usd"],
+    -             "basis": "reported_usage_or_retained_reservation",
+    -             "reported_cost_usd": report["budget"]["reported_cost_usd"],
+    -             "usage_complete": report["budget"]["usage_complete"],
+    -         })
+594 +         report["metrics"]["token_cost"].update(
+595 +             {
+596 +                 "usd": report["budget"]["accounted_usd"],
+597 +                 "basis": "reported_usage_or_retained_reservation",
+598 +                 "reported_cost_usd": report["budget"]["reported_cost_usd"],
+599 +                 "usage_complete": report["budget"]["usage_complete"],
+600 +             }
+601 +         )
+602 |     return report
+    |
+
+unformatted: File would be reformatted
+  --> tools/run_quality_baseline.py:1:1
+   |
+28 |     parser.add_argument("--date", default=default_run_date())
+   -     parser.add_argument("--budget-usd", default="1.00", help="Maximum reserved cost in USD, greater than 0 and at most 1.00 (real provider only).")
+   -     parser.add_argument("--max-output-tokens", type=int, default=512, help="Per-request max_tokens limit (1-4096, real provider only).")
+29 +     parser.add_argument(
+30 +         "--budget-usd",
+31 +         default="1.00",
+32 +         help="Maximum reserved cost in USD, greater than 0 and at most 1.00 (real provider only).",
+33 +     )
+34 +     parser.add_argument(
+35 +         "--max-output-tokens",
+36 +         type=int,
+37 +         default=512,
+38 +         help="Per-request max_tokens limit (1-4096, real provider only).",
+39 +     )
+40 |     parser.add_argument("--output", type=Path)
+   |
+
+3 files would be reformatted
+
+exit_code=1

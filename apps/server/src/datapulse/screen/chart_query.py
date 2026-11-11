@@ -142,9 +142,7 @@ def _effective_dimensions_and_filters(
         raise ChartQueryInvalid("CHART_DRILL_LEVEL_INVALID")
     root_field = spec.drill_down.levels[0].field
     current_field = spec.drill_down.levels[raw_level].field
-    dimensions = tuple(
-        current_field if field == root_field else field for field in spec.dimensions
-    )
+    dimensions = tuple(current_field if field == root_field else field for field in spec.dimensions)
     drill_filters = tuple(
         Filter(
             field=level.field,
@@ -345,9 +343,7 @@ class ChartQueryCompiler:
             field_expressions=field_expressions,
         )
 
-        calculated_names = {
-            field.name for field in dataset.semantics.calculated_fields
-        }
+        calculated_names = {field.name for field in dataset.semantics.calculated_fields}
 
         selections: list[exp.Expression] = [
             exp.alias_(dimension_expressions[field].copy(), field)
@@ -373,17 +369,13 @@ class ChartQueryCompiler:
                 condition = exp.and_(condition, next_condition)
             query = query.where(condition)
         if spec.measures and dimensions:
-            query = query.group_by(
-                *(dimension_expressions[field].copy() for field in dimensions)
-            )
+            query = query.group_by(*(dimension_expressions[field].copy() for field in dimensions))
 
         for sort in spec.sort:
             sort_expression = (
                 measure_expressions[sort.field].copy()
                 if sort.field in measure_expressions
-                else dimension_expressions.get(
-                    sort.field, field_expressions[sort.field]
-                ).copy()
+                else dimension_expressions.get(sort.field, field_expressions[sort.field]).copy()
             )
             query = query.order_by(
                 exp.Ordered(

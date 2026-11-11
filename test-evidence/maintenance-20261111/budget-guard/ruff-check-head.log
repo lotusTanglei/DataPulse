@@ -1,0 +1,142 @@
+command=['/Users/dundundebaba/sync/code/open/DataPulse/.venv/bin/ruff', 'check', 'apps/server', 'tools']
+baseline=HEAD ed5ec70
+E501 Line too long (109 > 100)
+  --> apps/server/migrations/versions/0016_speech_task_metadata.py:16:101
+   |
+14 | def upgrade() -> None:
+15 |     with op.batch_alter_table("speech_task") as batch:
+16 |         batch.add_column(sa.Column("source", sa.String(length=64), nullable=False, server_default="runtime"))
+   |                                                                                                     ^^^^^^^^^
+17 |         batch.add_column(sa.Column("priority", sa.Integer(), nullable=False, server_default="0"))
+18 |         batch.add_column(sa.Column("expires_at", sa.DateTime(timezone=True), nullable=True))
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> apps/server/src/datapulse/contracts/migrations.py:1:1
+  |
+1 | / from collections.abc import Mapping
+2 | | from typing import Any
+  | |______________________^
+  |
+help: Organize imports
+  |
+3 |
+  -
+4 | CURRENT_SCHEMA_VERSION = 1
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> apps/server/src/datapulse/operations/delivery.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import base64
+ 4 | | import os
+ 5 | | import secrets
+ 6 | | from collections.abc import Mapping, Sequence
+ 7 | | from pathlib import Path
+ 8 | | from typing import Any, Protocol
+ 9 | |
+10 | | from alembic import command
+11 | | from alembic.config import Config
+12 | | from fastapi.testclient import TestClient
+   | |_________________________________________^
+   |
+help: Organize imports
+   |
+13 |
+   -
+14 | REPOSITORY_ROOT = Path(__file__).resolve().parents[5]
+   |
+
+F401 [*] `collections.abc.Mapping` imported but unused
+ --> apps/server/src/datapulse/operations/delivery.py:6:29
+  |
+4 | import os
+5 | import secrets
+6 | from collections.abc import Mapping, Sequence
+  |                             ^^^^^^^
+7 | from pathlib import Path
+8 | from typing import Any, Protocol
+  |
+help: Remove unused import: `collections.abc.Mapping`
+  |
+5 | import secrets
+  - from collections.abc import Mapping, Sequence
+6 + from collections.abc import Sequence
+7 | from pathlib import Path
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> apps/server/tests/operations/test_delivery_demo.py:1:1
+   |
+ 1 | / import base64
+ 2 | | import json
+ 3 | | import stat
+ 4 | | import subprocess
+ 5 | | import sys
+ 6 | | from pathlib import Path
+ 7 | |
+ 8 | | from datapulse.operations.delivery import (
+ 9 | |     build_compose_command,
+10 | |     build_demo_document,
+11 | |     run_clean_delivery_rehearsal,
+12 | |     write_demo_environment,
+13 | | )
+   | |_^
+   |
+help: Organize imports
+   |
+14 |
+   -
+15 | REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> apps/server/tests/operations/test_evolution_guides.py:1:1
+  |
+1 | / import json
+2 | | from pathlib import Path
+  | |________________________^
+  |
+help: Organize imports
+  |
+3 |
+  -
+4 | REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tools/deploy_demo.py:1:1
+   |
+ 1 | / from __future__ import annotations
+ 2 | |
+ 3 | | import argparse
+ 4 | | import json
+ 5 | | import re
+ 6 | | import subprocess
+ 7 | | import time
+ 8 | | from pathlib import Path
+ 9 | |
+10 | | import httpx
+11 | |
+12 | | from datapulse.operations.delivery import (
+13 | |     REPOSITORY_ROOT,
+14 | |     authenticate_demo,
+15 | |     build_compose_command,
+16 | |     seed_demo,
+17 | |     write_demo_environment,
+18 | | )
+   | |_^
+   |
+help: Organize imports
+   |
+19 |
+   -
+20 | SETUP_CODE_PATTERN = re.compile(r"DataPulse one-time setup code:\s+(\S+)")
+   |
+
+Found 7 errors.
+[*] 6 fixable with the `--fix` option.
+
+exit_code=1

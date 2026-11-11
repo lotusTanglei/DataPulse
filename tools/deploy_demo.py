@@ -17,7 +17,6 @@ from datapulse.operations.delivery import (
     write_demo_environment,
 )
 
-
 SETUP_CODE_PATTERN = re.compile(r"DataPulse one-time setup code:\s+(\S+)")
 
 

@@ -282,9 +282,7 @@ def test_dataset_profile_api_returns_contract_and_persists_field_correction(
             "aliases": ["月份", "月度"],
         }
     ]
-    saved_month = next(
-        field for field in saved["definition"]["fields"] if field["name"] == "month"
-    )
+    saved_month = next(field for field in saved["definition"]["fields"] if field["name"] == "month")
     assert saved_month["data_type"] == "date"
 
 
@@ -299,9 +297,7 @@ def test_dataset_rule_recommendations_api_uses_profile_without_ai(
         headers=mutation_headers(dataset_app),
     ).json()
 
-    response = dataset_app.client.get(
-        f"/api/admin/datasets/{created['id']}/recommendations"
-    )
+    response = dataset_app.client.get(f"/api/admin/datasets/{created['id']}/recommendations")
 
     assert response.status_code == 200
     body = response.json()

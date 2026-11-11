@@ -193,7 +193,7 @@ def test_malformed_json_upload_returns_stable_error_and_cleans_storage(
 
     response = file_app.client.post(
         "/api/admin/files",
-        files={"file": ("broken.json", b"[{\"region\":", "application/json")},
+        files={"file": ("broken.json", b'[{"region":', "application/json")},
         headers={**mutation_headers(file_app), "X-Request-ID": "bad-json-1"},
     )
 

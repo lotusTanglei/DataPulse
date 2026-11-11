@@ -342,22 +342,13 @@ def _validate_chart_spec(
 
     known_fields = {field.name for field in dataset.definition.fields}
     for field_name, field_path in (
-        *(
-            (field, f"dimensions[{index}]")
-            for index, field in enumerate(spec.dimensions)
-        ),
+        *((field, f"dimensions[{index}]") for index, field in enumerate(spec.dimensions)),
         *(
             (measure.field, f"measures[{index}].field")
             for index, measure in enumerate(spec.measures)
         ),
-        *(
-            (filter_.field, f"filters[{index}].field")
-            for index, filter_ in enumerate(spec.filters)
-        ),
-        *(
-            (sort.field, f"sort[{index}].field")
-            for index, sort in enumerate(spec.sort)
-        ),
+        *((filter_.field, f"filters[{index}].field") for index, filter_ in enumerate(spec.filters)),
+        *((sort.field, f"sort[{index}].field") for index, sort in enumerate(spec.sort)),
     ):
         if field_name not in known_fields:
             raise _component_error(
@@ -600,8 +591,7 @@ def _normalized_document(
                 else f"ai-component-{index + 1}"
             )
             issues.extend(
-                error.issues
-                or (_issue(component_id, "component", str(error), "可渲染的组件定义"),)
+                error.issues or (_issue(component_id, "component", str(error), "可渲染的组件定义"),)
             )
 
     if len(components) > _MAX_COMPONENT_COUNT:
@@ -810,9 +800,7 @@ class ScreenDraftGenerator:
         for attempt in range(3):
             response = await self._gateway.complete_json(
                 system=system,
-                user=self._repair_prompt(user, validation_issues)
-                if validation_issues
-                else user,
+                user=self._repair_prompt(user, validation_issues) if validation_issues else user,
                 response_model=_AiScreenDraftResponse,
             )
             last_response = response

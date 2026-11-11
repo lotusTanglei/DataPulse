@@ -194,9 +194,7 @@ class QualityDatasource(FakeDatasource):
 async def test_profile_reports_null_duplicate_identifier_rows_and_numeric_outliers() -> None:
     value = dataset()
     definition_payload = value.definition.model_dump(mode="json")
-    definition_payload["profile_overrides"] = [
-        {"name": "amount", "default_aggregation": "sum"}
-    ]
+    definition_payload["profile_overrides"] = [{"name": "amount", "default_aggregation": "sum"}]
     definition_payload["semantics"] = {
         "metrics": [
             {

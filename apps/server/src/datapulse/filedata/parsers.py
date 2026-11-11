@@ -276,8 +276,7 @@ def _parse_parquet(path: Path, *, max_rows: int) -> ParsedFile:
             for field in table.schema
         )
     sample_rows = tuple(
-        {key: _normalize_value(value) for key, value in row.items()}
-        for row in rows[:max_rows]
+        {key: _normalize_value(value) for key, value in row.items()} for row in rows[:max_rows]
     )
     return ParsedFile(
         fields=fields,

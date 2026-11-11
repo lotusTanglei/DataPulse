@@ -11,14 +11,20 @@
 - 提交前 `pnpm verify`：退出码 0；后端 1016 passed、15 deselected，类型检查和 Web 构建通过。
 - 证据：`test-evidence/maintenance-20261111/`（命令日志、环境、跳过原因和 E2E 输出）。真实模型 M1/M2、真实数据库连接和八项目标环境门禁未执行。
 
-### 当前工作树复核补充
+### 首轮工作树复核及本轮维护补充
 
-- **有证据**：当前实际 HEAD 是 `7464c4e`，`origin/main..main` 有 1 个提交，工作区干净；旧段落中的 `63d74c7` 仅保留为历史开工基线。
+- **有证据**：首轮复核的实际 HEAD 是 `7464c4e`，当时 `origin/main..main` 有 1 个提交、工作区干净；`63d74c7` 仅保留为历史开工基线。本轮代码维护开工为 `ed5ec70`，工作区干净、领先远端 4 个提交，最终源码及门禁见下节。
 - **有证据**：再次执行 `pnpm verify` 退出码 0；SDK 20、Web 331、后端 1016 通过，15 项按既有命令 deselected，类型检查与构建通过。完整输出见 `test-evidence/maintenance-20261111/verify-current-rerun.log`。
 - **文档声明（执行代理报告）**：首轮外层 zsh 包装因写入只读变量 `status` 退出 1，原日志未保留；不将首轮计作可核验 PASS。改用 `rc` 后的完整重跑有上述归档退出 0 证据。详见维护执行记录的证据缺口说明。
 - **有证据**：fixture 质量评测使用 `gpt-6-astra`、`golden-v1` 和 2026-11-11 日期退出码 0；真实 provider 命令因缺 `DATAPULSE_AI_BASE_URL`/`DATAPULSE_AI_API_KEY` 退出码 2，未发出请求，未把 fixture 结果当作真实模型证据。详见 `test-evidence/maintenance-20261111/README.md`。
-- **推断**：M1/M2 仍不能关闭；需要专用供应商凭据、可核对版本和明确成本上限后重跑。
-- **文档声明**：本轮准备计划固定单次八 case 成本上限为 USD 1.00，实际无请求支出 USD 0.00；当前运行器无成本硬限额/`max_tokens`，需先核验供应商账号不高于 USD 1.00 的硬限额和模型版本。real baseline 仅是结构化绑定摘要任务，完整 M1/M2 阈值及未覆盖的草稿、CSV、组件、渲染、修改次数与多源流程见 `test-evidence/maintenance-20261111/README.md`。
+- **推断**：M1/M2 仍不能关闭；用户要求真实模型配置“先等等吧”，本轮不发起供应商请求。项目凭据仍缺失；用户恢复执行后还需核对供应商模型版本、价格和 token 限制。
+- **有证据**：本轮运行器补入 USD 1.00 预算、512 输出 token、请求前保留最坏计价、最多八次且不重试、未知 usage 保留预算并停止。该保护有供应商行为与计价前提，不能宣称任意兼容供应商的财务硬限额；供应商账号货币限额可作为额外控制，非本轮强制解除条件。实际供应商请求 0；真实指标尚无结果。real baseline 仅是结构化绑定摘要任务，完整 M1/M2 阈值及未覆盖项见 `test-evidence/maintenance-20261111/README.md`。
+
+### 本轮预算与 Plan 维护
+
+- **有证据**：预算回归从 20 failed/9 passed 到 39 passed，最终含既有 harness 为 44 passed；Plan 顶层数据集声明边界回归从 4 failed/14 passed 到关联回归 35 passed。日志位于维护证据目录的 `budget-guard/` 与 `plan-dataset-boundary/`。
+- **有证据**：全量 Ruff 首轮 check 退出 1（7 项）、format 退出 1（45 文件）；HEAD 原始归档也复现。按现有 CI 修复导入和格式，前后去掉顶层 import 的 AST 全部一致；最终 check/format 均退出 0，327 文件已格式化。原失败、中间修复和最终日志全部保留。
+- **有证据**：最终 `pnpm verify` 退出 0；SDK 20、Web 331、后端 1045 passed/15 deselected，类型检查与 Vite build（8.81s，仅 chunk 告警）通过，完整输出见 `test-evidence/maintenance-20261111/verify-budget-plan-final.log.gz`。15 项由既有 `-m "not integration"` 排除，没有新增 skip。没有执行真实供应商、P4、外部数据库或额外浏览器门禁。
 
 ## 2026-11-10 复跑（main 合并后）
 

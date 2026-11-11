@@ -229,9 +229,7 @@ async def test_condition_mapped_recordings_are_published_and_protected(
     assets = AssetService(
         repository=ScreenAssetRepository(metadata_session_factory), assets_dir=tmp_path / "assets"
     )
-    low = await assets.upload(
-        filename="low.wav", content_type="audio/wav", content=wav_bytes(1)
-    )
+    low = await assets.upload(filename="low.wav", content_type="audio/wav", content=wav_bytes(1))
     high = await assets.upload(
         filename="high.wav", content_type="audio/wav", content=wav_bytes(2, rate=8000)
     )

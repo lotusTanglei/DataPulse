@@ -17,6 +17,7 @@ from tools.quality_baseline import (  # noqa: E402
     aggregate_results,
     build_report,
     load_golden_cases,
+    run_baseline,
 )
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[4]
@@ -105,6 +106,7 @@ def test_openai_provider_collects_usage_for_metric_cost() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         payload = json.loads(request.content)
         assert payload["response_format"] == {"type": "json_object"}
+        assert payload["max_tokens"] == 512
         return httpx.Response(
             200,
             json={
@@ -144,6 +146,303 @@ def test_openai_provider_collects_usage_for_metric_cost() -> None:
     assert result.output_tokens == 13
     assert result.warning_count == 1
     assert result.duration_ms >= 1
+    assert result.cost_audit["usage_status"] == "reported"
+    assert result.cost_audit["reported_cost_usd"] == pytest.approx(0.00096)
+
+
+def _budget_provider(handler, **options):
+    return OpenAICompatibleProvider(
+        base_url="https://provider.example/v1",
+        api_key="test-key",
+        model="gpt-6-astra",
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+        **options,
+    )
+
+
+def _valid_response(request, *, usage=None, content=None):
+    return httpx.Response(
+        200,
+        json={
+            "choices": [
+                {
+                    "message": {
+                        "content": content
+                        or (
+                            '{"success": true, "bindings": {}, '
+                            '"chart_type": "bar", "draft_produced": true}'
+                        )
+                    }
+                }
+            ],
+            "usage": usage
+            if usage is not None
+            else {"prompt_tokens": 100, "completion_tokens": 20},
+        },
+        request=request,
+    )
+
+
+def test_budget_rejects_unknown_price_before_any_request() -> None:
+    with pytest.raises(ValueError, match="pricing is not configured"):
+        OpenAICompatibleProvider(
+            base_url="https://provider.example/v1", api_key="test-key", model="unpriced-model"
+        )
+
+
+@pytest.mark.parametrize("budget", ["0", "-1", "1.01", "nan", "inf"])
+def test_budget_rejects_invalid_or_above_one_dollar_limits(budget) -> None:
+    with pytest.raises(ValueError, match="budget"):
+        _budget_provider(_valid_response, budget_usd=budget)
+
+
+def test_budget_blocks_request_before_reservation_exceeds_remaining_limit() -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return _valid_response(request)
+
+    provider = _budget_provider(handler, budget_usd="0.001")
+    try:
+        result = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+    finally:
+        provider.close()
+    assert calls == []
+    assert result.error_code == "AI_BUDGET_EXCEEDED"
+    assert result.cost_audit["requested"] is False
+    assert provider.budget_summary()["accounted_usd"] == 0
+
+
+def test_reservation_uses_actual_utf8_body_and_releases_only_reported_usage() -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        assert json.loads(request.content)["max_tokens"] == 128
+        return _valid_response(request)
+
+    provider = _budget_provider(handler, max_output_tokens=128)
+    try:
+        result = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+    finally:
+        provider.close()
+    assert result.cost_audit["input_token_upper_bound"] >= len(calls[0].content) + 1024
+    assert result.cost_audit["reserved_usd"] > result.cost_audit["reported_cost_usd"]
+    assert provider.budget_summary()["accounted_usd"] == pytest.approx(0.002)
+    assert provider.budget_summary()["assurance"] == "conditional_provider_limits_and_pricing"
+
+
+@pytest.mark.parametrize(
+    "usage",
+    [
+        None,
+        {},
+        {"prompt_tokens": True, "completion_tokens": 1},
+        {"prompt_tokens": "100", "completion_tokens": 1},
+        {"prompt_tokens": -1, "completion_tokens": 1},
+        {"prompt_tokens": 1},
+        {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 999},
+    ],
+)
+def test_missing_or_invalid_usage_halts_and_keeps_reserved_cost(usage) -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        response = _valid_response(request)
+        payload = response.json()
+        if usage is None:
+            payload.pop("usage")
+        else:
+            payload["usage"] = usage
+        return httpx.Response(200, json=payload, request=request)
+
+    provider = _budget_provider(handler)
+    try:
+        first = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+        second = provider.run(load_golden_cases(GOLDEN_ROOT)[1])
+    finally:
+        provider.close()
+    assert len(calls) == 1
+    assert first.error_code == "AI_USAGE_INVALID"
+    assert first.cost_audit["reported_cost_usd"] is None
+    assert provider.budget_summary()["accounted_usd"] == first.cost_audit["reserved_usd"]
+    assert provider.budget_summary()["reported_cost_usd"] is None
+    assert second.error_code == "AI_BUDGET_HALTED"
+
+
+@pytest.mark.parametrize(
+    "usage",
+    [
+        {"prompt_tokens": 1_000_000, "completion_tokens": 1},
+        {"prompt_tokens": 100, "completion_tokens": 513},
+    ],
+)
+def test_provider_usage_above_reserved_limits_is_audited_and_stops_followups(usage) -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return _valid_response(request, usage=usage)
+
+    provider = _budget_provider(handler)
+    try:
+        first = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+        second = provider.run(load_golden_cases(GOLDEN_ROOT)[1])
+    finally:
+        provider.close()
+    assert first.error_code == "AI_USAGE_EXCEEDS_RESERVATION"
+    assert first.input_tokens == usage["prompt_tokens"]
+    assert first.output_tokens == usage["completion_tokens"]
+    assert first.cost_audit["reported_cost_usd"] > 0
+    assert second.error_code == "AI_BUDGET_HALTED"
+    assert len(calls) == 1
+
+
+def test_invalid_model_output_still_records_billed_usage() -> None:
+    provider = _budget_provider(lambda request: _valid_response(request, content="not-json"))
+    try:
+        result = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+    finally:
+        provider.close()
+    assert result.error_code == "AI_INVALID_OUTPUT"
+    assert result.input_tokens == 100
+    assert result.output_tokens == 20
+    assert result.cost_audit["reported_cost_usd"] == pytest.approx(0.002)
+
+
+def test_provider_never_makes_more_than_eight_requests() -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return _valid_response(request)
+
+    provider = _budget_provider(handler)
+    try:
+        results = [provider.run(load_golden_cases(GOLDEN_ROOT)[0]) for _ in range(9)]
+    finally:
+        provider.close()
+    assert len(calls) == 8
+    assert results[-1].error_code == "AI_REQUEST_LIMIT"
+
+
+def test_http_error_and_unknown_charge_halt_after_one_request() -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(500, request=request)
+
+    provider = _budget_provider(handler)
+    try:
+        first = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+        second = provider.run(load_golden_cases(GOLDEN_ROOT)[1])
+    finally:
+        provider.close()
+    assert first.error_code == "AI_PROVIDER_5XX"
+    assert first.cost_audit["reserved_usd"] > 0
+    assert second.error_code == "AI_BUDGET_HALTED"
+    assert len(calls) == 1
+
+
+def test_remaining_budget_is_checked_again_after_reported_usage() -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return _valid_response(request, usage={"prompt_tokens": 100, "completion_tokens": 512})
+
+    provider = _budget_provider(handler, budget_usd="0.06")
+    try:
+        first = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+        second = provider.run(load_golden_cases(GOLDEN_ROOT)[1])
+    finally:
+        provider.close()
+    assert first.success
+    assert second.error_code == "AI_BUDGET_EXCEEDED"
+    assert len(calls) == 1
+    assert provider.budget_summary()["accounted_usd"] == pytest.approx(0.0266)
+
+
+def test_timeout_keeps_reservation_and_does_not_retry() -> None:
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        raise httpx.ReadTimeout("test timeout", request=request)
+
+    provider = _budget_provider(handler)
+    try:
+        first = provider.run(load_golden_cases(GOLDEN_ROOT)[0])
+        second = provider.run(load_golden_cases(GOLDEN_ROOT)[1])
+    finally:
+        provider.close()
+    assert first.error_code == "AI_TIMEOUT"
+    assert first.cost_audit["reserved_usd"] > 0
+    assert second.error_code == "AI_BUDGET_HALTED"
+    assert len(calls) == 1
+
+
+def test_real_report_keeps_unknown_charges_as_reservations_not_zero(monkeypatch) -> None:
+    client = httpx.Client(
+        transport=httpx.MockTransport(lambda request: httpx.Response(429, request=request))
+    )
+    monkeypatch.setattr("tools.quality_baseline.httpx.Client", lambda **kwargs: client)
+    report = run_baseline(
+        provider_name="openai",
+        fixture_root=GOLDEN_ROOT,
+        model="gpt-6-astra",
+        run_date="2026-11-11",
+        base_url="https://provider.example/v1",
+        api_key="test-key",
+    )
+    assert report["budget"]["requests_attempted"] == 1
+    assert report["budget"]["halted_reason"] == "AI_RATE_LIMITED"
+    assert report["metrics"]["token_cost"]["usd"] > 0
+    assert report["metrics"]["token_cost"]["reported_cost_usd"] is None
+    assert all("cost_audit" in case for case in report["cases"])
+    assert report["cases"][0]["cost_audit"]["usage_status"] == "unknown"
+
+
+def test_cli_writes_budget_denial_report_and_exits_one(tmp_path, monkeypatch) -> None:
+    from tools.run_quality_baseline import main
+
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return _valid_response(request)
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    monkeypatch.setattr("tools.quality_baseline.httpx.Client", lambda **kwargs: client)
+    output = tmp_path / "blocked.json"
+    result = main(
+        [
+            "--provider",
+            "openai",
+            "--model",
+            "gpt-6-astra",
+            "--base-url",
+            "https://provider.example/v1",
+            "--api-key",
+            "test-key",
+            "--budget-usd",
+            "0.0001",
+            "--date",
+            "2026-11-11",
+            "--output",
+            str(output),
+        ]
+    )
+    assert result == 1
+    report = json.loads(output.read_text())
+    assert report["budget"]["requests_attempted"] == 0
+    assert report["budget"]["halted_reason"] == "AI_BUDGET_EXCEEDED"
+    assert report["run"]["model"] == "gpt-6-astra"
+    assert report["run"]["date"] == "2026-11-11"
+    assert calls == []
 
 
 def test_openai_provider_classifies_rate_limit_without_retry() -> None:
@@ -197,10 +496,7 @@ def test_report_contract_is_stable_and_sorted() -> None:
 
 def test_archived_baseline_records_model_date_and_numeric_values() -> None:
     report_path = (
-        REPOSITORY_ROOT
-        / "test-evidence"
-        / "quality-baseline"
-        / "baseline-2026-09-22.json"
+        REPOSITORY_ROOT / "test-evidence" / "quality-baseline" / "baseline-2026-09-22.json"
     )
     report = json.loads(report_path.read_text(encoding="utf-8"))
 

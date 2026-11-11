@@ -1,0 +1,4 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'format', '--check', 'apps/server', 'tools']
+327 files already formatted
+
+exit_code=0

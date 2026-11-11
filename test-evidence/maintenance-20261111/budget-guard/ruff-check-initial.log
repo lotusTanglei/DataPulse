@@ -1,0 +1,227 @@
+command=['uv', 'run', '--package', 'datapulse-server', 'ruff', 'check', 'tools/quality_baseline.py', 'tools/run_quality_baseline.py', 'apps/server/tests/quality/test_quality_baseline.py']
+E501 Line too long (139 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:162:101
+    |
+160 | …ne):
+161 | …
+162 | … '{"success": true, "bindings": {}, "chart_type": "bar", "draft_produced": true}'}}],
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+163 | …mpt_tokens": 100, "completion_tokens": 20},
+164 | …
+    |
+
+E501 Line too long (116 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:169:101
+    |
+167 | def test_budget_rejects_unknown_price_before_any_request() -> None:
+168 |     with pytest.raises(ValueError, match="pricing is not configured"):
+169 |         OpenAICompatibleProvider(base_url="https://provider.example/v1", api_key="test-key", model="unpriced-model")
+    |                                                                                                     ^^^^^^^^^^^^^^^^
+    |
+
+E501 Line too long (283 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:211:101
+    |
+211 | …"prompt_tokens": "100", "completion_tokens": 1}, {"prompt_tokens": -1, "completion_tokens": 1}, {"prompt_tokens": 1}, {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 999}])
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+212 | …
+213 | …
+    |
+
+E501 Line too long (139 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:237:101
+    |
+237 | …_000_000, "completion_tokens": 1}, {"prompt_tokens": 100, "completion_tokens": 513}])
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+238 | …ed_and_stops_followups(usage) -> None:
+239 | …
+    |
+
+E501 Line too long (110 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:335:101
+    |
+334 | def test_real_report_keeps_unknown_charges_as_reservations_not_zero(monkeypatch) -> None:
+335 |     client = httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(429, request=request)))
+    |                                                                                                     ^^^^^^^^^^
+336 |     monkeypatch.setattr("tools.quality_baseline.httpx.Client", lambda **kwargs: client)
+337 |     report = run_baseline(provider_name="openai", fixture_root=GOLDEN_ROOT, model="gpt-6-astra", run_date="2026-11-11", base_url="htt…
+    |
+
+E501 Line too long (179 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:337:101
+    |
+335 | …tpx.Response(429, request=request)))
+336 | …args: client)
+337 | …, model="gpt-6-astra", run_date="2026-11-11", base_url="https://provider.example/v1", api_key="test-key")
+    |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+338 | …
+339 | …
+    |
+
+E501 Line too long (214 > 100)
+   --> apps/server/tests/quality/test_quality_baseline.py:355:101
+    |
+353 | …
+354 | …
+355 | …/provider.example/v1", "--api-key", "test-key", "--budget-usd", "0.0001", "--date", "2026-11-11", "--output", str(output)])
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+356 | …
+357 | …
+    |
+
+E501 Line too long (104 > 100)
+   --> tools/quality_baseline.py:217:101
+    |
+215 |             raise ValueError(f"pricing is not configured for model: {model}")
+216 |         self._input_price, self._output_price = (Decimal(str(price)) for price in prices)
+217 |         if any(not price.is_finite() or price < 0 for price in (self._input_price, self._output_price)):
+    |                                                                                                     ^^^^
+218 |             raise ValueError(f"invalid pricing for model: {model}")
+219 |         self.model = model
+    |
+
+E501 Line too long (112 > 100)
+   --> tools/quality_baseline.py:276:101
+    |
+274 |             "input_bound": "request_utf8_bytes_plus_framing_allowance",
+275 |             "framing_token_allowance": INPUT_FRAMING_TOKEN_ALLOWANCE,
+276 |             "pricing_usd_per_million": {"input": float(self._input_price), "output": float(self._output_price)},
+    |                                                                                                     ^^^^^^^^^^^^
+277 |             "accounted_usd": float(self._accounted),
+278 |             "reported_cost_usd": float(self._reported_cost) if self._usage_complete else None,
+    |
+
+E501 Line too long (117 > 100)
+   --> tools/quality_baseline.py:295:101
+    |
+293 |             "reserved_usd": float(reservation),
+294 |             "reported_cost_usd": float(actual_cost) if actual_cost is not None else None,
+295 |             "usage_status": "reported" if actual_cost is not None else ("unknown" if requested else "not_requested"),
+    |                                                                                                     ^^^^^^^^^^^^^^^^^
+296 |             "accounted_usd_after_case": float(self._accounted),
+297 |             "remaining_usd_after_case": float(self._budget - self._accounted),
+    |
+
+E501 Line too long (106 > 100)
+   --> tools/quality_baseline.py:303:101
+    |
+301 |         started = time.perf_counter()
+302 |         if self._halted_reason:
+303 |             return self._audited(_error_result("AI_BUDGET_HALTED", _elapsed_ms(started)), requested=False)
+    |                                                                                                     ^^^^^^
+304 |         if self._request_count >= MAX_REAL_REQUESTS:
+305 |             self._halted_reason = "AI_REQUEST_LIMIT"
+    |
+
+E501 Line too long (106 > 100)
+   --> tools/quality_baseline.py:306:101
+    |
+304 |         if self._request_count >= MAX_REAL_REQUESTS:
+305 |             self._halted_reason = "AI_REQUEST_LIMIT"
+306 |             return self._audited(_error_result("AI_REQUEST_LIMIT", _elapsed_ms(started)), requested=False)
+    |                                                                                                     ^^^^^^
+307 |         body = json.dumps(self._request_payload(case), ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+308 |         input_bound = len(body) + INPUT_FRAMING_TOKEN_ALLOWANCE
+    |
+
+E501 Line too long (130 > 100)
+   --> tools/quality_baseline.py:307:101
+    |
+305 |             self._halted_reason = "AI_REQUEST_LIMIT"
+306 |             return self._audited(_error_result("AI_REQUEST_LIMIT", _elapsed_ms(started)), requested=False)
+307 |         body = json.dumps(self._request_payload(case), ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+308 |         input_bound = len(body) + INPUT_FRAMING_TOKEN_ALLOWANCE
+309 |         reservation = self._cost(input_bound, self._max_output_tokens)
+    |
+
+E501 Line too long (133 > 100)
+   --> tools/quality_baseline.py:312:101
+    |
+310 |         if reservation > self._budget - self._accounted:
+311 |             self._halted_reason = "AI_BUDGET_EXCEEDED"
+312 |             return self._audited(_error_result("AI_BUDGET_EXCEEDED", _elapsed_ms(started)), requested=False, input_bound=input_bound)
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+313 |         self._accounted += reservation
+314 |         self._request_count += 1
+    |
+
+E501 Line too long (141 > 100)
+   --> tools/quality_baseline.py:321:101
+    |
+319 | …
+320 | …
+321 | …lapsed_ms(started)), requested=True, input_bound=input_bound, reservation=reservation)
+    |                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+322 | …
+323 | …
+    |
+
+E501 Line too long (137 > 100)
+   --> tools/quality_baseline.py:346:101
+    |
+344 | …r count in (input_tokens, output_tokens)):
+345 | …
+346 | …otal_tokens"]) is not int or usage["total_tokens"] != input_tokens + output_tokens):
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+347 | …
+348 | …_tokens)
+    |
+
+E501 Line too long (131 > 100)
+   --> tools/quality_baseline.py:353:101
+    |
+352 |         def audited(result: ProviderResult) -> ProviderResult:
+353 |             return self._audited(result, requested=True, input_bound=input_bound, reservation=reservation, actual_cost=actual_cost)
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+354 |
+355 |         if input_tokens > input_bound or output_tokens > self._max_output_tokens:
+    |
+
+E501 Line too long (140 > 100)
+   --> tools/quality_baseline.py:357:101
+    |
+355 | … > self._max_output_tokens:
+356 | …SERVATION"
+357 | …reason, _elapsed_ms(started), input_tokens=input_tokens, output_tokens=output_tokens))
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+358 | …
+359 | …]["content"]
+    |
+
+E501 Line too long (140 > 100)
+   --> tools/quality_baseline.py:364:101
+    |
+362 | …an object")
+363 | …Error):
+364 | …UTPUT", _elapsed_ms(started), input_tokens=input_tokens, output_tokens=output_tokens))
+    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+365 | …
+366 | …
+    |
+
+E501 Line too long (147 > 100)
+  --> tools/run_quality_baseline.py:29:101
+   |
+27 | …i_key"])
+28 | …e())
+29 | …elp="Maximum reserved cost in USD, greater than 0 and at most 1.00 (real provider only).")
+   |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 | …default=512, help="Per-request max_tokens limit (1-4096, real provider only).")
+31 | …
+   |
+
+E501 Line too long (136 > 100)
+  --> tools/run_quality_baseline.py:30:101
+   |
+28 | …n_date())
+29 | …0", help="Maximum reserved cost in USD, greater than 0 and at most 1.00 (real provider only).")
+30 | …int, default=512, help="Per-request max_tokens limit (1-4096, real provider only).")
+   |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 | …
+32 | …sys.argv[1:]
+   |
+
+Found 21 errors.
+
+exit_code=1
