@@ -22,7 +22,7 @@ test("administrator previews, maintains, and removes a Chinese CSV dataset", asy
   await page.getByLabel("名称").fill("E2E 中文文件明细");
   await page.getByLabel("最大行数").fill("100");
   await page.getByLabel("超时（秒）").fill("12");
-  await page.getByRole("button", { name: "保存" }).click();
+  await page.getByRole("button", { name: "保存", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "E2E 中文文件明细" }),
   ).toBeVisible();

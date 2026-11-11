@@ -1,0 +1,18 @@
+
+> datapulse@ verify:upgrade-rollback /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server pytest apps/server/tests/metadata/test_migrations.py apps/server/tests/contracts/test_version_migrations.py apps/server/tests/operations/test_restore_rehearsal.py
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/dundundebaba/sync/code/open/DataPulse
+configfile: pyproject.toml
+plugins: cov-7.1.0, anyio-4.14.2
+collected 9 items
+
+apps/server/tests/metadata/test_migrations.py ....                       [ 44%]
+apps/server/tests/contracts/test_version_migrations.py ....              [ 88%]
+apps/server/tests/operations/test_restore_rehearsal.py .                 [100%]
+
+============================== 9 passed in 13.72s ==============================
+
+exit_code=0

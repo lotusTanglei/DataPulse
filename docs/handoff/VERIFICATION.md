@@ -1,5 +1,16 @@
 # 交接验证记录
 
+## 2026-11-11 维护复验（main 基线）
+
+- 开工核对：`main@63d74c7`，工作区干净，`origin/main..main` 为空。
+- `pnpm verify:no-ai`：退出码 0；AI 未加载、路由隐藏、健康/认证/数据集/大屏路由通过。
+- `pnpm verify:upgrade-rollback`：退出码 0；9 项通过。
+- `pnpm demo:verify`：退出码 0；数据集画像、静态语音降级、发布/播放/Embed 和权限拒绝通过。
+- `pnpm test:integration`：退出码 0；1 项通过，12 项因未配置 `DATAPULSE_TEST_MYSQL_URL`/`DATAPULSE_TEST_POSTGRES_URL` 跳过，12 项 deselected。
+- `pnpm test:e2e`：退出码 0；Chromium 28 项通过。文件数据集 E2E 的保存按钮改为精确定位；组件注册表扩展后的 Darwin 视觉基线已复核并更新。
+- 提交前 `pnpm verify`：退出码 0；后端 1016 passed、15 deselected，类型检查和 Web 构建通过。
+- 证据：`test-evidence/maintenance-20261111/`（命令日志、环境、跳过原因和 E2E 输出）。真实模型 M1/M2、真实数据库连接和八项目标环境门禁未执行。
+
 ## 2026-11-10 复跑（main 合并后）
 
 - 代码：`main` / `dbfaf42`（2026-10-31 提交，2026-11-10 快进合并 `codex/batches-10-16` 后复跑）。
@@ -22,7 +33,7 @@
 执行日期：2026-09-29，Asia/Shanghai。代码快照：`a70f8d5` 加当前 `codex/batches-10-16` 工作树。
 本次为交接核实运行现有定向回归；未修改产品代码，也未运行全量 `pnpm verify`、Docker、数据库集成或浏览器 E2E。
 
-## 当前工作区定向复现
+## 2026-09-29 当前工作区定向复现（历史）
 
 仓库根目录执行：
 

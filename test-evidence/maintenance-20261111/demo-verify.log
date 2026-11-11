@@ -1,0 +1,65 @@
+
+> datapulse@ demo:verify /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python tools/run_delivery_demo.py
+
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_datasource_studio, Create the datasource studio metadata schema.
+INFO  [alembic.runtime.migration] Running upgrade 0001_datasource_studio -> 0002_dataset_name_unique, Require unique dataset names.
+INFO  [alembic.runtime.migration] Running upgrade 0002_dataset_name_unique -> 0003_screen_editor, Add screen draft persistence.
+INFO  [alembic.runtime.migration] Running upgrade 0003_screen_editor -> 0004_screen_assets, Add controlled screen asset storage.
+INFO  [alembic.runtime.migration] Running upgrade 0004_screen_assets -> 0005_display_access, Add revocable standalone display access.
+INFO  [alembic.runtime.migration] Running upgrade 0005_display_access -> 0006_embed_access, Add host API key storage for embedded playback.
+INFO  [alembic.runtime.migration] Running upgrade 0006_embed_access -> 0007_file_datasets, Add file asset metadata and nullable dataset source.
+INFO  [alembic.runtime.migration] Running upgrade 0007_file_datasets -> 0008_screen_access_policy, Add per-screen domain and IP access rules.
+INFO  [alembic.runtime.migration] Running upgrade 0008_screen_access_policy -> 0009_screen_asset_media, Add media metadata and immutable screen asset versions.
+INFO  [alembic.runtime.migration] Running upgrade 0009_screen_asset_media -> 0010_digital_human_speech, Persist digital human providers, speech plans, tasks and usage.
+INFO  [alembic.runtime.migration] Running upgrade 0010_digital_human_speech -> 0011_digital_human_settings, Persist global digital human settings and server-side speech quotas.
+INFO  [alembic.runtime.migration] Running upgrade 0011_digital_human_settings -> 0012_digital_human_health_cost, Track provider health history, circuit state, and estimated speech cost.
+INFO  [alembic.runtime.migration] Running upgrade 0012_digital_human_health_cost -> 0013_digital_human_governance, Add AI controls and speech data retention settings.
+INFO  [alembic.runtime.migration] Running upgrade 0013_digital_human_governance -> 0014_digital_human_audit, Record non-sensitive digital human configuration and runtime audit events.
+INFO  [alembic.runtime.migration] Running upgrade 0014_digital_human_audit -> 0015_digital_human_provider_version, Include provider versions in speech cache identity.
+INFO  [alembic.runtime.migration] Running upgrade 0015_digital_human_provider_version -> 0016_speech_task_metadata, Persist speech task scheduling metadata.
+INFO  [alembic.runtime.migration] Running upgrade 0016_speech_task_metadata -> 0017_digital_human_content_governance, Add digital human content governance settings.
+INFO  [alembic.runtime.migration] Running upgrade 0017_digital_human_content_governance -> 0018_speech_metrics_timing, Persist speech synthesis timing metrics for cross-process aggregation.
+INFO  [alembic.runtime.migration] Running upgrade 0018_speech_metrics_timing -> 0019_speech_plan_voice_settings, Persist TTS voice settings in speech plans.
+INFO  [alembic.runtime.migration] Running upgrade 0019_speech_plan_voice_settings -> 0020_identity, Add local identities, resource ownership, grants and redacted audit.
+INFO  [alembic.runtime.migration] Running upgrade 0020_identity -> 0021_speech_leases, Persist speech worker leases and audio capacity reservations.
+{"event":"http_request","time":"2026-11-11T06:10:20.940610+00:00","request_id":"68ba3237-0b7b-4893-a2e7-cb22e115a9e3","method":"GET","route":"/api/auth/status","status":200,"duration_ms":6.58}
+{"event":"http_request","time":"2026-11-11T06:10:21.012351+00:00","request_id":"36fd4ea9-c078-43e2-8993-16243aae2345","method":"POST","route":"/api/auth/setup","status":201,"duration_ms":70.42}
+{"event":"http_request","time":"2026-11-11T06:10:21.039777+00:00","request_id":"095e9c87-f438-4292-a4f3-7fc19a890a04","method":"GET","route":"/api/admin/datasets","status":200,"duration_ms":25.97}
+{"event":"http_request","time":"2026-11-11T06:10:22.464089+00:00","request_id":"9fee09ce-b334-4677-955e-28778065aa71","method":"POST","route":"/api/admin/files","status":201,"duration_ms":1422.51}
+{"event":"http_request","time":"2026-11-11T06:10:22.477077+00:00","request_id":"24dc2b38-00fd-4f5a-8c99-d58caf521b21","method":"POST","route":"/api/admin/datasets/files","status":201,"duration_ms":11.16}
+{"event":"http_request","time":"2026-11-11T06:10:22.489270+00:00","request_id":"299faf6c-5144-4675-917e-37812f07dd3f","method":"GET","route":"/api/admin/screens","status":200,"duration_ms":11.13}
+{"event":"http_request","time":"2026-11-11T06:10:22.582910+00:00","request_id":"afcdb2eb-c1a8-4a79-80f8-3ba883cc92bf","method":"POST","route":"/api/admin/screens","status":201,"duration_ms":92.62}
+{"event":"http_request","time":"2026-11-11T06:10:22.597340+00:00","request_id":"06881742-4bdd-4fcb-8a5f-0409a329f868","method":"POST","route":"/api/admin/screens/{screen_id}/publish","status":200,"duration_ms":13.26}
+{"event":"http_request","time":"2026-11-11T06:10:22.599570+00:00","request_id":"8a6abf3f-d59b-4fe0-9f06-17358110e8fa","method":"GET","route":"/api/auth/status","status":200,"duration_ms":0.94}
+{"event":"http_request","time":"2026-11-11T06:10:22.620904+00:00","request_id":"b7b8afbc-9608-40bf-9170-74f796311c5b","method":"GET","route":"unmatched","status":404,"duration_ms":20.39}
+{"event":"http_request","time":"2026-11-11T06:10:22.629828+00:00","request_id":"3da92c12-225b-4525-ab71-ae14a4dc7492","method":"GET","route":"/api/admin/datasets/{dataset_id}/profile","status":200,"duration_ms":7.76}
+{"event":"http_request","time":"2026-11-11T06:10:22.674503+00:00","request_id":"4f67c880-6761-4913-ad43-94544aaf28eb","method":"POST","route":"/api/admin/datasets/{dataset_id}/preview","status":200,"duration_ms":43.61}
+{"event":"http_request","time":"2026-11-11T06:10:22.680423+00:00","request_id":"fb19412e-41c2-4019-bc68-b03d8f180a4c","method":"GET","route":"/api/admin/screens/{screen_id}","status":200,"duration_ms":4.64}
+{"event":"http_request","time":"2026-11-11T06:10:22.689410+00:00","request_id":"cf64d2aa-9fce-4072-a53d-094a420b4f67","method":"POST","route":"/api/admin/screens/{screen_id}/display-key","status":201,"duration_ms":7.92}
+{"event":"http_request","time":"2026-11-11T06:10:22.693383+00:00","request_id":"2f5281fb-c8d0-458f-b83b-91ec3f31d078","method":"POST","route":"/api/player/screens/{screen_id}/session","status":204,"duration_ms":2.7}
+{"event":"http_request","time":"2026-11-11T06:10:22.698838+00:00","request_id":"e29ecab0-f013-4342-b086-03c559e38597","method":"GET","route":"/api/player/screens/{screen_id}","status":200,"duration_ms":4.41}
+{"event":"http_request","time":"2026-11-11T06:10:22.721550+00:00","request_id":"f84b1f85-7bf7-48d1-bf41-3b48df0bc75d","method":"POST","route":"/api/player/screens/{screen_id}/query","status":200,"duration_ms":21.56}
+{"event":"http_request","time":"2026-11-11T06:10:22.729757+00:00","request_id":"cb4cc84b-c9fe-4ee2-bc39-ee3ae1e16511","method":"POST","route":"/api/admin/embed/api-key","status":201,"duration_ms":6.99}
+{"event":"http_request","time":"2026-11-11T06:10:22.735283+00:00","request_id":"b931aa4d-f46b-412b-84d3-b0594387471f","method":"POST","route":"/api/embed/tickets","status":201,"duration_ms":4.31}
+{"event":"http_request","time":"2026-11-11T06:10:22.739487+00:00","request_id":"71e0c0e2-5920-4af1-a0ea-8904cf18cbbe","method":"GET","route":"/api/embed/screens/{screen_id}","status":200,"duration_ms":3.06}
+{"event":"http_request","time":"2026-11-11T06:10:22.749207+00:00","request_id":"3daec530-c491-4653-ae3c-b06633678c3a","method":"PATCH","route":"/api/admin/screens/{screen_id}/access-policy","status":200,"duration_ms":8.48}
+{"event":"http_request","time":"2026-11-11T06:10:22.752558+00:00","request_id":"f2ce3310-ae57-4111-b4c4-e6b2b4618247","method":"GET","route":"/api/embed/screens/{screen_id}","status":403,"duration_ms":1.89}
+{
+  "checks": {
+    "ai_disabled": true,
+    "dataset_profiled": true,
+    "draft_created": true,
+    "embed_permission_denied": true,
+    "embed_playback": true,
+    "published": true,
+    "standalone_playback": true,
+    "static_speech_fallback": true
+  },
+  "sample_rows": 4,
+  "status": "ok"
+}
+
+exit_code=0

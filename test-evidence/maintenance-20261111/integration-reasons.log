@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/dundundebaba/sync/code/open/DataPulse
+configfile: pyproject.toml
+plugins: cov-7.1.0, anyio-4.14.2
+collected 25 items / 12 deselected / 13 selected
+
+apps/server/tests/connectors/test_mysql.py .ssssss                       [ 53%]
+apps/server/tests/connectors/test_postgresql.py ssssss                   [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] apps/server/tests/connectors/contract.py:39: DATAPULSE_TEST_MYSQL_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/contract.py:50: DATAPULSE_TEST_MYSQL_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/contract.py:83: DATAPULSE_TEST_MYSQL_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/test_mysql.py:111: DATAPULSE_TEST_MYSQL_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/test_mysql.py:130: DATAPULSE_TEST_MYSQL_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/test_mysql.py:146: DATAPULSE_TEST_MYSQL_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/contract.py:39: DATAPULSE_TEST_POSTGRES_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/contract.py:50: DATAPULSE_TEST_POSTGRES_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/contract.py:83: DATAPULSE_TEST_POSTGRES_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/test_postgresql.py:91: DATAPULSE_TEST_POSTGRES_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/test_postgresql.py:111: DATAPULSE_TEST_POSTGRES_URL is not configured
+SKIPPED [1] apps/server/tests/connectors/test_postgresql.py:129: DATAPULSE_TEST_POSTGRES_URL is not configured
+================= 1 passed, 12 skipped, 12 deselected in 0.44s =================
+
+exit_code=0
