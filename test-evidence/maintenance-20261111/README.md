@@ -6,6 +6,7 @@
 
 - **有证据**：开工执行 `git status --short --branch`、`git log -1 --oneline` 和 `git log --oneline origin/main..main`；基线为 `main@7464c4e`，工作区干净，本地领先 `origin/main` 1 个提交。
 - **有证据**：本次没有修改应用代码、组件、Plugin SDK、Embed SDK 或协议；只补充维护验证证据和交接记录。
+- **有证据**：维护提交 `19c7708` 归档当前验证与模型阻塞，`b31ec0c` 区分预算、实际支出和完整产品门禁边界；变更仅在 `docs/handoff/` 与本目录。后续文档补记的提交用 `git log --oneline -- docs/handoff test-evidence/maintenance-20261111` 定位。
 - **文档声明**：`docs/PHASE_FOUR_TARGET_ENVIRONMENT.md` 把八个 P4 目标环境门禁列为阻塞条件。
 - **推断**：在真实模型账号和目标环境缺失时，本轮可以完成可复跑验证与阻塞记录，但不能宣称 M1/M2 或 P4 通过。
 
@@ -36,6 +37,8 @@
 | `pnpm quality:baseline -- --provider openai --model gpt-6-astra --date 2026-11-11 ...` | 2 | **BLOCKED**：缺少 `DATAPULSE_AI_BASE_URL` 和 `DATAPULSE_AI_API_KEY`；没有跳过或伪造真实结果 | `quality-real-blocked.log` |
 
 fixture 报告只证明 harness 能运行；它不证明真实模型的 M1/M2 成功率、字段绑定、语义匹配、耗时或成本。
+
+**文档声明（执行代理报告）**：首次验证的外层 zsh 包装命令将退出码写入只读变量 `status`，包装命令退出 1；原 `verify-current.log` 未写入最终退出码且已删除，未保留原始证据。因此不把首轮记为可核验的 PASS，也不据此推断产品失败。随后改用 `rc` 变量完整重跑；本记录唯一可核验的当前门禁是 `verify-current-rerun.log` 中的 `pnpm verify` 退出 0。保留这一证据缺口，不能把包装错误隐去或冒充项目门禁失败已修复。
 
 ## M1/M2 阈值与评测器边界
 

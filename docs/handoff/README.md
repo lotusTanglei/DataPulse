@@ -5,16 +5,16 @@
 
 ## 先看当前状态
 
-**历史交接基线为 `main@63d74c7`；2026-11-11 当前复核实际为 `main@7464c4e`，工作区干净且领先 `origin/main` 1 个提交。本次维护补充了当前 `pnpm verify` 和 M1/M2 真实模型阻塞证据；真实模型与目标环境门禁仍未通过。**
+**历史交接基线为 `main@63d74c7`；2026-11-11 验证时的代码基线为 `main@7464c4e`，当时工作区干净且领先 `origin/main` 1 个提交。后续维护文档提交见 `git log -1` 与本轮执行记录。本次补充了当前 `pnpm verify` 和 M1/M2 真实模型阻塞证据；真实模型与目标环境门禁仍未通过。**
 
 | 项目 | 交接时事实 |
 | --- | --- |
 | 仓库 | `/Users/dundundebaba/sync/code/open/DataPulse` |
 | Remote | `https://github.com/lotusTanglei/DataPulse.git` |
 | 当前分支 | `main` |
-| HEAD | 当前复核 `7464c4e`（2026-11-11 证据化收尾） |
-| 本地 main / origin/main | `origin/main..main` 有 1 个本地提交 |
-| 工作树 | 当前复核干净；本次维护仅补充 `test-evidence/maintenance-20261111/` 和交接记录 |
+| 代码验证基线 | `7464c4e`（2026-11-11 证据化收尾）；后续文档提交以 `git log -1` 为准 |
+| 本地 main / origin/main | 验证开工时有 1 个本地提交；最新数量用 `git log --oneline origin/main..main` 复核 |
+| 工作树 | 验证开工时干净；本次维护仅补充 `test-evidence/maintenance-20261111/` 和交接记录 |
 | 文件清单 | 1,432 个跟踪或未忽略文件；包括 91 份 Markdown 文档 |
 | 本次运行 | `pnpm test:e2e`：28 passed，退出码 0；集成数据库项 1 passed、12 skipped（缺少测试 URL） |
 | 最近开发进度答复 | 2026-09-23 主会话估计整体约 85%；这是当时人工估计，不是验收比例 |
