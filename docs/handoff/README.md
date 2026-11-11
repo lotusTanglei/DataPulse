@@ -40,6 +40,7 @@
 - **有证据**：`git status --short --branch`、`git log -1 --oneline`、`git log --oneline origin/main..main` 显示 `main@7464c4e`，工作区干净，领先远端 1 个提交。
 - **有证据**：`pnpm verify` 退出码 0；完整输出与计数见 `test-evidence/maintenance-20261111/verify-current-rerun.log`。
 - **有证据**：固定 `gpt-6-astra` / `golden-v1` fixture 评测退出码 0，但真实 OpenAI-compatible 评测因缺少 `DATAPULSE_AI_BASE_URL`、`DATAPULSE_AI_API_KEY` 退出码 2，记录为 BLOCKED；不得把 fixture 报告当作 M1/M2 真实证据。详见 `test-evidence/maintenance-20261111/README.md`。
+- **文档声明**：真实评测准备计划固定单次完整八 case 预算上限为 USD 1.00；当前 runner 无硬限额及 `max_tokens`，专用供应商账号必须先设置不高于 USD 1.00 的硬限额，并确认可核对模型版本才解除阻塞。该 runner 只评测结构化绑定摘要，不能独立关闭完整 M1/M2；完整阈值和未覆盖项见上述执行记录。
 - **文档声明**：P4 八项目标环境仍按 `docs/PHASE_FOUR_TARGET_ENVIRONMENT.md` 阻塞，不执行伪验收。
 
 ## 交接材料

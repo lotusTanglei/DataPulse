@@ -17,6 +17,7 @@
 - **有证据**：再次执行 `pnpm verify` 退出码 0；SDK 20、Web 331、后端 1016 通过，15 项按既有命令 deselected，类型检查与构建通过。完整输出见 `test-evidence/maintenance-20261111/verify-current-rerun.log`。
 - **有证据**：fixture 质量评测使用 `gpt-6-astra`、`golden-v1` 和 2026-11-11 日期退出码 0；真实 provider 命令因缺 `DATAPULSE_AI_BASE_URL`/`DATAPULSE_AI_API_KEY` 退出码 2，未发出请求，未把 fixture 结果当作真实模型证据。详见 `test-evidence/maintenance-20261111/README.md`。
 - **推断**：M1/M2 仍不能关闭；需要专用供应商凭据、可核对版本和明确成本上限后重跑。
+- **文档声明**：本轮准备计划固定单次八 case 成本上限为 USD 1.00，实际无请求支出 USD 0.00；当前运行器无成本硬限额/`max_tokens`，需先核验供应商账号不高于 USD 1.00 的硬限额和模型版本。real baseline 仅是结构化绑定摘要任务，完整 M1/M2 阈值及未覆盖的草稿、CSV、组件、渲染、修改次数与多源流程见 `test-evidence/maintenance-20261111/README.md`。
 
 ## 2026-11-10 复跑（main 合并后）
 
