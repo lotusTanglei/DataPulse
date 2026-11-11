@@ -1,0 +1,11 @@
+
+> datapulse@ quality:baseline /Users/dundundebaba/sync/code/open/DataPulse
+> uv run --package datapulse-server python -m tools.run_quality_baseline -- --provider openai --model gpt-6-astra --date 2026-11-11 --output test-evidence/maintenance-20261111/quality-real-20261111.json
+
+usage: run_quality_baseline.py [-h] [--provider {fixture,openai}]
+                               [--fixture-root FIXTURE_ROOT] [--model MODEL]
+                               [--base-url BASE_URL] [--api-key API_KEY]
+                               [--date DATE] [--output OUTPUT]
+run_quality_baseline.py: error: openai provider requires base_url and api_key
+ ELIFECYCLE  Command failed with exit code 2.
+exit_code=2

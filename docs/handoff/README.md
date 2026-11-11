@@ -5,16 +5,16 @@
 
 ## 先看当前状态
 
-**开工基线为 `main@63d74c7`；本次维护复验已完成批次 13–16 的可执行证据补充，真实模型 M1/M2 与目标环境门禁仍按约定暂缓。**
+**历史交接基线为 `main@63d74c7`；2026-11-11 当前复核实际为 `main@7464c4e`，工作区干净且领先 `origin/main` 1 个提交。本次维护补充了当前 `pnpm verify` 和 M1/M2 真实模型阻塞证据；真实模型与目标环境门禁仍未通过。**
 
 | 项目 | 交接时事实 |
 | --- | --- |
 | 仓库 | `/Users/dundundebaba/sync/code/open/DataPulse` |
 | Remote | `https://github.com/lotusTanglei/DataPulse.git` |
 | 当前分支 | `main` |
-| HEAD | 开工时 `63d74c7`（2026-11-10 收口证据提交；本次维护提交以 `git log -1` 为准） |
-| 本地 main / origin/main | 开工核对一致，`origin/main..main` 为空 |
-| 工作树 | 开工时干净；本次维护仅涉及 E2E 定位、视觉快照、README、交接和 `test-evidence/maintenance-20261111/` |
+| HEAD | 当前复核 `7464c4e`（2026-11-11 证据化收尾） |
+| 本地 main / origin/main | `origin/main..main` 有 1 个本地提交 |
+| 工作树 | 当前复核干净；本次维护仅补充 `test-evidence/maintenance-20261111/` 和交接记录 |
 | 文件清单 | 1,432 个跟踪或未忽略文件；包括 91 份 Markdown 文档 |
 | 本次运行 | `pnpm test:e2e`：28 passed，退出码 0；集成数据库项 1 passed、12 skipped（缺少测试 URL） |
 | 最近开发进度答复 | 2026-09-23 主会话估计整体约 85%；这是当时人工估计，不是验收比例 |
@@ -34,6 +34,13 @@
 - `pnpm test:integration`：退出码 0；1 项通过，12 项因未配置 `DATAPULSE_TEST_MYSQL_URL`/`DATAPULSE_TEST_POSTGRES_URL` 跳过，不能视为真实数据库全通过。
 - `pnpm test:e2e`：退出码 0；Chromium 28 项通过。期间修复文件数据集保存按钮的非精确定位，并更新组件注册表扩展后的 Darwin 视觉基线；更新理由与 diff 复核见 `e2e.log` 和提交差异。
 - 未执行真实模型质量门禁（M1/M2）及八项目标环境门禁；这些仍是待验收项。
+
+### 2026-11-11 当前工作树复核
+
+- **有证据**：`git status --short --branch`、`git log -1 --oneline`、`git log --oneline origin/main..main` 显示 `main@7464c4e`，工作区干净，领先远端 1 个提交。
+- **有证据**：`pnpm verify` 退出码 0；完整输出与计数见 `test-evidence/maintenance-20261111/verify-current-rerun.log`。
+- **有证据**：固定 `gpt-6-astra` / `golden-v1` fixture 评测退出码 0，但真实 OpenAI-compatible 评测因缺少 `DATAPULSE_AI_BASE_URL`、`DATAPULSE_AI_API_KEY` 退出码 2，记录为 BLOCKED；不得把 fixture 报告当作 M1/M2 真实证据。详见 `test-evidence/maintenance-20261111/README.md`。
+- **文档声明**：P4 八项目标环境仍按 `docs/PHASE_FOUR_TARGET_ENVIRONMENT.md` 阻塞，不执行伪验收。
 
 ## 交接材料
 

@@ -11,6 +11,13 @@
 - 提交前 `pnpm verify`：退出码 0；后端 1016 passed、15 deselected，类型检查和 Web 构建通过。
 - 证据：`test-evidence/maintenance-20261111/`（命令日志、环境、跳过原因和 E2E 输出）。真实模型 M1/M2、真实数据库连接和八项目标环境门禁未执行。
 
+### 当前工作树复核补充
+
+- **有证据**：当前实际 HEAD 是 `7464c4e`，`origin/main..main` 有 1 个提交，工作区干净；旧段落中的 `63d74c7` 仅保留为历史开工基线。
+- **有证据**：再次执行 `pnpm verify` 退出码 0；SDK 20、Web 331、后端 1016 通过，15 项按既有命令 deselected，类型检查与构建通过。完整输出见 `test-evidence/maintenance-20261111/verify-current-rerun.log`。
+- **有证据**：fixture 质量评测使用 `gpt-6-astra`、`golden-v1` 和 2026-11-11 日期退出码 0；真实 provider 命令因缺 `DATAPULSE_AI_BASE_URL`/`DATAPULSE_AI_API_KEY` 退出码 2，未发出请求，未把 fixture 结果当作真实模型证据。详见 `test-evidence/maintenance-20261111/README.md`。
+- **推断**：M1/M2 仍不能关闭；需要专用供应商凭据、可核对版本和明确成本上限后重跑。
+
 ## 2026-11-10 复跑（main 合并后）
 
 - 代码：`main` / `dbfaf42`（2026-10-31 提交，2026-11-10 快进合并 `codex/batches-10-16` 后复跑）。
